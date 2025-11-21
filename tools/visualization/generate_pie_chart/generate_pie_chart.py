@@ -151,6 +151,7 @@ class GeneratePieChart(BaseTool):
         title = self.params.get("title", "Pie Chart")
         colors = self.params.get("colors")
 
+        fig = None
         try:
             fig, ax = plt.subplots()
             ax.pie(values, labels=labels, autopct="%1.1f%%", colors=colors)
@@ -160,7 +161,6 @@ class GeneratePieChart(BaseTool):
             plt.savefig(buffer, format="png", bbox_inches="tight")
             buffer.seek(0)
             encoded = base64.b64encode(buffer.read()).decode("utf-8")
-            plt.close(fig)
 
             return {
                 "image_base64": encoded,
@@ -172,3 +172,6 @@ class GeneratePieChart(BaseTool):
             raise APIError(
                 f"Pie chart generation failed: {e}", tool_name=self.tool_name
             )
+        finally:
+            if fig is not None:
+                plt.close(fig)

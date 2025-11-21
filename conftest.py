@@ -11,6 +11,15 @@ import redis
 import os
 
 
+# ========== PYTEST CONFIGURATION ==========
+
+def pytest_configure(config):
+    """Register custom markers for test categorization."""
+    config.addinivalue_line("markers", "unit: mark test as unit test (uses mocks)")
+    config.addinivalue_line("markers", "integration: mark test as integration test (uses live APIs)")
+    config.addinivalue_line("markers", "slow: mark test as slow-running")
+
+
 # ========== ENVIRONMENT ==========
 
 @pytest.fixture(scope="session", autouse=True)
@@ -38,16 +47,6 @@ def mock_redis() -> Mock:
     mock.rpush.return_value = 1
     mock.lpop.return_value = None
     mock.publish.return_value = 1
-    return mock
-
-
-@pytest.fixture
-def mock_openai_client() -> Mock:
-    """Mock OpenAI client for testing."""
-    mock = Mock()
-    mock_response = Mock()
-    mock_response.choices = [Mock(text="Mock AI response")]
-    mock.completions.create.return_value = mock_response
     return mock
 
 
@@ -163,31 +162,6 @@ def event_loop():
 # ========== TEST DATA ==========
 
 @pytest.fixture
-def sample_search_results() -> list:
-    """Sample search results for testing."""
-    return [
-        {
-            "title": "Result 1",
-            "url": "https://example.com/1",
-            "snippet": "This is result 1",
-            "relevance_score": 0.95
-        },
-        {
-            "title": "Result 2",
-            "url": "https://example.com/2",
-            "snippet": "This is result 2",
-            "relevance_score": 0.88
-        },
-        {
-            "title": "Result 3",
-            "url": "https://example.com/3",
-            "snippet": "This is result 3",
-            "relevance_score": 0.72
-        }
-    ]
-
-
-@pytest.fixture
 def sample_email_data() -> Dict[str, Any]:
     """Sample email data for testing."""
     return {
@@ -213,24 +187,6 @@ def sample_file_metadata() -> Dict[str, Any]:
 
 
 # ========== ERROR SCENARIOS ==========
-
-@pytest.fixture
-def api_timeout_error():
-    """Simulate API timeout error."""
-    import requests
-    return requests.Timeout("Connection timeout")
-
-
-@pytest.fixture
-def api_rate_limit_error():
-    """Simulate rate limit error."""
-    from shared.errors import RateLimitError
-    return RateLimitError(
-        "Rate limit exceeded",
-        retry_after=60,
-        tool_name="test_tool"
-    )
-
 
 @pytest.fixture
 def api_validation_error():

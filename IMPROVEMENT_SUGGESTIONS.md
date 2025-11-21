@@ -186,9 +186,9 @@ class CacheBackend(ABC):
 
 ### Phase 2: Infrastructure (3-5 days)
 - [x] Move `_should_use_mock()` to BaseTool
-- [ ] Create HTTP client abstraction
+- [x] Create HTTP client abstraction (`shared/http_client.py`)
 - [ ] Create configuration management system
-- [ ] Create tool registry
+- [x] Create tool registry (`shared/registry.py`)
 
 ### Phase 3: Testing (3-5 days)
 - [ ] Add integration test markers

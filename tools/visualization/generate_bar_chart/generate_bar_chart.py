@@ -133,17 +133,21 @@ class GenerateBarChart(BaseTool):
         categories = list(data.keys())
         values = list(data.values())
 
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.barh(categories, values)
-        ax.set_xlabel("Value")
-        ax.set_ylabel("Category")
-        ax.set_title(self.prompt)
+        fig = None
+        try:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.barh(categories, values)
+            ax.set_xlabel("Value")
+            ax.set_ylabel("Category")
+            ax.set_title(self.prompt)
 
-        buffer = io.BytesIO()
-        plt.tight_layout()
-        plt.savefig(buffer, format="png")
-        buffer.seek(0)
-        img_b64 = base64.b64encode(buffer.read()).decode("utf-8")
-        plt.close(fig)
+            buffer = io.BytesIO()
+            plt.tight_layout()
+            plt.savefig(buffer, format="png")
+            buffer.seek(0)
+            img_b64 = base64.b64encode(buffer.read()).decode("utf-8")
 
-        return {"image_base64": img_b64, "data": data, "description": self.prompt}
+            return {"image_base64": img_b64, "data": data, "description": self.prompt}
+        finally:
+            if fig is not None:
+                plt.close(fig)

@@ -145,6 +145,7 @@ class GenerateScatterChart(BaseTool):
         Raises:
             APIError: If chart generation fails
         """
+        fig = None
         try:
             x = self.params["x"]
             y = self.params["y"]
@@ -172,3 +173,6 @@ class GenerateScatterChart(BaseTool):
 
         except Exception as e:
             raise APIError(f"Chart generation failed: {e}", tool_name=self.tool_name)
+        finally:
+            if fig is not None:
+                plt.close(fig)

@@ -136,27 +136,31 @@ class GenerateDualAxesChart(BaseTool):
         col = data["column_values"]
         line = data["line_values"]
 
-        fig, ax1 = plt.subplots(figsize=(10, 6))
+        fig = None
+        try:
+            fig, ax1 = plt.subplots(figsize=(10, 6))
 
-        ax1.bar(x, col, color="skyblue", label="Column Series")
-        ax1.set_ylabel("Column Values")
+            ax1.bar(x, col, color="skyblue", label="Column Series")
+            ax1.set_ylabel("Column Values")
 
-        ax2 = ax1.twinx()
-        ax2.plot(x, line, color="red", marker="o", label="Line Series")
-        ax2.set_ylabel("Line Values")
+            ax2 = ax1.twinx()
+            ax2.plot(x, line, color="red", marker="o", label="Line Series")
+            ax2.set_ylabel("Line Values")
 
-        plt.title(self.prompt)
+            plt.title(self.prompt)
 
-        img_bytes = io.BytesIO()
-        plt.savefig(img_bytes, format="png", bbox_inches="tight")
-        plt.close(fig)
-        img_bytes.seek(0)
+            img_bytes = io.BytesIO()
+            plt.savefig(img_bytes, format="png", bbox_inches="tight")
+            img_bytes.seek(0)
 
-        encoded = base64.b64encode(img_bytes.read()).decode("utf-8")
+            encoded = base64.b64encode(img_bytes.read()).decode("utf-8")
 
-        return {
-            "chart_base64": encoded,
-            "x": x,
-            "column_values": col,
-            "line_values": line,
-        }
+            return {
+                "chart_base64": encoded,
+                "x": x,
+                "column_values": col,
+                "line_values": line,
+            }
+        finally:
+            if fig is not None:
+                plt.close(fig)

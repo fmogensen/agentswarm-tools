@@ -120,6 +120,7 @@ class GenerateLineChart(BaseTool):
         labels = self.params.get("labels")
         title = self.params.get("title", self.prompt)
 
+        fig = None
         try:
             fig, ax = plt.subplots()
             ax.plot(data, marker="o")
@@ -137,12 +138,14 @@ class GenerateLineChart(BaseTool):
             buffer.seek(0)
 
             encoded = base64.b64encode(buffer.read()).decode("utf-8")
-            plt.close(fig)
 
             return {"image_base64": encoded, "data_points": len(data)}
 
         except Exception as e:
             raise APIError(f"Chart generation failed: {e}", tool_name=self.tool_name)
+        finally:
+            if fig is not None:
+                plt.close(fig)
 
 
 if __name__ == "__main__":
