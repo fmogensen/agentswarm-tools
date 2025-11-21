@@ -114,6 +114,7 @@ class WebSearch(BaseTool):
                     "key": api_key,
                     "cx": engine_id,
                 },
+                timeout=30,
             )
             response.raise_for_status()
             search_results = response.json().get("items", [])

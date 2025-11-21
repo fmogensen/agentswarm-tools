@@ -97,7 +97,7 @@ class SummarizeLargeDocument(BaseTool):
     def _process(self) -> Any:
         """Main processing logic."""
         try:
-            response = requests.get(self.input)
+            response = requests.get(self.input, timeout=30)
             response.raise_for_status()
             document_text = response.text
 

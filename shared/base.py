@@ -12,6 +12,7 @@ import time
 import logging
 import uuid
 import warnings
+import os
 
 # Import from Agency Swarm
 try:
@@ -314,6 +315,10 @@ class BaseTool(AgencyBaseTool):
             "request_id": self._request_id,
             "user_id": self._user_id
         }
+
+    def _should_use_mock(self) -> bool:
+        """Check if mock mode is enabled via environment variable."""
+        return os.getenv("USE_MOCK_APIS", "false").lower() == "true"
 
 
 class SimpleBaseTool(BaseTool):

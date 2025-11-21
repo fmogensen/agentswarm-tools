@@ -105,6 +105,7 @@ class MapsSearch(BaseTool):
                     "key": os.getenv("GOOGLE_MAPS_API_KEY"),
                     "maxResults": self.max_results,
                 },
+                timeout=30,
             )
             response.raise_for_status()
             data = response.json()

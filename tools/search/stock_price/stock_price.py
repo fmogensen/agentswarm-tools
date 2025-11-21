@@ -96,7 +96,7 @@ class StockPrice(BaseTool):
             # This is a placeholder for an actual API call
             # In production, use APIs like Alpha Vantage, Yahoo Finance, IEX Cloud, etc.
             api_url = f"https://api.example.com/stock/{self.ticker.upper()}/price"
-            response = requests.get(api_url)
+            response = requests.get(api_url, timeout=30)
             response.raise_for_status()
             data = response.json()
 
