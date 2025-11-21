@@ -5,7 +5,6 @@ Search and list emails from Gmail based on query
 from typing import Any, Dict, List
 from pydantic import Field
 import os
-import base64
 
 from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
@@ -178,3 +177,12 @@ class GmailSearch(BaseTool):
             raise APIError(f"Gmail API error: {e}", tool_name=self.tool_name)
         except Exception as e:
             raise APIError(f"Unexpected error: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GmailSearch(query="from:example@gmail.com", max_results=5)
+    result = tool.run()
+    print(f"Success: {result.get('success')}")

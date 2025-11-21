@@ -102,7 +102,7 @@ class MapsSearch(BaseTool):
                 "https://maps.googleapis.com/maps/api/place/textsearch/json",
                 params={
                     "query": self.query,
-                    "key": "YOUR_API_KEY",
+                    "key": os.getenv("GOOGLE_MAPS_API_KEY"),
                     "maxResults": self.max_results,
                 },
             )
@@ -124,3 +124,12 @@ class MapsSearch(BaseTool):
 
         except requests.RequestException as e:
             raise APIError(f"API request failed: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = MapsSearch(query="coffee shops near me")
+    result = tool.run()
+    print(f"Success: {result.get('success')}")

@@ -143,3 +143,12 @@ class GenerateLineChart(BaseTool):
 
         except Exception as e:
             raise APIError(f"Chart generation failed: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateLineChart(prompt="Sales trend", params={"data": [1, 2, 3, 4, 5]})
+    result = tool.run()
+    print(f"Success: {result.get('success')}")

@@ -195,3 +195,12 @@ class AidriveTool(BaseTool):
             return base64.b64encode(compressed).decode("utf-8")
         except Exception as e:
             raise APIError(f"Compression failed: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = AidriveTool(input="list")
+    result = tool.run()
+    print(f"Success: {result.get('success')}")
