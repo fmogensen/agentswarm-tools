@@ -182,10 +182,10 @@ class CacheBackend(ABC):
 - [x] Remove unused import in gmail_search.py
 - [x] Create `.env.example` file
 - [x] Create `CLAUDE.md` development guidelines
-- [ ] Add HTTP timeouts to all requests calls
+- [x] Add HTTP timeouts to all requests calls
 
 ### Phase 2: Infrastructure (3-5 days)
-- [ ] Move `_should_use_mock()` to BaseTool
+- [x] Move `_should_use_mock()` to BaseTool
 - [ ] Create HTTP client abstraction
 - [ ] Create configuration management system
 - [ ] Create tool registry
