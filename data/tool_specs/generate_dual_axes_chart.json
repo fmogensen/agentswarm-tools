@@ -1,0 +1,49 @@
+{
+  "tool_name": "generate_dual_axes_chart",
+  "category": "visualization",
+  "description": "Generate dual axes chart combining column and line charts",
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "description": "Description of what to generate",
+      "required": true
+    },
+    "params": {
+      "type": "object",
+      "description": "Additional generation parameters",
+      "required": false
+    }
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether operation succeeded"
+      },
+      "result": {
+        "type": "object",
+        "description": "Tool-specific result data"
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Additional metadata about the operation"
+      }
+    }
+  },
+  "example": {
+    "input": {
+      "query": "example input"
+    },
+    "output": {
+      "success": true,
+      "result": {}
+    }
+  },
+  "metadata": {
+    "source": "genspark",
+    "version": "1.0.0",
+    "framework": "agency_swarm",
+    "base_class": "BaseTool"
+  }
+}

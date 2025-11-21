@@ -1,0 +1,51 @@
+{
+  "tool_name": "google_product_search",
+  "category": "search",
+  "description": "Search products using Google Shopping for price comparison",
+  "parameters": {
+    "query": {
+      "type": "string",
+      "description": "Search query string",
+      "required": true,
+      "example": "artificial intelligence"
+    },
+    "max_results": {
+      "type": "integer",
+      "description": "Maximum number of results to return",
+      "required": false,
+      "default": 10
+    }
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether operation succeeded"
+      },
+      "result": {
+        "type": "object",
+        "description": "Tool-specific result data"
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Additional metadata about the operation"
+      }
+    }
+  },
+  "example": {
+    "input": {
+      "query": "example input"
+    },
+    "output": {
+      "success": true,
+      "result": {}
+    }
+  },
+  "metadata": {
+    "source": "genspark",
+    "version": "1.0.0",
+    "framework": "agency_swarm",
+    "base_class": "BaseTool"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "tool_name": "read_email_attachments",
+  "category": "communication",
+  "description": "Read email attachments efficiently (checks cache first)",
+  "parameters": {
+    "input": {
+      "type": "string",
+      "description": "Primary input parameter",
+      "required": true
+    }
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether operation succeeded"
+      },
+      "result": {
+        "type": "object",
+        "description": "Tool-specific result data"
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Additional metadata about the operation"
+      }
+    }
+  },
+  "example": {
+    "input": {
+      "query": "example input"
+    },
+    "output": {
+      "success": true,
+      "result": {}
+    }
+  },
+  "metadata": {
+    "source": "genspark",
+    "version": "1.0.0",
+    "framework": "agency_swarm",
+    "base_class": "BaseTool"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "tool_name": "analyze_media_content",
+  "category": "media_analysis",
+  "description": "Deep analysis of images, audio, and video with custom requirements",
+  "parameters": {
+    "media_url": {
+      "type": "string",
+      "description": "URL of media to analyze",
+      "required": true
+    },
+    "instruction": {
+      "type": "string",
+      "description": "What to analyze or extract",
+      "required": false
+    }
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether operation succeeded"
+      },
+      "result": {
+        "type": "object",
+        "description": "Tool-specific result data"
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Additional metadata about the operation"
+      }
+    }
+  },
+  "example": {
+    "input": {
+      "query": "example input"
+    },
+    "output": {
+      "success": true,
+      "result": {}
+    }
+  },
+  "metadata": {
+    "source": "genspark",
+    "version": "1.0.0",
+    "framework": "agency_swarm",
+    "base_class": "BaseTool"
+  }
+}

@@ -1,0 +1,310 @@
+services:
+  # ============================================================================
+  # ORCHESTRATOR - Master coordinator for autonomous development
+  # ============================================================================
+  orchestrator:
+    build: .
+    container_name: agentswarm-orchestrator
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=orchestrator
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - agentswarm-net
+    command: python scripts/autonomous_orchestrator.py
+
+  # ============================================================================
+  # DEVELOPMENT TEAMS - 7 parallel agent teams
+  # ============================================================================
+
+  team1-search-execution:
+    build: .
+    container_name: agentswarm-team1
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=developer
+      - TEAM_ID=team1
+      - TEAM_NAME=search_and_execution
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/agent_worker.py --team team1
+
+  team2-web-media-gen:
+    build: .
+    container_name: agentswarm-team2
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=developer
+      - TEAM_ID=team2
+      - TEAM_NAME=web_and_media_generation
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/agent_worker.py --team team2
+
+  team3-media-analysis:
+    build: .
+    container_name: agentswarm-team3
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=developer
+      - TEAM_ID=team3
+      - TEAM_NAME=media_analysis
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/agent_worker.py --team team3
+
+  team4-communication-storage:
+    build: .
+    container_name: agentswarm-team4
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=developer
+      - TEAM_ID=team4
+      - TEAM_NAME=communication_and_storage
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/agent_worker.py --team team4
+
+  team5-visualization:
+    build: .
+    container_name: agentswarm-team5
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=developer
+      - TEAM_ID=team5
+      - TEAM_NAME=visualization
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/agent_worker.py --team team5
+
+  team6-workspace-docs:
+    build: .
+    container_name: agentswarm-team6
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=developer
+      - TEAM_ID=team6
+      - TEAM_NAME=workspace_and_documents
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/agent_worker.py --team team6
+
+  team7-utils:
+    build: .
+    container_name: agentswarm-team7
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=developer
+      - TEAM_ID=team7
+      - TEAM_NAME=utilities_and_testing
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/agent_worker.py --team team7
+
+  # ============================================================================
+  # SUPPORT AGENTS
+  # ============================================================================
+
+  tester:
+    build: .
+    container_name: agentswarm-tester
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=tester
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/continuous_tester.py
+
+  documenter:
+    build: .
+    container_name: agentswarm-documenter
+    volumes:
+      - .:/app
+      - ./data:/data
+    environment:
+      - ROLE=documenter
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/continuous_documenter.py
+
+  # ============================================================================
+  # DASHBOARD - Web UI for monitoring
+  # ============================================================================
+
+  dashboard:
+    build: .
+    container_name: agentswarm-dashboard
+    volumes:
+      - .:/app
+      - ./data:/data
+    ports:
+      - "${DASHBOARD_PORT:-8080}:8080"
+    environment:
+      - ROLE=dashboard
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+      - .env.secrets
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    depends_on:
+      - orchestrator
+      - redis
+    networks:
+      - agentswarm-net
+    command: python scripts/dashboard_server.py
+
+  # ============================================================================
+  # INFRASTRUCTURE SERVICES
+  # ============================================================================
+
+  redis:
+    image: redis:7-alpine
+    container_name: agentswarm-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    networks:
+      - agentswarm-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: agentswarm-postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-agentswarm}
+      - POSTGRES_USER=${POSTGRES_USER:-agentswarm}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-agentswarm}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
+    networks:
+      - agentswarm-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentswarm"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+networks:
+  agentswarm-net:
+    driver: bridge
+    name: ${DOCKER_NETWORK:-agentswarm-net}
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+volumes:
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local

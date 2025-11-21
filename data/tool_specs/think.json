@@ -1,0 +1,44 @@
+{
+  "tool_name": "think",
+  "category": "utils",
+  "description": "Internal reasoning and memory (no external effects)",
+  "parameters": {
+    "thought": {
+      "type": "string",
+      "description": "Internal reasoning or thought to record",
+      "required": true
+    }
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether operation succeeded"
+      },
+      "result": {
+        "type": "object",
+        "description": "Tool-specific result data"
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Additional metadata about the operation"
+      }
+    }
+  },
+  "example": {
+    "input": {
+      "query": "example input"
+    },
+    "output": {
+      "success": true,
+      "result": {}
+    }
+  },
+  "metadata": {
+    "source": "genspark",
+    "version": "1.0.0",
+    "framework": "agency_swarm",
+    "base_class": "BaseTool"
+  }
+}

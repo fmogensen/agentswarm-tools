@@ -1,0 +1,41 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+!.env.secrets.template
+*.pem
+*.key
+
+# Google credentials
+google-service-account*.json
+*-credentials.json
+
+# Test files with hardcoded keys
+test_notion_live.py
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Logs and data (optional - uncomment if needed)
+# data/logs/
+# data/analytics/
