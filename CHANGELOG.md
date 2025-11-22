@@ -7,8 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-11-22
+
 ### Added
-- Initial public release of AgentSwarm Tools Framework
+
+#### Enhanced Tool Coverage (+40 Tools)
+- **Media Processing (3 tools)**: photo_editor, video_editor, video_clipper
+- **Communication Expansion (9 tools)**:
+  - Google Workspace: google_docs, google_sheets, google_slides
+  - Twilio Suite: twilio_sms_send, twilio_sms_receive, twilio_voice_call, twilio_voice_receive, twilio_verify_start, twilio_verify_check, twilio_status_callback
+  - Collaboration: meeting_notes_agent, slack_send_message, microsoft_teams_send_message
+- **Document Creation (4 tools)**: office_docs, office_slides, office_sheets, website_builder
+- **Workspace Integration (3 tools)**: slack_search, slack_read, microsoft_teams_search, microsoft_teams_read
+- **AI Intelligence (2 tools)**: rag_pipeline, deep_research_agent
+- **Utilities (6 tools)**: fact_checker, translation, input_validator, output_formatter, error_recovery, retry_handler
+- **Business Intelligence (4 tools)**: data_aggregator, report_generator, trend_analyzer, dashboard_creator
+- **Media Generation (1 tool)**: podcast_generator
+
+#### Category Reorganization
+- Expanded from 12 to 18 categories for better organization
+- Split "Media Analysis & Processing" into separate categories
+- Added new categories: Media Processing, Business Intelligence, AI Intelligence
+
+#### Documentation Improvements
+- Version consistency across all 13 documentation files
+- Correct tool count (101) and competitive advantage (+77%)
+- Enhanced TOOLS_INDEX.md with all missing tools
+- Updated all category references
+
+### Changed
+- Tool count: 61 → 101 production-ready tools
+- Categories: 12 → 18 specialized categories
+- Competitive advantage: +84% → +77% (accurate calculation vs Genspark's 57 tools)
+- Version bump: 1.0.0 → 1.1.0
+
+### Fixed
+- Version mismatches across documentation files
+- Incorrect tool counts in various files
+- Missing tools in TOOLS_INDEX.md alphabetical listing
+- Category count discrepancies
 
 ## [1.0.0] - 2024-11-22
 
@@ -22,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI tools for development and testing
 - Mock mode support for all tools
 
-#### Tool Categories (61 Tools Total)
+#### Tool Categories (101 Tools Total)
 
 **Search & Information Retrieval (8 tools)**
 - web_search: Web search using SerpAPI
@@ -166,12 +203,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Future Releases
 
-### Planned for v1.1.0
+### Planned for v1.2.0
 - Enhanced error messages
 - Additional visualization chart types
 - Performance optimizations
 - Extended mock data coverage
 - Additional test coverage
+- Async/await support for select tools
 
 ### Planned for v2.0.0
 - Async/await support for all tools
@@ -182,5 +220,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/genspark/agentswarm-tools/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/genspark/agentswarm-tools/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/genspark/agentswarm-tools/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/genspark/agentswarm-tools/releases/tag/v1.0.0

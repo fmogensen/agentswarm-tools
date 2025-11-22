@@ -33,7 +33,7 @@ This builds:
 ./start.sh
 ```
 
-**That's it!** The system now runs autonomously until all 61 tools are complete.
+**That's it!** The system now runs autonomously until all 101 tools are complete.
 
 ---
 
@@ -112,7 +112,7 @@ In `.env` you can configure:
 ## 📈 What Happens Autonomously
 
 1. **Orchestrator starts** ✅
-2. **Loads 61 tools into queue** ✅
+2. **Loads 101 tools into queue** ✅
 3. **Assigns tools to 7 teams** ✅
 4. **Each team develops in parallel:**
    - Reads AgentSwarm docs
@@ -121,7 +121,7 @@ In `.env` you can configure:
    - Auto-fixes issues
    - Creates documentation
 5. **Orchestrator reviews & merges** ✅
-6. **Continues until all 61 done** ✅
+6. **Continues until all 101 done** ✅
 7. **Deploys automatically** ✅
 
 **NO HUMAN INTERVENTION NEEDED!**

@@ -3,7 +3,7 @@
 Tool Specifications Parser
 
 Parses Genspark documentation and generates JSON specifications
-for all 61 tools to guide autonomous development.
+for all 101 tools to guide autonomous development.
 """
 
 import json
@@ -110,7 +110,7 @@ class ToolSpecificationGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def generate_all_specs(self):
-        """Generate specifications for all 61 tools."""
+        """Generate specifications for all 101 tools."""
         print(f"Generating specifications for {len(ALL_TOOLS)} tools...")
 
         generated = 0

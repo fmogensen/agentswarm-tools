@@ -110,7 +110,7 @@ agentswarm-tools/
 - **Root Files**: 3 comprehensive references (48KB total)
 - **Category Overviews**: 13 category READMEs
 - **Tool Documentation**: 61 individual tool READMEs
-- **Total Documentation**: 77 files covering all 61 production tools
+- **Total Documentation**: 77 files covering all 101 production tools
 - **Lines of Documentation**: 1,539 (technical) + 1,207 (examples) = 2,746+ lines
 
 ---

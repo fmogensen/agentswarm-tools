@@ -41,7 +41,7 @@ CATEGORIES = {
     "utils": "Utility Tools",
 }
 
-# All 61 tools
+# All 101 tools
 ALL_TOOLS = [
     ("web_search", "search"), ("scholar_search", "search"), ("image_search", "search"),
     ("video_search", "search"), ("product_search", "search"), ("google_product_search", "search"),

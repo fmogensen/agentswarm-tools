@@ -4,7 +4,7 @@
 
 ## Overview
 
-This document provides complete integration guidance for using the AgentSwarm Tools Framework with the Agency Swarm platform (https://agency-swarm.ai). All 61 tools are designed to be **100% compatible** with Agency Swarm's `BaseTool` interface while adding enhanced features like analytics, security, and error handling.
+This document provides complete integration guidance for using the AgentSwarm Tools Framework with the Agency Swarm platform (https://agency-swarm.ai). All 101 tools are designed to be **100% compatible** with Agency Swarm's `BaseTool` interface while adding enhanced features like analytics, security, and error handling.
 
 ## ✅ Compatibility Status
 
@@ -276,7 +276,7 @@ super_agent = Agent(
     description="Universal AI assistant with comprehensive capabilities",
     instructions="""You are SuperAgent, the flagship AI assistant for AgentSwarm.ai.
 
-    You have access to 61 powerful tools across 12 categories:
+    You have access to 101 powerful tools across 18 categories:
     - Search & Research (web, academic, images, videos)
     - Content Creation (images, videos, audio, documents)
     - Content Analysis (images, videos, audio)

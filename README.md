@@ -9,7 +9,7 @@
 
 ## 🎯 Overview
 
-A comprehensive suite of **105 production-ready tools** organized into **15 categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
+A comprehensive suite of **101 production-ready tools** organized into **18 categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
 
 - ✅ **Error Handling by Design** - Comprehensive exception handling and graceful degradation
 - ✅ **Built-in Analytics** - Request tracking, performance metrics, usage statistics
@@ -24,8 +24,8 @@ A comprehensive suite of **105 production-ready tools** organized into **15 cate
 AgentSwarm Tools Framework represents the most comprehensive AI tool suite in the market, with significant advantages over competing platforms:
 
 ### Market-Leading Tool Count
-- **105 production-ready tools** vs. Genspark's 57 tools (**+84% more capabilities**)
-- Expanded coverage across 15 specialized categories
+- **101 production-ready tools** vs. Genspark's 57 tools (**+77% more capabilities**)
+- Expanded coverage across 18 specialized categories
 - Continuous tool development and category expansion
 
 ### Cost Optimization Through LiteLLM Integration
@@ -71,7 +71,7 @@ AgentSwarm Tools Framework represents the most comprehensive AI tool suite in th
 | **Business Intelligence** | 4 tools | ✅ Complete |
 | **AI Intelligence** | 2 tools | ✅ Complete |
 | **Utilities** | 4 tools | ✅ Complete |
-| **TOTAL** | **105 tools** | ✅ **100% Complete** |
+| **TOTAL** | **101 tools** | ✅ **100% Complete** |
 
 ## 📚 Documentation
 
@@ -278,12 +278,118 @@ Built-in security features:
 - Request validation
 - No PII logging
 
+## 🖥️ Command-Line Interface
+
+The `agentswarm` CLI provides powerful tools for managing and testing your AgentSwarm tools.
+
+### Installation
+
+```bash
+# Install with CLI support
+pip install -e .
+```
+
+### Basic Commands
+
+```bash
+# List all available tools
+agentswarm list
+
+# List tools in a specific category
+agentswarm list --category search
+
+# Show detailed information about a tool
+agentswarm info web_search
+
+# Run a tool interactively
+agentswarm run web_search --interactive
+
+# Run a tool with parameters
+agentswarm run web_search --params '{"query": "AI news", "num_results": 5}'
+
+# Test a tool with mock data
+agentswarm test web_search
+
+# Test all tools
+agentswarm test
+
+# Validate tool structure
+agentswarm validate web_search
+
+# Validate all tools
+agentswarm validate --strict
+```
+
+### Configuration Management
+
+```bash
+# Show current configuration
+agentswarm config --show
+
+# Set an API key
+agentswarm config --set GENSPARK_API_KEY=your_key_here
+
+# Get a configuration value
+agentswarm config --get GENSPARK_API_KEY
+
+# Validate configuration
+agentswarm config --validate
+
+# Reset to defaults
+agentswarm config --reset
+```
+
+### Output Formats
+
+```bash
+# JSON output
+agentswarm list --format json
+
+# YAML output
+agentswarm list --format yaml
+
+# Table output (default)
+agentswarm list --format table
+
+# Save output to file
+agentswarm run web_search --params @params.json --output results.json
+```
+
+### Advanced Usage
+
+```bash
+# Run with parameters from file
+agentswarm run web_search --params @search_params.json
+
+# Test with verbose output
+agentswarm test web_search --verbose
+
+# Validate with strict mode
+agentswarm validate --strict
+
+# List only categories
+agentswarm list --categories
+```
+
+### Configuration File
+
+Configuration is stored in `~/.agentswarm/config.json`:
+
+```json
+{
+  "GENSPARK_API_KEY": "your_key",
+  "DEFAULT_OUTPUT_FORMAT": "json",
+  "USE_MOCK_APIS": false,
+  "TOOL_TIMEOUT": 300
+}
+```
+
 ## 🧪 Testing
 
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests via pytest
 pytest
 
 # Run specific category
@@ -294,6 +400,22 @@ pytest --cov=tools --cov-report=html
 
 # Run built-in test blocks
 USE_MOCK_APIS=true python -m tools.search.web_search.web_search
+```
+
+### CLI Testing
+
+```bash
+# Test a single tool
+agentswarm test web_search
+
+# Test all tools with mock mode
+agentswarm test --mock
+
+# Test with verbose output
+agentswarm test --verbose
+
+# Validate tool structure
+agentswarm validate
 ```
 
 ### Test Coverage

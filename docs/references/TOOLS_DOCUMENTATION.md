@@ -1,7 +1,7 @@
 # AgentSwarm Tools - Complete Documentation
 
-**Generated**: 2025-11-19
-**Total Tool Count**: 80+ tools across 15 categories
+**Generated**: 2025-11-22
+**Total Tool Count**: 101 tools across 18 categories
 
 ---
 

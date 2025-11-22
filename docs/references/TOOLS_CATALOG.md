@@ -1,6 +1,6 @@
 # AgentSwarm Tools - Complete Catalog
 
-**Total Tools**: 105 production-ready tools
+**Total Tools**: 101 production-ready tools
 **Date**: November 22, 2025
 **Repository**: agentswarm-tools
 
@@ -3333,7 +3333,7 @@ All tools in this catalog follow the **Agency Swarm** development standards:
 
 **Catalog Version**: 1.1.0
 **Last Updated**: November 22, 2025
-**Total Tools**: 105 production-ready tools
+**Total Tools**: 101 production-ready tools
 **Repository**: agentswarm-tools
 
 ## New Tools Summary (v1.1.0)

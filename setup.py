@@ -11,8 +11,8 @@ long_description = readme_file.read_text() if readme_file.exists() else ""
 
 setup(
     name="agentswarm-tools",
-    version="1.0.0",
-    description="Complete AgentSwarm Tools Framework - 61 tools for AI agents",
+    version="1.1.0",
+    description="Complete AgentSwarm Tools Framework - 101 tools for AI agents",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="AgentSwarm",
@@ -33,6 +33,7 @@ setup(
         "openai>=1.6.0",
         "click>=8.1.7",
         "rich>=13.7.0",
+        "pyyaml>=6.0.0",
     ],
     extras_require={
         "dev": [
@@ -56,6 +57,7 @@ setup(
     entry_points={
         "console_scripts": [
             "agentswarm-tools=scripts.tool_generator:main",
+            "agentswarm=cli.main:main",
         ],
     },
     classifiers=[

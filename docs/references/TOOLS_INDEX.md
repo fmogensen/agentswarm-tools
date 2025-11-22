@@ -1,6 +1,6 @@
 # AgentSwarm Tools - Alphabetical Index
 
-Quick reference index of all 105 tools with one-line descriptions.
+Quick reference index of all 101 tools with one-line descriptions.
 
 ---
 
@@ -18,17 +18,20 @@ Generate audio: TTS, sound effects, music, voice cloning, songs
 **audio_transcribe**  
 Precisely transcribe audio to text with word-level timestamps
 
-**aidrive_tool**  
+**aidrive_tool**
 AI Drive cloud storage management (list, upload, download, compress)
+
+**agent_status**
+Monitor and query the status of running agents
 
 ---
 
 ## B
 
-**Bash**  
+**Bash**
 Execute bash commands in sandboxed Linux environment
 
-**batch_understand_videos**  
+**batch_understand_videos**
 Process multiple YouTube videos to answer specific questions efficiently
 
 ---
@@ -45,6 +48,12 @@ Create specialized agents (podcasts, docs, slides, sheets, deep research, websit
 
 ## D
 
+**dashboard_creator**
+Create interactive dashboards from data sources
+
+**data_aggregator**
+Aggregate data from multiple sources into unified format
+
 **deep_research_agent**
 In-depth research across web, academic papers, and documents
 
@@ -55,10 +64,13 @@ Download file wrapper URLs to sandbox for processing
 
 ## E
 
-**email_draft**  
+**email_draft**
 Generate email content for drafting (text or HTML)
 
-**extract_audio_from_video**  
+**error_recovery**
+Recover from errors with intelligent retry strategies
+
+**extract_audio_from_video**
 Extract audio track from video files to MP3
 
 ---
@@ -106,11 +118,14 @@ Create and modify Google Slides presentations programmatically
 
 ## I
 
-**image_generation**  
+**image_generation**
 Generate new images from text descriptions or reference images
 
-**image_search**  
+**image_search**
 Search for existing images on the internet
+
+**input_validator**
+Validate input data against schemas and rules
 
 ---
 
@@ -122,7 +137,16 @@ Search geographical information, places, businesses, and get directions
 **meeting_notes_agent**
 Transcribe meeting audio and generate structured notes with action items
 
-**mcp_c33e5f11_generate_area_chart**  
+**microsoft_teams_read**
+Read messages and content from Microsoft Teams
+
+**microsoft_teams_search**
+Search Microsoft Teams channels and conversations
+
+**microsoft_teams_send_message**
+Send messages to Microsoft Teams channels or chats
+
+**mcp_c33e5f11_generate_area_chart**
 Generate area chart for trends under continuous variables
 
 **mcp_c33e5f11_generate_bar_chart**  
@@ -202,6 +226,9 @@ Read and process OneDrive/SharePoint files, answer questions about content
 **onedrive_search**
 Search files and folders in Microsoft OneDrive (personal and business)
 
+**output_formatter**
+Format output data into various structures and formats
+
 ---
 
 ## P
@@ -241,22 +268,40 @@ Read email attachments efficiently (checks cache first)
 **resource_discovery**
 Detect and catalog downloadable media resources from web pages
 
+**report_generator**
+Generate comprehensive reports from data and analysis
+
+**retry_handler**
+Handle retries with exponential backoff and circuit breaking
+
 ---
 
 ## S
 
-**scholar_search**  
+**scholar_search**
 Search scholarly articles, academic papers, and research publications
 
-**stock_price**  
+**slack_read**
+Read messages and content from Slack channels
+
+**slack_search**
+Search Slack workspace for messages and content
+
+**slack_send_message**
+Send messages to Slack channels or users
+
+**stock_price**
 Retrieve current stock price information for a company
 
-**summarize_large_document**  
+**summarize_large_document**
 Fetch and summarize text-based documents, answering specific questions
 
 ---
 
 ## T
+
+**task_queue_manager**
+Manage task queues and job scheduling
 
 **think**
 Internal reasoning and memory (no external effects)
@@ -264,11 +309,35 @@ Internal reasoning and memory (no external effects)
 **translation**
 Multi-language translation with format preservation (100+ languages)
 
+**trend_analyzer**
+Analyze trends in time-series data and generate insights
+
 **twilio_call_logs**
 Query call history and transcripts from Twilio
 
 **twilio_phone_call**
 AI-assisted phone calling via Twilio integration
+
+**twilio_sms_receive**
+Receive and process SMS messages via Twilio
+
+**twilio_sms_send**
+Send SMS messages via Twilio
+
+**twilio_status_callback**
+Handle Twilio status callbacks for async operations
+
+**twilio_verify_check**
+Verify confirmation codes with Twilio Verify
+
+**twilio_verify_start**
+Start verification process with Twilio Verify
+
+**twilio_voice_call**
+Make voice calls via Twilio with AI integration
+
+**twilio_voice_receive**
+Handle incoming voice calls via Twilio
 
 ---
 
@@ -336,7 +405,7 @@ Create or overwrite files in sandboxed environment
 | Business Intelligence | 4 |
 | AI Intelligence | 2 |
 | Utilities | 4 |
-| **Total** | **105** |
+| **Total** | **101** |
 
 ---
 

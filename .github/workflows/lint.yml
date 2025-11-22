@@ -1,0 +1,60 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Linting & Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Check code formatting with Black
+        run: |
+          black --check --diff .
+
+      - name: Check import sorting with isort
+        run: |
+          isort --check-only --diff .
+
+      - name: Lint with Flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Type checking with MyPy
+        run: |
+          mypy tools/ --ignore-missing-imports --no-strict-optional
+        continue-on-error: true
+
+      - name: Lint with Pylint
+        run: |
+          pylint tools/ --exit-zero --max-line-length=127
+
+      - name: Check docstrings
+        run: |
+          pydocstyle tools/ --convention=google --add-ignore=D100,D104
+        continue-on-error: true
+
+      - name: Annotate code with linting issues
+        if: failure()
+        run: |
+          echo "::error::Code quality checks failed. Run 'black .' and 'isort .' locally to fix formatting."

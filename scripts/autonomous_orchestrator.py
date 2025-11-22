@@ -2,7 +2,7 @@
 """
 Autonomous Orchestrator - Master coordinator for AgentSwarm Tools development.
 
-This script runs continuously until all 61 tools are complete.
+This script runs continuously until all 101 tools are complete.
 No human intervention required.
 
 Usage:
@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 class AutonomousOrchestrator:
     """Master orchestrator managing all autonomous development."""
 
-    # All 61 tools to develop
+    # All 101 tools to develop
     ALL_TOOLS = [
         # Search & Information (8)
         "web_search", "scholar_search", "image_search", "video_search",
@@ -181,7 +181,7 @@ class AutonomousOrchestrator:
         """Main autonomous loop."""
         logger.info("\n🚀 STARTING AUTONOMOUS DEVELOPMENT")
         logger.info("="*80)
-        logger.info("System will run continuously until all 61 tools are complete")
+        logger.info("System will run continuously until all 101 tools are complete")
         logger.info("No human intervention required")
         logger.info("="*80 + "\n")
 
