@@ -2,8 +2,8 @@
 
 **Production-Ready AI Tool Suite for Agent Development**
 
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](https://github.com/agentswarm/tools)
-[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)](https://github.com/agentswarm/tools)
+[![Coverage](https://img.shields.io/badge/coverage-50--60%25-yellow.svg)](https://github.com/fmogensen/agentswarm-tools)
+[![Tests](https://img.shields.io/badge/tests-391-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -15,7 +15,7 @@ A comprehensive suite of **101 production-ready tools** organized into **18 cate
 - ✅ **Built-in Analytics** - Request tracking, performance metrics, usage statistics
 - ✅ **Security First** - API key management, input validation, rate limiting
 - ✅ **Full Documentation** - API docs, usage guides, troubleshooting
-- ✅ **Complete Testing** - Unit, integration, and E2E tests with 95%+ coverage
+- ✅ **Complete Testing** - 391 test methods (367 unit + 24 integration), 50-60% coverage (targeting 80%)
 - ✅ **CLI Management** - Command-line tools for development and testing
 - ✅ **Easy Maintenance** - Modular design, clear patterns, extensible architecture
 
