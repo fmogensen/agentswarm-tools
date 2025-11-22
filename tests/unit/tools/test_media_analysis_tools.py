@@ -18,20 +18,20 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any, List
 
-from tools.media_analysis.understand_images.understand_images import UnderstandImages
-from tools.media_analysis.understand_video.understand_video import UnderstandVideo
-from tools.media_analysis.batch_understand_videos.batch_understand_videos import (
+from tools.media.analysis.understand_images.understand_images import UnderstandImages
+from tools.media.analysis.understand_video.understand_video import UnderstandVideo
+from tools.media.analysis.batch_understand_videos.batch_understand_videos import (
     BatchUnderstandVideos,
 )
-from tools.media_analysis.analyze_media_content.analyze_media_content import AnalyzeMediaContent
-from tools.media_analysis.audio_transcribe.audio_transcribe import AudioTranscribe
-from tools.media_analysis.merge_audio.merge_audio import MergeAudio
-from tools.media_analysis.extract_audio_from_video.extract_audio_from_video import (
+from tools.media.analysis.analyze_media_content.analyze_media_content import AnalyzeMediaContent
+from tools.media.analysis.audio_transcribe.audio_transcribe import AudioTranscribe
+from tools.media.analysis.merge_audio.merge_audio import MergeAudio
+from tools.media.analysis.extract_audio_from_video.extract_audio_from_video import (
     ExtractAudioFromVideo,
 )
-from tools.media_analysis.audio_effects.audio_effects import AudioEffects
-from tools.media_analysis.batch_video_analysis.batch_video_analysis import BatchVideoAnalysis
-from tools.media_analysis.video_metadata_extractor.video_metadata_extractor import (
+from tools.media.analysis.audio_effects.audio_effects import AudioEffects
+from tools.media.analysis.batch_video_analysis.batch_video_analysis import BatchVideoAnalysis
+from tools.media.analysis.video_metadata_extractor.video_metadata_extractor import (
     VideoMetadataExtractor,
 )
 
@@ -84,7 +84,7 @@ class TestUnderstandImages:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.media_analysis.understand_images.understand_images.requests.post")
+    @patch("tools.media.analysis.understand_images.understand_images.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked vision API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -144,7 +144,7 @@ class TestUnderstandVideo:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.media_analysis.understand_video.understand_video.requests.post")
+    @patch("tools.media.analysis.understand_video.understand_video.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked video analysis API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -271,7 +271,7 @@ class TestAudioTranscribe:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.media_analysis.audio_transcribe.audio_transcribe.requests.post")
+    @patch("tools.media.analysis.audio_transcribe.audio_transcribe.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked transcription API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -371,7 +371,7 @@ class TestExtractAudioFromVideo:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.media_analysis.extract_audio_from_video.extract_audio_from_video.requests.post")
+    @patch("tools.media.analysis.extract_audio_from_video.extract_audio_from_video.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked extraction API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -506,7 +506,7 @@ class TestVideoMetadataExtractor:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.media_analysis.video_metadata_extractor.video_metadata_extractor.requests.get")
+    @patch("tools.media.analysis.video_metadata_extractor.video_metadata_extractor.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked metadata extraction"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")

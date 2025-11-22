@@ -16,14 +16,14 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
 
-from tools.search.web_search.web_search import WebSearch
-from tools.search.scholar_search.scholar_search import ScholarSearch
-from tools.search.image_search.image_search import ImageSearch
-from tools.search.video_search.video_search import VideoSearch
-from tools.search.product_search.product_search import ProductSearch
-from tools.search.google_product_search.google_product_search import GoogleProductSearch
-from tools.search.financial_report.financial_report import FinancialReport
-from tools.search.stock_price.stock_price import StockPrice
+from tools.data.search.web_search.web_search import WebSearch
+from tools.data.search.scholar_search.scholar_search import ScholarSearch
+from tools.data.search.image_search.image_search import ImageSearch
+from tools.data.search.video_search.video_search import VideoSearch
+from tools.data.search.product_search.product_search import ProductSearch
+from tools.data.search.google_product_search.google_product_search import GoogleProductSearch
+from tools.data.search.financial_report.financial_report import FinancialReport
+from tools.data.search.stock_price.stock_price import StockPrice
 
 from shared.errors import ValidationError, APIError, AuthenticationError, RateLimitError
 
@@ -73,7 +73,7 @@ class TestWebSearch:
         assert all("link" in item for item in result["result"])
         assert all("snippet" in item for item in result["result"])
 
-    @patch("tools.search.web_search.web_search.requests.get")
+    @patch("tools.data.search.web_search.web_search.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -108,7 +108,7 @@ class TestWebSearch:
             tool._validate_parameters()
         assert "empty" in str(exc_info.value).lower()
 
-    @patch("tools.search.web_search.web_search.requests.get")
+    @patch("tools.data.search.web_search.web_search.requests.get")
     def test_api_error_handling_missing_credentials(self, mock_get, monkeypatch):
         """Test handling of missing API credentials"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -120,7 +120,7 @@ class TestWebSearch:
             tool.run()
         assert "credentials" in str(exc_info.value).lower()
 
-    @patch("tools.search.web_search.web_search.requests.get")
+    @patch("tools.data.search.web_search.web_search.requests.get")
     def test_api_error_handling_request_exception(self, mock_get, monkeypatch):
         """Test handling of API request errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -133,7 +133,7 @@ class TestWebSearch:
         with pytest.raises(APIError):
             tool.run()
 
-    @patch("tools.search.web_search.web_search.requests.get")
+    @patch("tools.data.search.web_search.web_search.requests.get")
     def test_edge_case_empty_result(self, mock_get, monkeypatch):
         """Test handling of empty API results"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -209,7 +209,7 @@ class TestImageSearch:
         assert "result" in result
         assert result["metadata"]["mock_mode"] is True
 
-    @patch("tools.search.image_search.image_search.requests.get")
+    @patch("tools.data.search.image_search.image_search.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -322,7 +322,7 @@ class TestGoogleProductSearch:
         assert "result" in result
         assert result["metadata"]["mock_mode"] is True
 
-    @patch("tools.search.google_product_search.google_product_search.requests.get")
+    @patch("tools.data.search.google_product_search.google_product_search.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -406,7 +406,7 @@ class TestStockPrice:
         assert "result" in result
         assert result["metadata"]["mock_mode"] is True
 
-    @patch("tools.search.stock_price.stock_price.requests.get")
+    @patch("tools.data.search.stock_price.stock_price.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -439,7 +439,7 @@ class TestStockPrice:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.search.stock_price.stock_price.requests.get")
+    @patch("tools.data.search.stock_price.stock_price.requests.get")
     def test_api_error_handling_missing_api_key(self, mock_get, monkeypatch):
         """Test handling of missing API key"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -451,7 +451,7 @@ class TestStockPrice:
         # Verify error mentions API key or credentials
         assert "api" in str(exc_info.value).lower() or "key" in str(exc_info.value).lower()
 
-    @patch("tools.search.stock_price.stock_price.requests.get")
+    @patch("tools.data.search.stock_price.stock_price.requests.get")
     def test_api_error_handling_network_failure(self, mock_get, monkeypatch):
         """Test handling of network failures"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")

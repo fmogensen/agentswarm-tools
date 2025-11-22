@@ -12,12 +12,12 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
 
-from tools.web_content.crawler.crawler import Crawler
-from tools.web_content.summarize_large_document.summarize_large_document import (
+from tools.content.web.crawler.crawler import Crawler
+from tools.content.web.summarize_large_document.summarize_large_document import (
     SummarizeLargeDocument,
 )
-from tools.web_content.url_metadata.url_metadata import UrlMetadata
-from tools.web_content.webpage_capture_screen.webpage_capture_screen import WebpageCaptureScreen
+from tools.content.web.url_metadata.url_metadata import UrlMetadata
+from tools.content.web.webpage_capture_screen.webpage_capture_screen import WebpageCaptureScreen
 
 from shared.errors import ValidationError, APIError
 
@@ -75,7 +75,7 @@ class TestCrawler:
         with pytest.raises(ValidationError):
             Crawler(url="https://example.com", max_pages=0)
 
-    @patch("tools.web_content.crawler.crawler.requests.get")
+    @patch("tools.content.web.crawler.crawler.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked HTTP requests"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -90,7 +90,7 @@ class TestCrawler:
 
         assert result["success"] is True
 
-    @patch("tools.web_content.crawler.crawler.requests.get")
+    @patch("tools.content.web.crawler.crawler.requests.get")
     def test_api_error_handling_network_failure(self, mock_get, monkeypatch):
         """Test handling of network failures"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -158,8 +158,8 @@ class TestSummarizeLargeDocument:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.web_content.summarize_large_document.summarize_large_document.requests.get")
-    @patch("tools.web_content.summarize_large_document.summarize_large_document.requests.post")
+    @patch("tools.content.web.summarize_large_document.summarize_large_document.requests.get")
+    @patch("tools.content.web.summarize_large_document.summarize_large_document.requests.post")
     def test_execute_live_mode_success(self, mock_post, mock_get, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -229,7 +229,7 @@ class TestUrlMetadata:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.web_content.url_metadata.url_metadata.requests.get")
+    @patch("tools.content.web.url_metadata.url_metadata.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked HTTP request"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -252,7 +252,7 @@ class TestUrlMetadata:
 
         assert result["success"] is True
 
-    @patch("tools.web_content.url_metadata.url_metadata.requests.get")
+    @patch("tools.content.web.url_metadata.url_metadata.requests.get")
     def test_api_error_handling_not_found(self, mock_get, monkeypatch):
         """Test handling of 404 errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -338,7 +338,7 @@ class TestWebpageCaptureScreen:
                 url="https://example.com", width=1920, height=0, task_summary="Test"
             )
 
-    @patch("tools.web_content.webpage_capture_screen.webpage_capture_screen.requests.post")
+    @patch("tools.content.web.webpage_capture_screen.webpage_capture_screen.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked screenshot API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")

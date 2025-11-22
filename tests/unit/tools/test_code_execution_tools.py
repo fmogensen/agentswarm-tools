@@ -14,11 +14,11 @@ from unittest.mock import patch, MagicMock, Mock, mock_open
 from typing import Dict, Any
 import os
 
-from tools.code_execution.bash_tool.bash_tool import BashTool
-from tools.code_execution.read_tool.read_tool import ReadTool
-from tools.code_execution.write_tool.write_tool import WriteTool
-from tools.code_execution.multiedit_tool.multiedit_tool import MultiEditTool
-from tools.code_execution.downloadfilewrapper_tool.downloadfilewrapper_tool import (
+from tools.infrastructure.execution.bash_tool.bash_tool import BashTool
+from tools.infrastructure.execution.read_tool.read_tool import ReadTool
+from tools.infrastructure.execution.write_tool.write_tool import WriteTool
+from tools.infrastructure.execution.multiedit_tool.multiedit_tool import MultiEditTool
+from tools.infrastructure.execution.downloadfilewrapper_tool.downloadfilewrapper_tool import (
     DownloadFileWrapperTool,
 )
 
@@ -59,7 +59,7 @@ class TestBashTool:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.code_execution.bash_tool.bash_tool.subprocess.run")
+    @patch("tools.infrastructure.execution.bash_tool.bash_tool.subprocess.run")
     def test_execute_live_mode_success(self, mock_run, monkeypatch):
         """Test execution with mocked subprocess"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -76,7 +76,7 @@ class TestBashTool:
         assert result["success"] is True
         mock_run.assert_called_once()
 
-    @patch("tools.code_execution.bash_tool.bash_tool.subprocess.run")
+    @patch("tools.infrastructure.execution.bash_tool.bash_tool.subprocess.run")
     def test_execute_live_mode_error(self, mock_run, monkeypatch):
         """Test execution with command error"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -346,7 +346,7 @@ class TestDownloadFileWrapperTool:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.code_execution.downloadfilewrapper_tool.downloadfilewrapper_tool.requests.get")
+    @patch("tools.infrastructure.execution.downloadfilewrapper_tool.downloadfilewrapper_tool.requests.get")
     @patch("builtins.open", new_callable=mock_open)
     def test_execute_live_mode_success(self, mock_file, mock_get, monkeypatch):
         """Test execution with mocked download"""
@@ -365,7 +365,7 @@ class TestDownloadFileWrapperTool:
         assert result["success"] is True
         mock_get.assert_called_once()
 
-    @patch("tools.code_execution.downloadfilewrapper_tool.downloadfilewrapper_tool.requests.get")
+    @patch("tools.infrastructure.execution.downloadfilewrapper_tool.downloadfilewrapper_tool.requests.get")
     def test_execute_live_mode_download_error(self, mock_get, monkeypatch):
         """Test execution with download error"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")

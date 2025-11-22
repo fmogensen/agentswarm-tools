@@ -15,15 +15,15 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
 
-from tools.media_generation.image_generation.image_generation import ImageGeneration
-from tools.media_generation.video_generation.video_generation import VideoGeneration
-from tools.media_generation.audio_generation.audio_generation import AudioGeneration
-from tools.media_generation.podcast_generator.podcast_generator import PodcastGenerator
-from tools.media_generation.image_style_transfer.image_style_transfer import ImageStyleTransfer
-from tools.media_generation.text_to_speech_advanced.text_to_speech_advanced import (
+from tools.media.generation.image_generation.image_generation import ImageGeneration
+from tools.media.generation.video_generation.video_generation import VideoGeneration
+from tools.media.generation.audio_generation.audio_generation import AudioGeneration
+from tools.media.generation.podcast_generator.podcast_generator import PodcastGenerator
+from tools.media.generation.image_style_transfer.image_style_transfer import ImageStyleTransfer
+from tools.media.generation.text_to_speech_advanced.text_to_speech_advanced import (
     TextToSpeechAdvanced,
 )
-from tools.media_generation.video_effects.video_effects import VideoEffects
+from tools.media.generation.video_effects.video_effects import VideoEffects
 
 from shared.errors import ValidationError, APIError, MediaError
 
@@ -77,7 +77,7 @@ class TestImageGeneration:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.media_generation.image_generation.image_generation.requests.post")
+    @patch("tools.media.generation.image_generation.image_generation.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -94,7 +94,7 @@ class TestImageGeneration:
 
         assert result["success"] is True
 
-    @patch("tools.media_generation.image_generation.image_generation.requests.post")
+    @patch("tools.media.generation.image_generation.image_generation.requests.post")
     def test_api_error_handling(self, mock_post, monkeypatch):
         """Test handling of API errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -158,7 +158,7 @@ class TestVideoGeneration:
         with pytest.raises(ValidationError):
             VideoGeneration(model="gemini/veo3", query="test", duration=0, task_summary="Test")
 
-    @patch("tools.media_generation.video_generation.video_generation.requests.post")
+    @patch("tools.media.generation.video_generation.video_generation.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -213,7 +213,7 @@ class TestAudioGeneration:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.media_generation.audio_generation.audio_generation.requests.post")
+    @patch("tools.media.generation.audio_generation.audio_generation.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -315,7 +315,7 @@ class TestImageStyleTransfer:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.media_generation.image_style_transfer.image_style_transfer.requests.post")
+    @patch("tools.media.generation.image_style_transfer.image_style_transfer.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -379,7 +379,7 @@ class TestTextToSpeechAdvanced:
         with pytest.raises(ValidationError):
             TextToSpeechAdvanced(text="test", speed=5.0, task_summary="Test")
 
-    @patch("tools.media_generation.text_to_speech_advanced.text_to_speech_advanced.requests.post")
+    @patch("tools.media.generation.text_to_speech_advanced.text_to_speech_advanced.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -444,7 +444,7 @@ class TestVideoEffects:
                 task_summary="Test",
             )
 
-    @patch("tools.media_generation.video_effects.video_effects.requests.post")
+    @patch("tools.media.generation.video_effects.video_effects.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")

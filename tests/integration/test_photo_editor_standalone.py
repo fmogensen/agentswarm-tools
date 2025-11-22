@@ -29,7 +29,7 @@ original_import = shared.base.AgencyBaseTool
 shared.base.AgencyBaseTool = MockAgencyBaseTool
 
 # Now import our tool
-from tools.media_processing.photo_editor.photo_editor import PhotoEditorTool
+from tools.media.processing.photo_editor.photo_editor import PhotoEditorTool
 
 # Set mock mode
 os.environ["USE_MOCK_APIS"] = "true"

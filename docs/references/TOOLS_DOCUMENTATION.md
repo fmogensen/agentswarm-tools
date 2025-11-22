@@ -1,28 +1,47 @@
 # AgentSwarm Tools - Complete Documentation
 
-**Generated**: 2025-11-22
-**Total Tool Count**: 101 tools across 18 categories
+**Version:** 2.0.0
+**Generated:** 2025-11-22
+**Total Tool Count:** 101 tools across 8 categories
 
 ---
 
 ## Table of Contents
 
-1. [Search & Information Retrieval](#search--information-retrieval)
-2. [Web Content & Data Access](#web-content--data-access)
-3. [Media Generation](#media-generation)
-4. [Media Analysis & Processing](#media-analysis--processing)
-5. [File & Storage Management](#file--storage-management)
-6. [Communication & Productivity](#communication--productivity)
-7. [Data Visualization](#data-visualization)
-8. [Location Services](#location-services)
-9. [Code Execution Environment](#code-execution-environment)
-10. [Document & Content Creation](#document--content-creation)
-11. [Workspace Integration](#workspace-integration)
-12. [Utility Tools](#utility-tools)
+1. [Data & Intelligence](#data--intelligence)
+   - Search Tools (8)
+   - Business Analytics (3)
+   - AI Intelligence (2)
+2. [Communication & Collaboration](#communication--collaboration)
+   - Email & Calendar
+   - Workspace Tools
+   - Messaging & Phone
+   - Location Services
+3. [Media](#media)
+   - Generation (7)
+   - Analysis (10)
+   - Processing (3)
+4. [Visualization](#visualization)
+   - Charts & Diagrams (16)
+5. [Content](#content)
+   - Documents (6)
+   - Web Content (4)
+6. [Infrastructure](#infrastructure)
+   - Code Execution (5)
+   - Storage (4)
+   - Management (2)
+7. [Utilities](#utilities)
+   - Helper Tools (8)
+8. [Integrations](#integrations)
+   - External Services (0 - Ready for Extensions)
 
 ---
 
-## Search & Information Retrieval
+## Data & Intelligence
+
+This category encompasses search capabilities, business analytics, and AI-powered intelligence tools.
+
+### Search Tools (8)
 
 ### 1. web_search
 

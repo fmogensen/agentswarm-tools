@@ -52,18 +52,32 @@ class TestGenerateLineChart:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         data = [{"x": 1, "y": 10}, {"x": 2, "y": 20}, {"x": 3, "y": 15}]
-        tool = GenerateLineChart(data=data, title="Sales Over Time", width=800, height=600)
-        assert tool.data == data
-        assert tool.title == "Sales Over Time"
-        assert tool.width == 800
-        assert tool.height == 600
+        tool = GenerateLineChart(
+            prompt="Sales Over Time",
+            params={
+                "data": data,
+                "title": "Sales Over Time",
+                "width": 800,
+                "height": 600
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Sales Over Time"
+        assert tool.params.get("width") == 800
+        assert tool.params.get("height") == 600
         assert tool.tool_name == "generate_line_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"x": 1, "y": 10}, {"x": 2, "y": 20}]
-        tool = GenerateLineChart(data=data, title="Test Chart")
+        tool = GenerateLineChart(
+            prompt="Test Chart",
+            params={
+                "data": data,
+                "title": "Test Chart"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -72,13 +86,25 @@ class TestGenerateLineChart:
 
     def test_validate_parameters_empty_data(self):
         """Test validation with empty data"""
-        tool = GenerateLineChart(data=[], title="Test")
+        tool = GenerateLineChart(
+            prompt="Test",
+            params={
+                "data": [],
+                "title": "Test"
+            }
+        )
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_invalid_data_format(self):
         """Test validation with invalid data format"""
-        tool = GenerateLineChart(data=[{"a": 1}], title="Test")
+        tool = GenerateLineChart(
+            prompt="Test",
+            params={
+                "data": [{"a": 1}],
+                "title": "Test"
+            }
+        )
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
@@ -92,16 +118,28 @@ class TestGenerateBarChart:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         data = [{"category": "A", "value": 10}, {"category": "B", "value": 20}]
-        tool = GenerateBarChart(data=data, title="Category Comparison")
-        assert tool.data == data
-        assert tool.title == "Category Comparison"
+        tool = GenerateBarChart(
+            prompt="Category Comparison",
+            params={
+                "data": data,
+                "title": "Category Comparison"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Category Comparison"
         assert tool.tool_name == "generate_bar_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"category": "Q1", "value": 100}, {"category": "Q2", "value": 150}]
-        tool = GenerateBarChart(data=data, title="Quarterly Results")
+        tool = GenerateBarChart(
+            prompt="Quarterly Results",
+            params={
+                "data": data,
+                "title": "Quarterly Results"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -117,16 +155,28 @@ class TestGeneratePieChart:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         data = [{"label": "Category A", "value": 30}, {"label": "Category B", "value": 70}]
-        tool = GeneratePieChart(data=data, title="Distribution")
-        assert tool.data == data
-        assert tool.title == "Distribution"
+        tool = GeneratePieChart(
+            prompt="Distribution",
+            params={
+                "data": data,
+                "title": "Distribution"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Distribution"
         assert tool.tool_name == "generate_pie_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"label": "Apple", "value": 40}, {"label": "Orange", "value": 60}]
-        tool = GeneratePieChart(data=data, title="Fruit Distribution")
+        tool = GeneratePieChart(
+            prompt="Fruit Distribution",
+            params={
+                "data": data,
+                "title": "Fruit Distribution"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -135,7 +185,13 @@ class TestGeneratePieChart:
     def test_validate_parameters_negative_values(self):
         """Test validation with negative values"""
         data = [{"label": "A", "value": -10}, {"label": "B", "value": 20}]
-        tool = GeneratePieChart(data=data, title="Test")
+        tool = GeneratePieChart(
+            prompt="Test",
+            params={
+                "data": data,
+                "title": "Test"
+            }
+        )
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
@@ -149,16 +205,28 @@ class TestGenerateScatterChart:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         data = [{"x": 1, "y": 2}, {"x": 2, "y": 4}, {"x": 3, "y": 6}]
-        tool = GenerateScatterChart(data=data, title="Correlation Plot")
-        assert tool.data == data
-        assert tool.title == "Correlation Plot"
+        tool = GenerateScatterChart(
+            prompt="Correlation Plot",
+            params={
+                "data": data,
+                "title": "Correlation Plot"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Correlation Plot"
         assert tool.tool_name == "generate_scatter_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"x": 10, "y": 20}, {"x": 15, "y": 25}]
-        tool = GenerateScatterChart(data=data, title="Test Scatter")
+        tool = GenerateScatterChart(
+            prompt="Test Scatter",
+            params={
+                "data": data,
+                "title": "Test Scatter"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -174,16 +242,28 @@ class TestGenerateAreaChart:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         data = [{"x": 1, "y": 10}, {"x": 2, "y": 20}, {"x": 3, "y": 15}]
-        tool = GenerateAreaChart(data=data, title="Area Trend")
-        assert tool.data == data
-        assert tool.title == "Area Trend"
+        tool = GenerateAreaChart(
+            prompt="Area Trend",
+            params={
+                "data": data,
+                "title": "Area Trend"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Area Trend"
         assert tool.tool_name == "generate_area_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"x": 1, "y": 5}, {"x": 2, "y": 10}]
-        tool = GenerateAreaChart(data=data, title="Test Area")
+        tool = GenerateAreaChart(
+            prompt="Test Area",
+            params={
+                "data": data,
+                "title": "Test Area"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -199,16 +279,28 @@ class TestGenerateColumnChart:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         data = [{"category": "Jan", "value": 100}, {"category": "Feb", "value": 120}]
-        tool = GenerateColumnChart(data=data, title="Monthly Sales")
-        assert tool.data == data
-        assert tool.title == "Monthly Sales"
+        tool = GenerateColumnChart(
+            prompt="Monthly Sales",
+            params={
+                "data": data,
+                "title": "Monthly Sales"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Monthly Sales"
         assert tool.tool_name == "generate_column_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"category": "A", "value": 50}, {"category": "B", "value": 75}]
-        tool = GenerateColumnChart(data=data, title="Test Column")
+        tool = GenerateColumnChart(
+            prompt="Test Column",
+            params={
+                "data": data,
+                "title": "Test Column"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -227,16 +319,28 @@ class TestGenerateDualAxesChart:
             "primary": [{"x": 1, "y": 10}, {"x": 2, "y": 20}],
             "secondary": [{"x": 1, "y": 100}, {"x": 2, "y": 200}],
         }
-        tool = GenerateDualAxesChart(data=data, title="Dual Axes Chart")
-        assert tool.data == data
-        assert tool.title == "Dual Axes Chart"
+        tool = GenerateDualAxesChart(
+            prompt="Dual Axes Chart",
+            params={
+                "data": data,
+                "title": "Dual Axes Chart"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Dual Axes Chart"
         assert tool.tool_name == "generate_dual_axes_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = {"primary": [{"x": 1, "y": 5}], "secondary": [{"x": 1, "y": 50}]}
-        tool = GenerateDualAxesChart(data=data, title="Test Dual")
+        tool = GenerateDualAxesChart(
+            prompt="Test Dual",
+            params={
+                "data": data,
+                "title": "Test Dual"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -258,16 +362,28 @@ class TestGenerateFishboneDiagram:
                 "Product": ["Quality issues", "High price"],
             },
         }
-        tool = GenerateFishboneDiagram(data=data, title="Root Cause Analysis")
-        assert tool.data == data
-        assert tool.title == "Root Cause Analysis"
+        tool = GenerateFishboneDiagram(
+            prompt="Root Cause Analysis",
+            params={
+                "data": data,
+                "title": "Root Cause Analysis"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Root Cause Analysis"
         assert tool.tool_name == "generate_fishbone_diagram"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = {"problem": "Test", "causes": {"Category1": ["Cause1"]}}
-        tool = GenerateFishboneDiagram(data=data, title="Test Fishbone")
+        tool = GenerateFishboneDiagram(
+            prompt="Test Fishbone",
+            params={
+                "data": data,
+                "title": "Test Fishbone"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -286,16 +402,28 @@ class TestGenerateFlowDiagram:
             "nodes": [{"id": "1", "label": "Start"}, {"id": "2", "label": "Process"}],
             "edges": [{"from": "1", "to": "2"}],
         }
-        tool = GenerateFlowDiagram(data=data, title="Process Flow")
-        assert tool.data == data
-        assert tool.title == "Process Flow"
+        tool = GenerateFlowDiagram(
+            prompt="Process Flow",
+            params={
+                "data": data,
+                "title": "Process Flow"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Process Flow"
         assert tool.tool_name == "generate_flow_diagram"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = {"nodes": [{"id": "A", "label": "Node A"}], "edges": []}
-        tool = GenerateFlowDiagram(data=data, title="Test Flow")
+        tool = GenerateFlowDiagram(
+            prompt="Test Flow",
+            params={
+                "data": data,
+                "title": "Test Flow"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -311,17 +439,30 @@ class TestGenerateHistogramChart:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         data = [1, 2, 2, 3, 3, 3, 4, 4, 5]
-        tool = GenerateHistogramChart(data=data, title="Distribution", bins=5)
-        assert tool.data == data
-        assert tool.title == "Distribution"
-        assert tool.bins == 5
+        tool = GenerateHistogramChart(
+            prompt="Distribution",
+            params={
+                "data": data,
+                "title": "Distribution",
+                "bins": 5
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Distribution"
+        assert tool.params.get("bins") == 5
         assert tool.tool_name == "generate_histogram_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [1, 2, 3, 4, 5]
-        tool = GenerateHistogramChart(data=data, title="Test Histogram")
+        tool = GenerateHistogramChart(
+            prompt="Test Histogram",
+            params={
+                "data": data,
+                "title": "Test Histogram"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -343,16 +484,28 @@ class TestGenerateMindMap:
                 {"label": "Execution", "children": ["Tasks", "Resources"]},
             ],
         }
-        tool = GenerateMindMap(data=data, title="Project Mind Map")
-        assert tool.data == data
-        assert tool.title == "Project Mind Map"
+        tool = GenerateMindMap(
+            prompt="Project Mind Map",
+            params={
+                "data": data,
+                "title": "Project Mind Map"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Project Mind Map"
         assert tool.tool_name == "generate_mind_map"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = {"central": "Main", "branches": [{"label": "Branch1", "children": []}]}
-        tool = GenerateMindMap(data=data, title="Test Mind Map")
+        tool = GenerateMindMap(
+            prompt="Test Mind Map",
+            params={
+                "data": data,
+                "title": "Test Mind Map"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -371,16 +524,28 @@ class TestGenerateNetworkGraph:
             "nodes": [{"id": "1", "label": "Node 1"}, {"id": "2", "label": "Node 2"}],
             "edges": [{"source": "1", "target": "2", "weight": 1}],
         }
-        tool = GenerateNetworkGraph(data=data, title="Network Diagram")
-        assert tool.data == data
-        assert tool.title == "Network Diagram"
+        tool = GenerateNetworkGraph(
+            prompt="Network Diagram",
+            params={
+                "data": data,
+                "title": "Network Diagram"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Network Diagram"
         assert tool.tool_name == "generate_network_graph"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = {"nodes": [{"id": "A", "label": "A"}], "edges": []}
-        tool = GenerateNetworkGraph(data=data, title="Test Network")
+        tool = GenerateNetworkGraph(
+            prompt="Test Network",
+            params={
+                "data": data,
+                "title": "Test Network"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -400,16 +565,28 @@ class TestGenerateRadarChart:
             {"axis": "Reliability", "value": 90},
             {"axis": "Cost", "value": 60},
         ]
-        tool = GenerateRadarChart(data=data, title="Performance Metrics")
-        assert tool.data == data
-        assert tool.title == "Performance Metrics"
+        tool = GenerateRadarChart(
+            prompt="Performance Metrics",
+            params={
+                "data": data,
+                "title": "Performance Metrics"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Performance Metrics"
         assert tool.tool_name == "generate_radar_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"axis": "A", "value": 50}, {"axis": "B", "value": 75}]
-        tool = GenerateRadarChart(data=data, title="Test Radar")
+        tool = GenerateRadarChart(
+            prompt="Test Radar",
+            params={
+                "data": data,
+                "title": "Test Radar"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -428,16 +605,28 @@ class TestGenerateTreemapChart:
             {"name": "Category A", "value": 100, "children": []},
             {"name": "Category B", "value": 200, "children": []},
         ]
-        tool = GenerateTreemapChart(data=data, title="Hierarchy View")
-        assert tool.data == data
-        assert tool.title == "Hierarchy View"
+        tool = GenerateTreemapChart(
+            prompt="Hierarchy View",
+            params={
+                "data": data,
+                "title": "Hierarchy View"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Hierarchy View"
         assert tool.tool_name == "generate_treemap_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"name": "A", "value": 50, "children": []}]
-        tool = GenerateTreemapChart(data=data, title="Test Treemap")
+        tool = GenerateTreemapChart(
+            prompt="Test Treemap",
+            params={
+                "data": data,
+                "title": "Test Treemap"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -457,16 +646,28 @@ class TestGenerateWordCloudChart:
             {"word": "JavaScript", "frequency": 80},
             {"word": "Java", "frequency": 60},
         ]
-        tool = GenerateWordCloudChart(data=data, title="Programming Languages")
-        assert tool.data == data
-        assert tool.title == "Programming Languages"
+        tool = GenerateWordCloudChart(
+            prompt="Programming Languages",
+            params={
+                "data": data,
+                "title": "Programming Languages"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Programming Languages"
         assert tool.tool_name == "generate_word_cloud_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = [{"word": "Test", "frequency": 10}]
-        tool = GenerateWordCloudChart(data=data, title="Test Word Cloud")
+        tool = GenerateWordCloudChart(
+            prompt="Test Word Cloud",
+            params={
+                "data": data,
+                "title": "Test Word Cloud"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -485,16 +686,28 @@ class TestGenerateOrganizationChart:
             "name": "CEO",
             "children": [{"name": "CTO", "children": []}, {"name": "CFO", "children": []}],
         }
-        tool = GenerateOrganizationChart(data=data, title="Company Structure")
-        assert tool.data == data
-        assert tool.title == "Company Structure"
+        tool = GenerateOrganizationChart(
+            prompt="Company Structure",
+            params={
+                "data": data,
+                "title": "Company Structure"
+            }
+        )
+        assert tool.params.get("data") == data
+        assert tool.params.get("title") == "Company Structure"
         assert tool.tool_name == "generate_organization_chart"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         data = {"name": "Root", "children": []}
-        tool = GenerateOrganizationChart(data=data, title="Test Org Chart")
+        tool = GenerateOrganizationChart(
+            prompt="Test Org Chart",
+            params={
+                "data": data,
+                "title": "Test Org Chart"
+            }
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -503,6 +716,12 @@ class TestGenerateOrganizationChart:
     def test_validate_parameters_missing_name(self):
         """Test validation with missing name field"""
         data = {"children": []}
-        tool = GenerateOrganizationChart(data=data, title="Test")
+        tool = GenerateOrganizationChart(
+            prompt="Test",
+            params={
+                "data": data,
+                "title": "Test"
+            }
+        )
         with pytest.raises(ValidationError):
             tool._validate_parameters()

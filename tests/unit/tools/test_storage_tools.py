@@ -12,10 +12,10 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
 
-from tools.storage.aidrive_tool.aidrive_tool import AIDriveTool
-from tools.storage.file_format_converter.file_format_converter import FileFormatConverter
-from tools.storage.onedrive_search.onedrive_search import OneDriveSearch
-from tools.storage.onedrive_file_read.onedrive_file_read import OneDriveFileRead
+from tools.infrastructure.storage.aidrive_tool.aidrive_tool import AIDriveTool
+from tools.infrastructure.storage.file_format_converter.file_format_converter import FileFormatConverter
+from tools.infrastructure.storage.onedrive_search.onedrive_search import OneDriveSearch
+from tools.infrastructure.storage.onedrive_file_read.onedrive_file_read import OneDriveFileRead
 
 from shared.errors import ValidationError, APIError, ResourceNotFoundError
 
@@ -101,7 +101,7 @@ class TestAIDriveTool:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.storage.aidrive_tool.aidrive_tool.os.listdir")
+    @patch("tools.infrastructure.storage.aidrive_tool.aidrive_tool.os.listdir")
     def test_execute_live_mode_list(self, mock_listdir, monkeypatch):
         """Test list action in live mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -112,7 +112,7 @@ class TestAIDriveTool:
 
         assert result["success"] is True
 
-    @patch("tools.storage.aidrive_tool.aidrive_tool.open", create=True)
+    @patch("tools.infrastructure.storage.aidrive_tool.aidrive_tool.open", create=True)
     def test_execute_live_mode_upload(self, mock_open, monkeypatch):
         """Test upload action in live mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -179,7 +179,7 @@ class TestFileFormatConverter:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.storage.file_format_converter.file_format_converter.requests.post")
+    @patch("tools.infrastructure.storage.file_format_converter.file_format_converter.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked conversion API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -261,7 +261,7 @@ class TestOneDriveSearch:
         with pytest.raises(ValidationError):
             OneDriveSearch(query="test", max_results=0)
 
-    @patch("tools.storage.onedrive_search.onedrive_search.requests.get")
+    @patch("tools.infrastructure.storage.onedrive_search.onedrive_search.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked OneDrive API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -282,7 +282,7 @@ class TestOneDriveSearch:
 
         assert result["success"] is True
 
-    @patch("tools.storage.onedrive_search.onedrive_search.requests.get")
+    @patch("tools.infrastructure.storage.onedrive_search.onedrive_search.requests.get")
     def test_api_error_handling_authentication(self, mock_get, monkeypatch):
         """Test handling of authentication errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -331,7 +331,7 @@ class TestOneDriveFileRead:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.storage.onedrive_file_read.onedrive_file_read.requests.get")
+    @patch("tools.infrastructure.storage.onedrive_file_read.onedrive_file_read.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked OneDrive API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -347,7 +347,7 @@ class TestOneDriveFileRead:
 
         assert result["success"] is True
 
-    @patch("tools.storage.onedrive_file_read.onedrive_file_read.requests.get")
+    @patch("tools.infrastructure.storage.onedrive_file_read.onedrive_file_read.requests.get")
     def test_api_error_handling_not_found(self, mock_get, monkeypatch):
         """Test handling of file not found errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -372,7 +372,7 @@ class TestOneDriveFileRead:
 
         assert result["success"] is True
 
-    @patch("tools.storage.onedrive_file_read.onedrive_file_read.requests.get")
+    @patch("tools.infrastructure.storage.onedrive_file_read.onedrive_file_read.requests.get")
     def test_execute_live_mode_binary_file(self, mock_get, monkeypatch):
         """Test reading binary file content"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")

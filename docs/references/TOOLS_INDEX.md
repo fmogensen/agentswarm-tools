@@ -1,5 +1,8 @@
 # AgentSwarm Tools - Alphabetical Index
 
+**Version:** 2.0.0
+**Last Updated:** 2025-11-22
+
 Quick reference index of all 101 tools with one-line descriptions.
 
 ---

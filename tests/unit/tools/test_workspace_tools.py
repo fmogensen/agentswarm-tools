@@ -10,8 +10,8 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
 
-from tools.workspace.notion_search.notion_search import NotionSearch
-from tools.workspace.notion_read.notion_read import NotionRead
+from tools.communication.notion_search.notion_search import NotionSearch
+from tools.communication.notion_read.notion_read import NotionRead
 
 from shared.errors import ValidationError, APIError, AuthenticationError
 
@@ -68,7 +68,7 @@ class TestNotionSearch:
         with pytest.raises(ValidationError):
             NotionSearch(query="test", max_results=1000)
 
-    @patch("tools.workspace.notion_search.notion_search.requests.post")
+    @patch("tools.communication.notion_search.notion_search.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
         """Test execution with mocked Notion API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -96,7 +96,7 @@ class TestNotionSearch:
         assert len(result["result"]) == 2
         mock_post.assert_called_once()
 
-    @patch("tools.workspace.notion_search.notion_search.requests.post")
+    @patch("tools.communication.notion_search.notion_search.requests.post")
     def test_api_error_handling_missing_api_key(self, mock_post, monkeypatch):
         """Test handling of missing API key"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -107,7 +107,7 @@ class TestNotionSearch:
             tool.run()
         assert "api" in str(exc_info.value).lower() or "key" in str(exc_info.value).lower()
 
-    @patch("tools.workspace.notion_search.notion_search.requests.post")
+    @patch("tools.communication.notion_search.notion_search.requests.post")
     def test_api_error_handling_network_failure(self, mock_post, monkeypatch):
         """Test handling of network failures"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -119,7 +119,7 @@ class TestNotionSearch:
         with pytest.raises(APIError):
             tool.run()
 
-    @patch("tools.workspace.notion_search.notion_search.requests.post")
+    @patch("tools.communication.notion_search.notion_search.requests.post")
     def test_edge_case_empty_results(self, mock_post, monkeypatch):
         """Test handling of empty search results"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -150,7 +150,7 @@ class TestNotionSearch:
             result = tool.run()
             assert result["success"] is True
 
-    @patch("tools.workspace.notion_search.notion_search.requests.post")
+    @patch("tools.communication.notion_search.notion_search.requests.post")
     def test_rate_limit_handling(self, mock_post, monkeypatch):
         """Test handling of rate limit errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -208,7 +208,7 @@ class TestNotionRead:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.workspace.notion_read.notion_read.requests.get")
+    @patch("tools.communication.notion_read.notion_read.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):
         """Test execution with mocked Notion API"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -228,7 +228,7 @@ class TestNotionRead:
         assert result["success"] is True
         mock_get.assert_called_once()
 
-    @patch("tools.workspace.notion_read.notion_read.requests.get")
+    @patch("tools.communication.notion_read.notion_read.requests.get")
     def test_api_error_handling_missing_api_key(self, mock_get, monkeypatch):
         """Test handling of missing API key"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -239,7 +239,7 @@ class TestNotionRead:
             tool.run()
         assert "api" in str(exc_info.value).lower() or "key" in str(exc_info.value).lower()
 
-    @patch("tools.workspace.notion_read.notion_read.requests.get")
+    @patch("tools.communication.notion_read.notion_read.requests.get")
     def test_api_error_handling_page_not_found(self, mock_get, monkeypatch):
         """Test handling of page not found errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -254,7 +254,7 @@ class TestNotionRead:
         with pytest.raises(APIError):
             tool.run()
 
-    @patch("tools.workspace.notion_read.notion_read.requests.get")
+    @patch("tools.communication.notion_read.notion_read.requests.get")
     def test_api_error_handling_permission_denied(self, mock_get, monkeypatch):
         """Test handling of permission denied errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
@@ -269,7 +269,7 @@ class TestNotionRead:
         with pytest.raises(APIError):
             tool.run()
 
-    @patch("tools.workspace.notion_read.notion_read.requests.get")
+    @patch("tools.communication.notion_read.notion_read.requests.get")
     def test_edge_case_large_page_content(self, mock_get, monkeypatch):
         """Test reading large page content"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
