@@ -1,6 +1,6 @@
 # AgentSwarm Tools - Complete Catalog
 
-**Total Tools**: 84 production-ready tools
+**Total Tools**: 98 production-ready tools
 **Date**: November 22, 2025
 **Repository**: agentswarm-tools
 
@@ -13,19 +13,20 @@ This catalog provides a complete reference of all tools organized by category wi
 1. [Agent Management](#agent-management) (2 tools)
 2. [Business Intelligence](#business-intelligence) (3 tools)
 3. [Code Execution](#code-execution) (5 tools)
-4. [Communication](#communication) (14 tools)
-5. [Document Creation](#document-creation) (1 tool)
+4. [Communication](#communication) (18 tools)
+5. [Document Creation](#document-creation) (4 tools)
 6. [Location Services](#location-services) (1 tool)
 7. [Media Analysis](#media-analysis) (10 tools)
 8. [Media Generation](#media-generation) (6 tools)
-9. [Search & Information Retrieval](#search--information-retrieval) (8 tools)
-10. [Storage & File Management](#storage--file-management) (4 tools)
-11. [Utilities](#utilities) (6 tools)
-12. [Visualization](#visualization) (16 tools)
-13. [Web](#web) (1 tool)
-14. [Web Content](#web-content) (4 tools)
-15. [Workspace Integration](#workspace-integration) (2 tools)
-16. [Examples](#examples) (1 tool)
+9. [Media Processing](#media-processing) (2 tools)
+10. [Search & Information Retrieval](#search--information-retrieval) (8 tools)
+11. [Storage & File Management](#storage--file-management) (4 tools)
+12. [Utilities](#utilities) (8 tools)
+13. [Visualization](#visualization) (16 tools)
+14. [Web](#web) (1 tool)
+15. [Web Content](#web-content) (4 tools)
+16. [Workspace Integration](#workspace-integration) (5 tools)
+17. [Examples](#examples) (1 tool)
 
 ---
 
@@ -541,11 +542,134 @@ tool = TeamsSendMessage(
 result = tool.run()
 ```
 
+### 25. GoogleDocs
+**File**: `tools/communication/google_docs/google_docs.py`
+
+**Description**: Create and modify Google Docs using Google Docs API v1 with markdown support.
+
+**Key Parameters**:
+- `mode`: Operation mode ("create" or "modify")
+- `content`: Document content (supports markdown)
+- `title`: Document title (required for create mode)
+- `document_id`: Existing document ID (required for modify mode)
+- `share_with`: Optional list of email addresses for sharing
+- `modify_action`: Action for modify mode ("append", "replace", "insert")
+
+**Example Usage**:
+```python
+from tools.communication.google_docs import GoogleDocs
+
+# Create new document
+tool = GoogleDocs(
+    mode="create",
+    title="Q4 Business Report",
+    content="# Executive Summary\n\nThis is **important** information.",
+    share_with=["team@company.com"]
+)
+result = tool.run()
+
+# Modify existing document
+tool = GoogleDocs(
+    mode="modify",
+    document_id="abc123",
+    content="## New Section\n\nAppended content here.",
+    modify_action="append"
+)
+result = tool.run()
+```
+
+### 26. GoogleSheets
+**File**: `tools/communication/google_sheets/google_sheets.py`
+
+**Description**: Create and modify Google Sheets spreadsheets with data manipulation capabilities.
+
+**Key Parameters**:
+- `mode`: Operation mode ("create" or "modify")
+- `title`: Spreadsheet title
+- `spreadsheet_id`: Existing spreadsheet ID (required for modify mode)
+- `data`: Data to write (2D array format)
+- `range`: Cell range (e.g., "Sheet1!A1:C10")
+- `share_with`: Optional list of email addresses
+
+**Example Usage**:
+```python
+from tools.communication.google_sheets import GoogleSheets
+
+# Create new spreadsheet
+tool = GoogleSheets(
+    mode="create",
+    title="Sales Data Q4",
+    data=[
+        ["Product", "Units", "Revenue"],
+        ["Product A", 100, 5000],
+        ["Product B", 150, 7500]
+    ],
+    range="Sheet1!A1:C3"
+)
+result = tool.run()
+```
+
+### 27. GoogleSlides
+**File**: `tools/communication/google_slides/google_slides.py`
+
+**Description**: Create and modify Google Slides presentations programmatically.
+
+**Key Parameters**:
+- `mode`: Operation mode ("create" or "modify")
+- `title`: Presentation title
+- `presentation_id`: Existing presentation ID (required for modify mode)
+- `slides`: List of slide content dictionaries
+- `share_with`: Optional list of email addresses
+
+**Example Usage**:
+```python
+from tools.communication.google_slides import GoogleSlides
+
+# Create new presentation
+tool = GoogleSlides(
+    mode="create",
+    title="Q4 Review Presentation",
+    slides=[
+        {"title": "Welcome", "content": "Q4 Business Review"},
+        {"title": "Revenue Growth", "content": "Up 15% YoY"}
+    ]
+)
+result = tool.run()
+```
+
+### 28. MeetingNotesAgent
+**File**: `tools/communication/meeting_notes/meeting_notes.py`
+
+**Description**: Transcribe meeting audio and generate structured notes with action items and key decisions.
+
+**Key Parameters**:
+- `audio_url`: URL to meeting audio file
+- `export_formats`: List of export formats (notion, pdf, markdown)
+- `include_transcript`: Whether to include full transcript
+- `extract_action_items`: Whether to extract action items
+- `identify_speakers`: Whether to identify different speakers
+- `meeting_title`: Optional meeting title
+
+**Example Usage**:
+```python
+from tools.communication.meeting_notes import MeetingNotesAgent
+
+tool = MeetingNotesAgent(
+    audio_url="https://example.com/meeting-2025-11-22.mp3",
+    export_formats=["notion", "markdown"],
+    extract_action_items=True,
+    identify_speakers=True,
+    meeting_title="Q4 Planning Meeting"
+)
+result = tool.run()
+# Returns: notes_url, transcript_url, action_items count, duration
+```
+
 ---
 
 ## Document Creation
 
-### 25. CreateAgent
+### 29. CreateAgent
 **File**: `tools/document_creation/create_agent/create_agent.py`
 
 **Description**: Create comprehensive documents, presentations, spreadsheets, podcasts, websites, and more using AI.
@@ -577,11 +701,115 @@ tool = CreateAgent(
 result = tool.run()
 ```
 
+### 30. OfficeDocsTool
+**File**: `tools/document_creation/office_docs/office_docs.py`
+
+**Description**: Generate or modify professional Word documents (.docx) from structured content with markdown support.
+
+**Key Parameters**:
+- `mode`: Operation mode ("create" or "modify")
+- `content`: Document content (supports markdown)
+- `template`: Template type (report, proposal, memo, letter, blank)
+- `title`: Document title
+- `include_toc`: Whether to include table of contents
+- `font_name`: Font family (Calibri, Arial, Times New Roman)
+- `font_size`: Base font size in points (default: 11)
+- `output_format`: Output format (docx, pdf, both)
+- `existing_file_url`: URL to existing document (for modify mode)
+
+**Example Usage**:
+```python
+from tools.document_creation.office_docs import OfficeDocsTool
+
+# Create new report
+tool = OfficeDocsTool(
+    mode="create",
+    content="# Executive Summary\n\n## Key Findings\n\n- Revenue up 15%\n- Costs down 8%",
+    template="report",
+    title="Q4 2024 Financial Report",
+    include_toc=True,
+    output_format="pdf"
+)
+result = tool.run()
+
+# Modify existing document
+tool = OfficeDocsTool(
+    mode="modify",
+    existing_file_url="computer:///path/to/report.docx",
+    content="\n\n# Appendix\n\nAdditional data...",
+    title="Updated Q4 Report"
+)
+result = tool.run()
+```
+
+### 31. OfficeSlidesTool
+**File**: `tools/document_creation/office_slides/office_slides.py`
+
+**Description**: Create or modify PowerPoint presentations (.pptx) with structured content and layouts.
+
+**Key Parameters**:
+- `mode`: Operation mode ("create" or "modify")
+- `title`: Presentation title
+- `slides`: List of slide dictionaries with title and content
+- `template`: Template style (business, modern, minimal, creative)
+- `existing_file_url`: URL to existing presentation (for modify mode)
+
+**Example Usage**:
+```python
+from tools.document_creation.office_slides import OfficeSlidesTool
+
+# Create new presentation
+tool = OfficeSlidesTool(
+    mode="create",
+    title="Q4 Business Review",
+    slides=[
+        {"title": "Welcome", "content": "Q4 2024 Performance", "layout": "title"},
+        {"title": "Revenue Growth", "content": "Up 15% YoY\n- Product A: +20%\n- Product B: +12%", "layout": "content"},
+        {"title": "Next Steps", "content": "1. Expand market\n2. Launch new product", "layout": "bullets"}
+    ],
+    template="business"
+)
+result = tool.run()
+```
+
+### 32. OfficeSheetsTool
+**File**: `tools/document_creation/office_sheets/office_sheets.py`
+
+**Description**: Generate or modify Excel spreadsheets (.xlsx) with data, formulas, and formatting.
+
+**Key Parameters**:
+- `mode`: Operation mode ("create" or "modify")
+- `title`: Spreadsheet title
+- `data`: 2D array of spreadsheet data
+- `sheet_name`: Name of worksheet
+- `include_formulas`: Whether to include auto-calculated formulas
+- `existing_file_url`: URL to existing spreadsheet (for modify mode)
+
+**Example Usage**:
+```python
+from tools.document_creation.office_sheets import OfficeSheetsTool
+
+# Create new spreadsheet
+tool = OfficeSheetsTool(
+    mode="create",
+    title="Sales Data Q4",
+    data=[
+        ["Product", "Q1", "Q2", "Q3", "Q4", "Total"],
+        ["Product A", 1000, 1200, 1100, 1400, "=SUM(B2:E2)"],
+        ["Product B", 800, 950, 900, 1100, "=SUM(B3:E3)"],
+        ["Total", "=SUM(B2:B3)", "=SUM(C2:C3)", "=SUM(D2:D3)", "=SUM(E2:E3)", "=SUM(F2:F3)"]
+    ],
+    sheet_name="Q4 Sales",
+    include_formulas=True
+)
+result = tool.run()
+```
+
 ---
 
 ## Location Services
 
-### 26. MapsSearch
+### 33. MapsSearch
 **File**: `tools/location/maps_search/maps_search.py`
 
 **Description**: Search for locations, get directions, and retrieve place information using Google Maps.
@@ -981,9 +1209,112 @@ result = tool.run()
 
 ---
 
+## Media Processing
+
+### 43. PhotoEditorTool
+**File**: `tools/media_processing/photo_editor/photo_editor.py`
+
+**Description**: Perform advanced photo editing operations on existing images including resize, crop, filters, and effects.
+
+**Key Parameters**:
+- `image_url`: URL to source image
+- `operations`: List of editing operations to apply
+- `output_format`: Output format (png, jpg, webp)
+- `quality`: Output quality 1-100 (for jpg)
+
+**Supported Operations**:
+- **resize**: Change image dimensions
+- **crop**: Crop to specific region
+- **rotate**: Rotate by degrees
+- **flip**: Flip horizontal or vertical
+- **filter**: Apply filters (brightness, contrast, saturation, blur, sharpen)
+- **background_remove**: Remove image background
+
+**Example Usage**:
+```python
+from tools.media_processing.photo_editor import PhotoEditorTool
+
+# Resize and enhance photo
+tool = PhotoEditorTool(
+    image_url="https://example.com/photo.jpg",
+    operations=[
+        {"type": "resize", "width": 1920, "height": 1080},
+        {"type": "filter", "name": "brightness", "value": 1.2},
+        {"type": "filter", "name": "contrast", "value": 1.1},
+        {"type": "filter", "name": "sharpen", "amount": 1.3}
+    ],
+    output_format="jpg",
+    quality=95
+)
+result = tool.run()
+
+# Crop and apply artistic filter
+tool = PhotoEditorTool(
+    image_url="https://example.com/landscape.jpg",
+    operations=[
+        {"type": "crop", "x": 0, "y": 0, "width": 800, "height": 600},
+        {"type": "filter", "name": "saturation", "value": 1.5},
+        {"type": "filter", "name": "blur", "radius": 2}
+    ],
+    output_format="png"
+)
+result = tool.run()
+```
+
+### 44. VideoEditorTool
+**File**: `tools/media_processing/video_editor/video_editor.py`
+
+**Description**: Edit videos using FFmpeg including trim, merge, add audio, apply effects, and format conversion.
+
+**Key Parameters**:
+- `video_url`: URL to source video
+- `operations`: List of editing operations
+- `output_format`: Output format (mp4, avi, mov, webm)
+- `quality`: Output quality preset (low, medium, high, ultra)
+
+**Supported Operations**:
+- **trim**: Cut video to specific time range
+- **merge**: Combine multiple videos
+- **add_audio**: Add or replace audio track
+- **resize**: Change video resolution
+- **speed**: Adjust playback speed
+- **watermark**: Add watermark overlay
+- **effects**: Apply visual effects
+
+**Example Usage**:
+```python
+from tools.media_processing.video_editor import VideoEditorTool
+
+# Trim and resize video
+tool = VideoEditorTool(
+    video_url="https://example.com/video.mp4",
+    operations=[
+        {"type": "trim", "start_time": "00:00:10", "end_time": "00:02:30"},
+        {"type": "resize", "width": 1280, "height": 720},
+        {"type": "speed", "factor": 1.5}
+    ],
+    output_format="mp4",
+    quality="high"
+)
+result = tool.run()
+
+# Add watermark and audio
+tool = VideoEditorTool(
+    video_url="https://example.com/raw_video.mp4",
+    operations=[
+        {"type": "watermark", "image_url": "https://example.com/logo.png", "position": "bottom-right"},
+        {"type": "add_audio", "audio_url": "https://example.com/background.mp3", "volume": 0.3}
+    ],
+    output_format="mp4"
+)
+result = tool.run()
+```
+
+---
+
 ## Search & Information Retrieval
 
-### 43. FinancialReport
+### 45. FinancialReport
 **File**: `tools/search/financial_report/financial_report.py`
 
 **Description**: Retrieve financial reports and SEC filings for public companies.
@@ -1395,11 +1726,112 @@ tool = Think(
 result = tool.run()
 ```
 
+### 61. FactChecker
+**File**: `tools/utils/fact_checker/fact_checker.py`
+
+**Description**: Verify claims using web search and academic sources with confidence scoring and source analysis.
+
+**Key Parameters**:
+- `claim`: The claim or statement to verify (required)
+- `sources`: Optional list of specific source URLs to check
+- `use_scholar`: Whether to include academic sources via scholar search
+- `max_sources`: Maximum number of sources to analyze (default: 10)
+
+**Returns**:
+- `confidence_score`: Score from 0-100 (0=false, 100=true)
+- `verdict`: "SUPPORTED", "CONTRADICTED", "INSUFFICIENT_EVIDENCE"
+- `supporting_sources`: List of sources supporting the claim
+- `contradicting_sources`: List of sources contradicting the claim
+- `neutral_sources`: List of neutral/informational sources
+- `analysis_summary`: Brief explanation of the verdict
+
+**Example Usage**:
+```python
+from tools.utils.fact_checker import FactChecker
+
+# Check a claim using web and academic sources
+tool = FactChecker(
+    claim="Electric vehicles produce lower lifetime emissions than gasoline cars",
+    use_scholar=True,
+    max_sources=15
+)
+result = tool.run()
+print(f"Verdict: {result['result']['verdict']}")
+print(f"Confidence: {result['result']['confidence_score']}/100")
+print(f"Supporting sources: {len(result['result']['supporting_sources'])}")
+print(f"Analysis: {result['result']['analysis_summary']}")
+
+# Check with specific sources
+tool = FactChecker(
+    claim="Python is the most popular programming language in 2024",
+    sources=["https://www.tiobe.com", "https://survey.stackoverflow.co"],
+    max_sources=5
+)
+result = tool.run()
+```
+
+### 62. Translation
+**File**: `tools/utils/translation/translation.py`
+
+**Description**: Multi-language translation with format preservation supporting 100+ languages via Google Translate or DeepL.
+
+**Key Parameters**:
+- `text`: Text to translate (required, max 10,000 characters)
+- `source_lang`: Source language code (auto-detect if None)
+- `target_lang`: Target language code (required, e.g., 'es', 'fr', 'de', 'ja', 'zh')
+- `preserve_formatting`: Whether to preserve markdown/HTML formatting
+- `api_provider`: Which API to use ('google' or 'deepl', default: 'google')
+
+**Supported Languages** (examples):
+- English: 'en', Spanish: 'es', French: 'fr', German: 'de'
+- Italian: 'it', Portuguese: 'pt', Russian: 'ru'
+- Japanese: 'ja', Korean: 'ko', Chinese: 'zh'/'zh-CN'/'zh-TW'
+- Arabic: 'ar', Hindi: 'hi', and 90+ more languages
+
+**Example Usage**:
+```python
+from tools.utils.translation import Translation
+
+# Basic translation
+tool = Translation(
+    text="Hello, world! How are you today?",
+    target_lang="es",
+    preserve_formatting=False
+)
+result = tool.run()
+print(result['result']['translated_text'])  # "¡Hola, mundo! ¿Cómo estás hoy?"
+
+# Auto-detect source language
+tool = Translation(
+    text="Bonjour, comment allez-vous?",
+    target_lang="en"
+)
+result = tool.run()
+print(f"Detected: {result['result']['detected_language']}")  # "fr"
+print(result['result']['translated_text'])  # "Hello, how are you?"
+
+# Preserve markdown formatting
+tool = Translation(
+    text="**Important**: This is a *test* with [a link](https://example.com)",
+    target_lang="de",
+    preserve_formatting=True
+)
+result = tool.run()
+
+# Use DeepL API for higher quality
+tool = Translation(
+    text="The quick brown fox jumps over the lazy dog.",
+    target_lang="ja",
+    api_provider="deepl"
+)
+result = tool.run()
+```
+
 ---
 
 ## Visualization
 
-### 61. GenerateAreaChart
+### 63. GenerateAreaChart
 **File**: `tools/visualization/generate_area_chart/generate_area_chart.py`
 
 **Description**: Create area charts for showing cumulative trends over time.
@@ -1933,11 +2365,87 @@ tool = NotionSearch(
 result = tool.run()
 ```
 
+### 84. GoogleDocs (Workspace)
+**File**: `tools/communication/google_docs/google_docs.py`
+
+**Description**: Create and modify Google Docs using Google Docs API v1 (also listed in Communication category).
+
+**Key Parameters**:
+- `mode`: "create" or "modify"
+- `content`: Document content (markdown supported)
+- `title`: Document title
+- `document_id`: For modify mode
+- `share_with`: Email addresses to share with
+
+**Example Usage**:
+```python
+from tools.communication.google_docs import GoogleDocs
+
+tool = GoogleDocs(
+    mode="create",
+    title="Team Meeting Notes",
+    content="# Agenda\n\n1. Project updates\n2. Next steps",
+    share_with=["team@company.com"]
+)
+result = tool.run()
+```
+
+### 85. GoogleSheets (Workspace)
+**File**: `tools/communication/google_sheets/google_sheets.py`
+
+**Description**: Create and modify Google Sheets spreadsheets (also listed in Communication category).
+
+**Key Parameters**:
+- `mode`: "create" or "modify"
+- `title`: Spreadsheet title
+- `data`: 2D array of data
+- `range`: Cell range
+- `share_with`: Email addresses
+
+**Example Usage**:
+```python
+from tools.communication.google_sheets import GoogleSheets
+
+tool = GoogleSheets(
+    mode="create",
+    title="Team Budget",
+    data=[["Item", "Cost"], ["Software", 1000], ["Hardware", 2000]],
+    range="Sheet1!A1:B3"
+)
+result = tool.run()
+```
+
+### 86. GoogleSlides (Workspace)
+**File**: `tools/communication/google_slides/google_slides.py`
+
+**Description**: Create and modify Google Slides presentations (also listed in Communication category).
+
+**Key Parameters**:
+- `mode`: "create" or "modify"
+- `title`: Presentation title
+- `slides`: List of slide content
+- `share_with`: Email addresses
+
+**Example Usage**:
+```python
+from tools.communication.google_slides import GoogleSlides
+
+tool = GoogleSlides(
+    mode="create",
+    title="Project Kickoff",
+    slides=[
+        {"title": "Welcome", "content": "Project Kickoff Meeting"},
+        {"title": "Goals", "content": "Q4 objectives and milestones"}
+    ]
+)
+result = tool.run()
+```
+
 ---
 
 ## Examples
 
-### 84. DemoTool
+### 87. DemoTool
 **File**: `tools/_examples/demo_tool/demo_tool.py`
 
 **Description**: Example tool demonstrating the Agency Swarm tool development pattern.

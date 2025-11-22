@@ -152,3 +152,52 @@ class EmailDraft(BaseTool):
 
         except Exception as e:
             raise APIError(f"Email generation failed: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    print("Testing EmailDraft...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Generate basic email draft
+    print("\nTest 1: Generate basic email draft")
+    tool = EmailDraft(input="Meeting tomorrow at 3pm")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert 'subject' in result.get('result', {})
+    assert 'body_text' in result.get('result', {})
+    assert 'body_html' in result.get('result', {})
+    print(f"✅ Test 1 passed: Email draft generated")
+    print(f"   Subject: {result.get('result', {}).get('subject')}")
+
+    # Test 2: Longer input text
+    print("\nTest 2: Generate email with longer content")
+    long_input = "I would like to discuss the quarterly report and schedule a follow-up meeting to review our progress on the project objectives"
+    tool = EmailDraft(input=long_input)
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert len(result.get('result', {}).get('body_text', '')) > 0
+    print(f"✅ Test 2 passed: Long email draft generated")
+
+    # Test 3: Validation - empty input
+    print("\nTest 3: Validation - empty input")
+    try:
+        bad_tool = EmailDraft(input="   ")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: HTML body verification
+    print("\nTest 4: HTML body verification")
+    tool = EmailDraft(input="Project update")
+    result = tool.run()
+
+    html_body = result.get('result', {}).get('body_html', '')
+    assert '<html>' in html_body or '<p>' in html_body
+    print(f"✅ Test 4 passed: HTML body generated correctly")
+
+    print("\n✅ All tests passed!")

@@ -1164,11 +1164,169 @@
 
 ---
 
+## Category 13: NEW - Media Processing
+
+### EXAMPLE 35: photo_editor
+
+**Input:**
+```json
+{
+  "image_url": "https://example.com/photo.jpg",
+  "operations": [
+    {"type": "resize", "width": 1920, "height": 1080},
+    {"type": "filter", "name": "brightness", "value": 1.2},
+    {"type": "filter", "name": "contrast", "value": 1.1}
+  ],
+  "output_format": "jpg",
+  "quality": 90
+}
+```
+
+**Actual Output Summary:**
+- **Status**: Success
+- **Edited Image URL**: https://storage.example.com/edited_photo_abc123.jpg
+- **Format**: jpg
+- **Size**: 1920x1080
+- **File Size**: 245 KB
+- **Operations Applied**: 3
+
+**Use Cases:**
+- Batch photo enhancement for social media
+- Product image optimization for e-commerce
+- Automated photo resizing for web galleries
+
+---
+
+### EXAMPLE 36: video_editor
+
+**Input:**
+```json
+{
+  "video_url": "https://example.com/video.mp4",
+  "operations": [
+    {"type": "trim", "start_time": "00:00:10", "end_time": "00:02:30"},
+    {"type": "resize", "width": 1280, "height": 720}
+  ],
+  "output_format": "mp4",
+  "quality": "high"
+}
+```
+
+**Actual Output Summary:**
+- **Status**: Success
+- **Edited Video URL**: https://storage.example.com/edited_video_xyz789.mp4
+- **Resolution**: 1280x720
+- **Duration**: 2:20
+- **File Size**: 15.2 MB
+
+**Use Cases:**
+- Trimming video clips for social media
+- Batch video processing for content creation
+
+---
+
+## Category 14: NEW - Document Creation & Utilities
+
+### EXAMPLE 37: office_docs
+
+**Input:**
+```json
+{
+  "mode": "create",
+  "content": "# Q4 Financial Report\n\n## Executive Summary\n\nRevenue increased 15% YoY...",
+  "template": "report",
+  "title": "Q4 2024 Financial Report",
+  "output_format": "pdf"
+}
+```
+
+**Actual Output Summary:**
+- **Status**: Success
+- **Document URL**: https://storage.example.com/Q4_Report_2024.pdf
+- **Format**: PDF
+- **Pages**: 12
+- **File Size**: 342 KB
+
+**Use Cases:**
+- Automated report generation
+- Creating business proposals
+
+---
+
+### EXAMPLE 38: fact_checker
+
+**Input:**
+```json
+{
+  "claim": "Electric vehicles produce lower lifetime emissions than gasoline cars",
+  "use_scholar": true,
+  "max_sources": 10
+}
+```
+
+**Actual Output Summary:**
+- **Verdict**: SUPPORTED
+- **Confidence Score**: 78/100
+- **Supporting Sources**: 6 sources
+- **Contradicting Sources**: 2 sources
+- **Analysis**: "The claim appears to be SUPPORTED by available evidence."
+
+**Use Cases:**
+- Verifying news claims
+- Research validation
+
+---
+
+### EXAMPLE 39: translation
+
+**Input:**
+```json
+{
+  "text": "Hello, world! How are you today?",
+  "target_lang": "es"
+}
+```
+
+**Actual Output Summary:**
+- **Translated Text**: "¡Hola, mundo! ¿Cómo estás hoy?"
+- **Detected Language**: en
+- **Character Count**: 30
+
+**Use Cases:**
+- Website localization
+- Multi-language customer support
+
+---
+
+### EXAMPLE 40: meeting_notes_agent
+
+**Input:**
+```json
+{
+  "audio_url": "https://example.com/meeting.mp3",
+  "export_formats": ["markdown", "pdf"],
+  "extract_action_items": true,
+  "meeting_title": "Q4 Planning Meeting"
+}
+```
+
+**Actual Output Summary:**
+- **Notes URL**: https://storage.example.com/meeting-notes.md
+- **Action Items**: 5 extracted
+- **Duration**: 45:30
+- **Exports**: markdown, pdf
+
+**Use Cases:**
+- Automated meeting transcription
+- Action item extraction
+
+---
+
 ## Summary Statistics
 
-**Total Examples Documented**: 34+
-**Categories Covered**: 12
-**Tools with Real Output**: 34+
+**Total Examples Documented**: 40+
+**Categories Covered**: 14
+**Tools with Real Output**: 40+
 
 **Output Types:**
 - JSON structured data

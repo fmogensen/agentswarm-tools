@@ -1,6 +1,6 @@
 # AgentSwarm Tools - Alphabetical Index
 
-Quick reference index of all 60+ tools with one-line descriptions.
+Quick reference index of all 98 tools with one-line descriptions.
 
 ---
 
@@ -62,30 +62,42 @@ Extract audio track from video files to MP3
 
 ## F
 
-**file_format_converter**  
+**fact_checker**
+Verify claims using web search and academic sources with confidence scoring
+
+**file_format_converter**
 Convert files between different formats
 
-**financial_report**  
+**financial_report**
 Search official financial reports, earnings, statements for public companies
 
 ---
 
 ## G
 
-**gmail_read**  
+**gmail_read**
 Read specific email from Gmail by ID and process content
 
-**gmail_search**  
+**gmail_search**
 Search and list emails from Gmail based on query
 
-**google_calendar_create_event_draft**  
+**google_calendar_create_event_draft**
 Create or modify calendar event draft (requires confirmation)
 
-**google_calendar_list**  
+**google_calendar_list**
 Search and retrieve Google Calendar events
 
-**google_product_search**  
+**google_docs**
+Create and modify Google Docs documents with markdown support
+
+**google_product_search**
 Search products using Google Shopping for price comparison
+
+**google_sheets**
+Create and modify Google Sheets spreadsheets with data and formulas
+
+**google_slides**
+Create and modify Google Slides presentations programmatically
 
 ---
 
@@ -101,8 +113,11 @@ Search for existing images on the internet
 
 ## M
 
-**maps_search**  
+**maps_search**
 Search geographical information, places, businesses, and get directions
+
+**meeting_notes_agent**
+Transcribe meeting audio and generate structured notes with action items
 
 **mcp_c33e5f11_generate_area_chart**  
 Generate area chart for trends under continuous variables
@@ -169,20 +184,32 @@ Search Notion workspace for pages and content
 
 ## O
 
-**onedrive_file_read**  
+**office_docs**
+Generate or modify professional Word documents (.docx) with templates
+
+**office_sheets**
+Generate or modify Excel spreadsheets (.xlsx) with formulas and formatting
+
+**office_slides**
+Create or modify PowerPoint presentations (.pptx) with layouts
+
+**onedrive_file_read**
 Read and process OneDrive/SharePoint files, answer questions about content
 
-**onedrive_search**  
+**onedrive_search**
 Search files and folders in Microsoft OneDrive (personal and business)
 
 ---
 
 ## P
 
-**phone_call**  
+**phone_call**
 Create AI-assisted phone call card (user clicks to initiate)
 
-**product_search**  
+**photo_editor**
+Perform advanced photo editing operations (resize, crop, filters, effects)
+
+**product_search**
 Search and recommend products from Amazon with detailed information
 
 ---
@@ -222,8 +249,11 @@ Fetch and summarize text-based documents, answering specific questions
 
 ## T
 
-**think**  
+**think**
 Internal reasoning and memory (no external effects)
+
+**translation**
+Multi-language translation with format preservation (100+ languages)
 
 ---
 
@@ -242,10 +272,13 @@ Check URL metadata (content-type, size, filename) without downloading
 
 ## V
 
-**video_generation**  
+**video_editor**
+Edit videos using FFmpeg (trim, merge, add audio, apply effects)
+
+**video_generation**
 Generate 5-10 second video clips from text or reference images
 
-**video_search**  
+**video_search**
 Search for videos on YouTube platform
 
 ---

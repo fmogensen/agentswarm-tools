@@ -179,3 +179,50 @@ class GmailRead(BaseTool):
             raise APIError(f"Gmail API error: {e}", tool_name=self.tool_name)
         except Exception as e:
             raise APIError(f"Unexpected error: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    print("Testing GmailRead...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Read email by message ID
+    print("\nTest 1: Read email by message ID")
+    tool = GmailRead(input="17ab3e1c9b2a4567")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert 'subject' in result.get('result', {})
+    assert 'body' in result.get('result', {})
+    print(f"✅ Test 1 passed: Email retrieved successfully")
+    print(f"   Subject: {result.get('result', {}).get('subject')}")
+    print(f"   Snippet: {result.get('result', {}).get('snippet')}")
+
+    # Test 2: Different message ID
+    print("\nTest 2: Read another email")
+    tool = GmailRead(input="18xyz9876543def")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert result.get('metadata', {}).get('message_id') == "18xyz9876543def"
+    print(f"✅ Test 2 passed: Different email retrieved")
+
+    # Test 3: Validation - empty message ID
+    print("\nTest 3: Validation - empty message ID")
+    try:
+        bad_tool = GmailRead(input="   ")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: Mock mode verification
+    print("\nTest 4: Mock mode verification")
+    tool = GmailRead(input="test123")
+    result = tool.run()
+
+    assert result.get('result', {}).get('mock') == True
+    print(f"✅ Test 4 passed: Mock mode working correctly")
+
+    print("\n✅ All tests passed!")

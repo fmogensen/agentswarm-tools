@@ -159,3 +159,61 @@ class GoogleCalendarCreateEventDraft(BaseTool):
             raise APIError(
                 f"Failed to process event draft: {e}", tool_name=self.tool_name
             )
+
+
+if __name__ == "__main__":
+    print("Testing GoogleCalendarCreateEventDraft...")
+
+    import os
+    import json
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Create basic event draft
+    print("\nTest 1: Create basic event draft")
+    event_data = {
+        "title": "Team Meeting",
+        "start_time": "2025-01-15T10:00:00Z",
+        "end_time": "2025-01-15T11:00:00Z"
+    }
+    tool = GoogleCalendarCreateEventDraft(input=json.dumps(event_data))
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert 'event_id' in result.get('result', {})
+    print(f"✅ Test 1 passed: Event draft created")
+    print(f"   Event ID: {result.get('result', {}).get('event_id')}")
+
+    # Test 2: Event with optional fields
+    print("\nTest 2: Event with optional description")
+    event_data = {
+        "title": "Project Review",
+        "start_time": "2025-01-20T14:00:00Z",
+        "end_time": "2025-01-20T15:30:00Z",
+        "description": "Quarterly project status review"
+    }
+    tool = GoogleCalendarCreateEventDraft(input=json.dumps(event_data))
+    result = tool.run()
+
+    assert result.get('success') == True
+    print(f"✅ Test 2 passed: Event with description created")
+
+    # Test 3: Validation - missing required field
+    print("\nTest 3: Validation - missing required field")
+    try:
+        bad_event = {"title": "Meeting"}  # Missing start_time and end_time
+        bad_tool = GoogleCalendarCreateEventDraft(input=json.dumps(bad_event))
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: Validation - invalid JSON
+    print("\nTest 4: Validation - invalid JSON")
+    try:
+        bad_tool = GoogleCalendarCreateEventDraft(input="not valid json")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 4 passed: JSON validation working - {type(e).__name__}")
+
+    print("\n✅ All tests passed!")

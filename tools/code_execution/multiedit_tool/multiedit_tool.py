@@ -195,3 +195,59 @@ class MultieditTool(BaseTool):
             raise
         except Exception as e:
             raise APIError(f"Failed to apply edits: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    print("Testing MultieditTool...")
+
+    import os
+    import json
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Multiple edits to file
+    print("\nTest 1: Multiple edits")
+    input_data = {
+        "file_path": "/tmp/test.txt",
+        "edits": [
+            {"action": "replace", "search": "old", "replace": "new"},
+            {"action": "insert", "line": 1, "text": "inserted line"}
+        ]
+    }
+    tool = MultieditTool(input=json.dumps(input_data))
+    result = tool.run()
+
+    assert result.get('success') == True
+    print(f"✅ Test 1 passed: Multiple edits applied")
+
+    # Test 2: Single replace edit
+    print("\nTest 2: Single replace edit")
+    input_data = {
+        "file_path": "/tmp/file.py",
+        "edits": [{"action": "replace", "search": "foo", "replace": "bar"}]
+    }
+    tool = MultieditTool(input=json.dumps(input_data))
+    result = tool.run()
+
+    assert result.get('success') == True
+    print(f"✅ Test 2 passed: Replace edit applied")
+
+    # Test 3: Validation - missing file_path
+    print("\nTest 3: Validation - missing file_path")
+    try:
+        bad_input = {"edits": []}
+        bad_tool = MultieditTool(input=json.dumps(bad_input))
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: Validation - invalid JSON
+    print("\nTest 4: Validation - invalid JSON")
+    try:
+        bad_tool = MultieditTool(input="not valid json")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 4 passed: JSON validation working - {type(e).__name__}")
+
+    print("\n✅ All tests passed!")

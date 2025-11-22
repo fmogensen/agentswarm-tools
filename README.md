@@ -9,7 +9,7 @@
 
 ## 🎯 Overview
 
-A comprehensive suite of **86 production-ready tools** organized into **14 categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
+A comprehensive suite of **98 production-ready tools** organized into **15 categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
 
 - ✅ **Error Handling by Design** - Comprehensive exception handling and graceful degradation
 - ✅ **Built-in Analytics** - Request tracking, performance metrics, usage statistics
@@ -27,17 +27,18 @@ A comprehensive suite of **86 production-ready tools** organized into **14 categ
 | **Web Content & Data** | 5 tools | ✅ Complete |
 | **Media Generation** | 3 tools | ✅ Complete |
 | **Media Analysis** | 7 tools | ✅ Complete |
+| **Media Processing** | 2 tools | ✅ Complete |
 | **Storage & Files** | 6 tools | ✅ Complete |
-| **Communication** | 10 tools | ✅ Complete |
+| **Communication** | 15 tools | ✅ Complete |
 | **Visualization** | 15 tools | ✅ Complete |
 | **Location Services** | 1 tool | ✅ Complete |
 | **Code Execution** | 5 tools | ✅ Complete |
-| **Document Creation** | 1 tool | ✅ Complete |
-| **Workspace Integration** | 2 tools | ✅ Complete |
+| **Document Creation** | 4 tools | ✅ Complete |
+| **Workspace Integration** | 5 tools | ✅ Complete |
 | **Business Intelligence** | 4 tools | ✅ Complete |
 | **Agent Management** | 2 tools | ✅ Complete |
-| **Utilities** | 2 tools | ✅ Complete |
-| **TOTAL** | **86 tools** | ✅ **100% Complete** |
+| **Utilities** | 4 tools | ✅ Complete |
+| **TOTAL** | **98 tools** | ✅ **100% Complete** |
 
 ## 📚 Documentation
 
@@ -113,13 +114,17 @@ researcher = Agent(
 - **financial_report** - Company financial data
 - **maps_search** - Location and maps search
 
-### Communication (10 tools)
+### Communication (15 tools)
 - **gmail_search** - Search Gmail messages
 - **gmail_read** - Read email content
 - **read_email_attachments** - Extract attachments
 - **email_draft** - Create email drafts
 - **google_calendar_list** - List calendar events
 - **google_calendar_create_event_draft** - Create events
+- **google_docs** - Create and modify Google Docs
+- **google_sheets** - Create and modify Google Sheets
+- **google_slides** - Create and modify Google Slides
+- **meeting_notes_agent** - Transcribe meetings and generate notes
 - **slack_send_message** - Send Slack messages
 - **phone_call** - Make AI-powered phone calls
 - **query_call_logs** - Query call history
@@ -129,11 +134,27 @@ researcher = Agent(
 - **video_generation** - AI video creation
 - **audio_generation** - Text-to-speech and audio
 
+### Document Creation (4 tools)
+- **create_agent** - Create AI agents for various tasks
+- **office_docs** - Generate Word documents (.docx)
+- **office_slides** - Create PowerPoint presentations (.pptx)
+- **office_sheets** - Generate Excel spreadsheets (.xlsx)
+
+### Media Processing (2 tools)
+- **photo_editor** - Advanced photo editing operations
+- **video_editor** - Video editing with FFmpeg
+
 ### Visualization (15 tools)
 - Line charts, bar charts, pie charts, scatter plots
 - Histograms, area charts, dual-axis charts
 - Flow diagrams, fishbone diagrams, mind maps
 - Network graphs, radar charts, treemaps, word clouds
+
+### Utilities (4 tools)
+- **think** - Internal reasoning tool
+- **ask_for_clarification** - Request user clarification
+- **fact_checker** - Verify claims with evidence
+- **translation** - Multi-language translation
 
 ### Code Execution (5 tools)
 - **Bash** - Execute shell commands

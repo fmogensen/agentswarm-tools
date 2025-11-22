@@ -111,3 +111,49 @@ class Think(BaseTool):
         # For the think tool, the logic is simply to return the thought
         # as an internal memory record.
         return {"stored": self.thought, "message": "Thought recorded internally"}
+
+
+if __name__ == "__main__":
+    print("Testing Think...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Basic thought recording
+    print("\nTest 1: Basic thought recording")
+    tool = Think(thought="I need to analyze the user's requirements before proceeding")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert 'stored' in result.get('result', {})
+    print(f"✅ Test 1 passed: {result.get('result', {}).get('message')}")
+    print(f"   Thought stored: {result.get('result', {}).get('stored')[:50]}...")
+
+    # Test 2: Long thought
+    print("\nTest 2: Long thought recording")
+    long_thought = "This is a complex reasoning process that involves multiple steps: " * 5
+    tool = Think(thought=long_thought)
+    result = tool.run()
+
+    assert result.get('success') == True
+    print(f"✅ Test 2 passed: Long thought stored ({len(long_thought)} chars)")
+
+    # Test 3: Validation - empty thought
+    print("\nTest 3: Validation - empty thought")
+    try:
+        bad_tool = Think(thought="   ")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: Validation - non-string thought
+    print("\nTest 4: Validation - non-string thought")
+    try:
+        bad_tool = Think(thought="")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 4 passed: Validation working - {type(e).__name__}")
+
+    print("\n✅ All tests passed!")

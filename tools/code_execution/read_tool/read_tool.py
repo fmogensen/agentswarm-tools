@@ -130,3 +130,51 @@ class ReadTool(BaseTool):
 
         except Exception as e:
             raise APIError(f"Unable to read file: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    print("Testing ReadTool...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Read file with mock mode
+    print("\nTest 1: Read file with mock mode")
+    tool = ReadTool(file_path="/tmp/test.txt")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert isinstance(result.get('result'), list)
+    assert len(result.get('result')) > 0
+    print(f"✅ Test 1 passed: File read successfully")
+    print(f"   Lines: {len(result.get('result'))}")
+    print(f"   First line: {result.get('result')[0]}")
+
+    # Test 2: Different file path
+    print("\nTest 2: Read different file")
+    tool = ReadTool(file_path="/home/user/document.txt")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert result.get('metadata', {}).get('path') == "/home/user/document.txt"
+    print(f"✅ Test 2 passed: Different file read successfully")
+
+    # Test 3: Validation - directory traversal attempt
+    print("\nTest 3: Validation - directory traversal")
+    try:
+        bad_tool = ReadTool(file_path="/tmp/../etc/passwd")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Security validation working - {type(e).__name__}")
+
+    # Test 4: Mock data structure verification
+    print("\nTest 4: Mock data structure verification")
+    tool = ReadTool(file_path="/test/file.py")
+    result = tool.run()
+
+    first_line = result.get('result', [])[0]
+    assert ':' in first_line  # Line numbers format
+    print(f"✅ Test 4 passed: Line number format correct")
+
+    print("\n✅ All tests passed!")

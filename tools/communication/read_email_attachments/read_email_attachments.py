@@ -162,3 +162,54 @@ class ReadEmailAttachments(BaseTool):
 
         except Exception as e:
             raise APIError(f"Failed to read attachments: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    print("Testing ReadEmailAttachments...")
+
+    import os
+    import json
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Read attachments from email
+    print("\nTest 1: Read attachments from email")
+    input_data = {"email_id": "test123"}
+    tool = ReadEmailAttachments(input=json.dumps(input_data))
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert 'attachments' in result.get('result', {})
+    assert isinstance(result.get('result', {}).get('attachments'), list)
+    print(f"✅ Test 1 passed: Found {len(result.get('result', {}).get('attachments'))} attachments")
+    print(f"   First attachment: {result.get('result', {}).get('attachments')[0].get('filename')}")
+
+    # Test 2: Different email ID
+    print("\nTest 2: Read attachments from different email")
+    input_data = {"email_id": "email456"}
+    tool = ReadEmailAttachments(input=json.dumps(input_data))
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert len(result.get('result', {}).get('attachments', [])) > 0
+    print(f"✅ Test 2 passed: Attachments retrieved")
+
+    # Test 3: Validation - missing email_id
+    print("\nTest 3: Validation - missing email_id")
+    try:
+        bad_input = {"other_field": "value"}
+        bad_tool = ReadEmailAttachments(input=json.dumps(bad_input))
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: Validation - invalid JSON
+    print("\nTest 4: Validation - invalid JSON")
+    try:
+        bad_tool = ReadEmailAttachments(input="not valid json")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 4 passed: JSON validation working - {type(e).__name__}")
+
+    print("\n✅ All tests passed!")

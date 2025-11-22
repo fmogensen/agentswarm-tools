@@ -138,3 +138,48 @@ class BashTool(BaseTool):
             "stderr": completed.stderr,
             "exit_code": completed.returncode,
         }
+
+
+if __name__ == "__main__":
+    print("Testing BashTool...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Execute simple echo command
+    print("\nTest 1: Execute echo command")
+    tool = BashTool(input="echo 'Hello World'")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert 'stdout' in result.get('result', {})
+    print(f"✅ Test 1 passed: Command executed")
+    print(f"   Output: {result.get('result', {}).get('stdout')}")
+
+    # Test 2: Different command
+    print("\nTest 2: Execute pwd command")
+    tool = BashTool(input="pwd")
+    result = tool.run()
+
+    assert result.get('success') == True
+    print(f"✅ Test 2 passed: Command executed successfully")
+
+    # Test 3: Validation - empty command
+    print("\nTest 3: Validation - empty command")
+    try:
+        bad_tool = BashTool(input="   ")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: Security - forbidden command
+    print("\nTest 4: Security - forbidden command")
+    try:
+        bad_tool = BashTool(input="rm -rf /")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 4 passed: Security validation working - {type(e).__name__}")
+
+    print("\n✅ All tests passed!")

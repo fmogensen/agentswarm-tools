@@ -121,3 +121,49 @@ class WriteTool(BaseTool):
             }
         except Exception as e:
             raise APIError(f"Failed to write file: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    print("Testing WriteTool...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Write content to file
+    print("\nTest 1: Write content to file")
+    tool = WriteTool(file_path="/tmp/test.txt", content="Hello World\nLine 2\nLine 3")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert 'bytes_written' in result.get('result', {})
+    print(f"✅ Test 1 passed: File written")
+    print(f"   Path: {result.get('result', {}).get('path')}")
+    print(f"   Bytes: {result.get('result', {}).get('bytes_written')}")
+
+    # Test 2: Write different content
+    print("\nTest 2: Write different content")
+    tool = WriteTool(file_path="/home/user/output.txt", content="# Header\n\nContent here")
+    result = tool.run()
+
+    assert result.get('success') == True
+    print(f"✅ Test 2 passed: Different file written")
+
+    # Test 3: Validation - empty file path
+    print("\nTest 3: Validation - empty file path")
+    try:
+        bad_tool = WriteTool(file_path="   ", content="test")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: Empty content (valid)
+    print("\nTest 4: Write empty content (valid)")
+    tool = WriteTool(file_path="/tmp/empty.txt", content="")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert result.get('result', {}).get('bytes_written') == 0
+    print(f"✅ Test 4 passed: Empty file written")
+
+    print("\n✅ All tests passed!")

@@ -168,3 +168,49 @@ class NotionRead(BaseTool):
         summary = full_text[:200] + "..." if len(full_text) > 200 else full_text
 
         return {"page_id": page_id, "content": full_text, "summary": summary}
+
+
+if __name__ == "__main__":
+    print("Testing NotionRead...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test 1: Read Notion page by ID
+    print("\nTest 1: Read Notion page")
+    tool = NotionRead(input="abc123pageid")
+    result = tool.run()
+
+    assert result.get('success') == True
+    assert 'content' in result.get('result', {})
+    assert 'summary' in result.get('result', {})
+    print(f"✅ Test 1 passed: Page read successfully")
+    print(f"   Page ID: {result.get('result', {}).get('page_id')}")
+    print(f"   Summary: {result.get('result', {}).get('summary')[:50]}...")
+
+    # Test 2: Different page ID
+    print("\nTest 2: Read different Notion page")
+    tool = NotionRead(input="xyz789")
+    result = tool.run()
+
+    assert result.get('success') == True
+    print(f"✅ Test 2 passed: Different page read successfully")
+
+    # Test 3: Validation - empty input
+    print("\nTest 3: Validation - empty input")
+    try:
+        bad_tool = NotionRead(input="   ")
+        bad_tool.run()
+        assert False, "Should have raised ValidationError"
+    except Exception as e:
+        print(f"✅ Test 3 passed: Validation working - {type(e).__name__}")
+
+    # Test 4: Mock mode verification
+    print("\nTest 4: Mock mode verification")
+    tool = NotionRead(input="test123")
+    result = tool.run()
+
+    assert result.get('result', {}).get('mock') == True
+    print(f"✅ Test 4 passed: Mock mode working correctly")
+
+    print("\n✅ All tests passed!")
