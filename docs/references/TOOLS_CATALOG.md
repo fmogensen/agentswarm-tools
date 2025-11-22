@@ -1,6 +1,6 @@
 # AgentSwarm Tools - Complete Catalog
 
-**Total Tools**: 98 production-ready tools
+**Total Tools**: 105 production-ready tools
 **Date**: November 22, 2025
 **Repository**: agentswarm-tools
 
@@ -11,22 +11,24 @@ This catalog provides a complete reference of all tools organized by category wi
 ## Table of Contents
 
 1. [Agent Management](#agent-management) (2 tools)
-2. [Business Intelligence](#business-intelligence) (3 tools)
-3. [Code Execution](#code-execution) (5 tools)
-4. [Communication](#communication) (18 tools)
-5. [Document Creation](#document-creation) (4 tools)
-6. [Location Services](#location-services) (1 tool)
-7. [Media Analysis](#media-analysis) (10 tools)
-8. [Media Generation](#media-generation) (6 tools)
-9. [Media Processing](#media-processing) (2 tools)
-10. [Search & Information Retrieval](#search--information-retrieval) (8 tools)
-11. [Storage & File Management](#storage--file-management) (4 tools)
-12. [Utilities](#utilities) (8 tools)
-13. [Visualization](#visualization) (16 tools)
-14. [Web](#web) (1 tool)
-15. [Web Content](#web-content) (4 tools)
-16. [Workspace Integration](#workspace-integration) (5 tools)
-17. [Examples](#examples) (1 tool)
+2. [AI Intelligence](#ai-intelligence) (2 tools)
+3. [Business Intelligence](#business-intelligence) (3 tools)
+4. [Code Execution](#code-execution) (5 tools)
+5. [Communication](#communication) (20 tools)
+6. [Content Creation](#content-creation) (1 tool)
+7. [Document Creation](#document-creation) (4 tools)
+8. [Location Services](#location-services) (1 tool)
+9. [Media Analysis](#media-analysis) (10 tools)
+10. [Media Generation](#media-generation) (7 tools)
+11. [Media Processing](#media-processing) (3 tools)
+12. [Search & Information Retrieval](#search--information-retrieval) (8 tools)
+13. [Storage & File Management](#storage--file-management) (4 tools)
+14. [Utilities](#utilities) (8 tools)
+15. [Visualization](#visualization) (16 tools)
+16. [Web](#web) (1 tool)
+17. [Web Content](#web-content) (4 tools)
+18. [Workspace Integration](#workspace-integration) (5 tools)
+19. [Examples](#examples) (1 tool)
 
 ---
 
@@ -68,6 +70,190 @@ tool = TaskQueueManager(action="add", task_id="task_456", priority="high")
 result = tool.run()
 # Returns: {"success": True, "queue_position": 1}
 ```
+
+---
+
+## AI Intelligence
+
+### 1. RAGPipeline
+**File**: `tools/ai_intelligence/rag_pipeline/rag_pipeline.py`
+
+**Description**: Build and query vector databases for Retrieval-Augmented Generation (RAG) workflows. Supports multiple vector database backends including Pinecone, Chroma, Weaviate, Qdrant, and Milvus.
+
+**Key Parameters**:
+- `action`: Operation to perform (index, query, delete, list)
+- `vector_db`: Vector database backend (pinecone, chroma, weaviate, qdrant, milvus)
+- `collection_name`: Name of the vector collection
+- `documents`: List of documents to index (for index action)
+- `query_text`: Search query text (for query action)
+- `top_k`: Number of results to return (default: 5)
+- `metadata_filter`: Optional metadata filters for queries
+- `embedding_model`: Embedding model to use (default: text-embedding-3-small)
+- `chunk_size`: Document chunk size for indexing (default: 1000)
+- `chunk_overlap`: Overlap between chunks (default: 200)
+
+**Returns**:
+```python
+{
+    "success": True,
+    "result": {
+        "action": "query",
+        "matches": [
+            {
+                "id": "doc_123",
+                "score": 0.92,
+                "text": "Relevant passage...",
+                "metadata": {"source": "file.pdf", "page": 5}
+            }
+        ],
+        "total_results": 10
+    },
+    "metadata": {
+        "vector_db": "pinecone",
+        "collection": "knowledge_base",
+        "processing_time": 0.45
+    }
+}
+```
+
+**Example Usage**:
+```python
+from tools.ai_intelligence.rag_pipeline import RAGPipeline
+
+# Index documents into vector database
+tool = RAGPipeline(
+    action="index",
+    vector_db="pinecone",
+    collection_name="company_docs",
+    documents=[
+        {"text": "Company policy on remote work...", "metadata": {"source": "hr_policy.pdf"}},
+        {"text": "Product specifications and features...", "metadata": {"source": "product_guide.pdf"}}
+    ],
+    chunk_size=500,
+    embedding_model="text-embedding-3-small"
+)
+result = tool.run()
+
+# Query the vector database
+tool = RAGPipeline(
+    action="query",
+    vector_db="pinecone",
+    collection_name="company_docs",
+    query_text="What is the remote work policy?",
+    top_k=5,
+    metadata_filter={"source": "hr_policy.pdf"}
+)
+result = tool.run()
+# Returns: Top 5 most relevant document chunks with similarity scores
+
+# List all collections
+tool = RAGPipeline(
+    action="list",
+    vector_db="chroma"
+)
+result = tool.run()
+```
+
+**Supported Vector Databases**:
+- **Pinecone**: Fully managed, highly scalable vector database
+- **Chroma**: Open-source embedding database
+- **Weaviate**: Cloud-native vector search engine
+- **Qdrant**: High-performance vector similarity search
+- **Milvus**: Open-source vector database built for scale
+
+### 2. DeepResearchAgent
+**File**: `tools/ai_intelligence/deep_research_agent/deep_research_agent.py`
+
+**Description**: Conduct comprehensive research across multiple sources including web search, academic papers, news, and documents. Automatically synthesizes findings into structured reports with citations.
+
+**Key Parameters**:
+- `research_query`: Research question or topic (required)
+- `sources`: List of source types to search (web, scholar, news, documents)
+- `depth`: Research depth (quick, standard, comprehensive)
+- `max_sources`: Maximum sources to analyze (default: 20)
+- `output_format`: Report format (markdown, pdf, docx, html)
+- `include_citations`: Include source citations (default: True)
+- `focus_areas`: Specific aspects to focus on
+- `time_range`: Time filter for sources (day, week, month, year, all)
+- `language`: Language for sources (default: en)
+
+**Returns**:
+```python
+{
+    "success": True,
+    "result": {
+        "report_url": "computer:///mnt/user-data/outputs/research_report.pdf",
+        "summary": "Brief executive summary...",
+        "key_findings": [
+            "Finding 1: ...",
+            "Finding 2: ..."
+        ],
+        "sources_analyzed": 25,
+        "word_count": 3500,
+        "sections": ["Introduction", "Methodology", "Findings", "Conclusions", "References"]
+    },
+    "metadata": {
+        "research_duration": 45.2,
+        "sources_by_type": {
+            "web": 15,
+            "scholar": 8,
+            "news": 2
+        },
+        "quality_score": 8.5
+    }
+}
+```
+
+**Example Usage**:
+```python
+from tools.ai_intelligence.deep_research_agent import DeepResearchAgent
+
+# Quick research on a topic
+tool = DeepResearchAgent(
+    research_query="What are the latest developments in quantum computing?",
+    sources=["web", "scholar"],
+    depth="quick",
+    max_sources=10,
+    output_format="markdown",
+    time_range="month"
+)
+result = tool.run()
+
+# Comprehensive research with specific focus
+tool = DeepResearchAgent(
+    research_query="Impact of artificial intelligence on healthcare diagnostics",
+    sources=["web", "scholar", "news"],
+    depth="comprehensive",
+    max_sources=30,
+    output_format="pdf",
+    include_citations=True,
+    focus_areas=[
+        "diagnostic accuracy",
+        "cost effectiveness",
+        "patient outcomes",
+        "regulatory challenges"
+    ],
+    time_range="year"
+)
+result = tool.run()
+# Returns: 20+ page research report with citations and analysis
+
+# Research with document integration
+tool = DeepResearchAgent(
+    research_query="Market analysis for electric vehicles in Europe",
+    sources=["web", "scholar", "documents"],
+    depth="standard",
+    max_sources=20,
+    output_format="docx",
+    time_range="year"
+)
+result = tool.run()
+```
+
+**Research Depth Levels**:
+- **quick**: 5-10 sources, 1000-2000 words, 5-10 minutes
+- **standard**: 10-20 sources, 2000-4000 words, 15-30 minutes
+- **comprehensive**: 20-50 sources, 4000-8000 words, 30-60 minutes
 
 ---
 
@@ -143,7 +329,7 @@ result = tool.run()
 
 ## Code Execution
 
-### 6. BashTool
+### 8. BashTool
 **File**: `tools/code_execution/bash_tool/bash_tool.py`
 
 **Description**: Execute bash commands in a secure sandbox environment with full system access.
@@ -161,7 +347,7 @@ tool = BashTool(command="ls -la /mnt/aidrive", timeout=30)
 result = tool.run()
 ```
 
-### 7. DownloadFileWrapper
+### 9. DownloadFileWrapper
 **File**: `tools/code_execution/downloadfilewrapper_tool/downloadfilewrapper_tool.py`
 
 **Description**: Download files from URLs and save to specified locations in the sandbox.
@@ -182,7 +368,7 @@ tool = DownloadFileWrapper(
 result = tool.run()
 ```
 
-### 8. MultiEdit
+### 10. MultiEdit
 **File**: `tools/code_execution/multiedit_tool/multiedit_tool.py`
 
 **Description**: Perform multiple file edits in a single operation with atomic transaction support.
@@ -206,7 +392,7 @@ tool = MultiEdit(
 result = tool.run()
 ```
 
-### 9. Read
+### 11. Read
 **File**: `tools/code_execution/read_tool/read_tool.py`
 
 **Description**: Read file contents from the sandbox environment with support for various encodings.
@@ -224,7 +410,7 @@ tool = Read(file_path="/mnt/aidrive/data.txt", max_lines=100)
 result = tool.run()
 ```
 
-### 10. Write
+### 12. Write
 **File**: `tools/code_execution/write_tool/write_tool.py`
 
 **Description**: Write content to files in the sandbox environment with automatic directory creation.
@@ -250,7 +436,7 @@ result = tool.run()
 
 ## Communication
 
-### 11. EmailDraft
+### 13. EmailDraft
 **File**: `tools/communication/email_draft/email_draft.py`
 
 **Description**: Create draft emails in Gmail with attachments and rich formatting.
@@ -274,7 +460,7 @@ tool = EmailDraft(
 result = tool.run()
 ```
 
-### 12. EmailSend
+### 14. EmailSend
 **File**: `tools/communication/email_send/email_send.py`
 
 **Description**: Send emails directly via Gmail API with delivery confirmation.
@@ -298,7 +484,7 @@ tool = EmailSend(
 result = tool.run()
 ```
 
-### 13. GmailRead
+### 15. GmailRead
 **File**: `tools/communication/gmail_read/gmail_read.py`
 
 **Description**: Read email messages from Gmail with full content and metadata.
@@ -316,7 +502,7 @@ tool = GmailRead(message_id="18c2f8a3b4d5e6f7", include_attachments=True)
 result = tool.run()
 ```
 
-### 14. GmailSearch
+### 16. GmailSearch
 **File**: `tools/communication/gmail_search/gmail_search.py`
 
 **Description**: Search Gmail messages using Gmail query syntax with advanced filtering.
@@ -337,7 +523,7 @@ tool = GmailSearch(
 result = tool.run()
 ```
 
-### 15. GoogleCalendarCreateEventDraft
+### 17. GoogleCalendarCreateEventDraft
 **File**: `tools/communication/google_calendar_create_event_draft/google_calendar_create_event_draft.py`
 
 **Description**: Create draft calendar events in Google Calendar.
@@ -361,7 +547,7 @@ tool = GoogleCalendarCreateEventDraft(
 result = tool.run()
 ```
 
-### 16. GoogleCalendarDeleteEvent
+### 18. GoogleCalendarDeleteEvent
 **File**: `tools/communication/google_calendar_delete_event/google_calendar_delete_event.py`
 
 **Description**: Delete events from Google Calendar.
@@ -378,7 +564,7 @@ tool = GoogleCalendarDeleteEvent(event_id="abc123xyz", calendar_id="primary")
 result = tool.run()
 ```
 
-### 17. GoogleCalendarList
+### 19. GoogleCalendarList
 **File**: `tools/communication/google_calendar_list/google_calendar_list.py`
 
 **Description**: List calendar events from Google Calendar with filtering options.
@@ -400,7 +586,7 @@ tool = GoogleCalendarList(
 result = tool.run()
 ```
 
-### 18. GoogleCalendarUpdateEvent
+### 20. GoogleCalendarUpdateEvent
 **File**: `tools/communication/google_calendar_update_event/google_calendar_update_event.py`
 
 **Description**: Update existing Google Calendar events.
@@ -420,48 +606,251 @@ tool = GoogleCalendarUpdateEvent(
 result = tool.run()
 ```
 
-### 19. PhoneCall
-**File**: `tools/communication/phone_call/phone_call.py`
+### 21. TwilioPhoneCall
+**File**: `tools/communication/twilio_phone_call/twilio_phone_call.py`
 
-**Description**: Initiate phone calls with AI voice capabilities.
+**Description**: Initiate AI-powered phone calls using Twilio with natural voice synthesis, interactive responses, and call recording capabilities.
 
 **Key Parameters**:
-- `phone_number`: Number to call
-- `message`: Message to deliver
-- `voice`: Voice to use
+- `to_number`: Phone number to call (required, E.164 format: +1234567890)
+- `from_number`: Twilio phone number to call from (required)
+- `message`: Message to deliver or conversation script
+- `voice`: Voice to use (alice, man, woman, google_female, google_male, amazon_polly)
+- `language`: Language code (en-US, es-ES, fr-FR, de-DE, etc.)
+- `enable_recording`: Record the call (default: False)
+- `enable_transcription`: Transcribe call audio (default: False)
+- `wait_for_response`: Wait for user response/interaction (default: False)
+- `response_timeout`: Timeout for user response in seconds (default: 10)
+- `max_call_duration`: Maximum call duration in seconds (default: 300)
+- `callback_url`: URL for call status updates
+
+**Returns**:
+```python
+{
+    "success": True,
+    "result": {
+        "call_sid": "CA1234567890abcdef",
+        "status": "initiated",
+        "to_number": "+14155551234",
+        "from_number": "+14155559876",
+        "duration": None,  # Populated after call completes
+        "recording_url": None,  # If recording enabled
+        "transcription": None,  # If transcription enabled
+        "cost": "0.015"
+    },
+    "metadata": {
+        "provider": "twilio",
+        "voice": "google_female",
+        "language": "en-US",
+        "timestamp": "2025-11-22T10:30:00Z"
+    }
+}
+```
 
 **Example Usage**:
 ```python
-from tools.communication.phone_call import PhoneCall
+from tools.communication.twilio_phone_call import TwilioPhoneCall
 
-tool = PhoneCall(
-    phone_number="+1234567890",
-    message="This is a reminder about your appointment tomorrow"
+# Simple reminder call
+tool = TwilioPhoneCall(
+    to_number="+14155551234",
+    from_number="+14155559876",
+    message="This is a reminder about your appointment tomorrow at 2 PM.",
+    voice="google_female",
+    language="en-US"
+)
+result = tool.run()
+
+# Interactive call with recording
+tool = TwilioPhoneCall(
+    to_number="+14155551234",
+    from_number="+14155559876",
+    message="Hello! This is a customer satisfaction survey. Please rate your experience from 1 to 5.",
+    voice="alice",
+    enable_recording=True,
+    enable_transcription=True,
+    wait_for_response=True,
+    response_timeout=15,
+    max_call_duration=180
+)
+result = tool.run()
+
+# Multi-language call
+tool = TwilioPhoneCall(
+    to_number="+34912345678",
+    from_number="+14155559876",
+    message="Hola, esta es una llamada de recordatorio sobre su cita.",
+    voice="google_male",
+    language="es-ES",
+    enable_recording=True
 )
 result = tool.run()
 ```
 
-### 20. QueryCallLogs
-**File**: `tools/communication/query_call_logs/query_call_logs.py`
+**Supported Voices**:
+- **alice**: Natural female voice (Twilio standard)
+- **man**: Male voice (Twilio standard)
+- **woman**: Female voice (Twilio standard)
+- **google_female**: Google AI female voice (higher quality)
+- **google_male**: Google AI male voice (higher quality)
+- **amazon_polly**: Amazon Polly neural voices
 
-**Description**: Query and analyze phone call logs.
+**Use Cases**:
+- Appointment reminders and confirmations
+- Customer satisfaction surveys
+- Payment reminders
+- Service outage notifications
+- Emergency alerts
+- Two-factor authentication (2FA) calls
+
+### 22. TwilioCallLogs
+**File**: `tools/communication/twilio_call_logs/twilio_call_logs.py`
+
+**Description**: Retrieve and analyze Twilio phone call history with transcriptions, recordings, and detailed metrics. Query call logs by date range, status, duration, and more.
 
 **Key Parameters**:
-- `date_range`: Time range to query
-- `filter_type`: Type of calls (incoming, outgoing, missed)
+- `action`: Operation to perform (list, get_details, get_recording, get_transcription)
+- `date_start`: Start date for query (YYYY-MM-DD format)
+- `date_end`: End date for query (YYYY-MM-DD format)
+- `call_sid`: Specific call SID for details/recording/transcription
+- `status`: Filter by call status (queued, initiated, ringing, in-progress, completed, busy, failed, no-answer, canceled)
+- `from_number`: Filter by caller number
+- `to_number`: Filter by recipient number
+- `max_results`: Maximum calls to return (default: 50, max: 1000)
+- `include_recordings`: Include recording URLs in results (default: False)
+- `include_transcriptions`: Include transcriptions in results (default: False)
+- `min_duration`: Minimum call duration in seconds
+- `max_duration`: Maximum call duration in seconds
+
+**Returns**:
+```python
+{
+    "success": True,
+    "result": {
+        "total_calls": 125,
+        "calls": [
+            {
+                "call_sid": "CA1234567890abcdef",
+                "from_number": "+14155559876",
+                "to_number": "+14155551234",
+                "status": "completed",
+                "duration": 185,
+                "start_time": "2025-11-22T10:30:00Z",
+                "end_time": "2025-11-22T10:33:05Z",
+                "direction": "outbound-api",
+                "cost": "0.015",
+                "recording_url": "https://api.twilio.com/recordings/RE123...",
+                "transcription": "Hello, this is a reminder...",
+                "answered_by": "human"
+            }
+        ],
+        "statistics": {
+            "total_duration": 15420,
+            "total_cost": 2.35,
+            "avg_duration": 123.36,
+            "completed_calls": 110,
+            "failed_calls": 8,
+            "no_answer": 7
+        }
+    },
+    "metadata": {
+        "date_range": "2025-11-01 to 2025-11-22",
+        "filter_applied": "completed",
+        "query_time": 0.45
+    }
+}
+```
 
 **Example Usage**:
 ```python
-from tools.communication.query_call_logs import QueryCallLogs
+from tools.communication.twilio_call_logs import TwilioCallLogs
 
-tool = QueryCallLogs(
-    date_range={"start": "2025-11-01", "end": "2025-11-22"},
-    filter_type="missed"
+# List recent calls
+tool = TwilioCallLogs(
+    action="list",
+    date_start="2025-11-01",
+    date_end="2025-11-22",
+    max_results=50
+)
+result = tool.run()
+
+# Get calls with recordings and transcriptions
+tool = TwilioCallLogs(
+    action="list",
+    date_start="2025-11-15",
+    date_end="2025-11-22",
+    status="completed",
+    include_recordings=True,
+    include_transcriptions=True,
+    min_duration=60
+)
+result = tool.run()
+
+# Get specific call details
+tool = TwilioCallLogs(
+    action="get_details",
+    call_sid="CA1234567890abcdef"
+)
+result = tool.run()
+
+# Get call recording
+tool = TwilioCallLogs(
+    action="get_recording",
+    call_sid="CA1234567890abcdef"
+)
+result = tool.run()
+# Returns: Recording URL and metadata
+
+# Get call transcription
+tool = TwilioCallLogs(
+    action="get_transcription",
+    call_sid="CA1234567890abcdef"
+)
+result = tool.run()
+# Returns: Full transcription text
+
+# Filter by phone numbers
+tool = TwilioCallLogs(
+    action="list",
+    from_number="+14155559876",
+    date_start="2025-11-01",
+    date_end="2025-11-22",
+    status="completed"
+)
+result = tool.run()
+
+# Analyze failed calls
+tool = TwilioCallLogs(
+    action="list",
+    date_start="2025-11-01",
+    date_end="2025-11-22",
+    status="failed",
+    max_results=100
 )
 result = tool.run()
 ```
 
-### 21. ReadEmailAttachments
+**Call Status Types**:
+- **queued**: Call is queued and waiting to be initiated
+- **initiated**: Call has been initiated
+- **ringing**: Call is currently ringing
+- **in-progress**: Call is currently active
+- **completed**: Call completed successfully
+- **busy**: Recipient was busy
+- **failed**: Call failed to connect
+- **no-answer**: Call was not answered
+- **canceled**: Call was canceled before completion
+
+**Use Cases**:
+- Call center analytics and reporting
+- Customer interaction tracking
+- Call quality monitoring
+- Billing and cost analysis
+- Compliance and record keeping
+- Customer satisfaction surveys analysis
+- Campaign performance tracking
+
+### 23. ReadEmailAttachments
 **File**: `tools/communication/read_email_attachments/read_email_attachments.py`
 
 **Description**: Extract and read attachments from Gmail messages.
@@ -482,7 +871,7 @@ tool = ReadEmailAttachments(
 result = tool.run()
 ```
 
-### 22. SlackReadMessages
+### 24. SlackReadMessages
 **File**: `tools/communication/slack_read_messages/slack_read_messages.py`
 
 **Description**: Read messages from Slack channels and DMs.
@@ -500,7 +889,7 @@ tool = SlackReadMessages(channel_id="C123ABC456", limit=50)
 result = tool.run()
 ```
 
-### 23. SlackSendMessage
+### 25. SlackSendMessage
 **File**: `tools/communication/slack_send_message/slack_send_message.py`
 
 **Description**: Send messages to Slack channels or users.
@@ -521,7 +910,7 @@ tool = SlackSendMessage(
 result = tool.run()
 ```
 
-### 24. TeamsSendMessage
+### 26. TeamsSendMessage
 **File**: `tools/communication/teams_send_message/teams_send_message.py`
 
 **Description**: Send messages to Microsoft Teams channels.
@@ -542,7 +931,7 @@ tool = TeamsSendMessage(
 result = tool.run()
 ```
 
-### 25. GoogleDocs
+### 27. GoogleDocs
 **File**: `tools/communication/google_docs/google_docs.py`
 
 **Description**: Create and modify Google Docs using Google Docs API v1 with markdown support.
@@ -578,7 +967,7 @@ tool = GoogleDocs(
 result = tool.run()
 ```
 
-### 26. GoogleSheets
+### 28. GoogleSheets
 **File**: `tools/communication/google_sheets/google_sheets.py`
 
 **Description**: Create and modify Google Sheets spreadsheets with data manipulation capabilities.
@@ -609,7 +998,7 @@ tool = GoogleSheets(
 result = tool.run()
 ```
 
-### 27. GoogleSlides
+### 29. GoogleSlides
 **File**: `tools/communication/google_slides/google_slides.py`
 
 **Description**: Create and modify Google Slides presentations programmatically.
@@ -637,7 +1026,7 @@ tool = GoogleSlides(
 result = tool.run()
 ```
 
-### 28. MeetingNotesAgent
+### 30. MeetingNotesAgent
 **File**: `tools/communication/meeting_notes/meeting_notes.py`
 
 **Description**: Transcribe meeting audio and generate structured notes with action items and key decisions.
@@ -667,9 +1056,124 @@ result = tool.run()
 
 ---
 
+## Content Creation
+
+### 31. WebsiteBuilder
+**File**: `tools/content_creation/website_builder/website_builder.py`
+
+**Description**: Generate professional, responsive websites from text descriptions or templates. Supports multi-page sites, custom styling, SEO optimization, and deployment to hosting platforms.
+
+**Key Parameters**:
+- `site_description`: Description of the website to build (required)
+- `site_type`: Type of website (landing_page, portfolio, blog, business, ecommerce, documentation)
+- `pages`: List of pages to create (default: ["home"])
+- `color_scheme`: Color theme (light, dark, blue, green, custom)
+- `custom_colors`: Custom color palette (primary, secondary, accent)
+- `include_contact_form`: Add contact form (default: False)
+- `include_blog`: Include blog functionality (default: False)
+- `include_seo`: Optimize for SEO (default: True)
+- `responsive`: Make mobile-responsive (default: True)
+- `template`: Pre-built template to use (minimal, modern, creative, professional)
+- `deploy`: Auto-deploy to hosting (default: False)
+- `domain`: Custom domain for deployment
+
+**Returns**:
+```python
+{
+    "success": True,
+    "result": {
+        "website_url": "computer:///mnt/user-data/outputs/website/index.html",
+        "preview_url": "https://preview.example.com/abc123",
+        "deployment_url": "https://mysite.example.com",  # If deployed
+        "pages": ["home", "about", "services", "contact"],
+        "total_pages": 4,
+        "assets": {
+            "html_files": 4,
+            "css_files": 2,
+            "js_files": 3,
+            "images": 8
+        },
+        "seo_score": 92,
+        "mobile_responsive": True,
+        "load_time": 1.2
+    },
+    "metadata": {
+        "site_type": "business",
+        "template": "modern",
+        "build_time": 8.5,
+        "technologies": ["HTML5", "CSS3", "JavaScript", "Bootstrap"]
+    }
+}
+```
+
+**Example Usage**:
+```python
+from tools.content_creation.website_builder import WebsiteBuilder
+
+# Simple landing page
+tool = WebsiteBuilder(
+    site_description="A landing page for a SaaS product that helps teams collaborate better",
+    site_type="landing_page",
+    pages=["home"],
+    color_scheme="blue",
+    include_contact_form=True,
+    template="modern"
+)
+result = tool.run()
+
+# Full business website
+tool = WebsiteBuilder(
+    site_description="Professional website for a digital marketing agency",
+    site_type="business",
+    pages=["home", "services", "portfolio", "about", "contact"],
+    color_scheme="custom",
+    custom_colors={
+        "primary": "#2C3E50",
+        "secondary": "#E74C3C",
+        "accent": "#3498DB"
+    },
+    include_contact_form=True,
+    include_blog=True,
+    include_seo=True,
+    responsive=True,
+    template="professional"
+)
+result = tool.run()
+
+# Portfolio website with deployment
+tool = WebsiteBuilder(
+    site_description="Personal portfolio for a freelance graphic designer showcasing recent work",
+    site_type="portfolio",
+    pages=["home", "portfolio", "about", "contact"],
+    color_scheme="dark",
+    include_contact_form=True,
+    template="creative",
+    deploy=True,
+    domain="myportfolio.com"
+)
+result = tool.run()
+# Returns: Live website URL after deployment
+```
+
+**Site Types**:
+- **landing_page**: Single-page marketing site
+- **portfolio**: Showcase work and projects
+- **blog**: Content-focused site with articles
+- **business**: Multi-page company website
+- **ecommerce**: Online store (basic)
+- **documentation**: Technical documentation site
+
+**Templates**:
+- **minimal**: Clean, simple design
+- **modern**: Contemporary with animations
+- **creative**: Bold, artistic layouts
+- **professional**: Corporate, business-focused
+
+---
+
 ## Document Creation
 
-### 29. CreateAgent
+### 32. CreateAgent
 **File**: `tools/document_creation/create_agent/create_agent.py`
 
 **Description**: Create comprehensive documents, presentations, spreadsheets, podcasts, websites, and more using AI.
@@ -701,7 +1205,7 @@ tool = CreateAgent(
 result = tool.run()
 ```
 
-### 30. OfficeDocsTool
+### 33. OfficeDocsTool
 **File**: `tools/document_creation/office_docs/office_docs.py`
 
 **Description**: Generate or modify professional Word documents (.docx) from structured content with markdown support.
@@ -742,7 +1246,7 @@ tool = OfficeDocsTool(
 result = tool.run()
 ```
 
-### 31. OfficeSlidesTool
+### 34. OfficeSlidesTool
 **File**: `tools/document_creation/office_slides/office_slides.py`
 
 **Description**: Create or modify PowerPoint presentations (.pptx) with structured content and layouts.
@@ -772,7 +1276,7 @@ tool = OfficeSlidesTool(
 result = tool.run()
 ```
 
-### 32. OfficeSheetsTool
+### 35. OfficeSheetsTool
 **File**: `tools/document_creation/office_sheets/office_sheets.py`
 
 **Description**: Generate or modify Excel spreadsheets (.xlsx) with data, formulas, and formatting.
@@ -809,7 +1313,7 @@ result = tool.run()
 
 ## Location Services
 
-### 33. MapsSearch
+### 36. MapsSearch
 **File**: `tools/location/maps_search/maps_search.py`
 
 **Description**: Search for locations, get directions, and retrieve place information using Google Maps.
@@ -834,7 +1338,7 @@ result = tool.run()
 
 ## Media Analysis
 
-### 27. AnalyzeMediaContent
+### 37. AnalyzeMediaContent
 **File**: `tools/media_analysis/analyze_media_content/analyze_media_content.py`
 
 **Description**: Analyze media files (images, videos, audio) for content, quality, and metadata.
@@ -856,7 +1360,7 @@ tool = AnalyzeMediaContent(
 result = tool.run()
 ```
 
-### 28. AudioEffects
+### 38. AudioEffects
 **File**: `tools/media_analysis/audio_effects/audio_effects.py`
 
 **Description**: Apply audio effects like reverb, echo, pitch shift, and equalization.
@@ -877,7 +1381,7 @@ tool = AudioEffects(
 result = tool.run()
 ```
 
-### 29. AudioTranscribe
+### 39. AudioTranscribe
 **File**: `tools/media_analysis/audio_transcribe/audio_transcribe.py`
 
 **Description**: Transcribe audio and video files to text with speaker identification and timestamps.
@@ -899,7 +1403,7 @@ tool = AudioTranscribe(
 result = tool.run()
 ```
 
-### 30. BatchUnderstandVideos
+### 40. BatchUnderstandVideos
 **File**: `tools/media_analysis/batch_understand_videos/batch_understand_videos.py`
 
 **Description**: Analyze multiple videos in batch for efficient processing.
@@ -921,7 +1425,7 @@ tool = BatchUnderstandVideos(
 result = tool.run()
 ```
 
-### 31. BatchVideoAnalysis
+### 41. BatchVideoAnalysis
 **File**: `tools/media_analysis/batch_video_analysis/batch_video_analysis.py`
 
 **Description**: Perform detailed analysis on multiple videos including scene detection and object tracking.
@@ -942,7 +1446,7 @@ tool = BatchVideoAnalysis(
 result = tool.run()
 ```
 
-### 32. ExtractAudioFromVideo
+### 42. ExtractAudioFromVideo
 **File**: `tools/media_analysis/extract_audio_from_video/extract_audio_from_video.py`
 
 **Description**: Extract audio tracks from video files.
@@ -964,7 +1468,7 @@ tool = ExtractAudioFromVideo(
 result = tool.run()
 ```
 
-### 33. MergeAudio
+### 43. MergeAudio
 **File**: `tools/media_analysis/merge_audio/merge_audio.py`
 
 **Description**: Merge multiple audio files into a single file with crossfading support.
@@ -986,7 +1490,7 @@ tool = MergeAudio(
 result = tool.run()
 ```
 
-### 34. UnderstandImages
+### 44. UnderstandImages
 **File**: `tools/media_analysis/understand_images/understand_images.py`
 
 **Description**: Analyze images for content, objects, text, faces, and context.
@@ -1008,7 +1512,7 @@ tool = UnderstandImages(
 result = tool.run()
 ```
 
-### 35. UnderstandVideo
+### 45. UnderstandVideo
 **File**: `tools/media_analysis/understand_video/understand_video.py`
 
 **Description**: Analyze video content for scenes, actions, objects, and context.
@@ -1030,7 +1534,7 @@ tool = UnderstandVideo(
 result = tool.run()
 ```
 
-### 36. VideoMetadataExtractor
+### 46. VideoMetadataExtractor
 **File**: `tools/media_analysis/video_metadata_extractor/video_metadata_extractor.py`
 
 **Description**: Extract technical metadata from video files (duration, resolution, codec, bitrate).
@@ -1056,7 +1560,7 @@ result = tool.run()
 
 ## Media Generation
 
-### 37. AudioGeneration
+### 47. AudioGeneration
 **File**: `tools/media_generation/audio_generation/audio_generation.py`
 
 **Description**: Generate audio content including music, sound effects, and voice synthesis.
@@ -1089,7 +1593,7 @@ tool = AudioGeneration(
 result = tool.run()
 ```
 
-### 38. ImageGeneration
+### 48. ImageGeneration
 **File**: `tools/media_generation/image_generation/image_generation.py`
 
 **Description**: Generate images from text descriptions using various AI models.
@@ -1113,7 +1617,7 @@ tool = ImageGeneration(
 result = tool.run()
 ```
 
-### 39. ImageStyleTransfer
+### 49. ImageStyleTransfer
 **File**: `tools/media_generation/image_style_transfer/image_style_transfer.py`
 
 **Description**: Apply artistic styles to images using neural style transfer.
@@ -1135,7 +1639,148 @@ tool = ImageStyleTransfer(
 result = tool.run()
 ```
 
-### 40. TextToSpeechAdvanced
+### 50. PodcastGenerator
+**File**: `tools/media_generation/podcast_generator/podcast_generator.py`
+
+**Description**: Generate multi-speaker AI podcasts with natural conversations, background music, sound effects, and professional production quality. Supports scripted or AI-generated dialogue.
+
+**Key Parameters**:
+- `topic`: Podcast topic or theme (required)
+- `script`: Pre-written dialogue script (optional, AI generates if not provided)
+- `speakers`: List of speaker configurations
+  - `name`: Speaker name
+  - `voice`: Voice model (google_female, google_male, elevenlabs/professional, etc.)
+  - `personality`: Speaking style (energetic, calm, authoritative, friendly)
+- `duration`: Target duration in minutes (default: 10)
+- `include_intro`: Add podcast intro music (default: True)
+- `include_outro`: Add podcast outro music (default: True)
+- `background_music`: Background music type (none, ambient, upbeat, corporate)
+- `music_volume`: Background music volume 0-100 (default: 20)
+- `sound_effects`: Include sound effects (default: False)
+- `format`: Output format (mp3, wav, m4a)
+- `quality`: Audio quality (standard, high, ultra)
+- `export_transcript`: Export text transcript (default: True)
+
+**Returns**:
+```python
+{
+    "success": True,
+    "result": {
+        "audio_url": "computer:///mnt/user-data/outputs/podcast_episode_001.mp3",
+        "transcript_url": "computer:///mnt/user-data/outputs/transcript.txt",
+        "duration": 600,  # seconds
+        "file_size": "15.2 MB",
+        "speakers": ["Alex", "Jordan"],
+        "segments": 15,
+        "music_tracks": ["intro", "outro", "background"],
+        "quality_score": 9.2
+    },
+    "metadata": {
+        "topic": "AI in Healthcare",
+        "generation_time": 45.3,
+        "voices_used": ["google_female", "elevenlabs/professional_male"],
+        "total_words": 1500,
+        "format": "mp3",
+        "bitrate": "192kbps"
+    }
+}
+```
+
+**Example Usage**:
+```python
+from tools.media_generation.podcast_generator import PodcastGenerator
+
+# AI-generated podcast conversation
+tool = PodcastGenerator(
+    topic="The future of electric vehicles and sustainable transportation",
+    speakers=[
+        {"name": "Alex", "voice": "google_female", "personality": "enthusiastic"},
+        {"name": "Jordan", "voice": "elevenlabs/professional_male", "personality": "analytical"}
+    ],
+    duration=15,
+    include_intro=True,
+    include_outro=True,
+    background_music="ambient",
+    music_volume=15,
+    format="mp3",
+    quality="high"
+)
+result = tool.run()
+
+# Scripted podcast with custom dialogue
+script = """
+[Alex]: Welcome to Tech Talk Today! I'm Alex.
+[Jordan]: And I'm Jordan. Today we're discussing artificial intelligence in healthcare.
+[Alex]: Jordan, what excites you most about AI in medicine?
+[Jordan]: The diagnostic capabilities are revolutionary. AI can now detect diseases earlier than human doctors in many cases.
+[Alex]: That's incredible! Can you give us an example?
+[Jordan]: Sure! AI models analyzing medical imaging can detect certain cancers months before traditional methods.
+"""
+
+tool = PodcastGenerator(
+    topic="AI in Healthcare",
+    script=script,
+    speakers=[
+        {"name": "Alex", "voice": "google_female", "personality": "friendly"},
+        {"name": "Jordan", "voice": "google_male", "personality": "authoritative"}
+    ],
+    include_intro=True,
+    include_outro=True,
+    background_music="corporate",
+    music_volume=20,
+    sound_effects=True,
+    format="mp3",
+    quality="ultra",
+    export_transcript=True
+)
+result = tool.run()
+
+# Quick interview-style podcast
+tool = PodcastGenerator(
+    topic="Startup founder interview about building a successful SaaS company",
+    speakers=[
+        {"name": "Host", "voice": "elevenlabs/professional_female", "personality": "friendly"},
+        {"name": "Guest", "voice": "google_male", "personality": "energetic"}
+    ],
+    duration=20,
+    background_music="upbeat",
+    music_volume=10,
+    format="mp3"
+)
+result = tool.run()
+```
+
+**Voice Options**:
+- **google_female**: Natural Google AI female voice
+- **google_male**: Natural Google AI male voice
+- **elevenlabs/professional_female**: High-quality professional female
+- **elevenlabs/professional_male**: High-quality professional male
+- **elevenlabs/energetic**: Energetic, dynamic voice
+- **elevenlabs/calm**: Calm, soothing voice
+
+**Personality Styles**:
+- **energetic**: Upbeat, fast-paced delivery
+- **calm**: Relaxed, measured speaking
+- **authoritative**: Confident, expert tone
+- **friendly**: Warm, conversational tone
+- **analytical**: Thoughtful, precise delivery
+
+**Background Music Types**:
+- **ambient**: Soft, atmospheric background
+- **upbeat**: Energetic, positive music
+- **corporate**: Professional, neutral tones
+- **none**: No background music
+
+**Use Cases**:
+- Educational podcast series
+- Marketing and brand storytelling
+- Interview simulations
+- Training and onboarding content
+- Book summaries and reviews
+- News commentary and analysis
+- Product launch announcements
+
+### 51. TextToSpeechAdvanced
 **File**: `tools/media_generation/text_to_speech_advanced/text_to_speech_advanced.py`
 
 **Description**: Convert text to speech with advanced voice control and emotional expression.
@@ -1159,7 +1804,7 @@ tool = TextToSpeechAdvanced(
 result = tool.run()
 ```
 
-### 41. VideoEffects
+### 52. VideoEffects
 **File**: `tools/media_generation/video_effects/video_effects.py`
 
 **Description**: Apply visual effects to videos including filters, transitions, and color grading.
@@ -1181,7 +1826,7 @@ tool = VideoEffects(
 result = tool.run()
 ```
 
-### 42. VideoGeneration
+### 53. VideoGeneration
 **File**: `tools/media_generation/video_generation/video_generation.py`
 
 **Description**: Generate videos from text descriptions using AI.
@@ -1211,7 +1856,7 @@ result = tool.run()
 
 ## Media Processing
 
-### 43. PhotoEditorTool
+### 54. PhotoEditorTool
 **File**: `tools/media_processing/photo_editor/photo_editor.py`
 
 **Description**: Perform advanced photo editing operations on existing images including resize, crop, filters, and effects.
@@ -1261,7 +1906,170 @@ tool = PhotoEditorTool(
 result = tool.run()
 ```
 
-### 44. VideoEditorTool
+### 55. VideoClipper
+**File**: `tools/media_processing/video_clipper/video_clipper.py`
+
+**Description**: AI-powered video highlight extraction that automatically identifies and clips the most engaging, important, or relevant segments from long-form videos. Perfect for creating social media clips, trailers, summaries, and promotional content.
+
+**Key Parameters**:
+- `video_url`: URL to source video (required)
+- `clip_strategy`: Strategy for selecting clips (highlights, action, dialogue, topic_based, time_based, custom)
+- `target_duration`: Total duration of output clips in seconds (default: 60)
+- `num_clips`: Number of separate clips to generate (default: 1)
+- `clip_length`: Individual clip length in seconds (default: 15)
+- `criteria`: Custom criteria for clip selection
+  - `keywords`: Keywords to focus on
+  - `min_motion`: Minimum motion threshold (0-100)
+  - `min_audio_energy`: Minimum audio energy (0-100)
+  - `face_presence`: Require faces in clips
+  - `scene_changes`: Include scene transitions
+- `output_format`: Output format (mp4, mov, webm)
+- `resolution`: Output resolution (1080p, 720p, 480p, original)
+- `add_transitions`: Add transitions between clips (default: False)
+- `add_captions`: Auto-generate captions (default: False)
+- `quality`: Output quality (low, medium, high, ultra)
+
+**Returns**:
+```python
+{
+    "success": True,
+    "result": {
+        "clips": [
+            {
+                "clip_url": "computer:///mnt/user-data/outputs/highlight_1.mp4",
+                "start_time": 125.5,
+                "end_time": 140.5,
+                "duration": 15.0,
+                "score": 9.2,
+                "reason": "High action and dialogue intensity",
+                "thumbnail": "computer:///mnt/user-data/outputs/thumb_1.jpg"
+            },
+            {
+                "clip_url": "computer:///mnt/user-data/outputs/highlight_2.mp4",
+                "start_time": 340.0,
+                "end_time": 355.0,
+                "duration": 15.0,
+                "score": 8.8,
+                "reason": "Key topic discussion",
+                "thumbnail": "computer:///mnt/user-data/outputs/thumb_2.jpg"
+            }
+        ],
+        "merged_clip_url": "computer:///mnt/user-data/outputs/all_highlights.mp4",
+        "total_clips": 2,
+        "total_duration": 30.0,
+        "original_duration": 1800.0,
+        "compression_ratio": "1.67%"
+    },
+    "metadata": {
+        "strategy": "highlights",
+        "processing_time": 125.4,
+        "scenes_analyzed": 145,
+        "algorithm": "AI-motion-audio-analysis"
+    }
+}
+```
+
+**Example Usage**:
+```python
+from tools.media_processing.video_clipper import VideoClipper
+
+# Extract top highlights automatically
+tool = VideoClipper(
+    video_url="https://example.com/webinar_recording.mp4",
+    clip_strategy="highlights",
+    num_clips=5,
+    clip_length=15,
+    output_format="mp4",
+    resolution="1080p",
+    add_captions=True
+)
+result = tool.run()
+# Returns: 5 best 15-second clips with captions
+
+# Extract action-packed moments
+tool = VideoClipper(
+    video_url="https://example.com/sports_game.mp4",
+    clip_strategy="action",
+    target_duration=60,
+    num_clips=4,
+    criteria={
+        "min_motion": 70,
+        "scene_changes": True
+    },
+    add_transitions=True,
+    quality="ultra"
+)
+result = tool.run()
+
+# Topic-based clip extraction
+tool = VideoClipper(
+    video_url="https://example.com/conference_talk.mp4",
+    clip_strategy="topic_based",
+    num_clips=3,
+    clip_length=30,
+    criteria={
+        "keywords": ["artificial intelligence", "machine learning", "future trends"],
+        "face_presence": True,
+        "min_audio_energy": 60
+    },
+    add_captions=True,
+    resolution="720p"
+)
+result = tool.run()
+# Returns: 3 clips focused on AI/ML discussion
+
+# Custom time-based clips
+tool = VideoClipper(
+    video_url="https://example.com/interview.mp4",
+    clip_strategy="time_based",
+    num_clips=3,
+    criteria={
+        "time_ranges": [
+            {"start": "00:02:15", "end": "00:02:45"},
+            {"start": "00:15:30", "end": "00:16:00"},
+            {"start": "00:28:00", "end": "00:28:30"}
+        ]
+    },
+    add_transitions=True,
+    output_format="mp4"
+)
+result = tool.run()
+
+# Dialogue-focused clips
+tool = VideoClipper(
+    video_url="https://example.com/podcast_video.mp4",
+    clip_strategy="dialogue",
+    num_clips=5,
+    clip_length=20,
+    criteria={
+        "min_audio_energy": 50,
+        "keywords": ["startup", "funding", "growth"],
+        "face_presence": True
+    },
+    add_captions=True
+)
+result = tool.run()
+```
+
+**Clip Strategies**:
+- **highlights**: AI identifies most engaging moments (motion + audio + scene analysis)
+- **action**: High-motion, dynamic segments
+- **dialogue**: Segments with active speaking and conversation
+- **topic_based**: Clips matching specific keywords/topics
+- **time_based**: Extract specific time ranges
+- **custom**: User-defined criteria combination
+
+**Use Cases**:
+- Social media content from long videos
+- Video trailers and teasers
+- Meeting and webinar highlights
+- Sports game highlights
+- Tutorial key moments extraction
+- Podcast video snippets
+- Product demo key features
+- Customer testimonial clips
+
+### 56. VideoEditorTool
 **File**: `tools/media_processing/video_editor/video_editor.py`
 
 **Description**: Edit videos using FFmpeg including trim, merge, add audio, apply effects, and format conversion.
@@ -1314,7 +2122,7 @@ result = tool.run()
 
 ## Search & Information Retrieval
 
-### 45. FinancialReport
+### 57. FinancialReport
 **File**: `tools/search/financial_report/financial_report.py`
 
 **Description**: Retrieve financial reports and SEC filings for public companies.
@@ -1336,7 +2144,7 @@ tool = FinancialReport(
 result = tool.run()
 ```
 
-### 44. GoogleProductSearch
+### 58. GoogleProductSearch
 **File**: `tools/search/google_product_search/google_product_search.py`
 
 **Description**: Search for products using Google Shopping with price comparison.
@@ -1358,7 +2166,7 @@ tool = GoogleProductSearch(
 result = tool.run()
 ```
 
-### 45. ImageSearch
+### 59. ImageSearch
 **File**: `tools/search/image_search/image_search.py`
 
 **Description**: Search for images across the web with filtering options.
@@ -1380,7 +2188,7 @@ tool = ImageSearch(
 result = tool.run()
 ```
 
-### 46. ProductSearch
+### 60. ProductSearch
 **File**: `tools/search/product_search/product_search.py`
 
 **Description**: Search for products across e-commerce platforms.
@@ -1402,7 +2210,7 @@ tool = ProductSearch(
 result = tool.run()
 ```
 
-### 47. ScholarSearch
+### 61. ScholarSearch
 **File**: `tools/search/scholar_search/scholar_search.py`
 
 **Description**: Search academic papers and research publications using Google Scholar.
@@ -1424,7 +2232,7 @@ tool = ScholarSearch(
 result = tool.run()
 ```
 
-### 48. StockPrice
+### 62. StockPrice
 **File**: `tools/search/stock_price/stock_price.py`
 
 **Description**: Get real-time and historical stock price data.
@@ -1446,7 +2254,7 @@ tool = StockPrice(
 result = tool.run()
 ```
 
-### 49. VideoSearch
+### 63. VideoSearch
 **File**: `tools/search/video_search/video_search.py`
 
 **Description**: Search for videos across platforms like YouTube with metadata.
@@ -1468,7 +2276,7 @@ tool = VideoSearch(
 result = tool.run()
 ```
 
-### 50. WebSearch
+### 64. WebSearch
 **File**: `tools/search/web_search/web_search.py`
 
 **Description**: Perform web searches with comprehensive results including snippets and metadata.
@@ -1494,7 +2302,7 @@ result = tool.run()
 
 ## Storage & File Management
 
-### 51. AIDriveTool
+### 65. AIDriveTool
 **File**: `tools/storage/aidrive_tool/aidrive_tool.py`
 
 **Description**: Manage files in AI Drive cloud storage with upload, download, list, and delete operations.
@@ -1521,7 +2329,7 @@ tool = AIDriveTool(action="list", path="/documents")
 result = tool.run()
 ```
 
-### 52. FileFormatConverter
+### 66. FileFormatConverter
 **File**: `tools/storage/file_format_converter/file_format_converter.py`
 
 **Description**: Convert files between formats (PDF, DOCX, images, audio, video).
@@ -1543,7 +2351,7 @@ tool = FileFormatConverter(
 result = tool.run()
 ```
 
-### 53. OneDriveFileRead
+### 67. OneDriveFileRead
 **File**: `tools/storage/onedrive_file_read/onedrive_file_read.py`
 
 **Description**: Read file contents from Microsoft OneDrive.
@@ -1564,7 +2372,7 @@ tool = OneDriveFileRead(
 result = tool.run()
 ```
 
-### 54. OneDriveSearch
+### 68. OneDriveSearch
 **File**: `tools/storage/onedrive_search/onedrive_search.py`
 
 **Description**: Search for files in Microsoft OneDrive.
@@ -1590,7 +2398,7 @@ result = tool.run()
 
 ## Utilities
 
-### 55. AskForClarification
+### 69. AskForClarification
 **File**: `tools/utils/ask_for_clarification/ask_for_clarification.py`
 
 **Description**: Request clarification from users when requirements are ambiguous.
@@ -1612,7 +2420,7 @@ tool = AskForClarification(
 result = tool.run()
 ```
 
-### 56. BatchProcessor
+### 70. BatchProcessor
 **File**: `tools/utils/batch_processor/batch_processor.py`
 
 **Description**: Process multiple items in batch with parallel execution support.
@@ -1636,7 +2444,7 @@ tool = BatchProcessor(
 result = tool.run()
 ```
 
-### 57. CreateProfile
+### 71. CreateProfile
 **File**: `tools/utils/create_profile/create_profile.py`
 
 **Description**: Create user or entity profiles with structured data.
@@ -1661,7 +2469,7 @@ tool = CreateProfile(
 result = tool.run()
 ```
 
-### 58. JSONValidator
+### 72. JSONValidator
 **File**: `tools/utils/json_validator/json_validator.py`
 
 **Description**: Validate JSON data against schemas and fix common errors.
@@ -1683,7 +2491,7 @@ tool = JSONValidator(
 result = tool.run()
 ```
 
-### 59. TextFormatter
+### 73. TextFormatter
 **File**: `tools/utils/text_formatter/text_formatter.py`
 
 **Description**: Format text with various transformations (case, spacing, line breaks).
@@ -1704,7 +2512,7 @@ tool = TextFormatter(
 result = tool.run()
 ```
 
-### 60. Think
+### 74. Think
 **File**: `tools/utils/think/think.py`
 
 **Description**: Internal reasoning tool for complex problem-solving and planning.
@@ -1726,7 +2534,7 @@ tool = Think(
 result = tool.run()
 ```
 
-### 61. FactChecker
+### 75. FactChecker
 **File**: `tools/utils/fact_checker/fact_checker.py`
 
 **Description**: Verify claims using web search and academic sources with confidence scoring and source analysis.
@@ -1770,7 +2578,7 @@ tool = FactChecker(
 result = tool.run()
 ```
 
-### 62. Translation
+### 76. Translation
 **File**: `tools/utils/translation/translation.py`
 
 **Description**: Multi-language translation with format preservation supporting 100+ languages via Google Translate or DeepL.
@@ -1831,7 +2639,7 @@ result = tool.run()
 
 ## Visualization
 
-### 63. GenerateAreaChart
+### 77. GenerateAreaChart
 **File**: `tools/visualization/generate_area_chart/generate_area_chart.py`
 
 **Description**: Create area charts for showing cumulative trends over time.
@@ -1853,7 +2661,7 @@ tool = GenerateAreaChart(
 result = tool.run()
 ```
 
-### 62. GenerateBarChart
+### 78. GenerateBarChart
 **File**: `tools/visualization/generate_bar_chart/generate_bar_chart.py`
 
 **Description**: Create bar charts for comparing values across categories.
@@ -1874,7 +2682,7 @@ tool = GenerateBarChart(
 result = tool.run()
 ```
 
-### 63. GenerateColumnChart
+### 79. GenerateColumnChart
 **File**: `tools/visualization/generate_column_chart/generate_column_chart.py`
 
 **Description**: Create column charts (vertical bars) for time-series or category comparisons.
@@ -1896,7 +2704,7 @@ tool = GenerateColumnChart(
 result = tool.run()
 ```
 
-### 64. GenerateDualAxesChart
+### 80. GenerateDualAxesChart
 **File**: `tools/visualization/generate_dual_axes_chart/generate_dual_axes_chart.py`
 
 **Description**: Create charts with two Y-axes for comparing different scales.
@@ -1918,7 +2726,7 @@ tool = GenerateDualAxesChart(
 result = tool.run()
 ```
 
-### 65. GenerateFishboneDiagram
+### 81. GenerateFishboneDiagram
 **File**: `tools/visualization/generate_fishbone_diagram/generate_fishbone_diagram.py`
 
 **Description**: Create fishbone (Ishikawa) diagrams for root cause analysis.
@@ -1943,7 +2751,7 @@ tool = GenerateFishboneDiagram(
 result = tool.run()
 ```
 
-### 66. GenerateFlowDiagram
+### 82. GenerateFlowDiagram
 **File**: `tools/visualization/generate_flow_diagram/generate_flow_diagram.py`
 
 **Description**: Create flowcharts for process visualization.
@@ -1965,7 +2773,7 @@ tool = GenerateFlowDiagram(
 result = tool.run()
 ```
 
-### 67. GenerateHistogramChart
+### 83. GenerateHistogramChart
 **File**: `tools/visualization/generate_histogram_chart/generate_histogram_chart.py`
 
 **Description**: Create histograms for showing data distribution.
@@ -1987,7 +2795,7 @@ tool = GenerateHistogramChart(
 result = tool.run()
 ```
 
-### 68. GenerateLineChart
+### 84. GenerateLineChart
 **File**: `tools/visualization/generate_line_chart/generate_line_chart.py`
 
 **Description**: Create line charts for showing trends over time.
@@ -2008,7 +2816,7 @@ tool = GenerateLineChart(
 result = tool.run()
 ```
 
-### 69. GenerateMindMap
+### 85. GenerateMindMap
 **File**: `tools/visualization/generate_mind_map/generate_mind_map.py`
 
 **Description**: Create mind maps for brainstorming and concept visualization.
@@ -2033,7 +2841,7 @@ tool = GenerateMindMap(
 result = tool.run()
 ```
 
-### 70. GenerateNetworkGraph
+### 86. GenerateNetworkGraph
 **File**: `tools/visualization/generate_network_graph/generate_network_graph.py`
 
 **Description**: Create network graphs for showing relationships and connections.
@@ -2055,7 +2863,7 @@ tool = GenerateNetworkGraph(
 result = tool.run()
 ```
 
-### 71. GenerateOrganizationChart
+### 87. GenerateOrganizationChart
 **File**: `tools/visualization/generate_organization_chart/generate_organization_chart.py`
 
 **Description**: Create organization charts for showing hierarchical structures.
@@ -2082,7 +2890,7 @@ tool = GenerateOrganizationChart(
 result = tool.run()
 ```
 
-### 72. GeneratePieChart
+### 88. GeneratePieChart
 **File**: `tools/visualization/generate_pie_chart/generate_pie_chart.py`
 
 **Description**: Create pie charts for showing proportions and percentages.
@@ -2104,7 +2912,7 @@ tool = GeneratePieChart(
 result = tool.run()
 ```
 
-### 73. GenerateRadarChart
+### 89. GenerateRadarChart
 **File**: `tools/visualization/generate_radar_chart/generate_radar_chart.py`
 
 **Description**: Create radar (spider) charts for multi-dimensional comparisons.
@@ -2126,7 +2934,7 @@ tool = GenerateRadarChart(
 result = tool.run()
 ```
 
-### 74. GenerateScatterChart
+### 90. GenerateScatterChart
 **File**: `tools/visualization/generate_scatter_chart/generate_scatter_chart.py`
 
 **Description**: Create scatter plots for showing correlations and distributions.
@@ -2148,7 +2956,7 @@ tool = GenerateScatterChart(
 result = tool.run()
 ```
 
-### 75. GenerateTreemapChart
+### 91. GenerateTreemapChart
 **File**: `tools/visualization/generate_treemap_chart/generate_treemap_chart.py`
 
 **Description**: Create treemap charts for showing hierarchical data as nested rectangles.
@@ -2172,7 +2980,7 @@ tool = GenerateTreemapChart(
 result = tool.run()
 ```
 
-### 76. GenerateWordCloudChart
+### 92. GenerateWordCloudChart
 **File**: `tools/visualization/generate_word_cloud_chart/generate_word_cloud_chart.py`
 
 **Description**: Create word clouds from text data with frequency-based sizing.
@@ -2199,7 +3007,7 @@ result = tool.run()
 
 ## Web
 
-### 77. ResourceDiscovery
+### 93. ResourceDiscovery
 **File**: `tools/web/resource_discovery/resource_discovery.py`
 
 **Description**: Discover web resources including APIs, datasets, and documentation.
@@ -2225,7 +3033,7 @@ result = tool.run()
 
 ## Web Content
 
-### 78. Crawler
+### 94. Crawler
 **File**: `tools/web_content/crawler/crawler.py`
 
 **Description**: Crawl websites and extract content systematically.
@@ -2249,7 +3057,7 @@ tool = Crawler(
 result = tool.run()
 ```
 
-### 79. SummarizeLargeDocument
+### 95. SummarizeLargeDocument
 **File**: `tools/web_content/summarize_large_document/summarize_large_document.py`
 
 **Description**: Summarize large documents and web pages using AI.
@@ -2271,7 +3079,7 @@ tool = SummarizeLargeDocument(
 result = tool.run()
 ```
 
-### 80. URLMetadata
+### 96. URLMetadata
 **File**: `tools/web_content/url_metadata/url_metadata.py`
 
 **Description**: Extract metadata from URLs including title, description, images, and Open Graph data.
@@ -2293,7 +3101,7 @@ tool = URLMetadata(
 result = tool.run()
 ```
 
-### 81. WebpageCaptureScreen
+### 97. WebpageCaptureScreen
 **File**: `tools/web_content/webpage_capture_screen/webpage_capture_screen.py`
 
 **Description**: Capture screenshots of web pages in various resolutions and formats.
@@ -2321,7 +3129,7 @@ result = tool.run()
 
 ## Workspace Integration
 
-### 82. NotionRead
+### 98. NotionRead
 **File**: `tools/workspace/notion_read/notion_read.py`
 
 **Description**: Read pages and content from Notion workspaces.
@@ -2343,7 +3151,7 @@ tool = NotionRead(
 result = tool.run()
 ```
 
-### 83. NotionSearch
+### 99. NotionSearch
 **File**: `tools/workspace/notion_search/notion_search.py`
 
 **Description**: Search Notion workspaces for pages, databases, and content.
@@ -2365,7 +3173,7 @@ tool = NotionSearch(
 result = tool.run()
 ```
 
-### 84. GoogleDocs (Workspace)
+### 100. GoogleDocs (Workspace)
 **File**: `tools/communication/google_docs/google_docs.py`
 
 **Description**: Create and modify Google Docs using Google Docs API v1 (also listed in Communication category).
@@ -2390,7 +3198,7 @@ tool = GoogleDocs(
 result = tool.run()
 ```
 
-### 85. GoogleSheets (Workspace)
+### 101. GoogleSheets (Workspace)
 **File**: `tools/communication/google_sheets/google_sheets.py`
 
 **Description**: Create and modify Google Sheets spreadsheets (also listed in Communication category).
@@ -2415,7 +3223,7 @@ tool = GoogleSheets(
 result = tool.run()
 ```
 
-### 86. GoogleSlides (Workspace)
+### 102. GoogleSlides (Workspace)
 **File**: `tools/communication/google_slides/google_slides.py`
 
 **Description**: Create and modify Google Slides presentations (also listed in Communication category).
@@ -2445,7 +3253,7 @@ result = tool.run()
 
 ## Examples
 
-### 87. DemoTool
+### 103. DemoTool
 **File**: `tools/_examples/demo_tool/demo_tool.py`
 
 **Description**: Example tool demonstrating the Agency Swarm tool development pattern.
@@ -2523,7 +3331,26 @@ All tools in this catalog follow the **Agency Swarm** development standards:
 
 ---
 
-**Catalog Version**: 1.0.0
+**Catalog Version**: 1.1.0
 **Last Updated**: November 22, 2025
-**Total Tools**: 84 production-ready tools
+**Total Tools**: 105 production-ready tools
 **Repository**: agentswarm-tools
+
+## New Tools Summary (v1.1.0)
+
+**AI Intelligence** (2 new tools):
+- RAGPipeline: Vector database RAG workflows (Pinecone, Chroma, Weaviate, Qdrant, Milvus)
+- DeepResearchAgent: Comprehensive multi-source research with auto-generated reports
+
+**Communication** (2 new tools):
+- TwilioPhoneCall: AI-powered phone calls with Twilio integration
+- TwilioCallLogs: Call history analytics with recordings and transcriptions
+
+**Content Creation** (1 new tool):
+- WebsiteBuilder: Professional website generation with SEO and deployment
+
+**Media Generation** (1 new tool):
+- PodcastGenerator: Multi-speaker AI podcasts with music and effects
+
+**Media Processing** (1 new tool):
+- VideoClipper: AI-powered highlight extraction from long videos

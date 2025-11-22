@@ -1,6 +1,6 @@
 # AgentSwarm Tools - Alphabetical Index
 
-Quick reference index of all 98 tools with one-line descriptions.
+Quick reference index of all 105 tools with one-line descriptions.
 
 ---
 
@@ -45,7 +45,10 @@ Create specialized agents (podcasts, docs, slides, sheets, deep research, websit
 
 ## D
 
-**DownloadFileWrapper**  
+**deep_research_agent**
+In-depth research across web, academic papers, and documents
+
+**DownloadFileWrapper**
 Download file wrapper URLs to sandbox for processing
 
 ---
@@ -209,6 +212,9 @@ Create AI-assisted phone call card (user clicks to initiate)
 **photo_editor**
 Perform advanced photo editing operations (resize, crop, filters, effects)
 
+**podcast_generator**
+Generate AI podcasts with multiple speakers and music
+
 **product_search**
 Search and recommend products from Amazon with detailed information
 
@@ -223,13 +229,16 @@ Query call history logs with optional filtering and transcripts
 
 ## R
 
-**Read**  
+**rag_pipeline**
+Retrieval Augmented Generation with vector databases
+
+**Read**
 Read files from sandboxed environment with line numbers
 
-**read_email_attachments**  
+**read_email_attachments**
 Read email attachments efficiently (checks cache first)
 
-**resource_discovery**  
+**resource_discovery**
 Detect and catalog downloadable media resources from web pages
 
 ---
@@ -255,6 +264,12 @@ Internal reasoning and memory (no external effects)
 **translation**
 Multi-language translation with format preservation (100+ languages)
 
+**twilio_call_logs**
+Query call history and transcripts from Twilio
+
+**twilio_phone_call**
+AI-assisted phone calling via Twilio integration
+
 ---
 
 ## U
@@ -272,6 +287,9 @@ Check URL metadata (content-type, size, filename) without downloading
 
 ## V
 
+**video_clipper**
+Extract highlights from long videos automatically
+
 **video_editor**
 Edit videos using FFmpeg (trim, merge, add audio, apply effects)
 
@@ -285,13 +303,16 @@ Search for videos on YouTube platform
 
 ## W
 
-**web_search**  
+**web_search**
 Perform web search with Google and return comprehensive results
 
-**webpage_capture_screen**  
+**webpage_capture_screen**
 Capture screenshot of a webpage as visual representation
 
-**Write**  
+**website_builder**
+Generate responsive websites with modern design
+
+**Write**
 Create or overwrite files in sandboxed environment
 
 ---
@@ -302,17 +323,20 @@ Create or overwrite files in sandboxed environment
 |----------|-------|
 | Search & Information | 8 |
 | Web Content & Data | 5 |
-| Media Generation | 3 |
+| Media Generation | 4 |
 | Media Analysis | 7 |
-| File & Storage | 4 |
-| Communication | 8 |
+| Media Processing | 3 |
+| File & Storage | 6 |
+| Communication | 17 |
 | Visualization (Charts) | 15 |
 | Location Services | 1 |
 | Code Execution | 5 |
-| Document Creation | 1 |
-| Workspace Integration | 2 |
-| Utilities | 2 |
-| **Total** | **61** |
+| Document Creation | 5 |
+| Workspace Integration | 5 |
+| Business Intelligence | 4 |
+| AI Intelligence | 2 |
+| Utilities | 4 |
+| **Total** | **105** |
 
 ---
 
@@ -323,22 +347,22 @@ Create or overwrite files in sandboxed environment
 | A | 5 | analyze_media_content, ask_for_clarification, audio_generation, audio_transcribe, aidrive_tool |
 | B | 2 | Bash, batch_understand_videos |
 | C | 2 | crawler, create_agent |
-| D | 1 | DownloadFileWrapper |
+| D | 2 | deep_research_agent, DownloadFileWrapper |
 | E | 2 | email_draft, extract_audio_from_video |
-| F | 2 | file_format_converter, financial_report |
-| G | 4 | gmail_read, gmail_search, google_calendar_create_event_draft, google_calendar_list, google_product_search |
+| F | 3 | fact_checker, file_format_converter, financial_report |
+| G | 8 | gmail_read, gmail_search, google_calendar_create_event_draft, google_calendar_list, google_docs, google_product_search, google_sheets, google_slides |
 | I | 2 | image_generation, image_search |
-| M | 18 | maps_search, mcp_* (15 chart tools), merge_audio, MultiEdit |
+| M | 19 | maps_search, meeting_notes_agent, mcp_* (15 chart tools), merge_audio, MultiEdit |
 | N | 2 | notion_read, notion_search |
-| O | 2 | onedrive_file_read, onedrive_search |
-| P | 2 | phone_call, product_search |
+| O | 4 | office_docs, office_sheets, office_slides, onedrive_file_read, onedrive_search |
+| P | 4 | phone_call, photo_editor, podcast_generator, product_search |
 | Q | 1 | query_call_logs |
-| R | 3 | Read, read_email_attachments, resource_discovery |
+| R | 4 | rag_pipeline, Read, read_email_attachments, resource_discovery |
 | S | 3 | scholar_search, stock_price, summarize_large_document |
-| T | 1 | think |
+| T | 4 | think, translation, twilio_call_logs, twilio_phone_call |
 | U | 3 | understand_images, understand_video, url_metadata |
-| V | 2 | video_generation, video_search |
-| W | 3 | web_search, webpage_capture_screen, Write |
+| V | 4 | video_clipper, video_editor, video_generation, video_search |
+| W | 4 | web_search, webpage_capture_screen, website_builder, Write |
 
 ---
 
