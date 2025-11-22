@@ -388,24 +388,17 @@ Create or overwrite files in sandboxed environment
 
 ## Tool Count by Category
 
-| Category | Count |
-|----------|-------|
-| Search & Information | 8 |
-| Web Content & Data | 5 |
-| Media Generation | 4 |
-| Media Analysis | 7 |
-| Media Processing | 3 |
-| File & Storage | 6 |
-| Communication | 17 |
-| Visualization (Charts) | 15 |
-| Location Services | 1 |
-| Code Execution | 5 |
-| Document Creation | 5 |
-| Workspace Integration | 5 |
-| Business Intelligence | 4 |
-| AI Intelligence | 2 |
-| Utilities | 4 |
-| **Total** | **101** |
+| Category | Count | Subcategories |
+|----------|-------|---------------|
+| **Data & Intelligence** | 13 | Search (8), Business (3), AI Intelligence (2) |
+| **Communication & Collaboration** | 23 | Email & Calendar, Workspace, Messaging, Phone, Location |
+| **Media** | 20 | Generation (7), Analysis (10), Processing (3) |
+| **Visualization** | 16 | Charts, Diagrams, Graphs |
+| **Content** | 10 | Documents (6), Web Content (4) |
+| **Infrastructure** | 11 | Code Execution (5), Storage (4), Management (2) |
+| **Utilities** | 8 | Helpers and validators |
+| **Integrations** | 0 | External service connectors (extensible) |
+| **Total** | **101** | 8 streamlined categories |
 
 ---
 

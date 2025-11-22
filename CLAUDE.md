@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Repository Overview
 
-AgentSwarm Tools Framework - **101 production-ready tools** organized into **18 categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
+AgentSwarm Tools Framework - **101 production-ready tools** organized into **8 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
 
 ## Development Rules
 
@@ -23,15 +23,26 @@ This project follows **Agency Swarm** tool development standards.
 
 ```
 agentswarm-tools/
-├── tools/                    # All tool implementations
-│   ├── search/              # Search & information tools
-│   ├── web_content/         # Web scraping tools
-│   ├── media_generation/    # Image/video/audio generation
-│   ├── media_analysis/      # Media processing tools
-│   ├── storage/             # File & storage tools
-│   ├── communication/       # Email, calendar, phone tools
-│   ├── visualization/       # Chart generation tools
-│   └── ...
+├── tools/                    # All tool implementations (8 categories)
+│   ├── data/                # Search, business analytics, AI intelligence
+│   │   ├── search/         # Web, scholar, image, video, product search (8)
+│   │   ├── business/       # Data aggregation, reporting, analytics (3)
+│   │   └── intelligence/   # RAG pipeline, deep research (2)
+│   ├── communication/       # Email, calendar, workspace, messaging, phone (23)
+│   ├── media/              # Generation, analysis, processing
+│   │   ├── generation/     # Image, video, audio, podcast (7)
+│   │   ├── analysis/       # Understanding, transcription (10)
+│   │   └── processing/     # Editing, clipping, merging (3)
+│   ├── visualization/       # Charts, diagrams, graphs (16)
+│   ├── content/            # Documents, web content
+│   │   ├── documents/      # Agent creation, office formats, websites (6)
+│   │   └── web/           # Crawler, summarization, metadata (4)
+│   ├── infrastructure/      # Code execution, storage, management
+│   │   ├── execution/      # Bash, Read, Write, MultiEdit (5)
+│   │   ├── storage/        # AI Drive, OneDrive, file conversion (4)
+│   │   └── management/     # Agent status, task queues (2)
+│   ├── utils/              # Utilities and helpers (8)
+│   └── integrations/       # External service connectors (0, extensible)
 ├── shared/                   # Shared utilities
 │   ├── base.py             # BaseTool class
 │   ├── errors.py           # Custom exceptions
@@ -72,7 +83,7 @@ class MyTool(BaseTool):
 
     # Tool metadata
     tool_name: str = "my_tool"
-    tool_category: str = "category"
+    tool_category: str = "data"  # One of: data, communication, media, visualization, content, infrastructure, utils, integrations
 
     # Parameters with Pydantic Field
     param1: str = Field(..., description="Required parameter", min_length=1)

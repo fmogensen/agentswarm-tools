@@ -11,8 +11,8 @@ long_description = readme_file.read_text() if readme_file.exists() else ""
 
 setup(
     name="agentswarm-tools",
-    version="1.1.0",
-    description="Complete AgentSwarm Tools Framework - 101 tools for AI agents",
+    version="1.2.0",
+    description="Complete AgentSwarm Tools Framework - 101 tools in 8 categories",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="AgentSwarm",

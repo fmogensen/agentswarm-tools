@@ -1,33 +1,54 @@
 # AgentSwarm Tools - Complete Catalog
 
 **Total Tools**: 101 production-ready tools
+**Categories**: 8 streamlined categories (v1.2.0)
 **Date**: November 22, 2025
 **Repository**: agentswarm-tools
 
-This catalog provides a complete reference of all tools organized by category with descriptions and example usage patterns.
+This catalog provides a complete reference of all tools organized by the new 8-category structure with descriptions and example usage patterns.
 
 ---
 
-## Table of Contents
+## New Category Structure (v1.2.0)
 
-1. [Agent Management](#agent-management) (2 tools)
-2. [AI Intelligence](#ai-intelligence) (2 tools)
-3. [Business Intelligence](#business-intelligence) (3 tools)
-4. [Code Execution](#code-execution) (5 tools)
-5. [Communication](#communication) (20 tools)
-6. [Content Creation](#content-creation) (1 tool)
-7. [Document Creation](#document-creation) (4 tools)
-8. [Location Services](#location-services) (1 tool)
-9. [Media Analysis](#media-analysis) (10 tools)
-10. [Media Generation](#media-generation) (7 tools)
-11. [Media Processing](#media-processing) (3 tools)
-12. [Search & Information Retrieval](#search--information-retrieval) (8 tools)
-13. [Storage & File Management](#storage--file-management) (4 tools)
-14. [Utilities](#utilities) (8 tools)
-15. [Visualization](#visualization) (16 tools)
-16. [Web](#web) (1 tool)
-17. [Web Content](#web-content) (4 tools)
-18. [Workspace Integration](#workspace-integration) (5 tools)
+AgentSwarm Tools has been reorganized into 8 streamlined categories for improved discoverability:
+
+| Category | Tools | Subcategories |
+|----------|-------|---------------|
+| **Data & Intelligence** | 13 | Search (8), Business (3), AI Intelligence (2) |
+| **Communication & Collaboration** | 23 | Email & Calendar, Workspace, Messaging, Phone, Location |
+| **Media** | 20 | Generation (7), Analysis (10), Processing (3) |
+| **Visualization** | 16 | Charts, Diagrams, Graphs |
+| **Content** | 10 | Documents (6), Web Content (4) |
+| **Infrastructure** | 11 | Code Execution (5), Storage (4), Management (2) |
+| **Utilities** | 8 | Helpers and validators |
+| **Integrations** | 0 | External service connectors (extensible) |
+
+---
+
+## Table of Contents (Legacy Granular View)
+
+The tools below are organized by their original detailed categories for backward compatibility.
+All tools now belong to the 8 main categories listed above.
+
+1. [Agent Management](#agent-management) (2 tools) → **Infrastructure**
+2. [AI Intelligence](#ai-intelligence) (2 tools) → **Data & Intelligence**
+3. [Business Intelligence](#business-intelligence) (3 tools) → **Data & Intelligence**
+4. [Code Execution](#code-execution) (5 tools) → **Infrastructure**
+5. [Communication](#communication) (20 tools) → **Communication & Collaboration**
+6. [Content Creation](#content-creation) (1 tool) → **Content**
+7. [Document Creation](#document-creation) (4 tools) → **Content**
+8. [Location Services](#location-services) (1 tool) → **Communication & Collaboration**
+9. [Media Analysis](#media-analysis) (10 tools) → **Media**
+10. [Media Generation](#media-generation) (7 tools) → **Media**
+11. [Media Processing](#media-processing) (3 tools) → **Media**
+12. [Search & Information Retrieval](#search--information-retrieval) (8 tools) → **Data & Intelligence**
+13. [Storage & File Management](#storage--file-management) (4 tools) → **Infrastructure**
+14. [Utilities](#utilities) (8 tools) → **Utilities**
+15. [Visualization](#visualization) (16 tools) → **Visualization**
+16. [Web](#web) (1 tool) → **Content**
+17. [Web Content](#web-content) (4 tools) → **Content**
+18. [Workspace Integration](#workspace-integration) (5 tools) → **Communication & Collaboration**
 19. [Examples](#examples) (1 tool)
 
 ---

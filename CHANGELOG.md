@@ -7,6 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-11-22
+
+### Changed
+
+#### Category Reorganization (Breaking Change)
+- **BREAKING**: Reorganized tools from 19 categories to 8 streamlined categories
+  - Created **tools/data/** (consolidated search, business, intelligence)
+    - tools/data/search/ - 8 search tools (web, scholar, image, video, product, etc.)
+    - tools/data/business/ - 3 business analytics tools
+    - tools/data/intelligence/ - 2 AI intelligence tools (RAG, deep research)
+  - Created **tools/media/** (consolidated generation, analysis, processing)
+    - tools/media/generation/ - 7 media generation tools
+    - tools/media/analysis/ - 10 media analysis tools
+    - tools/media/processing/ - 3 media processing tools
+  - Created **tools/content/** (consolidated documents, web content)
+    - tools/content/documents/ - 6 document creation tools
+    - tools/content/web/ - 4 web content tools
+  - Created **tools/infrastructure/** (consolidated execution, storage, management)
+    - tools/infrastructure/execution/ - 5 code execution tools
+    - tools/infrastructure/storage/ - 4 storage tools
+    - tools/infrastructure/management/ - 2 agent management tools
+  - Enhanced **tools/communication/** (added workspace and location tools)
+    - 23 total tools covering email, calendar, workspace, messaging, phone, location
+  - Created **tools/integrations/** (reserved for future external services)
+    - Ready for extensions and third-party integrations
+  - Kept **tools/visualization/** and **tools/utils/** unchanged
+
+#### Tool Metadata Updates
+- Updated all tool_category attributes to match new 8-category structure
+- Maintained backward-compatible import paths
+- No changes to tool names or functionality
+
+#### Documentation Updates
+- Updated all documentation files to reflect new category structure
+- Created MIGRATION_GUIDE_v1.2.0.md for upgrade path
+- Updated README.md with streamlined category presentation
+- Refreshed TOOLS_CATALOG.md with new organization
+- Updated CLAUDE.md with new development guidelines
+
+### Added
+- MIGRATION_GUIDE_v1.2.0.md - Complete migration guide from v1.1.0 to v1.2.0
+
+### Benefits
+- **58% fewer categories** (19 → 8) for improved discoverability
+- **Logical groupings** that match common use cases
+- **Easier navigation** through tool hierarchy
+- **Better maintainability** with clear separation of concerns
+- **Scalable structure** ready for future tool additions
+
+### Migration Guide
+Import paths remain unchanged (fully backward compatible):
+```python
+# Still works in v1.2.0
+from tools.data.search.web_search import WebSearch
+from tools.media.generation.image_generation import ImageGenerationTool
+from tools.content.documents.create_agent import CreateAgentTool
+```
+
+Only tool metadata changed:
+```python
+# Old (v1.1.0): tool_category = "search"
+# New (v1.2.0): tool_category = "data"
+```
+
 ## [1.1.0] - 2025-11-22
 
 ### Added
@@ -220,6 +284,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/genspark/agentswarm-tools/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/genspark/agentswarm-tools/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/genspark/agentswarm-tools/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/genspark/agentswarm-tools/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/genspark/agentswarm-tools/releases/tag/v1.0.0

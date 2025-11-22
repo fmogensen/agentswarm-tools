@@ -9,7 +9,7 @@
 
 ## 🎯 Overview
 
-A comprehensive suite of **101 production-ready tools** organized into **18 categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
+A comprehensive suite of **101 production-ready tools** organized into **8 streamlined categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
 
 - ✅ **Error Handling by Design** - Comprehensive exception handling and graceful degradation
 - ✅ **Built-in Analytics** - Request tracking, performance metrics, usage statistics
@@ -25,7 +25,7 @@ AgentSwarm Tools Framework represents the most comprehensive AI tool suite in th
 
 ### Market-Leading Tool Count
 - **101 production-ready tools** vs. Genspark's 57 tools (**+77% more capabilities**)
-- Expanded coverage across 18 specialized categories
+- Streamlined organization across 8 intuitive categories
 - Continuous tool development and category expansion
 
 ### Cost Optimization Through LiteLLM Integration
@@ -56,21 +56,14 @@ AgentSwarm Tools Framework represents the most comprehensive AI tool suite in th
 
 | Category | Tools | Status |
 |----------|-------|--------|
-| **Search & Information** | 8 tools | ✅ Complete |
-| **Web Content & Data** | 5 tools | ✅ Complete |
-| **Media Generation** | 4 tools | ✅ Complete |
-| **Media Analysis** | 7 tools | ✅ Complete |
-| **Media Processing** | 3 tools | ✅ Complete |
-| **Storage & Files** | 6 tools | ✅ Complete |
-| **Communication** | 17 tools | ✅ Complete |
-| **Visualization** | 15 tools | ✅ Complete |
-| **Location Services** | 1 tool | ✅ Complete |
-| **Code Execution** | 5 tools | ✅ Complete |
-| **Document Creation** | 5 tools | ✅ Complete |
-| **Workspace Integration** | 5 tools | ✅ Complete |
-| **Business Intelligence** | 4 tools | ✅ Complete |
-| **AI Intelligence** | 2 tools | ✅ Complete |
-| **Utilities** | 4 tools | ✅ Complete |
+| **Data & Intelligence** | 13 tools | ✅ Complete |
+| **Communication & Collaboration** | 23 tools | ✅ Complete |
+| **Media** | 20 tools | ✅ Complete |
+| **Visualization** | 16 tools | ✅ Complete |
+| **Content** | 10 tools | ✅ Complete |
+| **Infrastructure** | 11 tools | ✅ Complete |
+| **Utilities** | 8 tools | ✅ Complete |
+| **Integrations** | 0 tools | ✅ Ready for Extensions |
 | **TOTAL** | **101 tools** | ✅ **100% Complete** |
 
 ## 📚 Documentation
@@ -106,7 +99,7 @@ cp .env.example .env
 ### Basic Usage
 
 ```python
-from tools.search.web_search import WebSearch
+from tools.data.search.web_search import WebSearch
 
 # Create tool instance
 search = WebSearch(query="Python programming", num_results=5)
@@ -124,7 +117,7 @@ if result['success']:
 
 ```python
 from agency_swarm import Agent
-from tools.search.web_search import WebSearch
+from tools.data.search.web_search import WebSearch
 
 # Create agent with tools
 researcher = Agent(
@@ -137,73 +130,94 @@ researcher = Agent(
 
 ## 🛠️ Featured Tools
 
-### Search & Information (8 tools)
+### Data & Intelligence (13 tools)
+**Search Tools (8):**
 - **web_search** - Web search with SerpAPI
 - **scholar_search** - Academic paper search
 - **image_search** - Image search and discovery
 - **video_search** - Video content search
 - **product_search** - E-commerce product search
+- **google_product_search** - Google Shopping search
 - **stock_price** - Real-time stock prices
 - **financial_report** - Company financial data
-- **maps_search** - Location and maps search
 
-### Communication (17 tools)
-- **gmail_search** - Search Gmail messages
-- **gmail_read** - Read email content
-- **read_email_attachments** - Extract attachments
-- **email_draft** - Create email drafts
-- **google_calendar_list** - List calendar events
-- **google_calendar_create_event_draft** - Create events
-- **google_docs** - Create and modify Google Docs
-- **google_sheets** - Create and modify Google Sheets
-- **google_slides** - Create and modify Google Slides
-- **meeting_notes_agent** - Transcribe meetings and generate notes
-- **slack_send_message** - Send Slack messages
-- **phone_call** - Make AI-powered phone calls
-- **query_call_logs** - Query call history
-- **twilio_phone_call** - Enterprise phone calling via Twilio
-- **twilio_call_logs** - Advanced call log analytics
+**Business Analytics (3):**
+- **data_aggregator** - Aggregate data from multiple sources
+- **report_generator** - Generate business reports
+- **trend_analyzer** - Analyze trends and patterns
 
-### Media Generation (4 tools)
-- **image_generation** - AI image generation
+**AI Intelligence (2):**
+- **rag_pipeline** - Retrieval-augmented generation
+- **deep_research_agent** - Multi-source research synthesis
+
+### Communication & Collaboration (23 tools)
+**Email & Calendar:**
+- **gmail_search**, **gmail_read**, **email_draft**, **read_email_attachments**
+- **google_calendar_list**, **google_calendar_create_event_draft**
+
+**Workspace:**
+- **google_docs**, **google_sheets**, **google_slides**
+- **notion_search**, **notion_read**
+- **slack_send_message**, **microsoft_teams_send_message**
+- **meeting_notes_agent**
+
+**Communication:**
+- **phone_call**, **query_call_logs**
+- **twilio_phone_call** - Enterprise calling via Twilio
+
+**Location:**
+- **maps_search** - Google Maps search
+
+### Media (20 tools)
+**Generation (7):**
+- **image_generation** - AI image generation (multiple models)
 - **video_generation** - AI video creation
 - **audio_generation** - Text-to-speech and audio
 - **podcast_generator** - AI-powered podcast creation
 
-### Document Creation (5 tools)
-- **create_agent** - Create AI agents for various tasks
-- **office_docs** - Generate Word documents (.docx)
-- **office_slides** - Create PowerPoint presentations (.pptx)
-- **office_sheets** - Generate Excel spreadsheets (.xlsx)
-- **website_builder** - Create interactive websites
+**Analysis (10):**
+- **understand_images**, **understand_video**, **batch_understand_videos**
+- **analyze_media_content**, **audio_transcribe**
+- **merge_audio**, **extract_audio_from_video**
 
-### Media Processing (3 tools)
-- **photo_editor** - Advanced photo editing operations
+**Processing (3):**
+- **photo_editor** - Advanced photo editing
 - **video_editor** - Video editing with FFmpeg
-- **video_clipper** - Intelligent video clipping and segmentation
+- **video_clipper** - Intelligent video clipping
 
-### Visualization (15 tools)
-- Line charts, bar charts, pie charts, scatter plots
-- Histograms, area charts, dual-axis charts
-- Flow diagrams, fishbone diagrams, mind maps
-- Network graphs, radar charts, treemaps, word clouds
+### Visualization (16 tools)
+- Line charts, bar charts, pie charts, scatter plots, area charts
+- Column charts, dual-axis charts, histograms, radar charts
+- Treemaps, word clouds, organization charts
+- Flow diagrams, fishbone diagrams, mind maps, network graphs
 
-### AI Intelligence (2 tools)
-- **rag_pipeline** - Retrieval-augmented generation for enhanced context
-- **deep_research_agent** - Advanced research with multi-source synthesis
+### Content (10 tools)
+**Documents (6):**
+- **create_agent** - Multi-format content creation
+- **office_docs**, **office_slides**, **office_sheets**
+- **website_builder** - Interactive websites
 
-### Utilities (4 tools)
-- **think** - Internal reasoning tool
-- **ask_for_clarification** - Request user clarification
+**Web Content (4):**
+- **crawler**, **summarize_large_document**
+- **url_metadata**, **webpage_capture_screen**
+
+### Infrastructure (11 tools)
+**Code Execution (5):**
+- **Bash**, **Read**, **Write**, **MultiEdit**, **DownloadFileWrapper**
+
+**Storage (4):**
+- **aidrive_tool**, **file_format_converter**
+- **onedrive_search**, **onedrive_file_read**
+
+**Agent Management (2):**
+- **agent_status**, **task_queue_manager**
+
+### Utilities (8 tools)
+- **think** - Internal reasoning
+- **ask_for_clarification** - Request user input
 - **fact_checker** - Verify claims with evidence
 - **translation** - Multi-language translation
-
-### Code Execution (5 tools)
-- **Bash** - Execute shell commands
-- **Read** - Read files
-- **Write** - Write files
-- **MultiEdit** - Edit multiple files
-- **DownloadFileWrapper** - Download files
+- **batch_processor**, **json_validator**, **text_formatter**, **create_profile**
 
 [See complete tool list →](TOOLS_INDEX.md)
 
@@ -214,12 +228,25 @@ researcher = Agent(
 ```
 agentswarm-tools/
 ├── tools/                    # All tool implementations
-│   ├── search/              # Search & information tools
-│   ├── communication/       # Email, calendar, messaging
-│   ├── media_generation/    # Image/video/audio generation
-│   ├── media_analysis/      # Media processing tools
-│   ├── visualization/       # Chart generation
-│   └── ...
+│   ├── data/                # Search, business analytics, AI intelligence
+│   │   ├── search/         # Web, scholar, image, video, product search
+│   │   ├── business/       # Data aggregation, reporting, analytics
+│   │   └── intelligence/   # RAG pipeline, deep research
+│   ├── communication/       # Email, calendar, workspace, messaging, phone
+│   ├── media/              # Generation, analysis, processing
+│   │   ├── generation/     # Image, video, audio, podcast
+│   │   ├── analysis/       # Understanding, transcription
+│   │   └── processing/     # Editing, clipping, merging
+│   ├── visualization/       # Charts, diagrams, graphs
+│   ├── content/            # Documents, web content
+│   │   ├── documents/      # Agent creation, office formats, websites
+│   │   └── web/           # Crawler, summarization, metadata
+│   ├── infrastructure/      # Code execution, storage, management
+│   │   ├── execution/      # Bash, Read, Write, MultiEdit
+│   │   ├── storage/        # AI Drive, OneDrive, file conversion
+│   │   └── management/     # Agent status, task queues
+│   ├── utils/              # Utilities and helpers
+│   └── integrations/       # External service connectors (extensible)
 ├── shared/                   # Shared utilities
 │   ├── base.py             # BaseTool with analytics & security
 │   ├── analytics.py        # Request tracking & metrics
