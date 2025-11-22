@@ -174,3 +174,22 @@ class AudioTranscribe(BaseTool):
                 f"Unexpected processing failure: {e}",
                 tool_name=self.tool_name,
             )
+
+
+if __name__ == "__main__":
+    print("Testing AudioTranscribe...")
+
+    import os
+
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test with mock data
+    tool = AudioTranscribe(input="https://example.com/audio.mp3")
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Text: {result.get('result', {}).get('text')}")
+    print(f"Words count: {len(result.get('result', {}).get('words', []))}")
+    assert result.get("success") == True
+    assert "text" in result.get("result", {})
+    print("AudioTranscribe test passed!")

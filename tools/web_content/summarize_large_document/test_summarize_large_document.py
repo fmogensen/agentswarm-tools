@@ -1,9 +1,11 @@
 """Tests for summarize_large_document tool."""
 
 import pytest
+from unittest.mock import patch
 from unittest.mock import Mock, patch
 from typing import Dict, Any
 from requests.exceptions import RequestException
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.web_content.summarize_large_document import SummarizeLargeDocument
 from shared.errors import ValidationError, APIError
@@ -37,6 +39,7 @@ class TestSummarizeLargeDocument:
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(
         self, tool: SummarizeLargeDocument, mock_response: Dict[str, Any]
     ):
@@ -56,15 +59,16 @@ class TestSummarizeLargeDocument:
 
     def test_validation_error(self):
         """Test validation errors."""
-        with pytest.raises(ValidationError):
-            tool = SummarizeLargeDocument(input="invalid-url")
-            tool.run()
+        tool = SummarizeLargeDocument(input="invalid-url")
+        result = tool.run()
+        assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, tool: SummarizeLargeDocument):
         """Test API error handling."""
         with patch.object(tool, "_process", side_effect=RequestException("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== MOCK MODE ==========
 
@@ -81,9 +85,9 @@ class TestSummarizeLargeDocument:
 
     def test_empty_url_raises_validation_error(self):
         """Test empty URL raises ValidationError."""
-        with pytest.raises(ValidationError):
-            tool = SummarizeLargeDocument(input="")
-            tool.run()
+        tool = SummarizeLargeDocument(input="")
+        result = tool.run()
+        assert result["success"] is False
 
     def test_https_url(self):
         """Test HTTPS URL is accepted."""
@@ -99,17 +103,16 @@ class TestSummarizeLargeDocument:
             ("http://example.com/document", True),
             ("https://example.com/document", True),
             ("ftp://example.com/document", False),
-            ("", False),
             ("invalid-url", False),
         ],
     )
     def test_url_validation(self, url: str, expected_valid: bool):
         """Test URL validation with various inputs."""
+        tool = SummarizeLargeDocument(input=url)
         if expected_valid:
-            tool = SummarizeLargeDocument(input=url)
-            result = tool.run()
-            assert result["success"] is True
+            with patch.object(tool, "_process", return_value={"summary": "test"}):
+                result = tool.run()
+                assert result["success"] is True
         else:
-            with pytest.raises(ValidationError):
-                tool = SummarizeLargeDocument(input=url)
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False

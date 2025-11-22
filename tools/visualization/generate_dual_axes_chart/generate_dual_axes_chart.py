@@ -72,15 +72,15 @@ class GenerateDualAxesChart(BaseTool):
         if not self.prompt or not isinstance(self.prompt, str):
             raise ValidationError(
                 "Prompt must be a non-empty string",
+                field="prompt",
                 tool_name=self.tool_name,
-                details={"prompt": self.prompt},
             )
 
         if not isinstance(self.params, dict):
             raise ValidationError(
                 "Params must be a dictionary",
+                field="params",
                 tool_name=self.tool_name,
-                details={"params": self.params},
             )
 
         required_fields = ["x", "column_values", "line_values"]
@@ -89,23 +89,23 @@ class GenerateDualAxesChart(BaseTool):
         if data is None or not isinstance(data, dict):
             raise ValidationError(
                 "Params must include a 'data' dict",
+                field="params",
                 tool_name=self.tool_name,
-                details={"params": self.params},
             )
 
         for f in required_fields:
             if f not in data:
                 raise ValidationError(
                     f"Missing required data field '{f}'",
+                    field=f,
                     tool_name=self.tool_name,
-                    details={"missing_field": f},
                 )
 
             if not isinstance(data[f], list):
                 raise ValidationError(
                     f"'{f}' must be a list",
+                    field=f,
                     tool_name=self.tool_name,
-                    details={f: data[f]},
                 )
 
         if not (
@@ -113,8 +113,8 @@ class GenerateDualAxesChart(BaseTool):
         ):
             raise ValidationError(
                 "Data lists must have equal lengths",
+                field="data",
                 tool_name=self.tool_name,
-                details={"data_lengths": {k: len(data[k]) for k in required_fields}},
             )
 
     def _should_use_mock(self) -> bool:

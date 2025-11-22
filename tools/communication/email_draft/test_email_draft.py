@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.communication.email_draft import EmailDraft
 from shared.errors import ValidationError, APIError
@@ -31,6 +32,7 @@ class TestEmailDraft:
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool: EmailDraft):
         result = tool.run()
         assert result["success"] is True
@@ -63,18 +65,24 @@ class TestEmailDraft:
 
     # ========== VALIDATION TESTS ==========
 
-    @pytest.mark.parametrize("bad_input", ["", "   ", None])
-    def test_invalid_input_raises_validation_error(self, bad_input):
+    @pytest.mark.parametrize("bad_input", [None])
+    def test_invalid_input_raises_validation_error_type(self, bad_input):
+        with pytest.raises(PydanticValidationError):
+            EmailDraft(input=bad_input)
+
+    @pytest.mark.parametrize("bad_input", ["", "   "])
+    def test_invalid_input_raises_validation_error_empty(self, bad_input):
         with pytest.raises(ValidationError):
             tool = EmailDraft(input=bad_input)
-            tool.run()
+            tool._execute()
 
     # ========== ERROR CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_from_process(self, tool: EmailDraft):
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
@@ -116,9 +124,13 @@ class TestEmailDraft:
             result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(Exception):
-                tool = EmailDraft(input=input_value)
-                tool.run()
+            if input_value is None:
+                with pytest.raises(PydanticValidationError):
+                    EmailDraft(input=input_value)
+            else:
+                with pytest.raises(ValidationError):
+                    tool = EmailDraft(input=input_value)
+                    tool._execute()
 
     # ========== INTEGRATION TESTS ==========
 

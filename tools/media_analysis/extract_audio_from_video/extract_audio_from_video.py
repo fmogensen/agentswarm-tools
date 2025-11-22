@@ -134,3 +134,31 @@ class ExtractAudioFromVideo(BaseTool):
             )
         except Exception as e:
             raise APIError(f"Unexpected error: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    print("Testing ExtractAudioFromVideo...")
+
+    import os
+    import tempfile
+
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Create a temporary test file for validation
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    try:
+        tool = ExtractAudioFromVideo(input=tmp_path)
+        result = tool.run()
+
+        print(f"Success: {result.get('success')}")
+        print(f"Result: {result.get('result')}")
+        assert result.get("success") == True
+        assert "output_file" in result.get("result", {})
+        print("ExtractAudioFromVideo test passed!")
+    finally:
+        # Cleanup
+        import os as os_mod
+        if os_mod.path.exists(tmp_path):
+            os_mod.remove(tmp_path)

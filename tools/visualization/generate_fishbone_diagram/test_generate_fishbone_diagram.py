@@ -5,6 +5,8 @@ from unittest.mock import patch
 from typing import Dict, Any
 import os
 
+from pydantic import ValidationError as PydanticValidationError
+
 from tools.visualization.generate_fishbone_diagram import GenerateFishboneDiagram
 from shared.errors import ValidationError, APIError
 
@@ -37,6 +39,7 @@ class TestGenerateFishboneDiagram:
 
     # ========== HAPPY PATH TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool: GenerateFishboneDiagram):
         result = tool.run()
         assert result["success"] is True
@@ -44,6 +47,7 @@ class TestGenerateFishboneDiagram:
         assert "metadata" in result
         assert result["metadata"]["prompt"] == tool.prompt
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_generates_correct_categories(self):
         tool = GenerateFishboneDiagram(prompt="test", params={"max_branches": 3})
         result = tool.run()
@@ -68,34 +72,37 @@ class TestGenerateFishboneDiagram:
     # ========== VALIDATION TESTS ==========
 
     def test_invalid_prompt_raises_validation_error(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateFishboneDiagram(prompt="", params={})
-            tool.run()
+        """Empty prompt raises PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateFishboneDiagram(prompt="", params={})
 
     def test_invalid_params_type_raises_error(self, valid_prompt):
-        with pytest.raises(ValidationError):
-            tool = GenerateFishboneDiagram(prompt=valid_prompt, params="not a dict")
-            tool.run()
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateFishboneDiagram(prompt=valid_prompt, params="not a dict")
 
     def test_invalid_param_key_raises_error(self, valid_prompt):
-        with pytest.raises(ValidationError):
-            tool = GenerateFishboneDiagram(prompt=valid_prompt, params={"unknown": 123})
-            tool.run()
+        """Unknown param key fails custom validation and returns error dict."""
+        tool = GenerateFishboneDiagram(prompt=valid_prompt, params={"unknown": 123})
+        result = tool.run()
+        assert result["success"] is False
 
     def test_invalid_max_branches_value(self, valid_prompt):
-        with pytest.raises(ValidationError):
-            tool = GenerateFishboneDiagram(
-                prompt=valid_prompt, params={"max_branches": 0}
-            )
-            tool.run()
+        """Invalid max_branches fails custom validation and returns error dict."""
+        tool = GenerateFishboneDiagram(
+            prompt=valid_prompt, params={"max_branches": 0}
+        )
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== API ERROR TESTS ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error_propagates(self, tool: GenerateFishboneDiagram):
+        """Process failure returns error dict."""
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError) as exc:
-                tool.run()
-            assert "API failed" in str(exc.value)
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASE TESTS ==========
 
@@ -109,6 +116,7 @@ class TestGenerateFishboneDiagram:
         result = tool.run()
         assert result["success"] is True
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_max_branches_greater_than_default(self):
         tool = GenerateFishboneDiagram(prompt="test", params={"max_branches": 10})
         result = tool.run()
@@ -117,25 +125,27 @@ class TestGenerateFishboneDiagram:
     # ========== PARAMETRIZED TESTS ==========
 
     @pytest.mark.parametrize(
-        "prompt,params,valid",
+        "prompt,params,valid,pydantic_error",
         [
-            ("valid", {}, True),
-            ("analysis", {"format": "text"}, True),
-            ("root cause", {"max_branches": 3}, True),
-            ("", {}, False),
-            ("test", {"invalid": 123}, False),
-            ("test", {"max_branches": -1}, False),
+            ("valid", {}, True, False),
+            ("analysis", {"format": "text"}, True, False),
+            ("root cause", {"max_branches": 3}, True, False),
+            ("", {}, False, True),
+            ("test", {"invalid": 123}, False, False),
+            ("test", {"max_branches": -1}, False, False),
         ],
     )
-    def test_parameter_validation(self, prompt, params, valid):
-        if valid:
+    def test_parameter_validation(self, prompt, params, valid, pydantic_error):
+        if pydantic_error:
+            with pytest.raises(PydanticValidationError):
+                GenerateFishboneDiagram(prompt=prompt, params=params)
+        else:
             tool = GenerateFishboneDiagram(prompt=prompt, params=params)
             result = tool.run()
-            assert result["success"] is True
-        else:
-            with pytest.raises(Exception):
-                tool = GenerateFishboneDiagram(prompt=prompt, params=params)
-                tool.run()
+            if valid:
+                assert result["success"] is True
+            else:
+                assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 

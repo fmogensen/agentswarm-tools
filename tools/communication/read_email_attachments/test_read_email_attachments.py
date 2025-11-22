@@ -4,6 +4,7 @@ import pytest
 import os
 import json
 from unittest.mock import patch, mock_open
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.communication.read_email_attachments import ReadEmailAttachments
 from shared.errors import ValidationError, APIError
@@ -42,6 +43,7 @@ class TestReadEmailAttachments:
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("os.path.exists", return_value=False)
     @patch("builtins.open", new_callable=mock_open)
     def test_execute_new_attachment_fetch(self, mock_file, mock_exists, tool):
@@ -51,6 +53,7 @@ class TestReadEmailAttachments:
         assert len(result["result"]["attachments"]) == 1
         assert "metadata" in result
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("os.path.exists", return_value=True)
     def test_execute_cache_hit(self, mock_exists, tool, cache_path):
         cached_data = [{"filename": "cached.pdf"}]
@@ -83,22 +86,23 @@ class TestReadEmailAttachments:
     @pytest.mark.parametrize("invalid_input", ["", "   ", "not-json", json.dumps({})])
     def test_invalid_inputs(self, invalid_input):
         tool = ReadEmailAttachments(input=invalid_input)
-        with pytest.raises(ValidationError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== ERROR CASES ==========
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_propagates(self, tool):
         with patch.object(tool, "_process", side_effect=Exception("fail")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("os.path.exists", return_value=True)
     def test_cache_read_failure(self, mock_exists, tool):
         with patch("builtins.open", side_effect=Exception("read error")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 

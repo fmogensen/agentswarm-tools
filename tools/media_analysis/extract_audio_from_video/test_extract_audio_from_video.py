@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import os
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.media_analysis.extract_audio_from_video import ExtractAudioFromVideo
 from shared.errors import ValidationError, APIError
@@ -40,24 +41,28 @@ class TestExtractAudioFromVideo:
 
     # ========== VALIDATION TESTS ==========
 
-    @pytest.mark.parametrize("invalid_input", ["", None, 123, [], {}])
-    def test_invalid_input_values(self, invalid_input):
-        with pytest.raises(ValidationError):
-            tool = ExtractAudioFromVideo(input=invalid_input)
-            tool.run()
+    def test_invalid_input_empty(self):
+        tool = ExtractAudioFromVideo(input="")
+        result = tool.run()
+        assert result["success"] is False
+
+    @pytest.mark.parametrize("invalid_input", [None, 123, [], {}])
+    def test_invalid_input_wrong_type(self, invalid_input):
+        with pytest.raises(PydanticValidationError):
+            ExtractAudioFromVideo(input=invalid_input)
 
     def test_input_file_missing(self, tmp_path):
         nonexistent = str(tmp_path / "missing.mp4")
-        with pytest.raises(ValidationError):
-            tool = ExtractAudioFromVideo(input=nonexistent)
-            tool.run()
+        tool = ExtractAudioFromVideo(input=nonexistent)
+        result = tool.run()
+        assert result["success"] is False
 
     def test_invalid_extension(self, tmp_path):
         bad_file = tmp_path / "not_video.txt"
         bad_file.write_text("data")
-        with pytest.raises(ValidationError):
-            tool = ExtractAudioFromVideo(input=str(bad_file))
-            tool.run()
+        tool = ExtractAudioFromVideo(input=str(bad_file))
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== MOCK MODE TESTS ==========
 
@@ -99,18 +104,18 @@ class TestExtractAudioFromVideo:
         mock_proc.stderr = "ffmpeg error"
 
         with patch("subprocess.run", return_value=mock_proc):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     def test_process_ffmpeg_not_found(self, tool):
         with patch("subprocess.run", side_effect=FileNotFoundError()):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     def test_process_unexpected_exception(self, tool):
         with patch("subprocess.run", side_effect=RuntimeError("boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== PARAMETRIZED TESTS ==========
 

@@ -1,8 +1,11 @@
 """Tests for generate_mind_map tool."""
 
 import pytest
+import os
 from unittest.mock import patch
 from typing import Dict, Any
+
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.visualization.generate_mind_map import GenerateMindMap
 from shared.errors import ValidationError, APIError
@@ -39,6 +42,7 @@ class TestGenerateMindMap:
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool: GenerateMindMap):
         """Test successful execution."""
         result = tool.run()
@@ -47,6 +51,7 @@ class TestGenerateMindMap:
         assert "metadata" in result
         assert result["result"]["root"] == "Root"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_simple(self, simple_tool: GenerateMindMap):
         result = simple_tool.run()
         assert result["success"] is True
@@ -71,52 +76,60 @@ class TestGenerateMindMap:
     # ========== VALIDATION ERRORS ==========
 
     def test_empty_prompt_raises(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateMindMap(prompt="", params={})
-            tool.run()
+        """Empty prompt raises PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateMindMap(prompt="", params={})
 
     def test_non_string_prompt_raises(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateMindMap(prompt=123, params={})
-            tool.run()
+        """Non-string prompt raises PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateMindMap(prompt=123, params={})
 
     def test_invalid_params_type(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateMindMap(prompt="valid", params="not a dict")
-            tool.run()
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateMindMap(prompt="valid", params="not a dict")
 
     # ========== API ERROR HANDLING ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error_wrapped(self, tool: GenerateMindMap):
+        """Process failure returns error dict."""
         with patch.object(tool, "_process", side_effect=Exception("Boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_validation_error_passthrough(self, tool: GenerateMindMap):
+        """ValidationError from process returns error dict."""
         with patch.object(
             tool, "_process", side_effect=ValidationError("Bad", tool_name="x")
         ):
-            with pytest.raises(ValidationError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== PARAMETRIZED TESTS ==========
 
     @pytest.mark.parametrize(
-        "prompt,valid",
+        "prompt,valid,pydantic_error",
         [
-            ("Valid prompt", True),
-            ("A" * 5000, True),
-            ("", False),
-            ("   ", False),
+            ("Valid prompt", True, False),
+            ("A" * 5000, True, False),
+            ("", False, True),
+            ("   ", False, False),
         ],
     )
-    def test_prompt_validation(self, prompt: str, valid: bool):
-        if valid:
-            tool = GenerateMindMap(prompt=prompt, params={})
-            assert tool.prompt == prompt
+    def test_prompt_validation(self, prompt: str, valid: bool, pydantic_error: bool):
+        if pydantic_error:
+            with pytest.raises(PydanticValidationError):
+                GenerateMindMap(prompt=prompt, params={})
         else:
-            with pytest.raises(Exception):
-                GenerateMindMap(prompt=prompt, params={}).run()
+            tool = GenerateMindMap(prompt=prompt, params={})
+            result = tool.run()
+            if valid:
+                assert result["success"] is True
+            else:
+                assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
@@ -130,11 +143,13 @@ class TestGenerateMindMap:
         result = tool.run()
         assert result["success"] is True
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_single_line_prompt(self):
         tool = GenerateMindMap(prompt="OnlyRoot", params={})
         result = tool.run()
         assert result["result"]["branches"] == []
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_missing_colon_in_branches(self):
         tool = GenerateMindMap(prompt="Root\nBranchWithoutColon", params={})
         result = tool.run()

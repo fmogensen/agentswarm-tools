@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch
 import uuid
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.media_generation.audio_generation import AudioGeneration
 from shared.errors import ValidationError, APIError
@@ -80,26 +81,26 @@ class TestAudioGeneration:
     # ========== VALIDATION TESTS ==========
 
     def test_invalid_prompt_empty(self):
-        with pytest.raises(ValidationError):
-            tool = AudioGeneration(prompt="", params={"voice": "male"})
-            tool.run()
+        """Test that empty prompt raises PydanticValidationError."""
+        with pytest.raises(PydanticValidationError):
+            AudioGeneration(prompt="", params={"voice": "male"})
 
     def test_invalid_params_not_dict(self, valid_prompt):
-        with pytest.raises(ValidationError):
-            tool = AudioGeneration(prompt=valid_prompt, params="not_a_dict")
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            AudioGeneration(prompt=valid_prompt, params="not_a_dict")
 
     def test_invalid_param_key(self, valid_prompt):
-        with pytest.raises(ValidationError):
-            tool = AudioGeneration(prompt=valid_prompt, params={"invalid": "x"})
-            tool.run()
+        tool = AudioGeneration(prompt=valid_prompt, params={"invalid": "x"})
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== ERROR CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, tool):
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
@@ -142,9 +143,9 @@ class TestAudioGeneration:
             result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(ValidationError):
-                tool = AudioGeneration(prompt=prompt, params={})
-                tool.run()
+            # Empty prompt raises PydanticValidationError at construction
+            with pytest.raises(PydanticValidationError):
+                AudioGeneration(prompt=prompt, params={})
 
     # ========== INTEGRATION TESTS ==========
 

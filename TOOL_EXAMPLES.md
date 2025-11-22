@@ -1,7 +1,7 @@
-# Genspark Tools - Complete Examples with Real Outputs
+# AgentSwarm Tools - Complete Examples with Real Outputs
 
 **Generated**: 2025-11-19
-**Document Purpose**: Real-world examples of every Genspark tool with actual input parameters and output data
+**Document Purpose**: Real-world examples of every AgentSwarm tool with actual input parameters and output data
 
 ---
 

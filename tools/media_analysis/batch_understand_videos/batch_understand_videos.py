@@ -172,3 +172,25 @@ class BatchUnderstandVideos(BaseTool):
             tool_name=self.tool_name,
             details={"url": url},
         )
+
+
+if __name__ == "__main__":
+    print("Testing BatchUnderstandVideos...")
+
+    import os
+
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test with mock data
+    tool = BatchUnderstandVideos(
+        media_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ,https://youtu.be/abc123",
+        instruction="Summarize the main points",
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result videos: {len(result.get('result', {}).get('videos', []))}")
+    print(f"Result: {result.get('result')}")
+    assert result.get("success") == True
+    assert len(result.get("result", {}).get("videos", [])) == 2
+    print("BatchUnderstandVideos test passed!")

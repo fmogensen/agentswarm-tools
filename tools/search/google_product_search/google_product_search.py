@@ -107,7 +107,11 @@ class GoogleProductSearch(BaseTool):
                 "products": mock_products,
                 "total_results": self.num,
             },
-            "metadata": {"mock_mode": True, "page": self.page},
+            "metadata": {
+                "mock_mode": True,
+                "tool_name": self.tool_name,
+                "page": self.page,
+            },
         }
 
     def _process(self) -> Dict[str, Any]:

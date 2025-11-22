@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.search.google_product_search import GoogleProductSearch
 from shared.errors import ValidationError, APIError
@@ -48,9 +49,9 @@ class TestGoogleProductSearch:
             tool, "_process", return_value=tool._generate_mock_results()["result"]
         ):
             result = tool.run()
-            assert result["success"] is True
-            assert "result" in result
-            assert "products" in result["result"]
+        assert result["success"] is True
+        assert "result" in result
+        assert "products" in result["result"]
 
     def test_metadata_correct(self, tool: GoogleProductSearch):
         """Test tool metadata."""
@@ -67,31 +68,30 @@ class TestGoogleProductSearch:
 
     def test_validation_error_empty_query(self):
         """Test validation error for empty query."""
-        with pytest.raises(ValidationError):
-            tool = GoogleProductSearch(query="", num=10)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            GoogleProductSearch(query="", num=10)
 
     def test_validation_error_invalid_num(self):
         """Test validation error for invalid num parameter."""
-        with pytest.raises(ValidationError):
-            tool = GoogleProductSearch(query="laptop", num=101)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            GoogleProductSearch(query="laptop", num=101)
 
-        with pytest.raises(ValidationError):
-            tool = GoogleProductSearch(query="laptop", num=0)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            GoogleProductSearch(query="laptop", num=0)
 
     def test_validation_error_invalid_page(self):
         """Test validation error for invalid page parameter."""
-        with pytest.raises(ValidationError):
-            tool = GoogleProductSearch(query="laptop", page=-1)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            GoogleProductSearch(query="laptop", page=-1)
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, tool: GoogleProductSearch):
         """Test API error handling."""
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+        assert result["success"] is False
+        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        assert len(error_msg) > 0
 
     # ========== MOCK MODE ==========
 
@@ -108,12 +108,13 @@ class TestGoogleProductSearch:
             },
         ):
             result = tool.run()
-            assert result["success"] is True
-            assert result["metadata"]["mock_mode"] is True
-            assert len(result["result"]["products"]) == 5
+        assert result["success"] is True
+        assert result["metadata"]["mock_mode"] is True
+        assert len(result["result"]["products"]) == 5
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_unicode_query(self):
         """Test Unicode characters in query."""
         tool = GoogleProductSearch(query="笔记本电脑", num=5)
@@ -121,9 +122,10 @@ class TestGoogleProductSearch:
             tool, "_process", return_value=tool._generate_mock_results()["result"]
         ):
             result = tool.run()
-            assert result["success"] is True
-            assert result["metadata"]["tool_name"] == "google_product_search"
+        assert result["success"] is True
+        assert result["metadata"]["tool_name"] == "google_product_search"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_special_characters_in_query(self):
         """Test special characters in query."""
         special_query = "laptop @#$%^&* special"
@@ -132,8 +134,8 @@ class TestGoogleProductSearch:
             tool, "_process", return_value=tool._generate_mock_results()["result"]
         ):
             result = tool.run()
-            assert result["success"] is True
-            assert result["metadata"]["tool_name"] == "google_product_search"
+        assert result["success"] is True
+        assert result["metadata"]["tool_name"] == "google_product_search"
 
     def test_pagination(self):
         """Test pagination with different page numbers."""
@@ -176,6 +178,7 @@ class TestGoogleProductSearch:
 
     # ========== INTEGRATION TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_full_workflow(self):
         """Test complete workflow."""
         tool = GoogleProductSearch(query="gaming mouse", num=10, page=0)
@@ -183,11 +186,11 @@ class TestGoogleProductSearch:
             tool, "_process", return_value=tool._generate_mock_results()["result"]
         ):
             result = tool.run()
-            assert result["success"] is True
-            assert "result" in result
-            assert "products" in result["result"]
-            assert result["metadata"]["tool_name"] == "google_product_search"
-            assert result["metadata"]["page"] == 0
+        assert result["success"] is True
+        assert "result" in result
+        assert "products" in result["result"]
+        assert result["metadata"]["tool_name"] == "google_product_search"
+        assert result["metadata"]["page"] == 0
 
     def test_multiple_pages_workflow(self):
         """Test workflow with multiple pages."""
@@ -198,5 +201,5 @@ class TestGoogleProductSearch:
                 tool, "_process", return_value=tool._generate_mock_results()["result"]
             ):
                 result = tool.run()
-                assert result["success"] is True
-                assert result["metadata"]["page"] == page
+            assert result["success"] is True
+            assert result["metadata"]["page"] == page

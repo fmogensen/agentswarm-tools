@@ -84,10 +84,8 @@ class GenerateRadarChart(BaseTool):
         if not isinstance(data, dict) or len(data) < 4:
             raise ValidationError(
                 "params.data must be dict with at least 4 dimensions",
+                field="data",
                 tool_name=self.tool_name,
-                details={
-                    "dimension_count": len(data) if isinstance(data, dict) else None
-                },
             )
 
         for key, value in data.items():

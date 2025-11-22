@@ -166,3 +166,24 @@ class AnalyzeMediaContent(BaseTool):
 
         except Exception as e:
             raise APIError(f"Media analysis failed: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    print("Testing AnalyzeMediaContent...")
+
+    import os
+
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test with mock data
+    tool = AnalyzeMediaContent(
+        media_url="https://example.com/image.jpg",
+        instruction="Identify objects and colors",
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result: {result.get('result')}")
+    assert result.get("success") == True
+    assert "analysis" in result.get("result", {})
+    print("AnalyzeMediaContent test passed!")

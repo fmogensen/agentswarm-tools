@@ -215,6 +215,10 @@ class BaseTool(AgencyBaseTool):
 
     def _check_rate_limit(self) -> None:
         """Check rate limit for this tool."""
+        # Skip rate limiting in mock mode
+        if os.getenv("USE_MOCK_APIS", "false").lower() == "true":
+            return
+
         try:
             limiter = get_rate_limiter()
             key = f"{self.tool_name}:{self._user_id or 'anonymous'}"

@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.media_analysis.batch_understand_videos import BatchUnderstandVideos
 from shared.errors import ValidationError, APIError
@@ -76,19 +77,18 @@ class TestBatchUnderstandVideos:
 
     @pytest.mark.parametrize("bad_url", ["", "not-a-url", "http://example.com/video"])
     def test_invalid_media_url(self, bad_url: str):
-        with pytest.raises(ValidationError):
-            tool = BatchUnderstandVideos(media_url=bad_url)
-            tool.run()
+        tool = BatchUnderstandVideos(media_url=bad_url)
+        result = tool.run()
+        assert result["success"] is False
 
     def test_instruction_invalid_type(self, valid_urls: str):
-        with pytest.raises(ValidationError):
-            tool = BatchUnderstandVideos(media_url=valid_urls, instruction=123)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            BatchUnderstandVideos(media_url=valid_urls, instruction=123)
 
     def test_empty_after_split(self):
-        with pytest.raises(ValidationError):
-            tool = BatchUnderstandVideos(media_url=" , , ")
-            tool.run()
+        tool = BatchUnderstandVideos(media_url=" , , ")
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize(
         "url",
@@ -105,20 +105,25 @@ class TestBatchUnderstandVideos:
         tool = BatchUnderstandVideos(
             media_url="https://youtube.com/noid", instruction="test"
         )
-        with pytest.raises(ValidationError):
+        # _extract_video_id raises ValidationError directly when called internally
+        try:
             tool._extract_video_id("https://youtube.com/noid")
+            assert False, "Expected ValidationError"
+        except ValidationError:
+            pass
 
     # ========== ERROR HANDLING TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_from_process(self, tool: BatchUnderstandVideos, mock_env_off):
         with patch.object(tool, "_process", side_effect=Exception("failure")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     def test_process_video_failure(self, tool: BatchUnderstandVideos, mock_env_off):
         with patch.object(tool, "_extract_video_id", side_effect=Exception("bad id")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== PARAMETRIZED TESTS ==========
 

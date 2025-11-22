@@ -5,6 +5,8 @@ from unittest.mock import patch, MagicMock
 import base64
 import os
 
+from pydantic import ValidationError as PydanticValidationError
+
 from tools.visualization.generate_pie_chart import GeneratePieChart
 from shared.errors import ValidationError, APIError
 
@@ -28,12 +30,12 @@ class TestGeneratePieChart:
 
     @pytest.fixture
     def mock_matplotlib(self):
-        with patch("tools.visualization.generate_pie_chart.plt") as mock_plt:
+        with patch("tools.visualization.generate_pie_chart.generate_pie_chart.plt") as mock_plt:
             fig = MagicMock()
             ax = MagicMock()
             mock_plt.subplots.return_value = (fig, ax)
             mock_plt.savefig = MagicMock()
-            return mock_plt, fig, ax
+            yield mock_plt, fig, ax
 
     # ========== INITIALIZATION TESTS ==========
 
@@ -48,6 +50,7 @@ class TestGeneratePieChart:
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool, mock_matplotlib):
         mock_plt, _, _ = mock_matplotlib
         mock_plt.savefig.side_effect = lambda *args, **kwargs: args[0].write(b"fakepng")
@@ -58,6 +61,7 @@ class TestGeneratePieChart:
         decoded = base64.b64decode(result["result"]["image_base64"])
         assert decoded == b"fakepng"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_returns_expected_fields(self, tool, mock_matplotlib):
         mock_plt, _, _ = mock_matplotlib
         mock_plt.savefig.side_effect = lambda *args, **kwargs: args[0].write(b"abc")
@@ -83,19 +87,21 @@ class TestGeneratePieChart:
 
         result = tool.run()
         assert result["success"] is True
-        assert "xyz" in base64.b64decode(result["result"]["image_base64"])
+        assert b"xyz" in base64.b64decode(result["result"]["image_base64"])
 
     # ========== VALIDATION TESTS ==========
 
     def test_empty_prompt_raises_error(self, valid_params):
-        with pytest.raises(ValidationError):
-            tool = GeneratePieChart(prompt="", params=valid_params)
-            tool.run()
+        """Empty prompt fails custom validation and returns error dict."""
+        tool = GeneratePieChart(prompt="", params=valid_params)
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_params_must_be_dict(self):
-        with pytest.raises(ValidationError):
-            tool = GeneratePieChart(prompt="test", params="not a dict")
-            tool.run()
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GeneratePieChart(prompt="test", params="not a dict")
 
     @pytest.mark.parametrize(
         "params",
@@ -106,40 +112,53 @@ class TestGeneratePieChart:
         ],
     )
     def test_missing_labels_or_values(self, params):
-        with pytest.raises(ValidationError):
-            tool = GeneratePieChart(prompt="x", params=params)
-            tool.run()
+        """Missing labels or values fails custom validation and returns error dict."""
+        tool = GeneratePieChart(prompt="x", params=params)
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_labels_and_values_must_be_lists(self):
-        with pytest.raises(ValidationError):
-            tool = GeneratePieChart(prompt="x", params={"labels": "a", "values": "b"})
-            tool.run()
+        """Non-list labels/values fails custom validation and returns error dict."""
+        tool = GeneratePieChart(prompt="x", params={"labels": "a", "values": "b"})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_length_mismatch(self):
-        with pytest.raises(ValidationError):
-            tool = GeneratePieChart(
-                prompt="x", params={"labels": ["A"], "values": [1, 2]}
-            )
-            tool.run()
+        """Mismatched lengths fail custom validation and return error dict."""
+        tool = GeneratePieChart(
+            prompt="x", params={"labels": ["A"], "values": [1, 2]}
+        )
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_values_not_numeric(self):
-        with pytest.raises(ValidationError):
-            tool = GeneratePieChart(
-                prompt="x", params={"labels": ["A"], "values": ["bad"]}
-            )
-            tool.run()
+        """Non-numeric values fail custom validation and return error dict."""
+        tool = GeneratePieChart(
+            prompt="x", params={"labels": ["A"], "values": ["bad"]}
+        )
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_sum_of_values_zero(self):
-        with pytest.raises(ValidationError):
-            tool = GeneratePieChart(prompt="x", params={"labels": ["A"], "values": [0]})
-            tool.run()
+        """Zero sum values fail custom validation and return error dict."""
+        tool = GeneratePieChart(prompt="x", params={"labels": ["A"], "values": [0]})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     # ========== ERROR HANDLING TESTS ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error_wrapped(self, tool):
+        """Process failure returns error dict with API_ERROR code."""
         with patch.object(tool, "_process", side_effect=Exception("fail")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
+            assert result["error"]["code"] == "API_ERROR"
 
     # ========== PARAMETRIZED TESTS ==========
 
@@ -154,13 +173,12 @@ class TestGeneratePieChart:
     )
     def test_parameter_validation(self, labels, values, valid):
         params = {"labels": labels, "values": values}
+        tool = GeneratePieChart(prompt="ok", params=params)
+        result = tool.run()
         if valid:
-            tool = GeneratePieChart(prompt="ok", params=params)
-            assert tool.prompt == "ok"
+            assert result["success"] is True
         else:
-            with pytest.raises(Exception):
-                tool = GeneratePieChart(prompt="ok", params=params)
-                tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 

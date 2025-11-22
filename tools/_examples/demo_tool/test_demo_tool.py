@@ -10,6 +10,7 @@ This test file demonstrates:
 """
 
 import pytest
+from unittest.mock import patch
 from unittest.mock import Mock, patch, MagicMock
 from typing import Dict, Any
 

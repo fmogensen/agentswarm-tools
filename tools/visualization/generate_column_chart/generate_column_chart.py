@@ -88,28 +88,51 @@ class GenerateColumnChart(BaseTool):
                 field="params",
             )
 
+        # Accept either categories/values arrays OR data as list of {label, value} objects
+        data = self.params.get("data")
         categories = self.params.get("categories")
         values = self.params.get("values")
 
-        if categories is None or values is None:
+        if data is not None:
+            # New format: list of {label, value} objects
+            if not isinstance(data, list):
+                raise ValidationError(
+                    "'data' must be a list",
+                    tool_name=self.tool_name,
+                    field="data",
+                )
+            if len(data) == 0:
+                raise ValidationError(
+                    "'data' must not be empty",
+                    tool_name=self.tool_name,
+                    field="data",
+                )
+            if not all(isinstance(item, dict) and "label" in item and "value" in item for item in data):
+                raise ValidationError(
+                    "When 'data' is provided, each item must have 'label' and 'value' keys",
+                    tool_name=self.tool_name,
+                    field="data",
+                )
+        elif categories is not None and values is not None:
+            # Original format: separate categories and values arrays
+            if not isinstance(categories, list) or not isinstance(values, list):
+                raise ValidationError(
+                    "'categories' and 'values' must be lists",
+                    tool_name=self.tool_name,
+                    field="categories/values",
+                )
+
+            if len(categories) != len(values):
+                raise ValidationError(
+                    "'categories' and 'values' must have the same length",
+                    tool_name=self.tool_name,
+                    field="categories/values",
+                )
+        else:
             raise ValidationError(
-                "Params must contain 'categories' and 'values'",
+                "Params must include either 'data' (list of {label, value}) or 'categories' and 'values'",
                 tool_name=self.tool_name,
                 field="params",
-            )
-
-        if not isinstance(categories, list) or not isinstance(values, list):
-            raise ValidationError(
-                "'categories' and 'values' must be lists",
-                tool_name=self.tool_name,
-                field="categories/values",
-            )
-
-        if len(categories) != len(values):
-            raise ValidationError(
-                "'categories' and 'values' must have the same length",
-                tool_name=self.tool_name,
-                field="categories/values",
             )
 
     def _should_use_mock(self) -> bool:
@@ -138,11 +161,20 @@ class GenerateColumnChart(BaseTool):
             Dict representing a column chart specification
         """
         try:
+            # Handle both formats: data list or separate categories/values arrays
+            data = self.params.get("data")
+            if data is not None:
+                categories = [item["label"] for item in data]
+                values = [item["value"] for item in data]
+            else:
+                categories = self.params["categories"]
+                values = self.params["values"]
+
             chart_spec = {
                 "type": "column",
                 "title": self.params.get("title", self.prompt),
-                "categories": self.params["categories"],
-                "values": self.params["values"],
+                "categories": categories,
+                "values": values,
                 "style": self.params.get("style", {}),
                 "config": self.params.get("config", {}),
             }

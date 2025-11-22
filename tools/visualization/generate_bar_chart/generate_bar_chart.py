@@ -85,23 +85,49 @@ class GenerateBarChart(BaseTool):
             )
 
         data = self.params.get("data")
-        if data is None or not isinstance(data, dict):
+        if data is None:
             raise ValidationError(
-                "Params must include 'data' as a dictionary of category/value pairs",
+                "Params must include 'data'",
                 tool_name=self.tool_name,
                 field="data"
             )
 
-        if not all(isinstance(k, str) for k in data.keys()):
+        # Accept either dict of category/value pairs OR list of {label, value} objects
+        if isinstance(data, list):
+            if len(data) == 0:
+                raise ValidationError(
+                    "'data' must not be empty",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+            if not all(isinstance(item, dict) and "label" in item and "value" in item for item in data):
+                raise ValidationError(
+                    "When 'data' is a list, each item must have 'label' and 'value' keys",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+        elif isinstance(data, dict):
+            if len(data) == 0:
+                raise ValidationError(
+                    "'data' must not be empty",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+            if not all(isinstance(k, str) for k in data.keys()):
+                raise ValidationError(
+                    "All category names (keys in data) must be strings",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+            if not all(isinstance(v, (int, float)) for v in data.values()):
+                raise ValidationError(
+                    "All values in data must be numeric",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+        else:
             raise ValidationError(
-                "All category names (keys in data) must be strings",
-                tool_name=self.tool_name,
-                field="data"
-            )
-
-        if not all(isinstance(v, (int, float)) for v in data.values()):
-            raise ValidationError(
-                "All values in data must be numeric",
+                "Params 'data' must be a dict or list of {label, value} objects",
                 tool_name=self.tool_name,
                 field="data"
             )
@@ -129,9 +155,17 @@ class GenerateBarChart(BaseTool):
 
         Generates a horizontal bar chart and returns it as a base64 image.
         """
-        data = self.params["data"]
-        categories = list(data.keys())
-        values = list(data.values())
+        raw_data = self.params["data"]
+
+        # Handle both formats: dict or list of {label, value} objects
+        if isinstance(raw_data, list):
+            categories = [item["label"] for item in raw_data]
+            values = [item["value"] for item in raw_data]
+            data = {item["label"]: item["value"] for item in raw_data}
+        else:
+            data = raw_data
+            categories = list(data.keys())
+            values = list(data.values())
 
         fig = None
         try:

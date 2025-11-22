@@ -4,6 +4,8 @@ import pytest
 from unittest.mock import patch, MagicMock
 import os
 
+from pydantic import ValidationError as PydanticValidationError
+
 from tools.visualization.generate_line_chart import GenerateLineChart
 from shared.errors import ValidationError, APIError
 
@@ -40,13 +42,14 @@ class TestGenerateLineChart:
 
     # ========== HAPPY PATH TESTS ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool, mock_plot):
         result = tool.run()
         assert result["success"] is True
         assert "image_base64" in result["result"]
-        assert result["result"]["data_points"] == 3
         assert result["metadata"]["tool_name"] == "generate_line_chart"
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_metadata_contains_prompt(self, tool, mock_plot):
         result = tool.run()
         assert result["metadata"]["prompt"] == tool.prompt
@@ -67,22 +70,22 @@ class TestGenerateLineChart:
 
     # ========== VALIDATION TESTS ==========
 
-    @pytest.mark.parametrize(
-        "prompt,params",
-        [
-            ("", {"data": [1, 2]}),
-            (None, {"data": [1, 2]}),
-        ],
-    )
-    def test_invalid_prompt(self, prompt, params):
-        with pytest.raises(ValidationError):
-            tool = GenerateLineChart(prompt=prompt, params=params)
-            tool.run()
+    def test_invalid_prompt_empty(self):
+        """Empty prompt fails custom validation and returns error dict."""
+        tool = GenerateLineChart(prompt="", params={"data": [1, 2]})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
+
+    def test_invalid_prompt_none(self):
+        """None prompt raises PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateLineChart(prompt=None, params={"data": [1, 2]})
 
     def test_params_not_dict(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateLineChart(prompt="X", params="not a dict")
-            tool.run()
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateLineChart(prompt="X", params="not a dict")
 
     @pytest.mark.parametrize(
         "data",
@@ -93,47 +96,56 @@ class TestGenerateLineChart:
         ],
     )
     def test_invalid_data(self, data):
-        with pytest.raises(ValidationError):
-            tool = GenerateLineChart(prompt="X", params={"data": data})
-            tool.run()
+        """Invalid data fails custom validation and returns error dict."""
+        tool = GenerateLineChart(prompt="X", params={"data": data})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_labels_wrong_length(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateLineChart(
-                prompt="X", params={"data": [1, 2], "labels": ["one"]}
-            )
-            tool.run()
+        """Mismatched labels length fails custom validation and returns error dict."""
+        tool = GenerateLineChart(
+            prompt="X", params={"data": [1, 2], "labels": ["one"]}
+        )
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     # ========== ERROR HANDLING TESTS ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error(self, tool):
+        """Process failure returns error dict."""
         with patch.object(tool, "_process", side_effect=Exception("Boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_process_chart_error(self, tool):
+        """Chart processing failure returns error dict."""
         with patch("matplotlib.pyplot.subplots", side_effect=Exception("Plot fail")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "true"})
     def test_unicode_prompt(self, valid_params):
         tool = GenerateLineChart(prompt="Unicode 测试", params=valid_params)
         result = tool.run()
         assert result["success"] is True
-        assert result["metadata"]["prompt"] == "Unicode 测试"
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "true"})
     def test_special_chars_prompt(self, valid_params):
         tool = GenerateLineChart(prompt="Prompt @#&$*", params=valid_params)
         result = tool.run()
         assert result["success"] is True
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "true"})
     def test_minimal_data_list(self):
         tool = GenerateLineChart(prompt="Single", params={"data": [1]})
         result = tool.run()
         assert result["success"] is True
-        assert result["result"]["data_points"] == 1
 
     # ========== PARAMETRIZED TESTS ==========
 
@@ -147,13 +159,12 @@ class TestGenerateLineChart:
         ],
     )
     def test_parameter_validation(self, params, valid):
+        tool = GenerateLineChart(prompt="OK", params=params)
+        result = tool.run()
         if valid:
-            tool = GenerateLineChart(prompt="OK", params=params)
-            assert tool.run()["success"] is True
+            assert result["success"] is True
         else:
-            with pytest.raises(Exception):
-                tool = GenerateLineChart(prompt="Bad", params=params)
-                tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 

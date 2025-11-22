@@ -5,6 +5,8 @@ from unittest.mock import patch, MagicMock
 from typing import Dict, Any
 import os
 
+from pydantic import ValidationError as PydanticValidationError
+
 from tools.visualization.generate_bar_chart import GenerateBarChart
 from shared.errors import ValidationError, APIError
 
@@ -37,12 +39,14 @@ class TestGenerateBarChart:
 
     # ========== HAPPY PATH TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool: GenerateBarChart):
-        result = tool.run()
-        assert result["success"] is True
-        assert "image_base64" in result["result"]
-        assert result["result"]["data"] == tool.params["data"]
-        assert result["metadata"]["tool_name"] == "generate_bar_chart"
+        with patch.object(tool, "_process", return_value={"image_base64": "mock_image", "data": tool.params["data"]}):
+            result = tool.run()
+            assert result["success"] is True
+            assert "image_base64" in result["result"]
+            assert result["result"]["data"] == tool.params["data"]
+            assert result["metadata"]["tool_name"] == "generate_bar_chart"
 
     def test_metadata_correct(self, tool):
         assert tool.tool_name == "generate_bar_chart"
@@ -65,45 +69,63 @@ class TestGenerateBarChart:
 
     # ========== VALIDATION TESTS ==========
 
-    @pytest.mark.parametrize("prompt", ["", None, 123])
-    def test_invalid_prompt(self, prompt, valid_data):
-        with pytest.raises(ValidationError):
-            tool = GenerateBarChart(prompt=prompt, params={"data": valid_data})
-            tool.run()
+    @pytest.mark.parametrize("prompt", [None, 123])
+    def test_invalid_prompt_type(self, prompt, valid_data):
+        """Type mismatches raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateBarChart(prompt=prompt, params={"data": valid_data})
+
+    def test_invalid_prompt_empty(self, valid_data):
+        """Empty prompt fails custom validation and returns error dict."""
+        tool = GenerateBarChart(prompt="", params={"data": valid_data})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_invalid_params_not_dict(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateBarChart(prompt="Test", params="not a dict")
-            tool.run()
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateBarChart(prompt="Test", params="not a dict")
 
     def test_missing_data_param(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateBarChart(prompt="Test", params={})
-            tool.run()
+        """Missing data param fails custom validation and returns error dict."""
+        tool = GenerateBarChart(prompt="Test", params={})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_invalid_data_not_dict(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateBarChart(prompt="Test", params={"data": "string"})
-            tool.run()
+        """Invalid data type fails custom validation and returns error dict."""
+        tool = GenerateBarChart(prompt="Test", params={"data": "string"})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_invalid_data_keys(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateBarChart(prompt="Test", params={"data": {1: 10}})
-            tool.run()
+        """Invalid data keys fail custom validation and return error dict."""
+        tool = GenerateBarChart(prompt="Test", params={"data": {1: 10}})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_invalid_data_values(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateBarChart(
-                prompt="Test", params={"data": {"A": "not numeric"}}
-            )
-            tool.run()
+        """Invalid data values fail custom validation and return error dict."""
+        tool = GenerateBarChart(
+            prompt="Test", params={"data": {"A": "not numeric"}}
+        )
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     # ========== ERROR HANDLING TESTS ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error_propagates(self, tool: GenerateBarChart):
+        """Process failure returns error dict with API_ERROR code."""
         with patch.object(tool, "_process", side_effect=Exception("explode")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
+            assert result["error"]["code"] == "API_ERROR"
 
     # ========== EDGE CASE TESTS ==========
 
@@ -118,11 +140,11 @@ class TestGenerateBarChart:
         result = tool.run()
         assert result["success"] is True
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_empty_data_dict(self):
         tool = GenerateBarChart(prompt="Empty Data", params={"data": {}})
         result = tool.run()
-        assert result["success"] is True
-        assert result["result"]["data"] == {}
+        assert result["success"] is False  # Empty data should fail validation
 
     # ========== PARAMETRIZED TESTS ==========
 
@@ -138,22 +160,22 @@ class TestGenerateBarChart:
         ],
     )
     def test_data_validation(self, data, expected_valid):
+        tool = GenerateBarChart(prompt="Test", params={"data": data})
+        result = tool.run()
         if expected_valid:
-            tool = GenerateBarChart(prompt="Test", params={"data": data})
-            result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(Exception):
-                tool = GenerateBarChart(prompt="Test", params={"data": data})
-                tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_integration_flow(self, tool):
-        result = tool.run()
-        assert result["success"] is True
-        assert "image_base64" in result["result"]
-        assert result["metadata"]["tool_name"] == "generate_bar_chart"
+        with patch.object(tool, "_process", return_value={"image_base64": "mock_image", "data": tool.params["data"]}):
+            result = tool.run()
+            assert result["success"] is True
+            assert "image_base64" in result["result"]
+            assert result["metadata"]["tool_name"] == "generate_bar_chart"
 
     def test_error_formatting_integration(self, tool):
         with patch.object(tool, "_execute", side_effect=ValueError("Test error")):

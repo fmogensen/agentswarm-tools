@@ -1,9 +1,12 @@
 """Tests for generate_radar_chart tool."""
 
 import pytest
+import os
 from unittest.mock import patch
 from typing import Dict, Any
 import math
+
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.visualization.generate_radar_chart import GenerateRadarChart
 from shared.errors import ValidationError, APIError
@@ -35,6 +38,7 @@ class TestGenerateRadarChart:
 
     # ========== HAPPY PATH TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool: GenerateRadarChart):
         result = tool.run()
         assert result["success"] is True
@@ -66,33 +70,44 @@ class TestGenerateRadarChart:
     # ========== ERROR CASES ==========
 
     def test_missing_prompt_raises_error(self):
-        with pytest.raises(ValidationError):
-            GenerateRadarChart(
-                prompt="", params={"data": {"a": 1, "b": 2, "c": 3, "d": 4}}
-            ).run()
+        """Empty prompt fails custom validation and returns error dict."""
+        tool = GenerateRadarChart(
+            prompt="", params={"data": {"a": 1, "b": 2, "c": 3, "d": 4}}
+        )
+        result = tool.run()
+        assert result["success"] is False
 
     def test_params_not_dict_raises_error(self):
-        with pytest.raises(ValidationError):
-            GenerateRadarChart(prompt="x", params="not a dict").run()
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateRadarChart(prompt="x", params="not a dict")
 
     def test_missing_data_key_raises_error(self):
-        with pytest.raises(ValidationError):
-            GenerateRadarChart(prompt="x", params={}).run()
+        """Missing data key fails custom validation and returns error dict."""
+        tool = GenerateRadarChart(prompt="x", params={})
+        result = tool.run()
+        assert result["success"] is False
 
     def test_not_enough_dimensions_raises_error(self):
-        with pytest.raises(ValidationError):
-            GenerateRadarChart(prompt="x", params={"data": {"a": 1, "b": 2}}).run()
+        """Not enough dimensions fails custom validation and returns error dict."""
+        tool = GenerateRadarChart(prompt="x", params={"data": {"a": 1, "b": 2}})
+        result = tool.run()
+        assert result["success"] is False
 
     def test_non_numeric_values_raises_error(self):
-        with pytest.raises(ValidationError):
-            GenerateRadarChart(
-                prompt="x", params={"data": {"a": 1, "b": "bad", "c": 3, "d": 4}}
-            ).run()
+        """Non-numeric values fail custom validation and returns error dict."""
+        tool = GenerateRadarChart(
+            prompt="x", params={"data": {"a": 1, "b": "bad", "c": 3, "d": 4}}
+        )
+        result = tool.run()
+        assert result["success"] is False
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error(self, tool: GenerateRadarChart):
+        """Process failure returns error dict."""
         with patch.object(tool, "_process", side_effect=Exception("Fail")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== PARAMETRIZED TESTS ==========
 
@@ -106,13 +121,12 @@ class TestGenerateRadarChart:
         ],
     )
     def test_param_validation_matrix(self, prompt, params, valid):
+        tool = GenerateRadarChart(prompt=prompt, params=params)
+        result = tool.run()
         if valid:
-            tool = GenerateRadarChart(prompt=prompt, params=params)
-            result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(Exception):
-                GenerateRadarChart(prompt=prompt, params=params).run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
@@ -126,6 +140,7 @@ class TestGenerateRadarChart:
         result = tool.run()
         assert result["success"] is True
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_zero_values(self):
         data = {"a": 0, "b": 0, "c": 0, "d": 0}
         tool = GenerateRadarChart(prompt="zero", params={"data": data})

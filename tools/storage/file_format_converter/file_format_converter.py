@@ -163,3 +163,21 @@ class FileFormatConverter(BaseTool):
             "target_format": tgt,
             "converted_data": converted_base64,
         }
+
+
+if __name__ == "__main__":
+    # Test the tool
+    print("Testing FileFormatConverter...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test with mock input
+    tool = FileFormatConverter(input="pdf|docx|SGVsbG8gV29ybGQ=")
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result: {result.get('result')}")
+    assert result.get('success') == True
+    assert result.get('result', {}).get('mock') == True
+    print("All tests passed!")

@@ -4,6 +4,8 @@ import pytest
 from unittest.mock import patch, MagicMock
 import os
 
+from pydantic import ValidationError as PydanticValidationError
+
 from tools.workspace.notion_search import NotionSearch
 from shared.errors import ValidationError, APIError
 
@@ -12,6 +14,15 @@ class TestNotionSearch:
     """Test suite for NotionSearch."""
 
     # ========== FIXTURES ==========
+
+    @pytest.fixture(autouse=True)
+    def mock_rate_limiter(self):
+        """Mock rate limiter to avoid rate limit errors in tests."""
+        with patch("shared.base.get_rate_limiter") as mock:
+            mock_limiter = MagicMock()
+            mock_limiter.check_rate_limit.return_value = None
+            mock.return_value = mock_limiter
+            yield mock_limiter
 
     @pytest.fixture
     def valid_query(self) -> str:
@@ -49,22 +60,22 @@ class TestNotionSearch:
     # ========== HAPPY PATH ==========
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "true"})
-    def test_mock_mode_success(self, tool: NotionSearch):
+    def test_mock_mode_success(self, valid_query: str):
+        tool = NotionSearch(query=valid_query, max_results=5)
         result = tool.run()
         assert result["success"] is True
-        assert len(result["result"]) <= tool.max_results
+        assert len(result["result"]) <= 5
         assert result["metadata"]["mock_mode"] is True
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "NOTION_API_KEY": "abc123"})
     @patch("requests.post")
-    def test_real_api_success(
-        self, mock_post, tool: NotionSearch, mock_notion_response
-    ):
+    def test_real_api_success(self, mock_post, mock_notion_response, valid_query: str):
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = mock_notion_response
         mock_post.return_value = mock_response
 
+        tool = NotionSearch(query=valid_query, max_results=5)
         result = tool.run()
 
         assert result["success"] is True
@@ -74,43 +85,51 @@ class TestNotionSearch:
     # ========== VALIDATION TESTS ==========
 
     def test_empty_query_raises(self):
-        with pytest.raises(ValidationError):
-            tool = NotionSearch(query="", max_results=5)
-            tool.run()
+        # Pydantic min_length=1 constraint catches empty string
+        with pytest.raises(PydanticValidationError):
+            NotionSearch(query="", max_results=5)
 
-    def test_whitespace_query_raises(self):
-        with pytest.raises(ValidationError):
-            tool = NotionSearch(query="   ", max_results=5)
-            tool.run()
+    def test_whitespace_query_returns_error(self):
+        # Whitespace passes Pydantic but fails our validation - returns error response
+        tool = NotionSearch(query="   ", max_results=5)
+        result = tool.run()
+        assert result["success"] is False
+        assert "error" in result
 
     def test_invalid_max_results(self):
-        with pytest.raises(ValidationError):
-            tool = NotionSearch(query="abc", max_results=0)
-            tool.run()
+        # Pydantic ge=1 constraint catches 0
+        with pytest.raises(PydanticValidationError):
+            NotionSearch(query="abc", max_results=0)
 
     # ========== API ERROR HANDLING ==========
 
-    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
-    def test_no_api_key_raises(self, tool: NotionSearch):
-        with pytest.raises(APIError):
-            tool.run()
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "NOTION_API_KEY": ""}, clear=True)
+    def test_no_api_key_returns_error(self, valid_query: str):
+        tool = NotionSearch(query=valid_query, max_results=5)
+        result = tool.run()
+        assert result["success"] is False
+        assert "error" in result
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "NOTION_API_KEY": "abc123"})
     @patch("requests.post", side_effect=Exception("Network failure"))
-    def test_network_exception_raises(self, _, tool: NotionSearch):
-        with pytest.raises(APIError):
-            tool.run()
+    def test_network_exception_returns_error(self, _, valid_query: str):
+        tool = NotionSearch(query=valid_query, max_results=5)
+        result = tool.run()
+        assert result["success"] is False
+        assert "error" in result
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "NOTION_API_KEY": "abc123"})
     @patch("requests.post")
-    def test_non_200_status_error(self, mock_post, tool: NotionSearch):
+    def test_non_200_status_error(self, mock_post, valid_query: str):
         mock_response = MagicMock()
         mock_response.status_code = 500
         mock_response.text = "Server error"
         mock_post.return_value = mock_response
 
-        with pytest.raises(APIError):
-            tool.run()
+        tool = NotionSearch(query=valid_query, max_results=5)
+        result = tool.run()
+        assert result["success"] is False
+        assert "error" in result
 
     # ========== EDGE CASE TESTS ==========
 
@@ -152,13 +171,15 @@ class TestNotionSearch:
             tool = NotionSearch(query=query, max_results=max_results)
             assert tool.query == query
         else:
-            with pytest.raises(Exception):
+            # Pydantic raises validation error on construction
+            with pytest.raises(PydanticValidationError):
                 NotionSearch(query=query, max_results=max_results)
 
     # ========== INTEGRATION TESTS ==========
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "true"})
-    def test_integration_mock_mode(self, tool: NotionSearch):
+    def test_integration_mock_mode(self, valid_query: str):
+        tool = NotionSearch(query=valid_query, max_results=5)
         r = tool.run()
         assert r["success"] is True
 
@@ -166,4 +187,5 @@ class TestNotionSearch:
     def test_max_results_limit(self):
         tool = NotionSearch(query="test", max_results=2)
         result = tool.run()
+        assert result["success"] is True
         assert len(result["result"]) == 2

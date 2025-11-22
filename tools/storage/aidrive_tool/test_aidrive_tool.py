@@ -3,7 +3,9 @@
 import pytest
 import os
 import base64
-from unittest.mock import patch
+import io
+from unittest.mock import patch, MagicMock, mock_open
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.storage.aidrive_tool import AidriveTool
 from shared.errors import ValidationError, APIError
@@ -81,23 +83,20 @@ class TestAidriveTool:
         assert "uploaded" in result["result"]
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
-    def test_download_operation_success(self, tmp_path, download_tool: AidriveTool):
+    def test_download_operation_success(self, download_tool: AidriveTool):
         """Test file download returns base64."""
-        storage_dir = tmp_path / "aidrive_storage"
-        storage_dir.mkdir()
-        file_path = storage_dir / "filename.txt"
-        file_path.write_bytes(b"hello")
+        mock_data = b"hello"
 
-        with patch("os.path.exists", return_value=True), patch(
-            "builtins.open",
-            create=True,
-            side_effect=lambda *args, **kw: open(file_path, "rb"),
-        ):
+        with patch("shared.base.get_rate_limiter") as mock_limiter, \
+             patch("os.path.exists", return_value=True), \
+             patch("builtins.open", mock_open(read_data=mock_data)):
+
+            mock_limiter.return_value.check_rate_limit.return_value = None
             result = download_tool.run()
 
         assert result["success"] is True
         decoded = base64.b64decode(result["result"])
-        assert decoded == b"hello"
+        assert decoded == mock_data
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_compress_operation_success(self, compress_tool: AidriveTool):
@@ -109,44 +108,51 @@ class TestAidriveTool:
 
     # ========== ERROR CASES ==========
 
-    @pytest.mark.parametrize("bad_input", ["", "   ", 123, None])
-    def test_validation_invalid_inputs(self, bad_input):
-        """Invalid input values should raise ValidationError."""
-        with pytest.raises(ValidationError):
-            tool = AidriveTool(input=bad_input)
-            tool.run()
+    @pytest.mark.parametrize("bad_input", [123, None])
+    def test_validation_invalid_inputs_type(self, bad_input):
+        """Invalid input types should raise PydanticValidationError."""
+        with pytest.raises(PydanticValidationError):
+            AidriveTool(input=bad_input)
+
+    @pytest.mark.parametrize("bad_input", ["", "   "])
+    def test_validation_invalid_inputs_empty(self, bad_input):
+        """Empty input values should return error dict."""
+        tool = AidriveTool(input=bad_input)
+        result = tool.run()
+        assert result["success"] is False
 
     def test_validation_invalid_operation(self):
-        """Non-recognized operation should raise ValidationError."""
-        with pytest.raises(ValidationError):
-            tool = AidriveTool(input="invalidop something")
-            tool.run()
+        """Non-recognized operation should return error dict."""
+        tool = AidriveTool(input="invalidop something")
+        result = tool.run()
+        assert result["success"] is False
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_upload_missing_argument(self):
-        with pytest.raises(ValidationError):
-            AidriveTool(input="upload").run()
+        result = AidriveTool(input="upload").run()
+        assert result["success"] is False
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_download_missing_argument(self):
-        with pytest.raises(ValidationError):
-            AidriveTool(input="download").run()
+        result = AidriveTool(input="download").run()
+        assert result["success"] is False
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_compress_missing_argument(self):
-        with pytest.raises(ValidationError):
-            AidriveTool(input="compress").run()
+        result = AidriveTool(input="compress").run()
+        assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_propagates(self, list_tool: AidriveTool):
         with patch.object(list_tool, "_process", side_effect=Exception("boom")):
-            with pytest.raises(APIError):
-                list_tool.run()
+            result = list_tool.run()
+            assert result["success"] is False
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_download_file_not_found(self, download_tool: AidriveTool):
         with patch("os.path.exists", return_value=False):
-            with pytest.raises(ValidationError):
-                download_tool.run()
+            result = download_tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
@@ -158,6 +164,7 @@ class TestAidriveTool:
 
     # ========== PARAMETRIZED ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @pytest.mark.parametrize(
         "operation,arg,should_pass",
         [
@@ -177,9 +184,9 @@ class TestAidriveTool:
             tool = AidriveTool(input=input_value)
             assert isinstance(tool, AidriveTool)
         else:
-            with pytest.raises(ValidationError):
-                tool = AidriveTool(input=input_value)
-                tool.run()
+            tool = AidriveTool(input=input_value)
+            result = tool.run()
+            assert result["success"] is False
 
 
 # ========== INTEGRATION TESTS ==========

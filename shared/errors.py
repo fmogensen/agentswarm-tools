@@ -52,10 +52,16 @@ class ValidationError(ToolError):
     """Input validation failed."""
 
     def __init__(self, message: str, field: Optional[str] = None, **kwargs):
+        # Extract details from kwargs if present to merge with field
+        existing_details = kwargs.pop("details", {})
+        merged_details = {**existing_details}
+        if field:
+            merged_details["field"] = field
+
         super().__init__(
             message=message,
             error_code="VALIDATION_ERROR",
-            details={"field": field} if field else {},
+            details=merged_details,
             **kwargs
         )
 

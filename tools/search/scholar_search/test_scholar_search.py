@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.search.scholar_search import ScholarSearch
 from shared.errors import ValidationError, APIError
@@ -55,15 +56,17 @@ class TestScholarSearch:
 
     def test_validation_error(self):
         """Test validation errors."""
-        with pytest.raises(ValidationError):
-            tool = ScholarSearch(query="", max_results=10)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            ScholarSearch(query="", max_results=10)
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, tool: ScholarSearch):
         """Test API error handling."""
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
+            error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+            assert "API failed" in error_msg
 
     # ========== MOCK MODE ==========
 
@@ -86,22 +89,22 @@ class TestScholarSearch:
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_unicode_query(self):
         """Test Unicode characters in query."""
         tool = ScholarSearch(query="Python编程", max_results=5)
-        with patch.object(tool, "_process", return_value=[]):
-            result = tool.run()
-            assert result["success"] is True
-            assert result["metadata"]["query"] == "Python编程"
+        result = tool.run()
+        assert result["success"] is True
+        assert result["metadata"]["query"] == "Python编程"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_special_characters_in_query(self):
         """Test special characters in query."""
         special_query = "query with @#$%^&* special chars"
         tool = ScholarSearch(query=special_query, max_results=5)
-        with patch.object(tool, "_process", return_value=[]):
-            result = tool.run()
-            assert result["success"] is True
-            assert result["metadata"]["query"] == special_query
+        result = tool.run()
+        assert result["success"] is True
+        assert result["metadata"]["query"] == special_query
 
     def test_very_long_query(self):
         """Test query at maximum length."""
@@ -138,9 +141,9 @@ class TestScholarSearch:
 
     # ========== INTEGRATION TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_full_workflow(self, tool: ScholarSearch):
         """Test complete workflow."""
-        with patch.object(tool, "_process", return_value=[]):
-            result = tool.run()
-            assert result["success"] is True
-            assert result["metadata"]["query"] == "test query"
+        result = tool.run()
+        assert result["success"] is True
+        assert result["metadata"]["query"] == "test query"

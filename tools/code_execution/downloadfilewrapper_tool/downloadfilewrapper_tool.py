@@ -47,16 +47,13 @@ class DownloadfilewrapperTool(BaseTool):
         if self._should_use_mock():
             return self._generate_mock_results()
 
-        try:
-            result = self._process()
+        result = self._process()
 
-            return {
-                "success": True,
-                "result": result,
-                "metadata": {"tool_name": self.tool_name, "input_url": self.input},
-            }
-        except Exception as e:
-            raise APIError(f"Failed: {e}", tool_name=self.tool_name)
+        return {
+            "success": True,
+            "result": result,
+            "metadata": {"tool_name": self.tool_name, "input_url": self.input},
+        }
 
     def _validate_parameters(self) -> None:
         """Validate input parameters.
@@ -139,3 +136,21 @@ class DownloadfilewrapperTool(BaseTool):
             "size_bytes": len(response.content),
             "source_url": self.input,
         }
+
+
+if __name__ == "__main__":
+    # Test the tool
+    print("Testing DownloadfilewrapperTool...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = DownloadfilewrapperTool(input="https://example.com/file.pdf")
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result: {result.get('result')}")
+    assert result.get('success') == True
+    assert result.get('result', {}).get('mock') == True
+    assert result.get('result', {}).get('source_url') == "https://example.com/file.pdf"
+    print("All tests passed!")

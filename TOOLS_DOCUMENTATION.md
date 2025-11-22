@@ -1,4 +1,4 @@
-# Genspark Built-in Tools - Complete Documentation
+# AgentSwarm Tools - Complete Documentation
 
 **Generated**: 2025-11-19
 **Total Tool Count**: 80+ tools across 15 categories

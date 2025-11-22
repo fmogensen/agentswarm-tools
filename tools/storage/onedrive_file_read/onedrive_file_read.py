@@ -193,3 +193,26 @@ class OnedriveFileRead(BaseTool):
         if query_lower in content.lower():
             return "The content contains the query string."
         return "The content does not contain the requested information."
+
+
+if __name__ == "__main__":
+    # Test the tool
+    print("Testing OnedriveFileRead...")
+
+    import os
+    import json
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    test_input = json.dumps({
+        "query": "test",
+        "file_reference": {"base64_content": "SGVsbG8gV29ybGQ="}
+    })
+
+    tool = OnedriveFileRead(input=test_input)
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result: {result.get('result')}")
+    assert result.get('success') == True
+    assert result.get('result', {}).get('mock') == True
+    print("All tests passed!")

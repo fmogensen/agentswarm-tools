@@ -5,6 +5,8 @@ from unittest.mock import patch
 from typing import Dict, Any
 import os
 
+from pydantic import ValidationError as PydanticValidationError
+
 from tools.visualization.generate_area_chart import GenerateAreaChart
 from shared.errors import ValidationError, APIError
 
@@ -40,6 +42,7 @@ class TestGenerateAreaChart:
         assert "metadata" in result
         assert result["result"]["chart_type"] == "area"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_metadata_contains_prompt_and_params(self, tool: GenerateAreaChart):
         result = tool.run()
         metadata = result["metadata"]
@@ -64,11 +67,19 @@ class TestGenerateAreaChart:
 
     # ========== ERROR CASES ==========
 
-    @pytest.mark.parametrize("bad_prompt", ["", "   ", None, 123])
-    def test_invalid_prompt(self, bad_prompt):
-        with pytest.raises(ValidationError):
-            tool = GenerateAreaChart(prompt=bad_prompt, params={"x": [1], "y": [1]})
-            tool.run()
+    @pytest.mark.parametrize("bad_prompt", [None, 123])
+    def test_invalid_prompt_type(self, bad_prompt):
+        """Type mismatches raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateAreaChart(prompt=bad_prompt, params={"x": [1], "y": [1]})
+
+    @pytest.mark.parametrize("bad_prompt", ["", "   "])
+    def test_invalid_prompt_empty(self, bad_prompt):
+        """Empty/whitespace prompts fail custom validation and return error dict."""
+        tool = GenerateAreaChart(prompt=bad_prompt, params={"x": [1], "y": [1]})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     @pytest.mark.parametrize(
         "bad_params",
@@ -76,6 +87,16 @@ class TestGenerateAreaChart:
             None,
             [],
             "string",
+        ],
+    )
+    def test_invalid_params_type(self, bad_params):
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateAreaChart(prompt="test", params=bad_params)
+
+    @pytest.mark.parametrize(
+        "bad_params",
+        [
             {"x": [1, 2]},
             {"y": [1, 2]},
             {"x": "notlist", "y": [1]},
@@ -83,24 +104,33 @@ class TestGenerateAreaChart:
         ],
     )
     def test_invalid_params_structure(self, bad_params):
-        with pytest.raises(ValidationError):
-            tool = GenerateAreaChart(prompt="test", params=bad_params)
-            tool.run()
+        """Invalid params structure fails custom validation and returns error dict."""
+        tool = GenerateAreaChart(prompt="test", params=bad_params)
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_mismatched_x_y_lengths(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateAreaChart(prompt="test", params={"x": [1, 2], "y": [1]})
-            tool.run()
+        """Mismatched x/y lengths fail custom validation and return error dict."""
+        tool = GenerateAreaChart(prompt="test", params={"x": [1, 2], "y": [1]})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_empty_x_y_lists(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateAreaChart(prompt="test", params={"x": [], "y": []})
-            tool.run()
+        """Empty x/y lists fail custom validation and return error dict."""
+        tool = GenerateAreaChart(prompt="test", params={"x": [], "y": []})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error_propagates(self, tool):
+        """Process failure returns error dict with API_ERROR code."""
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
+            assert result["error"]["code"] == "API_ERROR"
 
     # ========== EDGE CASES ==========
 
@@ -139,9 +169,9 @@ class TestGenerateAreaChart:
             result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(Exception):
-                tool = GenerateAreaChart(prompt="ok", params={"x": x, "y": y})
-                tool.run()
+            tool = GenerateAreaChart(prompt="ok", params={"x": x, "y": y})
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 
@@ -152,7 +182,7 @@ class TestGenerateAreaChart:
 
         with patch.dict(os.environ, {"USE_MOCK_APIS": "false"}):
             result = tool.run()
-            assert "mock_mode" not in result["metadata"]
+            assert result["metadata"].get("mock_mode") is not True
 
     def test_error_formatting_integration(self, tool: GenerateAreaChart):
         with patch.object(tool, "_execute", side_effect=ValueError("Test error")):

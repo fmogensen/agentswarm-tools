@@ -1,41 +1,87 @@
-# Secrets and credentials
-.env
-.env.*
-!.env.example
-!.env.secrets.template
-*.pem
-*.key
-
-# Google credentials
-google-service-account*.json
-*-credentials.json
-
-# Test files with hardcoded keys
-test_notion_live.py
-
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.so
 .Python
-*.egg-info/
-dist/
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# IDE
-.idea/
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+.env
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+.hypothesis/
+
+# IDEs
 .vscode/
+.idea/
 *.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Coverage
-.coverage
-htmlcov/
-.pytest_cache/
+# Secrets & Config
+.env
+.env.local
+.env.*.local
+google-service-account.json
+*.key
+*.pem
+credentials.json
+token.json
 
-# Logs and data (optional - uncomment if needed)
-# data/logs/
-# data/analytics/
+# Analytics & Cache
+.analytics/
+.email_attachment_cache/
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+tmp/
+
+# Data
+data/local/
+data/cache/
+
+# Build artifacts
+*.pyc
+*.pyo
+*.pyd
+.so
+
+# Documentation builds
+docs/_build/
+site/

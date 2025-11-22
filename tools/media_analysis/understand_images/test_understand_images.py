@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from typing import Any, Dict
 import os
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.media_analysis.understand_images import UnderstandImages
 from shared.errors import ValidationError, APIError
@@ -89,20 +90,19 @@ class TestUnderstandImages:
     # ========== VALIDATION TESTS ==========
 
     def test_invalid_media_url_empty(self):
-        with pytest.raises(ValidationError):
-            tool = UnderstandImages(media_url="", instruction=None)
-            tool.run()
+        tool = UnderstandImages(media_url="", instruction=None)
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize("url", ["ftp://invalid.com", "file://bad", "not_a_url"])
     def test_invalid_media_url_scheme(self, url: str):
-        with pytest.raises(ValidationError):
-            tool = UnderstandImages(media_url=url, instruction=None)
-            tool.run()
+        tool = UnderstandImages(media_url=url, instruction=None)
+        result = tool.run()
+        assert result["success"] is False
 
     def test_invalid_instruction_type(self, valid_url: str):
-        with pytest.raises(ValidationError):
-            tool = UnderstandImages(media_url=valid_url, instruction=123)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            UnderstandImages(media_url=valid_url, instruction=123)
 
     # ========== API ERROR TESTS ==========
 
@@ -112,13 +112,14 @@ class TestUnderstandImages:
             mock_resp.status_code = 500
             mock_get.return_value = mock_resp
 
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_process_exception(self, tool: UnderstandImages):
         with patch.object(tool, "_process", side_effect=Exception("Boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASE TESTS ==========
 
@@ -162,8 +163,8 @@ class TestUnderstandImages:
         ],
     )
     def test_param_media_urls(self, media_url: str, valid: bool):
+        tool = UnderstandImages(media_url=media_url, instruction=None)
         if valid:
-            tool = UnderstandImages(media_url=media_url, instruction=None)
             with patch("requests.get") as mock_get:
                 mock_resp = MagicMock()
                 mock_resp.status_code = 200
@@ -173,9 +174,8 @@ class TestUnderstandImages:
                 result = tool.run()
                 assert result["success"] is True
         else:
-            with pytest.raises(ValidationError):
-                tool = UnderstandImages(media_url=media_url, instruction=None)
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 

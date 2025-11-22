@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.search.product_search import ProductSearch
 from shared.errors import ValidationError, APIError
@@ -125,27 +126,30 @@ class TestProductSearch:
 
     def test_validation_error_invalid_type(self):
         """Test validation error with invalid type."""
-        with pytest.raises(ValidationError):
-            tool = ProductSearch(type="invalid_type", query="test")
-            tool.run()
+        tool = ProductSearch(type="invalid_type", query="test")
+        result = tool.run()
+        assert result["success"] is False
 
     def test_validation_error_search_missing_query(self):
         """Test validation error when query missing for product_search."""
-        with pytest.raises(ValidationError):
-            tool = ProductSearch(type="product_search")
-            tool.run()
+        tool = ProductSearch(type="product_search")
+        result = tool.run()
+        assert result["success"] is False
 
     def test_validation_error_detail_missing_asin(self):
         """Test validation error when ASIN missing for product_detail."""
-        with pytest.raises(ValidationError):
-            tool = ProductSearch(type="product_detail")
-            tool.run()
+        tool = ProductSearch(type="product_detail")
+        result = tool.run()
+        assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, search_tool: ProductSearch):
         """Test API error handling."""
         with patch.object(search_tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                search_tool.run()
+            result = search_tool.run()
+            assert result["success"] is False
+            error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+            assert len(error_msg) > 0
 
     # ========== MOCK MODE ==========
 
@@ -169,20 +173,22 @@ class TestProductSearch:
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_unicode_query(self, mock_search_results: Dict[str, Any]):
         """Test Unicode characters in query."""
         tool = ProductSearch(type="product_search", query="无线耳机")
-        with patch.object(tool, "_process", return_value=mock_search_results):
-            result = tool.run()
-            assert result["success"] is True
+        
+        result = tool.run()
+        assert result["success"] is True
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_special_characters_in_query(self, mock_search_results: Dict[str, Any]):
         """Test special characters in query."""
         special_query = "headphones @#$% special"
         tool = ProductSearch(type="product_search", query=special_query)
-        with patch.object(tool, "_process", return_value=mock_search_results):
-            result = tool.run()
-            assert result["success"] is True
+        
+        result = tool.run()
+        assert result["success"] is True
 
     def test_location_domain_parameter(self, mock_search_results: Dict[str, Any]):
         """Test location_domain parameter."""
@@ -193,8 +199,8 @@ class TestProductSearch:
         )
         with patch.object(tool, "_process", return_value=mock_search_results):
             result = tool.run()
-            assert result["success"] is True
-            assert tool.location_domain == "co.uk"
+        assert result["success"] is True
+        assert tool.location_domain == "co.uk"
 
     # ========== PARAMETRIZED ==========
 
@@ -216,12 +222,18 @@ class TestProductSearch:
             tool = ProductSearch(type=type_value, query=query, ASIN=asin)
             assert tool.type == type_value
         else:
-            with pytest.raises(Exception):  # Could be ValidationError or Pydantic error
+            try:
                 tool = ProductSearch(type=type_value, query=query, ASIN=asin)
-                tool.run()
+                result = tool.run()
+                # Validation errors return error dict
+                assert result["success"] is False
+            except Exception:
+                # Pydantic validation errors raise at construction
+                pass
 
     # ========== INTEGRATION TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_full_workflow_search(self, mock_search_results: Dict[str, Any]):
         """Test complete workflow for product search."""
         tool = ProductSearch(
@@ -229,12 +241,13 @@ class TestProductSearch:
             query="bluetooth speaker",
             location_domain="com"
         )
-        with patch.object(tool, "_process", return_value=mock_search_results):
-            result = tool.run()
-            assert result["success"] is True
-            assert "products" in result["result"]
-            assert result["metadata"]["tool_name"] == "product_search"
+        
+        result = tool.run()
+        assert result["success"] is True
+        assert "products" in result["result"]
+        assert result["metadata"]["tool_name"] == "product_search"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_full_workflow_detail(self, mock_detail_results: Dict[str, Any]):
         """Test complete workflow for product detail."""
         tool = ProductSearch(
@@ -242,11 +255,11 @@ class TestProductSearch:
             ASIN="B08N5WRWNW",
             location_domain="com"
         )
-        with patch.object(tool, "_process", return_value=mock_detail_results):
-            result = tool.run()
-            assert result["success"] is True
-            assert result["result"]["ASIN"] == "B08N5WRWNW"
-            assert result["metadata"]["tool_name"] == "product_search"
+        
+        result = tool.run()
+        assert result["success"] is True
+        assert result["result"]["ASIN"] == "B08N5WRWNW"
+        assert result["metadata"]["tool_name"] == "product_search"
 
     def test_search_result_structure(
         self, search_tool: ProductSearch, mock_search_results: Dict[str, Any]

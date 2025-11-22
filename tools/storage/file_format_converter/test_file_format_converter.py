@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch
 import base64
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.storage.file_format_converter import FileFormatConverter
 from shared.errors import ValidationError, APIError
@@ -36,6 +37,7 @@ class TestFileFormatConverter:
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool: FileFormatConverter):
         result = tool.run()
         assert result["success"] is True
@@ -44,6 +46,7 @@ class TestFileFormatConverter:
         assert result["result"]["target_format"] == "pdf"
         assert "converted_data" in result["result"]
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_metadata_correct(self, tool: FileFormatConverter):
         result = tool.run()
         assert result["metadata"]["tool_name"] == "file_format_converter"
@@ -78,22 +81,23 @@ class TestFileFormatConverter:
         ],
     )
     def test_invalid_inputs(self, bad_input):
-        with pytest.raises(ValidationError):
-            tool = FileFormatConverter(input=bad_input)
-            tool.run()
+        tool = FileFormatConverter(input=bad_input)
+        result = tool.run()
+        assert result["success"] is False
 
     def test_invalid_base64(self):
         bad = "txt|pdf|not_base64!!"
-        with pytest.raises(ValidationError):
-            tool = FileFormatConverter(input=bad)
-            tool.run()
+        tool = FileFormatConverter(input=bad)
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== ERROR CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error(self, tool):
         with patch.object(tool, "_process", side_effect=Exception("boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== PROCESS TESTS ==========
 
@@ -117,6 +121,7 @@ class TestFileFormatConverter:
 
     # ========== PARAMETRIZED TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @pytest.mark.parametrize(
         "src,tgt",
         [

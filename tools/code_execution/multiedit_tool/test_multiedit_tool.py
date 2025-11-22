@@ -5,6 +5,7 @@ import os
 import json
 from unittest.mock import patch
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.code_execution.multiedit_tool import MultieditTool
 from shared.errors import ValidationError, APIError
@@ -70,14 +71,14 @@ class TestMultieditTool:
     # ========== VALIDATION ERROR CASES ==========
 
     def test_empty_input_raises_error(self):
-        with pytest.raises(ValidationError):
-            tool = MultieditTool(input="   ")
-            tool.run()
+        tool = MultieditTool(input="   ")
+        result = tool.run()
+        assert result["success"] is False
 
     def test_invalid_json_raises_error(self):
-        with pytest.raises(ValidationError):
-            tool = MultieditTool(input="{bad_json")
-            tool.run()
+        tool = MultieditTool(input="{bad_json")
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize(
         "bad_data",
@@ -89,9 +90,9 @@ class TestMultieditTool:
         ],
     )
     def test_invalid_structure_raises_error(self, bad_data):
-        with pytest.raises(ValidationError):
-            tool = MultieditTool(input=json.dumps(bad_data))
-            tool.run()
+        tool = MultieditTool(input=json.dumps(bad_data))
+        result = tool.run()
+        assert result["success"] is False
 
     def test_invalid_insert_line_index(self, sample_file: str):
         data = {
@@ -99,32 +100,32 @@ class TestMultieditTool:
             "edits": [{"action": "insert", "line": -1, "text": "bad"}],
         }
         tool = MultieditTool(input=json.dumps(data))
-        with pytest.raises(ValidationError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     def test_invalid_delete_line_index(self, sample_file: str):
         data = {"file_path": sample_file, "edits": [{"action": "delete", "line": -5}]}
         tool = MultieditTool(input=json.dumps(data))
-        with pytest.raises(ValidationError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     def test_unknown_action_raises_error(self, sample_file: str):
         data = {"file_path": sample_file, "edits": [{"action": "unknown"}]}
         tool = MultieditTool(input=json.dumps(data))
-        with pytest.raises(ValidationError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     def test_missing_file_raises_api_error(self, tmp_path):
         missing_file = str(tmp_path / "missing.txt")
         data = {"file_path": missing_file, "edits": []}
         tool = MultieditTool(input=json.dumps(data))
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     def test_api_error_from_process(self, tool: MultieditTool):
         with patch.object(tool, "_process", side_effect=Exception("boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 

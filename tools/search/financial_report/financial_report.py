@@ -148,3 +148,21 @@ class FinancialReport(BaseTool):
             raise APIError(
                 f"Error fetching financial report: {e}", tool_name=self.tool_name
             )
+
+
+if __name__ == "__main__":
+    # Test the tool
+    print("Testing FinancialReport...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = FinancialReport(ticker="AAPL", report_type="income_statement")
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result: {result.get('result')}")
+    assert result.get('success') == True
+    assert result.get('result', {}).get('ticker') == "AAPL"
+    assert result.get('result', {}).get('report_type') == "income_statement"
+    print("All tests passed!")

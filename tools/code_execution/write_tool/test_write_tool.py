@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from typing import Dict, Any
 import os
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.code_execution.write_tool import WriteTool
 from shared.errors import ValidationError, APIError
@@ -15,12 +16,16 @@ class TestWriteTool:
     # ========== FIXTURES ==========
 
     @pytest.fixture
-    def valid_input(self) -> str:
-        return '{"path": "tmp/test.txt", "content": "hello world"}'
+    def valid_file_path(self) -> str:
+        return "/tmp/test.txt"
 
     @pytest.fixture
-    def tool(self, valid_input: str) -> WriteTool:
-        return WriteTool(input=valid_input)
+    def valid_content(self) -> str:
+        return "hello world"
+
+    @pytest.fixture
+    def tool(self, valid_file_path: str, valid_content: str) -> WriteTool:
+        return WriteTool(file_path=valid_file_path, content=valid_content)
 
     @pytest.fixture
     def tmp_dir(self, tmp_path):
@@ -34,9 +39,10 @@ class TestWriteTool:
 
     # ========== HAPPY PATH ==========
 
-    def test_execute_success(self, tmp_dir, valid_input):
-        path = tmp_dir / "out.txt"
-        tool = WriteTool(input=f'{{"path": "{path}", "content": "data"}}')
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_execute_success(self, tmp_dir):
+        path = str(tmp_dir / "out.txt")
+        tool = WriteTool(file_path=path, content="data")
         result = tool.run()
 
         assert result["success"] is True
@@ -46,7 +52,8 @@ class TestWriteTool:
     # ========== MOCK MODE ==========
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
-    def test_mock_mode_returns_mock_results(self, tool: WriteTool):
+    def test_mock_mode_returns_mock_results(self):
+        tool = WriteTool(file_path="/tmp/test.txt", content="hello")
         result = tool.run()
 
         assert result["success"] is True
@@ -54,7 +61,8 @@ class TestWriteTool:
         assert result["result"]["mock"] is True
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
-    def test_real_mode_runs_process(self, tool: WriteTool):
+    def test_real_mode_runs_process(self, valid_file_path: str, valid_content: str):
+        tool = WriteTool(file_path=valid_file_path, content=valid_content)
         with patch.object(
             tool, "_process", return_value={"written": True}
         ) as mock_proc:
@@ -65,30 +73,31 @@ class TestWriteTool:
 
     # ========== VALIDATION TESTS ==========
 
-    @pytest.mark.parametrize(
-        "bad_input",
-        [
-            "",
-            "   ",
-            "not json",
-            "[]",
-            '{"missing":"keys"}',
-            '{"path": "", "content": "data"}',
-            '{"path": 123, "content": "data"}',
-            '{"path": "file.txt", "content": 123}',
-        ],
-    )
-    def test_invalid_inputs_raise_validation_error(self, bad_input):
-        with pytest.raises(ValidationError):
-            tool = WriteTool(input=bad_input)
-            tool.run()
+    def test_empty_file_path_raises_pydantic_error(self):
+        """Empty file_path is caught by Pydantic min_length or tool validation."""
+        # The tool itself validates empty paths
+        tool = WriteTool(file_path="   ", content="data")
+        result = tool.run()
+        assert result["success"] is False
+
+    def test_missing_file_path_raises_pydantic_error(self):
+        """Missing file_path raises Pydantic validation error."""
+        with pytest.raises(PydanticValidationError):
+            WriteTool(content="data")
+
+    def test_missing_content_raises_pydantic_error(self):
+        """Missing content raises Pydantic validation error."""
+        with pytest.raises(PydanticValidationError):
+            WriteTool(file_path="/tmp/test.txt")
 
     # ========== API ERROR ==========
 
-    def test_process_raises_api_error(self, tool: WriteTool):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_process_raises_api_error(self, valid_file_path: str, valid_content: str):
+        tool = WriteTool(file_path=valid_file_path, content=valid_content)
         with patch.object(tool, "_process", side_effect=Exception("boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== _VALIDATE_PARAMETERS DIRECT TESTING ==========
 
@@ -97,31 +106,34 @@ class TestWriteTool:
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_unicode_content(self, tmp_dir):
-        path = tmp_dir / "unicode.txt"
+        path = str(tmp_dir / "unicode.txt")
         content = "こんにちは世界"
-        tool = WriteTool(input=f'{{"path": "{path}", "content": "{content}"}}')
+        tool = WriteTool(file_path=path, content=content)
         result = tool.run()
 
         assert result["success"] is True
         assert result["result"]["bytes_written"] == len(content)
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_nested_directories_created(self, tmp_dir):
-        nested_path = tmp_dir / "a/b/c.txt"
-        tool = WriteTool(input=f'{{"path": "{nested_path}", "content": "ok"}}')
+        nested_path = str(tmp_dir / "a/b/c.txt")
+        tool = WriteTool(file_path=nested_path, content="ok")
         result = tool.run()
 
         assert result["success"] is True
-        assert nested_path.exists()
+        assert os.path.exists(nested_path)
 
     # ========== PARAMETRIZED TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @pytest.mark.parametrize(
         "content", ["", " ", "special chars !@#$%^&*()", "12345", "line1\nline2"]
     )
     def test_various_contents(self, tmp_dir, content):
-        path = tmp_dir / "file.txt"
-        tool = WriteTool(input=f'{{"path": "{path}", "content": "{content}"}}')
+        path = str(tmp_dir / "file.txt")
+        tool = WriteTool(file_path=path, content=content)
         result = tool.run()
 
         assert result["success"] is True
@@ -129,22 +141,28 @@ class TestWriteTool:
 
     # ========== FAILURE SIMULATION ==========
 
-    def test_os_error_during_write(self, tool: WriteTool):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_os_error_during_write(self, valid_file_path: str, valid_content: str):
+        tool = WriteTool(file_path=valid_file_path, content=valid_content)
         with patch("builtins.open", side_effect=OSError("disk error")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_integration_basic_write(self, tmp_dir):
-        path = tmp_dir / "integration.txt"
-        tool = WriteTool(input=f'{{"path": "{path}", "content": "integration"}}')
+        path = str(tmp_dir / "integration.txt")
+        tool = WriteTool(file_path=path, content="integration")
         result = tool.run()
 
         assert result["success"] is True
-        assert path.read_text() == "integration"
+        with open(path) as f:
+            assert f.read() == "integration"
 
-    def test_integration_error_formatting(self, tool: WriteTool):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_integration_error_formatting(self, valid_file_path: str, valid_content: str):
+        tool = WriteTool(file_path=valid_file_path, content=valid_content)
         with patch.object(tool, "_execute", side_effect=ValueError("bad")):
             output = tool.run()
 

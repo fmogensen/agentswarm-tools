@@ -1,8 +1,11 @@
 """Tests for generate_dual_axes_chart tool."""
 
 import pytest
+import os
 from unittest.mock import patch
 import base64
+
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.visualization.generate_dual_axes_chart import GenerateDualAxesChart
 from shared.errors import ValidationError, APIError
@@ -76,47 +79,65 @@ class TestGenerateDualAxesChart:
     # ========== VALIDATION ERROR TESTS ==========
 
     def test_missing_prompt(self, valid_data):
-        """Prompt must be non-empty string."""
-        with pytest.raises(ValidationError):
-            GenerateDualAxesChart(prompt="", params={"data": valid_data}).run()
+        """Empty prompt fails custom validation and returns error dict."""
+        tool = GenerateDualAxesChart(prompt="", params={"data": valid_data})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_invalid_params_not_dict(self):
-        with pytest.raises(ValidationError):
-            GenerateDualAxesChart(prompt="test", params="not a dict").run()
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateDualAxesChart(prompt="test", params="not a dict")
 
     def test_missing_data_field(self):
-        with pytest.raises(ValidationError):
-            GenerateDualAxesChart(prompt="test", params={}).run()
+        """Missing data field fails custom validation and returns error dict."""
+        tool = GenerateDualAxesChart(prompt="test", params={})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     @pytest.mark.parametrize("missing", ["x", "column_values", "line_values"])
     def test_missing_required_data_fields(self, valid_data, missing):
+        """Missing required data fields fail custom validation and return error dict."""
         bad = valid_data.copy()
         del bad[missing]
-        with pytest.raises(ValidationError):
-            GenerateDualAxesChart(prompt="test", params={"data": bad}).run()
+        tool = GenerateDualAxesChart(prompt="test", params={"data": bad})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     @pytest.mark.parametrize("field", ["x", "column_values", "line_values"])
     def test_non_list_fields(self, valid_data, field):
+        """Non-list fields fail custom validation and return error dict."""
         bad = valid_data.copy()
         bad[field] = "not a list"
-        with pytest.raises(ValidationError):
-            GenerateDualAxesChart(prompt="test", params={"data": bad}).run()
+        tool = GenerateDualAxesChart(prompt="test", params={"data": bad})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_data_length_mismatch(self, valid_data):
+        """Mismatched data lengths fail custom validation and return error dict."""
         valid_data["x"] = [1]
-        with pytest.raises(ValidationError):
-            GenerateDualAxesChart(prompt="test", params={"data": valid_data}).run()
+        tool = GenerateDualAxesChart(prompt="test", params={"data": valid_data})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     # ========== API ERROR TESTS ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error_propagates(self, tool: GenerateDualAxesChart):
-        """Process failure should raise APIError."""
+        """Process failure returns error dict with API_ERROR code."""
         with patch.object(tool, "_process", side_effect=Exception("boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
+            assert result["error"]["code"] == "API_ERROR"
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_unicode_prompt(self, valid_data):
         tool = GenerateDualAxesChart(prompt="图表测试", params={"data": valid_data})
         result = tool.run()
@@ -137,16 +158,22 @@ class TestGenerateDualAxesChart:
             ("Valid prompt", True),
             ("a" * 500, True),
             ("", False),
-            (None, False),
         ],
     )
     def test_prompt_validation(self, prompt, valid, valid_data):
+        tool = GenerateDualAxesChart(prompt=prompt, params={"data": valid_data})
         if valid:
-            tool = GenerateDualAxesChart(prompt=prompt, params={"data": valid_data})
             assert tool.prompt == prompt
+            result = tool.run()
+            assert result["success"] is True
         else:
-            with pytest.raises(Exception):
-                GenerateDualAxesChart(prompt=prompt, params={"data": valid_data}).run()
+            result = tool.run()
+            assert result["success"] is False
+
+    def test_prompt_none_raises(self, valid_data):
+        """None prompt raises PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateDualAxesChart(prompt=None, params={"data": valid_data})
 
     @pytest.mark.parametrize(
         "x, col, line, valid",
@@ -158,13 +185,13 @@ class TestGenerateDualAxesChart:
     )
     def test_data_length_parametrized(self, x, col, line, valid):
         params = {"data": {"x": x, "column_values": col, "line_values": line}}
+        tool = GenerateDualAxesChart(prompt="test", params=params)
+        result = tool.run()
         if valid:
-            tool = GenerateDualAxesChart(prompt="test", params=params)
-            result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(ValidationError):
-                GenerateDualAxesChart(prompt="test", params=params).run()
+            assert result["success"] is False
+            assert result["error"]["code"] == "VALIDATION_ERROR"
 
     # ========== INTEGRATION TESTS ==========
 

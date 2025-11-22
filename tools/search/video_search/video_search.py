@@ -111,7 +111,12 @@ class VideoSearch(BaseTool):
         return {
             "success": True,
             "result": mock_results,
-            "metadata": {"mock_mode": True},
+            "metadata": {
+                "mock_mode": True,
+                "tool_name": self.tool_name,
+                "query": self.query,
+                "max_results": self.max_results,
+            },
         }
 
     def _process(self) -> List[Dict[str, Any]]:

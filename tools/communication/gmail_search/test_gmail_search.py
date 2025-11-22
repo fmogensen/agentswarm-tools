@@ -1,6 +1,7 @@
 """Tests for gmail_search tool."""
 
 import pytest
+from unittest.mock import patch
 import os
 from unittest.mock import Mock, patch, MagicMock
 from typing import Dict, Any
@@ -53,8 +54,8 @@ class TestGmailSearch:
         "os.environ",
         {"USE_MOCK_APIS": "false", "GOOGLE_SERVICE_ACCOUNT_FILE": "/tmp/fake.json"},
     )
-    @patch("tools.communication.gmail_search.Credentials")
-    @patch("tools.communication.gmail_search.build")
+    @patch("tools.communication.gmail_search.gmail_search.Credentials")
+    @patch("tools.communication.gmail_search.gmail_search.build")
     def test_execute_success(
         self, mock_build, mock_creds, tool, mock_messages, mock_message_detail
     ):
@@ -85,14 +86,18 @@ class TestGmailSearch:
     # ========== VALIDATION TESTS ==========
 
     def test_empty_query_raises_validation_error(self):
-        with pytest.raises(ValidationError):
-            tool = GmailSearch(query="   ", max_results=5)
-            tool.run()
+        tool = GmailSearch(query="   ", max_results=5)
+        result = tool.run()
+        assert result["success"] is False
+        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        assert "Query cannot be empty" in error_msg
 
     def test_invalid_max_results_raises_validation_error(self):
-        with pytest.raises(ValidationError):
-            tool = GmailSearch(query="test", max_results=0)
-            tool.run()
+        tool = GmailSearch(query="test", max_results=0)
+        result = tool.run()
+        assert result["success"] is False
+        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        assert "max_results must be a positive integer" in error_msg
 
     # ========== ERROR HANDLING TESTS ==========
 
@@ -101,14 +106,18 @@ class TestGmailSearch:
         if "GOOGLE_SERVICE_ACCOUNT_FILE" in os.environ:
             del os.environ["GOOGLE_SERVICE_ACCOUNT_FILE"]
 
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
+        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        assert "GOOGLE_SERVICE_ACCOUNT_FILE" in error_msg
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch.object(GmailSearch, "_process", side_effect=Exception("API failed"))
     def test_api_error_propagates(self, mock_process, tool: GmailSearch):
-        with pytest.raises(APIError) as exc:
-            tool.run()
-        assert "API failed" in str(exc.value)
+        result = tool.run()
+        assert result["success"] is False
+        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        assert "API failed" in error_msg
 
     # ========== EDGE CASE TESTS ==========
 
@@ -147,9 +156,9 @@ class TestGmailSearch:
             tool = GmailSearch(query=query, max_results=max_results)
             assert tool.query == query
         else:
-            with pytest.raises(Exception):
-                tool = GmailSearch(query=query, max_results=max_results)
-                tool.run()
+            tool = GmailSearch(query=query, max_results=max_results)
+            result = tool.run()
+            assert result["success"] is False
 
 
 class TestGmailSearchIntegration:

@@ -113,8 +113,18 @@ class AudioGeneration(BaseTool):
 
         return {
             "success": True,
-            "result": {"audio_url": fake_url, "audio_id": fake_audio_id, "mock": True},
-            "metadata": {"mock_mode": True, "tool_name": self.tool_name},
+            "result": {
+                "audio_url": fake_url,
+                "audio_id": fake_audio_id,
+                "mock": True,
+                "prompt_used": self.prompt,
+                "parameters_used": self.params,
+            },
+            "metadata": {
+                "mock_mode": True,
+                "tool_name": self.tool_name,
+                "params_used": self.params,
+            },
         }
 
     def _process(self) -> Any:

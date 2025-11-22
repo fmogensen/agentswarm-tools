@@ -1,4 +1,4 @@
-# Genspark Tools - Alphabetical Index
+# AgentSwarm Tools - Alphabetical Index
 
 Quick reference index of all 60+ tools with one-line descriptions.
 

@@ -98,7 +98,12 @@ class ImageSearch(BaseTool):
         return {
             "success": True,
             "result": {"images": mock_results, "total_count": len(mock_results)},
-            "metadata": {"mock_mode": True, "query": self.query},
+            "metadata": {
+                "mock_mode": True,
+                "tool_name": self.tool_name,
+                "query": self.query,
+                "max_results": self.max_results,
+            },
         }
 
     def _process(self) -> Dict[str, Any]:

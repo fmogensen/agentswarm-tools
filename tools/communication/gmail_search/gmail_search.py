@@ -79,14 +79,14 @@ class GmailSearch(BaseTool):
             raise ValidationError(
                 "Query cannot be empty",
                 tool_name=self.tool_name,
-                details={"query": self.query},
+                field="query",
             )
 
         if not isinstance(self.max_results, int) or self.max_results <= 0:
             raise ValidationError(
                 "max_results must be a positive integer",
                 tool_name=self.tool_name,
-                details={"max_results": self.max_results},
+                field="max_results",
             )
 
     def _should_use_mock(self) -> bool:

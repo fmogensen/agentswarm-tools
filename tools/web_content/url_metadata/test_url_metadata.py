@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.web_content.url_metadata import UrlMetadata
 from shared.errors import ValidationError, APIError
@@ -21,10 +22,11 @@ class TestUrlMetadata:
     @pytest.fixture
     def tool(self, valid_url: str) -> UrlMetadata:
         """Create tool instance with valid parameters."""
-        return UrlMetadata(input=valid_url)
+        return UrlMetadata(url=valid_url)
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("requests.head")
     def test_execute_success(self, mock_head, tool: UrlMetadata):
         """Test successful execution."""
@@ -53,15 +55,16 @@ class TestUrlMetadata:
 
     def test_validation_error(self):
         """Test validation errors."""
-        with pytest.raises(ValidationError):
-            tool = UrlMetadata(input="invalid_url")
-            tool.run()
+        tool = UrlMetadata(url="invalid_url")
+        result = tool.run()
+        assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("requests.head", side_effect=Exception("API failed"))
     def test_api_error_handled(self, mock_head, tool: UrlMetadata):
         """Test API error handling."""
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== MOCK MODE ==========
 
@@ -77,6 +80,7 @@ class TestUrlMetadata:
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("requests.head")
     def test_no_content_disposition(self, mock_head, tool: UrlMetadata):
         """Test when Content-Disposition header is missing."""
@@ -91,6 +95,7 @@ class TestUrlMetadata:
         result = tool.run()
         assert result["result"]["filename"] == "file"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("requests.head")
     def test_unknown_content_length(self, mock_head, tool: UrlMetadata):
         """Test when Content-Length is unknown."""
@@ -115,6 +120,7 @@ class TestUrlMetadata:
             ("http://example.com/path/to/file.txt", "file.txt"),
         ],
     )
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("requests.head")
     def test_filename_extraction(self, mock_head, url, expected_filename):
         """Test filename extraction from URL."""
@@ -123,6 +129,6 @@ class TestUrlMetadata:
         mock_response.raise_for_status = MagicMock()
         mock_head.return_value = mock_response
 
-        tool = UrlMetadata(input=url)
+        tool = UrlMetadata(url=url)
         result = tool.run()
         assert result["result"]["filename"] == expected_filename

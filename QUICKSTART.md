@@ -4,7 +4,7 @@
 
 ### Step 1: Run Setup
 ```bash
-cd /Users/frank/Documents/Code/Genspark/agentswarm-tools
+cd agentswarm-tools
 ./setup-autonomous-dev.sh
 ```
 
@@ -115,7 +115,7 @@ In `.env` you can configure:
 2. **Loads 61 tools into queue** ✅
 3. **Assigns tools to 7 teams** ✅
 4. **Each team develops in parallel:**
-   - Reads Genspark docs
+   - Reads AgentSwarm docs
    - Generates code
    - Writes tests
    - Auto-fixes issues

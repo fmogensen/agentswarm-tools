@@ -3,6 +3,7 @@
 import pytest
 import os
 from unittest.mock import patch, MagicMock
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.media_generation.image_generation import ImageGeneration
 from shared.errors import ValidationError, APIError
@@ -71,35 +72,47 @@ class TestImageGeneration:
 
     # ========== VALIDATION TESTS ==========
 
-    @pytest.mark.parametrize("bad_prompt", ["", " ", None])
-    def test_invalid_prompts(self, bad_prompt):
-        with pytest.raises(ValidationError):
-            tool = ImageGeneration(prompt=bad_prompt, params={})
-            tool.run()
+    def test_invalid_prompts_empty_string(self):
+        with pytest.raises(PydanticValidationError):
+            ImageGeneration(prompt="", params={})
+
+    def test_invalid_prompts_whitespace(self):
+        tool = ImageGeneration(prompt=" ", params={})
+        result = tool.run()
+        assert result["success"] is False
+
+    def test_invalid_prompts_none(self):
+        with pytest.raises(PydanticValidationError):
+            ImageGeneration(prompt=None, params={})
 
     def test_invalid_params_type(self):
-        with pytest.raises(ValidationError):
-            tool = ImageGeneration(prompt="test", params="not a dict")
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            ImageGeneration(prompt="test", params="not a dict")
 
-    @pytest.mark.parametrize("size", ["1000", 123, None])
+    @pytest.mark.parametrize("size", ["1000", 123])
     def test_invalid_size(self, size):
-        with pytest.raises(ValidationError):
-            tool = ImageGeneration(prompt="test", params={"size": size})
-            tool.run()
+        tool = ImageGeneration(prompt="test", params={"size": size})
+        result = tool.run()
+        assert result["success"] is False
+
+    def test_invalid_size_none(self):
+        tool = ImageGeneration(prompt="test", params={"size": None})
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize("steps", [0, -5, "ten"])
     def test_invalid_steps(self, steps):
-        with pytest.raises(ValidationError):
-            tool = ImageGeneration(prompt="test", params={"steps": steps})
-            tool.run()
+        tool = ImageGeneration(prompt="test", params={"steps": steps})
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== API ERROR TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_raised(self, tool):
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASE TESTS ==========
 
@@ -121,24 +134,27 @@ class TestImageGeneration:
     # ========== PARAMETRIZED TESTS ==========
 
     @pytest.mark.parametrize(
-        "prompt,params,valid",
+        "prompt,params,valid,pydantic_fail",
         [
-            ("test", {"size": "128x128"}, True),
-            ("test", {"steps": 5}, True),
-            ("", {"size": "128x128"}, False),
-            ("test", {"steps": -1}, False),
-            ("test", {"size": "invalid-size"}, False),
+            ("test", {"size": "128x128"}, True, False),
+            ("test", {"steps": 5}, True, False),
+            ("", {"size": "128x128"}, False, True),
+            ("test", {"steps": -1}, False, False),
+            ("test", {"size": "invalid-size"}, False, False),
         ],
     )
-    def test_param_validation_matrix(self, prompt, params, valid):
+    def test_param_validation_matrix(self, prompt, params, valid, pydantic_fail):
         if valid:
             tool = ImageGeneration(prompt=prompt, params=params)
             result = tool.run()
             assert result["success"] is True
+        elif pydantic_fail:
+            with pytest.raises(PydanticValidationError):
+                ImageGeneration(prompt=prompt, params=params)
         else:
-            with pytest.raises(Exception):
-                tool = ImageGeneration(prompt=prompt, params=params)
-                tool.run()
+            tool = ImageGeneration(prompt=prompt, params=params)
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 

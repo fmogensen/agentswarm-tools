@@ -1,9 +1,11 @@
 """Tests for onedrive_search tool."""
 
 import pytest
+from unittest.mock import patch
 from unittest.mock import Mock, patch, MagicMock
 from typing import Dict, Any
 import os
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.storage.onedrive_search import OnedriveSearch
 from shared.errors import ValidationError, APIError
@@ -94,18 +96,16 @@ class TestOnedriveSearch:
     # ========== VALIDATION TESTS ==========
 
     def test_empty_query_raises_validation(self):
-        with pytest.raises(ValidationError):
-            tool = OnedriveSearch(query="", max_results=5)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            OnedriveSearch(query="", max_results=5)
 
     @pytest.mark.parametrize("max_results", [0, -1])
     def test_invalid_max_results_raises(self, max_results: int):
-        with pytest.raises(ValidationError):
-            tool = OnedriveSearch(query="test", max_results=max_results)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            OnedriveSearch(query="test", max_results=max_results)
 
     def test_pydantic_field_validation(self):
-        with pytest.raises(Exception):
+        with pytest.raises(PydanticValidationError):
             OnedriveSearch(query="a" * 600, max_results=5)
 
     # ========== API ERROR TESTS ==========
@@ -113,8 +113,8 @@ class TestOnedriveSearch:
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_missing_token_raises_api_error(self, tool: OnedriveSearch):
         with patch.dict("os.environ", {}, clear=True):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false", "MS_GRAPH_TOKEN": "token"})
     @patch("requests.get")
@@ -124,19 +124,20 @@ class TestOnedriveSearch:
         mock_resp.text = "Server error"
         mock_get.return_value = mock_resp
 
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false", "MS_GRAPH_TOKEN": "token"})
     @patch("requests.get", side_effect=Exception("network error"))
     def test_network_exception_wrapped(self, mock_get: Mock, tool: OnedriveSearch):
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_propagates(self, tool: OnedriveSearch):
         with patch.object(tool, "_process", side_effect=Exception("boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 

@@ -10,7 +10,11 @@ from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
 
 import re
-import requests
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 
 class UnderstandVideo(BaseTool):
@@ -128,6 +132,12 @@ class UnderstandVideo(BaseTool):
         Raises:
             APIError: If transcript cannot be fetched
         """
+        if requests is None:
+            raise APIError(
+                "requests library is required. Install with: pip install requests",
+                tool_name=self.tool_name,
+            )
+
         video_id = self._extract_video_id(self.media_url)
 
         try:
@@ -162,3 +172,25 @@ class UnderstandVideo(BaseTool):
         minutes = s // 60
         sec = s % 60
         return f"{minutes:02d}:{sec:02d}"
+
+
+if __name__ == "__main__":
+    print("Testing UnderstandVideo...")
+
+    import os
+
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test with mock data
+    tool = UnderstandVideo(
+        media_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        instruction="Summarize the main points",
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Transcript entries: {len(result.get('result', {}).get('transcript', []))}")
+    print(f"Result: {result.get('result')}")
+    assert result.get("success") == True
+    assert "transcript" in result.get("result", {})
+    print("UnderstandVideo test passed!")

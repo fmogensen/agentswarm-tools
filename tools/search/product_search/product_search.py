@@ -75,10 +75,21 @@ class ProductSearch(BaseTool):
         try:
             result = self._process()
 
+            metadata = {
+                "tool_name": self.tool_name,
+                "type": self.type,
+            }
+            if self.query:
+                metadata["query"] = self.query
+            if self.ASIN:
+                metadata["ASIN"] = self.ASIN
+            if self.location_domain:
+                metadata["location_domain"] = self.location_domain
+
             return {
                 "success": True,
                 "result": result,
-                "metadata": {"tool_name": self.tool_name},
+                "metadata": metadata,
             }
         except Exception as e:
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
@@ -165,10 +176,22 @@ class ProductSearch(BaseTool):
                 ]
             }
 
+        metadata = {
+            "mock_mode": True,
+            "tool_name": self.tool_name,
+            "type": self.type,
+        }
+        if self.query:
+            metadata["query"] = self.query
+        if self.ASIN:
+            metadata["ASIN"] = self.ASIN
+        if self.location_domain:
+            metadata["location_domain"] = self.location_domain
+
         return {
             "success": True,
             "result": mock_results,
-            "metadata": {"mock_mode": True},
+            "metadata": metadata,
         }
 
     def _process(self) -> Dict[str, Any]:

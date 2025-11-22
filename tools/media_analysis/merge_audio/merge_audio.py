@@ -11,7 +11,10 @@ from io import BytesIO
 from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
 
-from pydub import AudioSegment
+try:
+    from pydub import AudioSegment
+except ImportError:
+    AudioSegment = None
 
 
 class MergeAudio(BaseTool):
@@ -129,6 +132,12 @@ class MergeAudio(BaseTool):
 
     def _process(self) -> Any:
         """Main processing logic."""
+        if AudioSegment is None:
+            raise APIError(
+                "pydub library is required for audio merging. Install with: pip install pydub",
+                tool_name=self.tool_name,
+            )
+
         data = json.loads(self.input)
         clips = data.get("clips", [])
         output_format = data.get("output_format", "mp3")
@@ -178,3 +187,32 @@ class MergeAudio(BaseTool):
             "format": output_format,
             "duration_ms": max_end,
         }
+
+
+if __name__ == "__main__":
+    print("Testing MergeAudio...")
+
+    import os
+    import json
+
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    # Test with mock data
+    test_input = json.dumps(
+        {
+            "clips": [
+                {"path": "audio1.mp3", "start": 0, "gain": -2},
+                {"path": "audio2.wav", "start": 5000},
+            ],
+            "output_format": "mp3",
+        }
+    )
+
+    tool = MergeAudio(input=test_input)
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result: {result.get('result')}")
+    assert result.get("success") == True
+    assert "message" in result.get("result", {}) or "mock" in result.get("result", {})
+    print("MergeAudio test passed!")

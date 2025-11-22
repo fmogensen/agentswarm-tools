@@ -2,6 +2,7 @@
 
 import pytest
 from unittest.mock import patch
+from pydantic import ValidationError as PydanticValidationError
 from tools.utils.think import Think
 from shared.errors import ValidationError, APIError
 
@@ -29,12 +30,14 @@ class TestThink:
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool: Think):
         result = tool.run()
         assert result["success"] is True
         assert "result" in result
         assert result["result"]["stored"] == tool.thought
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_metadata_correct(self, tool: Think):
         result = tool.run()
         metadata = result["metadata"]
@@ -59,33 +62,36 @@ class TestThink:
     # ========== ERROR CASES ==========
 
     def test_invalid_empty_string(self):
-        with pytest.raises(ValidationError):
-            tool = Think(thought="")
-            tool.run()
+        # Empty string fails Pydantic min_length=1 validation at construction
+        with pytest.raises(PydanticValidationError):
+            Think(thought="")
 
     def test_invalid_whitespace(self):
-        with pytest.raises(ValidationError):
-            tool = Think(thought="   ")
-            tool.run()
+        # Whitespace passes Pydantic but fails custom validation at runtime
+        tool = Think(thought="   ")
+        result = tool.run()
+        assert result["success"] is False
 
     def test_invalid_non_string(self):
-        with pytest.raises(ValidationError):
-            tool = Think(thought=None)  # type: ignore
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            Think(thought=None)  # type: ignore
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_propagates(self, tool: Think):
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_unicode_thought(self):
         tool = Think(thought="思考中...")
         result = tool.run()
         assert result["success"] is True
         assert result["result"]["stored"] == "思考中..."
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_special_characters(self):
         thought = "@#$%^&*() internal thought!"
         tool = Think(thought=thought)
@@ -93,6 +99,7 @@ class TestThink:
         assert result["success"] is True
         assert result["result"]["stored"] == thought
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_long_thought(self):
         long_text = "a" * 5000
         tool = Think(thought=long_text)
@@ -103,24 +110,27 @@ class TestThink:
     # ========== PARAMETRIZED TESTS ==========
 
     @pytest.mark.parametrize(
-        "thought,expected_valid",
+        "thought,expected_valid,is_pydantic_error",
         [
-            ("Valid thought", True),
-            ("a" * 300, True),
-            ("", False),
-            ("   ", False),
-            (None, False),  # type: ignore
+            ("Valid thought", True, False),
+            ("a" * 300, True, False),
+            ("", False, True),  # Empty string fails Pydantic min_length=1
+            ("   ", False, False),  # Whitespace passes Pydantic, fails custom validation
+            (None, False, True),  # None fails Pydantic type check
         ],
     )
-    def test_param_validation(self, thought, expected_valid):
+    def test_param_validation(self, thought, expected_valid, is_pydantic_error):
         if expected_valid:
             tool = Think(thought=thought)
             result = tool.run()
             assert result["success"] is True
+        elif is_pydantic_error:
+            with pytest.raises(PydanticValidationError):
+                Think(thought=thought)
         else:
-            with pytest.raises(Exception):
-                tool = Think(thought=thought)
-                tool.run()
+            tool = Think(thought=thought)
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 

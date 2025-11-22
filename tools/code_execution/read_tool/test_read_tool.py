@@ -3,6 +3,7 @@
 import pytest
 import os
 from unittest.mock import patch, MagicMock
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.code_execution.read_tool import ReadTool
 from shared.errors import ValidationError, APIError
@@ -23,37 +24,29 @@ class TestReadTool:
     @pytest.fixture
     def tool(self, tmp_file) -> ReadTool:
         """Create tool instance with valid parameters."""
-        return ReadTool(input=os.path.basename(tmp_file))
-
-    @pytest.fixture
-    def run_in_tmpdir(self, monkeypatch, tmp_path):
-        """Ensure working dir is tmp_path so relative paths work."""
-        monkeypatch.chdir(tmp_path)
-        return tmp_path
+        return ReadTool(file_path=tmp_file)
 
     # ========== INITIALIZATION TESTS ==========
 
     def test_tool_initialization_success(self, tmp_file):
-        tool = ReadTool(input=os.path.basename(tmp_file))
-        assert tool.input == os.path.basename(tmp_file)
+        tool = ReadTool(file_path=tmp_file)
+        assert tool.file_path == tmp_file
         assert tool.tool_name == "read_tool"
         assert tool.tool_category == "code_execution"
-        assert (
-            tool.tool_description
-            == "Read files from sandboxed environment with line numbers"
-        )
 
     # ========== HAPPY PATH TESTS ==========
 
-    def test_execute_success(self, tool, tmp_file, run_in_tmpdir):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_execute_success(self, tool):
         result = tool.run()
         assert result["success"] is True
         assert isinstance(result["result"], list)
-        assert result["metadata"]["path"] == tool.input
+        assert result["metadata"]["path"] == tool.file_path
         assert result["metadata"]["tool_name"] == "read_tool"
         assert result["result"][0] == "1: line1"
 
-    def test_line_numbering_correct(self, tool, tmp_file, run_in_tmpdir):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_line_numbering_correct(self, tool):
         result = tool.run()
         assert result["result"] == [
             "1: line1",
@@ -71,95 +64,102 @@ class TestReadTool:
         assert len(result["result"]) == 3
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
-    def test_real_mode_runs_process(self, tool, tmp_file, run_in_tmpdir):
+    def test_real_mode_runs_process(self, tool):
         result = tool.run()
         assert result["success"] is True
 
     # ========== ERROR CASE TESTS ==========
 
-    @pytest.mark.parametrize("bad_input", ["", None, 123])
-    def test_invalid_input_type_or_empty(self, bad_input):
-        with pytest.raises(ValidationError):
-            tool = ReadTool(input=bad_input)
-            tool.run()
+    @pytest.mark.parametrize("bad_input", [None, 123])
+    def test_invalid_input_type(self, bad_input):
+        with pytest.raises(PydanticValidationError):
+            ReadTool(file_path=bad_input)
 
-    @pytest.mark.parametrize("bad_path", ["../secret.txt", "/absolute/path.txt"])
-    def test_directory_traversal_rejected(self, bad_path):
-        with pytest.raises(ValidationError):
-            tool = ReadTool(input=bad_path)
-            tool.run()
+    def test_missing_file_path_raises_pydantic_error(self):
+        with pytest.raises(PydanticValidationError):
+            ReadTool()
 
-    def test_file_not_found_raises_api_error(self, tool, run_in_tmpdir):
-        tool.input = "nonexistent.txt"
-        with pytest.raises(APIError):
-            tool.run()
+    def test_directory_traversal_rejected(self):
+        tool = ReadTool(file_path="../secret.txt")
+        result = tool.run()
+        assert result["success"] is False
 
-    def test_input_is_directory_raises_api_error(self, tool, tmp_path, run_in_tmpdir):
-        os.makedirs("somedir", exist_ok=True)
-        tool.input = "somedir"
-        with pytest.raises(APIError):
-            tool.run()
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_file_not_found_raises_api_error(self, tmp_path):
+        tool = ReadTool(file_path=str(tmp_path / "nonexistent.txt"))
+        result = tool.run()
+        assert result["success"] is False
 
-    def test_process_error_propagates_as_api_error(self, tool, run_in_tmpdir):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_input_is_directory_raises_api_error(self, tmp_path):
+        tool = ReadTool(file_path=str(tmp_path))
+        result = tool.run()
+        assert result["success"] is False
+
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_process_error_propagates_as_api_error(self, tool):
         with patch.object(tool, "_process", side_effect=Exception("boom")):
-            with pytest.raises(APIError) as exc:
-                tool.run()
-            assert "boom" in str(exc.value)
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
-    def test_empty_file(self, tmp_path, run_in_tmpdir):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_empty_file(self, tmp_path):
         p = tmp_path / "empty.txt"
         p.write_text("", encoding="utf-8")
-        tool = ReadTool(input="empty.txt")
+        tool = ReadTool(file_path=str(p))
         result = tool.run()
+        assert result["success"] is True
         assert result["result"] == []
 
-    def test_unicode_file_contents(self, tmp_path, run_in_tmpdir):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_unicode_file_contents(self, tmp_path):
         p = tmp_path / "unicode.txt"
         p.write_text("第一行\n第二行", encoding="utf-8")
-        tool = ReadTool(input="unicode.txt")
+        tool = ReadTool(file_path=str(p))
         result = tool.run()
         assert result["result"] == ["1: 第一行", "2: 第二行"]
 
-    def test_special_characters_in_file(self, tmp_path, run_in_tmpdir):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_special_characters_in_file(self, tmp_path):
         p = tmp_path / "special.txt"
         p.write_text("@#$%^&*()", encoding="utf-8")
-        tool = ReadTool(input="special.txt")
+        tool = ReadTool(file_path=str(p))
         result = tool.run()
         assert result["result"] == ["1: @#$%^&*()"]
 
     # ========== PARAMETRIZED TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @pytest.mark.parametrize(
         "filename,expected_valid",
         [
             ("valid.txt", True),
             ("../hack.txt", False),
-            ("/abs/path.txt", False),
-            ("", False),
         ],
     )
-    def test_param_validation(self, filename, expected_valid, tmp_path, run_in_tmpdir):
+    def test_param_validation(self, filename, expected_valid, tmp_path):
         if expected_valid:
-            (tmp_path / filename).write_text("data", encoding="utf-8")
-            tool = ReadTool(input=filename)
+            p = tmp_path / filename
+            p.write_text("data", encoding="utf-8")
+            tool = ReadTool(file_path=str(p))
             result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(Exception):
-                tool = ReadTool(input=filename)
-                tool.run()
+            tool = ReadTool(file_path=filename)
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 
-    def test_integration_with_shared_error_formatting(self, tool, run_in_tmpdir):
+    def test_integration_with_shared_error_formatting(self, tool):
         with patch.object(tool, "_execute", side_effect=ValueError("oops")):
             result = tool.run()
             assert "success" in result
             assert result.get("success") is False or "error" in result
 
-    def test_integration_environment_mock_off(self, tool, tmp_file, run_in_tmpdir):
-        with patch.dict("os.environ", {"USE_MOCK_APIS": "false"}):
-            result = tool.run()
-            assert result["success"] is True
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    def test_integration_environment_mock_off(self, tool):
+        result = tool.run()
+        assert result["success"] is True

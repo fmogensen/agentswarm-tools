@@ -5,7 +5,11 @@ Read and analyze image content from URLs or AI Drive paths
 from typing import Any, Dict, Optional
 from pydantic import Field
 import os
-import requests
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
@@ -124,6 +128,12 @@ class UnderstandImages(BaseTool):
         Raises:
             APIError: If the image cannot be retrieved or processed
         """
+        if requests is None:
+            raise APIError(
+                "requests library is required. Install with: pip install requests",
+                tool_name=self.tool_name,
+            )
+
         try:
             # Simple retrieval for demonstration
             if self.media_url.startswith("aidrive://"):
@@ -172,3 +182,6 @@ if __name__ == "__main__":
     print(f"Success: {result.get('success')}")
     print(f"Description: {result.get('result', {}).get('description')}")
     print(f"Mock mode: {result.get('metadata', {}).get('mock_mode')}")
+    assert result.get("success") == True
+    assert "description" in result.get("result", {})
+    print("UnderstandImages test passed!")

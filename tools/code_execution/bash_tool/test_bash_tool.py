@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import subprocess
 import os
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.code_execution.bash_tool import BashTool
 from shared.errors import ValidationError, APIError
@@ -48,6 +49,7 @@ class TestBashTool:
 
     # ========== HAPPY PATH ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     @patch("subprocess.run")
     def test_execute_success(self, mock_run, tool: BashTool, mock_completed_process):
         mock_run.return_value = mock_completed_process
@@ -58,6 +60,7 @@ class TestBashTool:
         assert result["result"]["stdout"] == "hello\n"
         assert result["metadata"]["tool_name"] == "bash_tool"
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     @patch("subprocess.run")
     def test_process_called_correctly(
         self, mock_run, tool: BashTool, mock_completed_process
@@ -88,36 +91,44 @@ class TestBashTool:
 
     # ========== VALIDATION TESTS ==========
 
-    @pytest.mark.parametrize("bad_input", ["", "   "])
-    def test_empty_input_raises_validation_error(self, bad_input: str):
-        with pytest.raises(ValidationError):
-            tool = BashTool(input=bad_input)
-            tool.run()
+    def test_empty_input_raises_pydantic_error(self):
+        """Empty string is caught by Pydantic min_length."""
+        with pytest.raises(PydanticValidationError):
+            BashTool(input="")
+
+    def test_whitespace_input_raises_validation_error(self):
+        """Whitespace-only string passes Pydantic but fails tool validation."""
+        tool = BashTool(input="   ")
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize(
         "forbidden", ["rm -rf", "shutdown", "reboot", ":(){:|:&};:"]
     )
     def test_forbidden_commands_raise_error(self, forbidden: str):
-        with pytest.raises(ValidationError):
-            tool = BashTool(input=f"{forbidden} /tmp/test")
-            tool.run()
+        tool = BashTool(input=f"{forbidden} /tmp/test")
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== API ERROR TESTING ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     @patch("subprocess.run", side_effect=subprocess.TimeoutExpired(cmd="x", timeout=20))
     def test_timeout_raises_api_error(self, mock_run, tool: BashTool):
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     @patch("subprocess.run", side_effect=Exception("boom"))
     def test_execution_exception_raises_api_error(self, mock_run, tool: BashTool):
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     @patch.object(BashTool, "_process", side_effect=Exception("process failed"))
     def test_process_error_propagates(self, mock_proc, tool: BashTool):
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
@@ -141,8 +152,7 @@ class TestBashTool:
         [
             ("echo hi", True),
             ("a" * 5000, True),
-            ("", False),
-            ("   ", False),
+            ("   ", False),  # whitespace fails tool validation
             ("rm -rf /", False),
         ],
     )
@@ -151,9 +161,14 @@ class TestBashTool:
             tool = BashTool(input=input_value)
             assert tool.input == input_value
         else:
-            with pytest.raises(Exception):
-                tool = BashTool(input=input_value)
-                tool.run()
+            tool = BashTool(input=input_value)
+            result = tool.run()
+            assert result["success"] is False
+
+    def test_empty_string_param_raises_pydantic(self):
+        """Empty string is caught by Pydantic."""
+        with pytest.raises(PydanticValidationError):
+            BashTool(input="")
 
     # ========== INTEGRATION TESTS ==========
 

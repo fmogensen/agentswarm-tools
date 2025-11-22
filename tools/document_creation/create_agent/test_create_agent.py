@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch
 from typing import Dict, Any
 import os
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.document_creation.create_agent import CreateAgent
 from shared.errors import ValidationError, APIError
@@ -78,23 +79,27 @@ class TestCreateAgent:
     # ========== VALIDATION TESTS ==========
 
     def test_empty_input_raises_error(self):
-        with pytest.raises(ValidationError):
-            CreateAgent(input="").run()
+        # Empty string fails Pydantic min_length=1
+        with pytest.raises(PydanticValidationError):
+            CreateAgent(input="")
 
     def test_whitespace_input_raises_error(self):
-        with pytest.raises(ValidationError):
-            CreateAgent(input="   ").run()
+        # Whitespace passes Pydantic, fails custom validation at runtime
+        tool = CreateAgent(input="   ")
+        result = tool.run()
+        assert result["success"] is False
 
     def test_non_string_input_raises_error(self):
-        with pytest.raises(ValidationError):
-            CreateAgent(input=123).run()
+        with pytest.raises(PydanticValidationError):
+            CreateAgent(input=123)
 
     # ========== ERROR HANDLING TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_raises_api_error(self, tool: CreateAgent):
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASE TESTS ==========
 
@@ -117,23 +122,27 @@ class TestCreateAgent:
     # ========== PARAMETRIZED VALIDATION TESTS ==========
 
     @pytest.mark.parametrize(
-        "input_text,valid",
+        "input_text,valid,is_pydantic_error",
         [
-            ("valid text", True),
-            ("a" * 10000, True),
-            ("", False),
-            ("   ", False),
-            (123, False),
+            ("valid text", True, False),
+            ("a" * 10000, True, False),
+            ("", False, True),  # Empty string fails Pydantic min_length=1
+            ("   ", False, False),  # Whitespace passes Pydantic, fails custom validation
+            (123, False, True),  # Wrong type fails Pydantic
         ],
     )
-    def test_parameter_validation(self, input_text, valid):
+    def test_parameter_validation(self, input_text, valid, is_pydantic_error):
         if valid:
             tool = CreateAgent(input=input_text)
             result = tool.run()
             assert result["success"] is True
+        elif is_pydantic_error:
+            with pytest.raises(PydanticValidationError):
+                CreateAgent(input=input_text)
         else:
-            with pytest.raises(Exception):
-                CreateAgent(input=input_text).run()
+            tool = CreateAgent(input=input_text)
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTERNAL METHOD TESTS ==========
 

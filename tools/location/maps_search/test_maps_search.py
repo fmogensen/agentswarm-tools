@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.location.maps_search import MapsSearch
 from shared.errors import ValidationError, APIError
@@ -53,16 +54,16 @@ class TestMapsSearch:
     # ========== ERROR CASES ==========
 
     def test_validation_error_empty_query(self):
-        """Test validation errors for empty query."""
-        with pytest.raises(ValidationError):
-            tool = MapsSearch(query="", max_results=5)
-            tool.run()
+        """Test validation errors for empty query - fails Pydantic min_length=1."""
+        with pytest.raises(PydanticValidationError):
+            MapsSearch(query="", max_results=5)
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, valid_tool: MapsSearch):
         """Test API error handling."""
         with patch.object(valid_tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                valid_tool.run()
+            result = valid_tool.run()
+            assert result["success"] is False
 
     # ========== MOCK MODE ==========
 
@@ -87,12 +88,12 @@ class TestMapsSearch:
         assert tool.max_results == 50
 
         # Below minimum should fail Pydantic validation
-        with pytest.raises(Exception):
-            tool = MapsSearch(query="test", max_results=0)
+        with pytest.raises(PydanticValidationError):
+            MapsSearch(query="test", max_results=0)
 
         # Above maximum should fail Pydantic validation
-        with pytest.raises(Exception):
-            tool = MapsSearch(query="test", max_results=51)
+        with pytest.raises(PydanticValidationError):
+            MapsSearch(query="test", max_results=51)
 
     def test_unicode_query(self):
         """Test Unicode characters in query."""
@@ -116,24 +117,27 @@ class TestMapsSearch:
     # ========== PARAMETRIZED ==========
 
     @pytest.mark.parametrize(
-        "query,max_results,expected_valid",
+        "query,max_results,expected_valid,is_pydantic_error",
         [
-            ("valid query", 10, True),
-            ("a" * 500, 10, True),  # Max length
-            ("", 10, False),  # Empty query
-            ("test", 0, False),  # Invalid max_results
-            ("test", 51, False),  # Max_results too high
+            ("valid query", 10, True, False),
+            ("a" * 500, 10, True, False),  # Max length
+            ("", 10, False, True),  # Empty query - Pydantic min_length=1
+            ("test", 0, False, True),  # Invalid max_results - Pydantic
+            ("test", 51, False, True),  # Max_results too high - Pydantic
         ],
     )
     def test_parameter_validation(
-        self, query: str, max_results: int, expected_valid: bool
+        self, query: str, max_results: int, expected_valid: bool, is_pydantic_error: bool
     ):
         """Test parameter validation with various inputs."""
         if expected_valid:
             tool = MapsSearch(query=query, max_results=max_results)
             assert tool.query == query
             assert tool.max_results == max_results
+        elif is_pydantic_error:
+            with pytest.raises(PydanticValidationError):
+                MapsSearch(query=query, max_results=max_results)
         else:
-            with pytest.raises(Exception):
-                tool = MapsSearch(query=query, max_results=max_results)
-                tool.run()
+            tool = MapsSearch(query=query, max_results=max_results)
+            result = tool.run()
+            assert result["success"] is False

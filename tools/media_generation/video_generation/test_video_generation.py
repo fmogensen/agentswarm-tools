@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import time
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.media_generation.video_generation import VideoGeneration
 from shared.errors import ValidationError, APIError
@@ -71,35 +72,38 @@ class TestVideoGeneration:
     # ========== VALIDATION TESTS ==========
 
     def test_empty_prompt_validation(self):
-        with pytest.raises(ValidationError):
-            tool = VideoGeneration(prompt="   ", params={})
-            tool.run()
+        tool = VideoGeneration(prompt="   ", params={})
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize(
         "params",
         [
             123,
             "not a dict",
-            None,
         ],
     )
     def test_invalid_params_type(self, valid_prompt, params):
-        with pytest.raises(ValidationError):
-            tool = VideoGeneration(prompt=valid_prompt, params=params)
-            tool.run()
+        with pytest.raises(PydanticValidationError):
+            VideoGeneration(prompt=valid_prompt, params=params)
+
+    def test_invalid_params_none(self, valid_prompt):
+        with pytest.raises(PydanticValidationError):
+            VideoGeneration(prompt=valid_prompt, params=None)
 
     @pytest.mark.parametrize("duration", [0, 4, 11, -1, "ten"])
     def test_invalid_duration_values(self, valid_prompt, duration):
-        with pytest.raises(ValidationError):
-            tool = VideoGeneration(prompt=valid_prompt, params={"duration": duration})
-            tool.run()
+        tool = VideoGeneration(prompt=valid_prompt, params={"duration": duration})
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== API ERROR TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_propagation(self, tool: VideoGeneration):
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASE TESTS ==========
 
@@ -131,26 +135,29 @@ class TestVideoGeneration:
     # ========== PARAMETRIZED TESTS ==========
 
     @pytest.mark.parametrize(
-        "prompt,params,expected_valid",
+        "prompt,params,expected_valid,pydantic_fail",
         [
-            ("valid prompt", {"duration": 5}, True),
-            ("valid prompt", {"duration": 10}, True),
-            ("", {}, False),
-            (" ", {"duration": 7}, False),
-            ("valid prompt", {"duration": 11}, False),
-            ("valid prompt", {"duration": 4}, False),
+            ("valid prompt", {"duration": 5}, True, False),
+            ("valid prompt", {"duration": 10}, True, False),
+            ("", {}, False, True),
+            (" ", {"duration": 7}, False, False),
+            ("valid prompt", {"duration": 11}, False, False),
+            ("valid prompt", {"duration": 4}, False, False),
         ],
     )
-    def test_parameter_validation(self, prompt, params, expected_valid):
+    def test_parameter_validation(self, prompt, params, expected_valid, pydantic_fail):
         if expected_valid:
             tool = VideoGeneration(prompt=prompt, params=params)
             with patch("time.sleep", return_value=None):
                 result = tool.run()
             assert result["success"] is True
+        elif pydantic_fail:
+            with pytest.raises(PydanticValidationError):
+                VideoGeneration(prompt=prompt, params=params)
         else:
-            with pytest.raises(Exception):
-                tool = VideoGeneration(prompt=prompt, params=params)
-                tool.run()
+            tool = VideoGeneration(prompt=prompt, params=params)
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTERNAL METHOD TESTS ==========
 

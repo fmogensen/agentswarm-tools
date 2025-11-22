@@ -1,8 +1,11 @@
 """Tests for generate_histogram_chart tool."""
 
 import pytest
+import os
 from unittest.mock import patch
 import numpy as np
+
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.visualization.generate_histogram_chart import GenerateHistogramChart
 from shared.errors import ValidationError, APIError
@@ -66,24 +69,25 @@ class TestGenerateHistogramChart:
     def test_real_mode(self, tool):
         result = tool.run()
         assert result["success"] is True
-        assert "mock_mode" not in result["metadata"]
+        assert result["metadata"].get("mock_mode") is not True
 
     # ========== VALIDATION TESTS ==========
 
     def test_empty_prompt_raises_error(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateHistogramChart(prompt="", params={"data": [1, 2]})
-            tool.run()
+        """Empty prompt raises PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateHistogramChart(prompt="", params={"data": [1, 2]})
 
     def test_non_dict_params_raises_error(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateHistogramChart(prompt="test", params="not-a-dict")
-            tool.run()
+        """Non-dict params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateHistogramChart(prompt="test", params="not-a-dict")
 
     def test_missing_data_param_raises_error(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateHistogramChart(prompt="test", params={})
-            tool.run()
+        """Missing data param fails custom validation and returns error dict."""
+        tool = GenerateHistogramChart(prompt="test", params={})
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize(
         "bad_data",
@@ -95,40 +99,47 @@ class TestGenerateHistogramChart:
         ],
     )
     def test_invalid_data_types(self, bad_data):
-        with pytest.raises(ValidationError):
-            tool = GenerateHistogramChart(prompt="test", params={"data": bad_data})
-            tool.run()
+        """Invalid data types fail custom validation and return error dict."""
+        tool = GenerateHistogramChart(prompt="test", params={"data": bad_data})
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize("bins", [0, -1, 2.5, "ten"])
     def test_invalid_bins(self, bins):
-        with pytest.raises(ValidationError):
-            tool = GenerateHistogramChart(
-                prompt="test", params={"data": [1, 2, 3], "bins": bins}
-            )
-            tool.run()
+        """Invalid bins fail custom validation and return error dict."""
+        tool = GenerateHistogramChart(
+            prompt="test", params={"data": [1, 2, 3], "bins": bins}
+        )
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== ERROR CASES ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, tool):
+        """Process failure returns error dict."""
         with patch.object(tool, "_process", side_effect=Exception("Histogram failed")):
-            with pytest.raises(APIError) as exc:
-                tool.run()
-            assert "Failed" in str(exc.value)
+            result = tool.run()
+            assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_np_error(self):
+        """Numpy error returns error dict."""
         with patch("numpy.histogram", side_effect=Exception("np error")):
             tool = GenerateHistogramChart(prompt="test", params={"data": [1, 2, 3]})
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_single_value_data(self):
         tool = GenerateHistogramChart(prompt="test", params={"data": [5], "bins": 1})
         result = tool.run()
         assert result["success"] is True
         assert result["result"]["total_points"] == 1
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_large_dataset(self):
         data = list(range(10000))
         tool = GenerateHistogramChart(prompt="test", params={"data": data, "bins": 20})
@@ -136,6 +147,7 @@ class TestGenerateHistogramChart:
         assert result["success"] is True
         assert result["result"]["total_points"] == 10000
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_unicode_prompt(self):
         tool = GenerateHistogramChart(prompt="テスト", params={"data": [1, 2, 3]})
         result = tool.run()
@@ -144,28 +156,30 @@ class TestGenerateHistogramChart:
     # ========== PARAMETRIZED TESTS ==========
 
     @pytest.mark.parametrize(
-        "prompt,data,bins,valid",
+        "prompt,data,bins,valid,pydantic_error",
         [
-            ("ok", [1, 2, 3], 5, True),
-            ("ok", [1], None, True),
-            ("", [1, 2], 3, False),
-            ("ok", "not-list", 3, False),
-            ("ok", [1, 2], 0, False),
+            ("ok", [1, 2, 3], 5, True, False),
+            ("ok", [1], None, True, False),
+            ("", [1, 2], 3, False, True),
+            ("ok", "not-list", 3, False, False),
+            ("ok", [1, 2], 0, False, False),
         ],
     )
-    def test_param_validation(self, prompt, data, bins, valid):
+    def test_param_validation(self, prompt, data, bins, valid, pydantic_error):
         params = {"data": data}
         if bins is not None:
             params["bins"] = bins
 
-        if valid:
+        if pydantic_error:
+            with pytest.raises(PydanticValidationError):
+                GenerateHistogramChart(prompt=prompt, params=params)
+        else:
             tool = GenerateHistogramChart(prompt=prompt, params=params)
             result = tool.run()
-            assert result["success"] is True
-        else:
-            with pytest.raises(Exception):
-                tool = GenerateHistogramChart(prompt=prompt, params=params)
-                tool.run()
+            if valid:
+                assert result["success"] is True
+            else:
+                assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 

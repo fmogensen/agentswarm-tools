@@ -4,6 +4,7 @@ import pytest
 import json
 from unittest.mock import patch
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.communication.google_calendar_create_event_draft import (
     GoogleCalendarCreateEventDraft,
@@ -54,9 +55,9 @@ class TestGoogleCalendarCreateEventDraft:
     # ========== VALIDATION TESTS ==========
 
     def test_empty_input_raises_validation_error(self):
-        with pytest.raises(ValidationError):
-            tool = GoogleCalendarCreateEventDraft(input="")
-            tool.run()
+        tool = GoogleCalendarCreateEventDraft(input="")
+        result = tool.run()
+        assert result["success"] is False
 
     @pytest.mark.parametrize(
         "bad_input",
@@ -70,9 +71,9 @@ class TestGoogleCalendarCreateEventDraft:
         ],
     )
     def test_invalid_inputs_raise(self, bad_input):
-        with pytest.raises(ValidationError):
-            tool = GoogleCalendarCreateEventDraft(input=bad_input)
-            tool.run()
+        tool = GoogleCalendarCreateEventDraft(input=bad_input)
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== MOCK MODE ==========
 
@@ -91,15 +92,17 @@ class TestGoogleCalendarCreateEventDraft:
 
     # ========== ERROR CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_error_raises_api_error(self, tool: GoogleCalendarCreateEventDraft):
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_wraps_api_error(self, tool: GoogleCalendarCreateEventDraft):
         with patch.object(tool, "_process", side_effect=ValueError("boom")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== EDGE CASES ==========
 
@@ -149,9 +152,9 @@ class TestGoogleCalendarCreateEventDraft:
             result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(ValidationError):
-                tool = GoogleCalendarCreateEventDraft(input=input_str)
-                tool.run()
+            tool = GoogleCalendarCreateEventDraft(input=input_str)
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== INTEGRATION TESTS ==========
 

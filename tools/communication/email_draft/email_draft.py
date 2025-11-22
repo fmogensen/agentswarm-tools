@@ -75,15 +75,15 @@ class EmailDraft(BaseTool):
         if not self.input or not isinstance(self.input, str):
             raise ValidationError(
                 "Input must be a non-empty string",
+                field="input",
                 tool_name=self.tool_name,
-                details={"input": self.input},
             )
 
         if len(self.input.strip()) == 0:
             raise ValidationError(
                 "Input cannot be blank",
+                field="input",
                 tool_name=self.tool_name,
-                details={"input": self.input},
             )
 
     def _should_use_mock(self) -> bool:

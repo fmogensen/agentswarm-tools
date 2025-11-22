@@ -97,7 +97,12 @@ class ScholarSearch(BaseTool):
         return {
             "success": True,
             "result": mock_results,
-            "metadata": {"mock_mode": True, "tool_version": "1.0.0"},
+            "metadata": {
+                "mock_mode": True,
+                "tool_version": "1.0.0",
+                "query": self.query,
+                "max_results": self.max_results,
+            },
         }
 
     def _process(self) -> List[Dict[str, Any]]:

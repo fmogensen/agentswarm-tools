@@ -69,15 +69,15 @@ class ResourceDiscovery(BaseTool):
         if not self.input or not isinstance(self.input, str):
             raise ValidationError(
                 "Input must be a non-empty string",
+                field="input",
                 tool_name=self.tool_name,
-                details={"input": self.input},
             )
 
         if not (self.input.startswith("http://") or self.input.startswith("https://")):
             raise ValidationError(
                 "Input must be a valid URL starting with http:// or https://",
+                field="input",
                 tool_name=self.tool_name,
-                details={"input": self.input},
             )
 
     def _should_use_mock(self) -> bool:

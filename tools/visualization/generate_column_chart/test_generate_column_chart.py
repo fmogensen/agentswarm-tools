@@ -1,8 +1,11 @@
 """Tests for generate_column_chart tool."""
 
 import pytest
+import os
 from unittest.mock import patch
 from typing import Dict, Any
+
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.visualization.generate_column_chart import GenerateColumnChart
 from shared.errors import ValidationError, APIError
@@ -65,50 +68,82 @@ class TestGenerateColumnChart:
 
     # ========== VALIDATION ERROR CASES ==========
 
-    @pytest.mark.parametrize(
-        "prompt,params",
-        [
-            ("", {"categories": ["A"], "values": [1]}),  # Empty prompt
-            ("  ", {"categories": ["A"], "values": [1]}),  # Whitespace prompt
-            ("Hello", None),  # Params not dict
-            ("Hello", {}),  # Missing categories / values
-            ("Hello", {"categories": ["A"], "values": []}),  # Mismatched lengths
-            ("Hello", {"categories": "A", "values": [1]}),  # Not lists
-        ],
-    )
-    def test_validation_errors(self, prompt, params):
-        with pytest.raises(ValidationError):
-            tool = GenerateColumnChart(prompt=prompt, params=params)
-            tool.run()
+    def test_validation_error_empty_prompt(self):
+        """Empty prompt fails custom validation and returns error dict."""
+        tool = GenerateColumnChart(prompt="", params={"categories": ["A"], "values": [1]})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
+
+    def test_validation_error_whitespace_prompt(self):
+        """Whitespace prompt fails custom validation and returns error dict."""
+        tool = GenerateColumnChart(prompt="  ", params={"categories": ["A"], "values": [1]})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
+
+    def test_validation_error_params_none(self):
+        """None params raise PydanticValidationError during instantiation."""
+        with pytest.raises(PydanticValidationError):
+            GenerateColumnChart(prompt="Hello", params=None)
+
+    def test_validation_error_missing_categories_values(self):
+        """Missing categories/values fails custom validation and returns error dict."""
+        tool = GenerateColumnChart(prompt="Hello", params={})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
+
+    def test_validation_error_mismatched_lengths(self):
+        """Mismatched lengths fails custom validation and returns error dict."""
+        tool = GenerateColumnChart(prompt="Hello", params={"categories": ["A"], "values": []})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
+
+    def test_validation_error_not_lists(self):
+        """Non-list categories fails custom validation and returns error dict."""
+        tool = GenerateColumnChart(prompt="Hello", params={"categories": "A", "values": [1]})
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_mismatched_length_validation(self):
-        with pytest.raises(ValidationError):
-            tool = GenerateColumnChart(
-                prompt="Invalid", params={"categories": ["A", "B"], "values": [1]}
-            )
-            tool.run()
+        """Mismatched lengths fails custom validation and returns error dict."""
+        tool = GenerateColumnChart(
+            prompt="Invalid", params={"categories": ["A", "B"], "values": [1]}
+        )
+        result = tool.run()
+        assert result["success"] is False
+        assert result["error"]["code"] == "VALIDATION_ERROR"
 
     # ========== API ERROR HANDLING ==========
 
+    @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, tool: GenerateColumnChart):
+        """Process failure returns error dict with API_ERROR code."""
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
+            assert result["error"]["code"] == "API_ERROR"
 
     # ========== EDGE CASES ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_unicode_prompt(self, valid_params: Dict[str, Any]):
         tool = GenerateColumnChart(prompt="标题", params=valid_params)
         result = tool.run()
         assert result["success"] is True
         assert result["metadata"]["prompt"] == "标题"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_special_chars_prompt(self, valid_params: Dict[str, Any]):
         tool = GenerateColumnChart(prompt="@#$$% Chart!", params=valid_params)
         result = tool.run()
         assert result["success"] is True
         assert result["metadata"]["prompt"] == "@#$$% Chart!"
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_empty_style_and_config(self):
         tool = GenerateColumnChart(
             prompt="Test", params={"categories": ["A"], "values": [1], "title": "X"}
@@ -131,17 +166,17 @@ class TestGenerateColumnChart:
     )
     def test_categories_values_validation(self, categories, values, valid):
         params = {"categories": categories, "values": values}
-
+        tool = GenerateColumnChart(prompt="Test", params=params)
+        result = tool.run()
         if valid:
-            tool = GenerateColumnChart(prompt="Test", params=params)
-            result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(ValidationError):
-                tool = GenerateColumnChart(prompt="Test", params=params).run()
+            assert result["success"] is False
+            assert result["error"]["code"] == "VALIDATION_ERROR"
 
     # ========== INTEGRATION TESTS ==========
 
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_integration_full_workflow(self, valid_params: Dict[str, Any]):
         tool = GenerateColumnChart(prompt="Full Workflow", params=valid_params)
         result = tool.run()

@@ -93,43 +93,78 @@ class GeneratePieChart(BaseTool):
                 field="params"
             )
 
-        # Must include labels and values
+        # Accept either labels/values arrays OR data as list of {label, value} objects
+        data = self.params.get("data")
         labels = self.params.get("labels")
         values = self.params.get("values")
 
-        if labels is None or values is None:
+        if data is not None:
+            # New format: list of {label, value} objects
+            if not isinstance(data, list):
+                raise ValidationError(
+                    "'data' must be a list",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+            if len(data) == 0:
+                raise ValidationError(
+                    "'data' must not be empty",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+            if not all(isinstance(item, dict) and "label" in item and "value" in item for item in data):
+                raise ValidationError(
+                    "When 'data' is provided, each item must have 'label' and 'value' keys",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+            extracted_values = [item["value"] for item in data]
+            if not all(isinstance(x, (int, float)) for x in extracted_values):
+                raise ValidationError(
+                    "All values must be numeric",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+            if sum(extracted_values) <= 0:
+                raise ValidationError(
+                    "Sum of values must be greater than zero",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+        elif labels is not None and values is not None:
+            # Original format: separate labels and values arrays
+            if not isinstance(labels, list) or not isinstance(values, list):
+                raise ValidationError(
+                    "'labels' and 'values' must be lists",
+                    tool_name=self.tool_name,
+                    field="labels/values"
+                )
+
+            if len(labels) != len(values):
+                raise ValidationError(
+                    "'labels' and 'values' must have the same length",
+                    tool_name=self.tool_name,
+                    field="labels/values"
+                )
+
+            if not all(isinstance(x, (int, float)) for x in values):
+                raise ValidationError(
+                    "All values must be numeric",
+                    tool_name=self.tool_name,
+                    field="values"
+                )
+
+            if sum(values) <= 0:
+                raise ValidationError(
+                    "Sum of values must be greater than zero",
+                    tool_name=self.tool_name,
+                    field="values"
+                )
+        else:
             raise ValidationError(
-                "params must include 'labels' and 'values'",
+                "params must include either 'data' (list of {label, value}) or 'labels' and 'values'",
                 tool_name=self.tool_name,
                 field="params"
-            )
-
-        if not isinstance(labels, list) or not isinstance(values, list):
-            raise ValidationError(
-                "'labels' and 'values' must be lists",
-                tool_name=self.tool_name,
-                field="labels/values"
-            )
-
-        if len(labels) != len(values):
-            raise ValidationError(
-                "'labels' and 'values' must have the same length",
-                tool_name=self.tool_name,
-                field="labels/values"
-            )
-
-        if not all(isinstance(x, (int, float)) for x in values):
-            raise ValidationError(
-                "All values must be numeric",
-                tool_name=self.tool_name,
-                field="values"
-            )
-
-        if sum(values) <= 0:
-            raise ValidationError(
-                "Sum of values must be greater than zero",
-                tool_name=self.tool_name,
-                field="values"
             )
 
     def _should_use_mock(self) -> bool:
@@ -146,8 +181,15 @@ class GeneratePieChart(BaseTool):
 
     def _process(self) -> Any:
         """Main processing logic."""
-        labels = self.params["labels"]
-        values = self.params["values"]
+        # Handle both formats: data list or separate labels/values
+        data = self.params.get("data")
+        if data is not None:
+            labels = [item["label"] for item in data]
+            values = [item["value"] for item in data]
+        else:
+            labels = self.params["labels"]
+            values = self.params["values"]
+
         title = self.params.get("title", "Pie Chart")
         colors = self.params.get("colors")
 

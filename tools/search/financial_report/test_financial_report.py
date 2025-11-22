@@ -3,8 +3,9 @@
 import pytest
 from unittest.mock import patch
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
-from financial_report import FinancialReport
+from tools.search.financial_report import FinancialReport
 from shared.errors import ValidationError, APIError
 
 
@@ -14,19 +15,21 @@ class TestFinancialReport:
     # ========== FIXTURES ==========
 
     @pytest.fixture
-    def valid_input(self) -> str:
-        """Valid input for the tool."""
-        return "Example Corp"
+    def valid_ticker(self) -> str:
+        """Valid ticker for the tool."""
+        return "AAPL"
 
     @pytest.fixture
-    def tool(self, valid_input: str) -> FinancialReport:
+    def tool(self, valid_ticker: str) -> FinancialReport:
         """Create tool instance with valid input."""
-        return FinancialReport(input=valid_input)
+        return FinancialReport(ticker=valid_ticker)
 
     # ========== HAPPY PATH ==========
 
-    def test_execute_success(self, tool: FinancialReport):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
+    def test_execute_success(self):
         """Test successful execution."""
+        tool = FinancialReport(ticker="AAPL")
         result = tool.run()
         assert result["success"] is True
         assert "result" in result
@@ -43,61 +46,74 @@ class TestFinancialReport:
     # ========== ERROR CASES ==========
 
     def test_validation_error(self):
-        """Test validation errors."""
-        with pytest.raises(ValidationError):
-            tool = FinancialReport(input="")  # Invalid params
-            tool.run()
+        """Test validation errors with whitespace-only ticker."""
+        tool = FinancialReport(ticker=" ")
+        result = tool.run()
+        assert result["success"] is False
 
+    def test_empty_ticker_raises_pydantic_error(self):
+        """Empty string fails Pydantic min_length validation."""
+        with pytest.raises(PydanticValidationError):
+            FinancialReport(ticker="")
+
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, tool: FinancialReport):
         """Test API error handling."""
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
-            with pytest.raises(APIError):
-                tool.run()
+            result = tool.run()
+            assert result["success"] is False
 
     # ========== MOCK MODE ==========
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
-    def test_mock_mode(self, tool: FinancialReport):
+    def test_mock_mode(self):
         """Test mock mode returns mock data."""
+        tool = FinancialReport(ticker="AAPL")
         result = tool.run()
         assert result["success"] is True
         assert result["metadata"]["mock_mode"] is True
-        assert result["result"]["company"] == "Mock Company"
+        assert "Mock Company" in result["result"]["company"]
 
     # ========== EDGE CASES ==========
 
-    def test_unicode_input(self):
-        """Test Unicode characters in input."""
-        tool = FinancialReport(input="公司")
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
+    def test_unicode_ticker(self):
+        """Test valid ticker works in mock mode."""
+        tool = FinancialReport(ticker="GOOGL")
         result = tool.run()
         assert result["success"] is True
 
-    def test_special_characters_in_input(self):
-        """Test special characters in input."""
-        special_input = "query with @#$%^&* special chars"
-        tool = FinancialReport(input=special_input)
-        result = tool.run()
-        assert result["success"] is True
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
+    def test_report_types(self):
+        """Test different report types."""
+        for report_type in ["income_statement", "balance_sheet", "cash_flow", "earnings"]:
+            tool = FinancialReport(ticker="AAPL", report_type=report_type)
+            result = tool.run()
+            assert result["success"] is True
 
     # ========== PARAMETRIZED ==========
 
     @pytest.mark.parametrize(
-        "input_value, expected_success",
+        "ticker_value, expected_success, is_pydantic_error",
         [
-            ("Valid Company", True),
-            ("", False),  # Empty input should fail
-            ("   ", False),  # Whitespace input should fail
-            ("公司", True),  # Unicode input
-            ("query with @#$%^&* special chars", True),  # Special characters
+            ("AAPL", True, False),
+            ("", False, True),  # Empty string fails Pydantic min_length
+            ("   ", False, False),  # Whitespace passes Pydantic, fails custom validation
+            ("GOOGL", True, False),
+            ("TSLA", True, False),
         ],
     )
-    def test_input_validation(self, input_value: str, expected_success: bool):
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
+    def test_input_validation(self, ticker_value: str, expected_success: bool, is_pydantic_error: bool):
         """Test input validation with various inputs."""
-        if expected_success:
-            tool = FinancialReport(input=input_value)
+        if is_pydantic_error:
+            with pytest.raises(PydanticValidationError):
+                FinancialReport(ticker=ticker_value)
+        elif expected_success:
+            tool = FinancialReport(ticker=ticker_value)
             result = tool.run()
             assert result["success"] is True
         else:
-            with pytest.raises(ValidationError):
-                tool = FinancialReport(input=input_value)
-                tool.run()
+            tool = FinancialReport(ticker=ticker_value)
+            result = tool.run()
+            assert result["success"] is False

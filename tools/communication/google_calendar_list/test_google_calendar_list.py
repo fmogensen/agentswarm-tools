@@ -1,9 +1,11 @@
 """Tests for google_calendar_list tool."""
 
 import pytest
+from unittest.mock import patch
 from unittest.mock import Mock, patch, MagicMock
 import os
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.communication.google_calendar_list import GoogleCalendarList
 from shared.errors import ValidationError, APIError
@@ -77,11 +79,21 @@ class TestGoogleCalendarList:
 
     # ========== VALIDATION ERROR TESTS ==========
 
-    @pytest.mark.parametrize("bad_input", ["", " ", None])
-    def test_validation_error_invalid_input(self, bad_input):
-        with pytest.raises(ValidationError):
-            tool = GoogleCalendarList(input=bad_input)
-            tool.run()
+    @pytest.mark.parametrize("bad_input", [None])
+    def test_validation_error_invalid_input_type(self, bad_input):
+        with pytest.raises(PydanticValidationError):
+            GoogleCalendarList(input=bad_input)
+
+    @pytest.mark.parametrize("bad_input", [""])
+    def test_validation_error_invalid_input_empty(self, bad_input):
+        with pytest.raises(PydanticValidationError):
+            GoogleCalendarList(input=bad_input)
+
+    def test_validation_error_whitespace_runtime(self):
+        """Test that whitespace-only input fails at runtime validation."""
+        tool = GoogleCalendarList(input=" ")
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== MOCK MODE TESTS ==========
 
@@ -104,13 +116,13 @@ class TestGoogleCalendarList:
     )
     @patch.object(GoogleCalendarList, "_process", side_effect=Exception("API failed"))
     def test_api_error_handled(self, mock_process, tool: GoogleCalendarList):
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
-    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
+    @patch.dict("os.environ", {"USE_MOCK_APIS": "false"}, clear=True)
     def test_missing_env_variable_raises_error(self, tool: GoogleCalendarList):
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== IMPORT ERROR TESTS ==========
 
@@ -122,12 +134,12 @@ class TestGoogleCalendarList:
         },
     )
     @patch(
-        "tools.communication.google_calendar_list.service_account",
+        "google.oauth2.service_account.Credentials.from_service_account_file",
         side_effect=Exception("Import fail"),
     )
     def test_google_import_failure(self, mock_import, tool: GoogleCalendarList):
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+        assert result["success"] is False
 
     # ========== PARAMETRIZED TESTS ==========
 

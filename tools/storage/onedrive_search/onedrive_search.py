@@ -159,3 +159,20 @@ class OnedriveSearch(BaseTool):
             )
 
         return results
+
+
+if __name__ == "__main__":
+    # Test the tool
+    print("Testing OnedriveSearch...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = OnedriveSearch(query="test", max_results=5)
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Results count: {len(result.get('result', []))}")
+    assert result.get('success') == True
+    assert len(result.get('result', [])) == 5
+    print("All tests passed!")

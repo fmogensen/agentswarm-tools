@@ -80,13 +80,33 @@ class GenerateLineChart(BaseTool):
             )
 
         data = self.params.get("data")
-        if (
-            data is None
-            or not isinstance(data, list)
-            or not all(isinstance(x, (int, float)) for x in data)
-        ):
+        if data is None or not isinstance(data, list):
             raise ValidationError(
-                "Params must include 'data' as a list of numbers",
+                "Params must include 'data' as a list",
+                tool_name=self.tool_name,
+                field="data"
+            )
+
+        if len(data) == 0:
+            raise ValidationError(
+                "'data' must not be empty",
+                tool_name=self.tool_name,
+                field="data"
+            )
+
+        # Accept either list of numbers OR list of {x, y} objects
+        first_item = data[0]
+        if isinstance(first_item, dict):
+            # Validate list of {x, y} objects
+            if not all(isinstance(item, dict) and "x" in item and "y" in item for item in data):
+                raise ValidationError(
+                    "When 'data' contains objects, each must have 'x' and 'y' keys",
+                    tool_name=self.tool_name,
+                    field="data"
+                )
+        elif not all(isinstance(x, (int, float)) for x in data):
+            raise ValidationError(
+                "Params 'data' must be a list of numbers or list of {x, y} objects",
                 tool_name=self.tool_name,
                 field="data"
             )
@@ -116,14 +136,22 @@ class GenerateLineChart(BaseTool):
 
     def _process(self) -> Any:
         """Main processing logic."""
-        data = self.params.get("data")
+        raw_data = self.params.get("data")
         labels = self.params.get("labels")
         title = self.params.get("title", self.prompt)
+
+        # Handle both formats: list of numbers or list of {x, y} objects
+        if isinstance(raw_data[0], dict):
+            x_vals = [item["x"] for item in raw_data]
+            y_vals = [item["y"] for item in raw_data]
+        else:
+            x_vals = list(range(len(raw_data)))
+            y_vals = raw_data
 
         fig = None
         try:
             fig, ax = plt.subplots()
-            ax.plot(data, marker="o")
+            ax.plot(x_vals, y_vals, marker="o")
 
             if labels:
                 ax.set_xticks(range(len(labels)))
@@ -139,7 +167,7 @@ class GenerateLineChart(BaseTool):
 
             encoded = base64.b64encode(buffer.read()).decode("utf-8")
 
-            return {"image_base64": encoded, "data_points": len(data)}
+            return {"image_base64": encoded, "data_points": len(raw_data)}
 
         except Exception as e:
             raise APIError(f"Chart generation failed: {e}", tool_name=self.tool_name)

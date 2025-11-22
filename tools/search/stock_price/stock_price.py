@@ -109,3 +109,20 @@ class StockPrice(BaseTool):
             }
         except requests.RequestException as e:
             raise APIError(f"API request failed: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    # Test the tool
+    print("Testing StockPrice...")
+
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = StockPrice(ticker="AAPL")
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result: {result.get('result')}")
+    assert result.get('success') == True
+    assert result.get('result', {}).get('symbol') == "AAPL"
+    print("All tests passed!")

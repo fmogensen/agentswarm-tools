@@ -88,34 +88,56 @@ class GenerateAreaChart(BaseTool):
                 field="params",
             )
 
-        # Expected keys: x and y arrays for area chart
-        if "x" not in self.params or "y" not in self.params:
-            raise ValidationError(
-                "Params must include 'x' and 'y' arrays",
-                tool_name=self.tool_name,
-                field="params",
-            )
-
+        # Accept either x/y arrays OR data as list of {x, y} objects
+        data = self.params.get("data")
         x = self.params.get("x")
         y = self.params.get("y")
 
-        if not isinstance(x, list) or not isinstance(y, list):
-            raise ValidationError(
-                "'x' and 'y' must be lists",
-                tool_name=self.tool_name,
-                field="x/y",
-            )
+        if data is not None:
+            # New format: list of {x, y} objects
+            if not isinstance(data, list):
+                raise ValidationError(
+                    "'data' must be a list",
+                    tool_name=self.tool_name,
+                    field="data",
+                )
+            if len(data) == 0:
+                raise ValidationError(
+                    "'data' must not be empty",
+                    tool_name=self.tool_name,
+                    field="data",
+                )
+            if not all(isinstance(item, dict) and "x" in item and "y" in item for item in data):
+                raise ValidationError(
+                    "When 'data' is provided, each item must have 'x' and 'y' keys",
+                    tool_name=self.tool_name,
+                    field="data",
+                )
+        elif x is not None and y is not None:
+            # Original format: separate x and y arrays
+            if not isinstance(x, list) or not isinstance(y, list):
+                raise ValidationError(
+                    "'x' and 'y' must be lists",
+                    tool_name=self.tool_name,
+                    field="x/y",
+                )
 
-        if len(x) != len(y):
-            raise ValidationError(
-                "'x' and 'y' must be the same length",
-                tool_name=self.tool_name,
-                field="x/y",
-            )
+            if len(x) != len(y):
+                raise ValidationError(
+                    "'x' and 'y' must be the same length",
+                    tool_name=self.tool_name,
+                    field="x/y",
+                )
 
-        if len(x) == 0:
+            if len(x) == 0:
+                raise ValidationError(
+                    "'x' and 'y' must not be empty", tool_name=self.tool_name
+                )
+        else:
             raise ValidationError(
-                "'x' and 'y' must not be empty", tool_name=self.tool_name
+                "Params must include either 'data' (list of {x, y}) or 'x' and 'y' arrays",
+                tool_name=self.tool_name,
+                field="params",
             )
 
     def _should_use_mock(self) -> bool:
@@ -144,8 +166,14 @@ class GenerateAreaChart(BaseTool):
             Dict containing chart data
         """
         try:
-            x = self.params["x"]
-            y = self.params["y"]
+            # Handle both formats: data list or separate x/y arrays
+            data = self.params.get("data")
+            if data is not None:
+                x = [item["x"] for item in data]
+                y = [item["y"] for item in data]
+            else:
+                x = self.params["x"]
+                y = self.params["y"]
 
             chart_data = {
                 "chart_type": "area",
