@@ -13,6 +13,7 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock, mock_open
 from typing import Dict, Any
 import os
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.infrastructure.execution.bash_tool.bash_tool import BashTool
 from tools.infrastructure.execution.read_tool.read_tool import ReadTool
@@ -49,9 +50,8 @@ class TestBashTool:
 
     def test_validate_parameters_empty_command(self):
         """Test validation with empty command"""
-        tool = BashTool(command="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            BashTool(command="")
 
     def test_validate_parameters_whitespace_command(self):
         """Test validation with whitespace only command"""
@@ -135,9 +135,8 @@ class TestReadTool:
 
     def test_validate_parameters_empty_path(self):
         """Test validation with empty file path"""
-        tool = ReadTool(file_path="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            ReadTool(file_path="")
 
     @patch("builtins.open", new_callable=mock_open, read_data="file content")
     def test_execute_live_mode_success(self, mock_file, monkeypatch):
@@ -199,9 +198,8 @@ class TestWriteTool:
 
     def test_validate_parameters_empty_path(self):
         """Test validation with empty file path"""
-        tool = WriteTool(file_path="", content="test")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            WriteTool(file_path="", content="test")
 
     def test_validate_parameters_empty_content(self):
         """Test validation with empty content"""
@@ -330,9 +328,8 @@ class TestDownloadFileWrapperTool:
 
     def test_validate_parameters_empty_url(self):
         """Test validation with empty URL"""
-        tool = DownloadFileWrapperTool(url="", destination="/test.txt")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            DownloadFileWrapperTool(url="", destination="/test.txt")
 
     def test_validate_parameters_invalid_url(self):
         """Test validation with invalid URL"""
@@ -342,9 +339,8 @@ class TestDownloadFileWrapperTool:
 
     def test_validate_parameters_empty_destination(self):
         """Test validation with empty destination"""
-        tool = DownloadFileWrapperTool(url="https://example.com/file.txt", destination="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            DownloadFileWrapperTool(url="https://example.com/file.txt", destination="")
 
     @patch("tools.infrastructure.execution.downloadfilewrapper_tool.downloadfilewrapper_tool.requests.get")
     @patch("builtins.open", new_callable=mock_open)

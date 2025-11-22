@@ -11,6 +11,7 @@ Tests all storage tools:
 import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.infrastructure.storage.aidrive_tool.aidrive_tool import AIDriveTool
 from tools.infrastructure.storage.file_format_converter.file_format_converter import FileFormatConverter
@@ -91,9 +92,8 @@ class TestAIDriveTool:
 
     def test_validate_parameters_empty_path(self):
         """Test validation with empty path"""
-        tool = AIDriveTool(action="list", path="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            AIDriveTool(action="list", path="")
 
     def test_validate_parameters_upload_missing_content(self):
         """Test validation for upload without content"""
@@ -163,15 +163,13 @@ class TestFileFormatConverter:
 
     def test_validate_parameters_empty_source(self):
         """Test validation with empty source file"""
-        tool = FileFormatConverter(source_file="", target_format="pdf", task_summary="Test")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            FileFormatConverter(source_file="", target_format="pdf", task_summary="Test")
 
     def test_validate_parameters_empty_target_format(self):
         """Test validation with empty target format"""
-        tool = FileFormatConverter(source_file="test.doc", target_format="", task_summary="Test")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            FileFormatConverter(source_file="test.doc", target_format="", task_summary="Test")
 
     def test_validate_parameters_unsupported_format(self):
         """Test validation with unsupported format"""
@@ -252,13 +250,12 @@ class TestOneDriveSearch:
 
     def test_validate_parameters_empty_query(self):
         """Test validation with empty query"""
-        tool = OneDriveSearch(query="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            OneDriveSearch(query="")
 
     def test_validate_parameters_invalid_max_results(self):
         """Test validation with invalid max_results"""
-        with pytest.raises(ValidationError):
+        with pytest.raises(PydanticValidationError):
             OneDriveSearch(query="test", max_results=0)
 
     @patch("tools.infrastructure.storage.onedrive_search.onedrive_search.requests.get")
@@ -327,9 +324,8 @@ class TestOneDriveFileRead:
 
     def test_validate_parameters_empty_file_id(self):
         """Test validation with empty file ID"""
-        tool = OneDriveFileRead(file_id="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            OneDriveFileRead(file_id="")
 
     @patch("tools.infrastructure.storage.onedrive_file_read.onedrive_file_read.requests.get")
     def test_execute_live_mode_success(self, mock_get, monkeypatch):

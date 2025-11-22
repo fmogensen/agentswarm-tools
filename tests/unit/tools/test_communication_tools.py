@@ -13,6 +13,7 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
 from datetime import datetime
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.communication.gmail_search.gmail_search import GmailSearch
 from tools.communication.gmail_read.gmail_read import GmailRead
@@ -66,9 +67,8 @@ class TestGmailSearch:
 
     def test_validate_parameters_empty_query(self):
         """Test validation with empty query"""
-        tool = GmailSearch(query="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            GmailSearch(query="")
 
     @patch("tools.communication.gmail_search.gmail_search.build")
     def test_execute_live_mode_success(self, mock_build, monkeypatch):
@@ -116,9 +116,8 @@ class TestGmailRead:
 
     def test_validate_parameters_empty_message_id(self):
         """Test validation with empty message ID"""
-        tool = GmailRead(message_id="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            GmailRead(message_id="")
 
 
 # ========== ReadEmailAttachments Tests ==========
@@ -178,9 +177,8 @@ class TestEmailDraft:
 
     def test_validate_parameters_empty_subject(self):
         """Test validation with empty subject"""
-        tool = EmailDraft(to="test@example.com", subject="", body="Body")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            EmailDraft(to="test@example.com", subject="", body="Body")
 
 
 # ========== EmailSend Tests ==========
@@ -286,11 +284,10 @@ class TestGoogleCalendarCreateEventDraft:
 
     def test_validate_parameters_empty_summary(self):
         """Test validation with empty summary"""
-        tool = GoogleCalendarCreateEventDraft(
-            summary="", start_time="2025-01-15T10:00:00Z", end_time="2025-01-15T11:00:00Z"
-        )
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            GoogleCalendarCreateEventDraft(
+                summary="", start_time="2025-01-15T10:00:00Z", end_time="2025-01-15T11:00:00Z"
+            )
 
 
 # ========== GoogleCalendarUpdateEvent Tests ==========
@@ -462,9 +459,8 @@ class TestSlackSendMessage:
 
     def test_validate_parameters_empty_message(self):
         """Test validation with empty message"""
-        tool = SlackSendMessage(channel="#general", message="")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            SlackSendMessage(channel="#general", message="")
 
 
 # ========== SlackReadMessages Tests ==========

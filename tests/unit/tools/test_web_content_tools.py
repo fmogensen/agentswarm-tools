@@ -11,6 +11,7 @@ Tests all web content tools:
 import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
+from pydantic import ValidationError as PydanticValidationError
 
 from tools.content.web.crawler.crawler import Crawler
 from tools.content.web.summarize_large_document.summarize_large_document import (
@@ -30,23 +31,21 @@ class TestCrawler:
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = Crawler(url="https://example.com", max_depth=2, max_pages=10)
+        tool = Crawler(url="https://example.com", max_depth=2)
         assert tool.url == "https://example.com"
         assert tool.max_depth == 2
-        assert tool.max_pages == 10
         assert tool.tool_name == "crawler"
 
     def test_initialization_with_defaults(self):
         """Test initialization with default parameters"""
         tool = Crawler(url="https://example.com")
         assert tool.url == "https://example.com"
-        assert tool.max_depth == 1  # Default value
-        assert tool.max_pages == 50  # Default value
+        assert tool.max_depth == 0  # Default value
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = Crawler(url="https://example.com", max_depth=1, max_pages=5)
+        tool = Crawler(url="https://example.com", max_depth=1)
         result = tool.run()
 
         assert result["success"] is True
@@ -66,39 +65,54 @@ class TestCrawler:
             tool._validate_parameters()
 
     def test_validate_parameters_invalid_max_depth(self):
-        """Test validation with invalid max_depth"""
-        with pytest.raises(ValidationError):
-            Crawler(url="https://example.com", max_depth=0)
+        """Test validation with invalid max_depth (out of range)"""
+        with pytest.raises(PydanticValidationError):
+            Crawler(url="https://example.com", max_depth=-1)
 
-    def test_validate_parameters_invalid_max_pages(self):
-        """Test validation with invalid max_pages"""
-        with pytest.raises(ValidationError):
-            Crawler(url="https://example.com", max_pages=0)
+        with pytest.raises(PydanticValidationError):
+            Crawler(url="https://example.com", max_depth=5)  # Max is 3
 
+    @patch("shared.base.get_rate_limiter")
     @patch("tools.content.web.crawler.crawler.requests.get")
-    def test_execute_live_mode_success(self, mock_get, monkeypatch):
+    def test_execute_live_mode_success(self, mock_get, mock_rate_limiter, monkeypatch):
         """Test execution with mocked HTTP requests"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
 
+        # Mock rate limiter to allow requests
+        mock_limiter = MagicMock()
+        mock_limiter.check_rate_limit = MagicMock()  # No-op
+        mock_rate_limiter.return_value = mock_limiter
+
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.text = "<html><body><a href='/page1'>Link</a></body></html>"
+        mock_response.content = b"<html><body><a href='/page1'>Link</a></body></html>"  # BeautifulSoup needs content
+        mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
 
-        tool = Crawler(url="https://example.com", max_depth=1, max_pages=2)
+        tool = Crawler(url="https://example.com", max_depth=1)
         result = tool.run()
 
         assert result["success"] is True
 
+    @patch("shared.base.get_rate_limiter")
     @patch("tools.content.web.crawler.crawler.requests.get")
-    def test_api_error_handling_network_failure(self, mock_get, monkeypatch):
+    def test_api_error_handling_network_failure(self, mock_get, mock_rate_limiter, monkeypatch):
         """Test handling of network failures"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
+
+        # Mock rate limiter to allow requests
+        mock_limiter = MagicMock()
+        mock_limiter.check_rate_limit = MagicMock()
+        mock_rate_limiter.return_value = mock_limiter
+
         mock_get.side_effect = Exception("Connection error")
 
         tool = Crawler(url="https://example.com")
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+
+        # Tool returns error response instead of raising after retries
+        assert result["success"] is False
+        assert "error" in result
 
     def test_edge_case_https_and_http(self, monkeypatch):
         """Test handling of both HTTP and HTTPS URLs"""
@@ -120,17 +134,16 @@ class TestSummarizeLargeDocument:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = SummarizeLargeDocument(
-            document_url="https://example.com/document.pdf", summary_length="medium"
+            input="https://example.com/document.pdf"
         )
-        assert tool.document_url == "https://example.com/document.pdf"
-        assert tool.summary_length == "medium"
+        assert tool.input == "https://example.com/document.pdf"
         assert tool.tool_name == "summarize_large_document"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = SummarizeLargeDocument(
-            document_url="https://example.com/doc.pdf", summary_length="short"
+            input="https://example.com/doc.pdf"
         )
         result = tool.run()
 
@@ -140,59 +153,39 @@ class TestSummarizeLargeDocument:
 
     def test_validate_parameters_empty_url(self):
         """Test validation with empty document URL"""
-        tool = SummarizeLargeDocument(document_url="", summary_length="medium")
+        tool = SummarizeLargeDocument(input="")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_invalid_url(self):
         """Test validation with invalid URL"""
-        tool = SummarizeLargeDocument(document_url="invalid-url", summary_length="medium")
+        tool = SummarizeLargeDocument(input="invalid-url")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    def test_validate_parameters_invalid_summary_length(self):
-        """Test validation with invalid summary length"""
-        tool = SummarizeLargeDocument(
-            document_url="https://example.com/doc.pdf", summary_length="invalid"
-        )
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
-
+    @patch("shared.base.get_rate_limiter")
     @patch("tools.content.web.summarize_large_document.summarize_large_document.requests.get")
-    @patch("tools.content.web.summarize_large_document.summarize_large_document.requests.post")
-    def test_execute_live_mode_success(self, mock_post, mock_get, monkeypatch):
+    def test_execute_live_mode_success(self, mock_get, mock_rate_limiter, monkeypatch):
         """Test execution with mocked API calls"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
-        monkeypatch.setenv("SUMMARIZATION_API_KEY", "test_key")
+
+        # Mock rate limiter to allow requests
+        mock_limiter = MagicMock()
+        mock_limiter.check_rate_limit = MagicMock()
+        mock_rate_limiter.return_value = mock_limiter
 
         # Mock document download
         mock_get_response = MagicMock()
-        mock_get_response.content = b"Long document content here..."
+        mock_get_response.text = "Long document content here..."
+        mock_get_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_get_response
 
-        # Mock summarization API
-        mock_post_response = MagicMock()
-        mock_post_response.json.return_value = {"summary": "This is a summary of the document."}
-        mock_post.return_value = mock_post_response
-
         tool = SummarizeLargeDocument(
-            document_url="https://example.com/doc.pdf", summary_length="short"
+            input="https://example.com/doc.pdf"
         )
         result = tool.run()
 
         assert result["success"] is True
-
-    def test_edge_case_different_summary_lengths(self, monkeypatch):
-        """Test different summary length options"""
-        monkeypatch.setenv("USE_MOCK_APIS", "true")
-        lengths = ["short", "medium", "long"]
-
-        for length in lengths:
-            tool = SummarizeLargeDocument(
-                document_url="https://example.com/doc.pdf", summary_length=length
-            )
-            result = tool.run()
-            assert result["success"] is True
 
 
 # ========== UrlMetadata Tests ==========
@@ -229,42 +222,52 @@ class TestUrlMetadata:
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
-    @patch("tools.content.web.url_metadata.url_metadata.requests.get")
-    def test_execute_live_mode_success(self, mock_get, monkeypatch):
+    @patch("shared.base.get_rate_limiter")
+    @patch("tools.content.web.url_metadata.url_metadata.requests.head")
+    def test_execute_live_mode_success(self, mock_head, mock_rate_limiter, monkeypatch):
         """Test execution with mocked HTTP request"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
 
+        # Mock rate limiter to allow requests
+        mock_limiter = MagicMock()
+        mock_limiter.check_rate_limit = MagicMock()
+        mock_rate_limiter.return_value = mock_limiter
+
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.text = """
-        <html>
-        <head>
-            <title>Example Page</title>
-            <meta name="description" content="This is an example page">
-            <meta property="og:image" content="https://example.com/image.jpg">
-        </head>
-        </html>
-        """
-        mock_get.return_value = mock_response
+        mock_response.headers = {
+            "Content-Type": "text/html",
+            "Content-Length": "1024",
+            "Content-Disposition": 'attachment; filename="example.html"'
+        }
+        mock_response.raise_for_status = MagicMock()
+        mock_head.return_value = mock_response
 
         tool = UrlMetadata(url="https://example.com")
         result = tool.run()
 
         assert result["success"] is True
 
-    @patch("tools.content.web.url_metadata.url_metadata.requests.get")
-    def test_api_error_handling_not_found(self, mock_get, monkeypatch):
+    @patch("shared.base.get_rate_limiter")
+    @patch("tools.content.web.url_metadata.url_metadata.requests.head")
+    def test_api_error_handling_not_found(self, mock_head, mock_rate_limiter, monkeypatch):
         """Test handling of 404 errors"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
 
-        mock_response = MagicMock()
-        mock_response.status_code = 404
-        mock_response.raise_for_status.side_effect = Exception("Not found")
-        mock_get.return_value = mock_response
+        # Mock rate limiter to allow requests
+        mock_limiter = MagicMock()
+        mock_limiter.check_rate_limit = MagicMock()
+        mock_rate_limiter.return_value = mock_limiter
+
+        import requests
+        mock_head.side_effect = requests.RequestException("Not found")
 
         tool = UrlMetadata(url="https://example.com/nonexistent")
-        with pytest.raises(APIError):
-            tool.run()
+        result = tool.run()
+
+        # Tool returns error response instead of raising after retries
+        assert result["success"] is False
+        assert "error" in result
 
     def test_edge_case_urls_with_parameters(self, monkeypatch):
         """Test URLs with query parameters"""
@@ -290,24 +293,15 @@ class TestWebpageCaptureScreen:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = WebpageCaptureScreen(
-            url="https://example.com", width=1920, height=1080, task_summary="Capture homepage"
+            input="https://example.com"
         )
-        assert tool.url == "https://example.com"
-        assert tool.width == 1920
-        assert tool.height == 1080
+        assert str(tool.input) == "https://example.com/"  # HttpUrl adds trailing slash
         assert tool.tool_name == "webpage_capture_screen"
-
-    def test_initialization_with_defaults(self):
-        """Test initialization with default parameters"""
-        tool = WebpageCaptureScreen(url="https://example.com", task_summary="Test")
-        assert tool.url == "https://example.com"
-        assert tool.width == 1280  # Default value
-        assert tool.height == 720  # Default value
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = WebpageCaptureScreen(url="https://example.com", task_summary="Test capture")
+        tool = WebpageCaptureScreen(input="https://example.com")
         result = tool.run()
 
         assert result["success"] is True
@@ -315,71 +309,32 @@ class TestWebpageCaptureScreen:
         assert result["metadata"]["mock_mode"] is True
 
     def test_validate_parameters_empty_url(self):
-        """Test validation with empty URL"""
-        tool = WebpageCaptureScreen(url="", task_summary="Test")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        """Test validation with empty URL - Pydantic validates at init"""
+        with pytest.raises(PydanticValidationError):
+            WebpageCaptureScreen(input="")
 
     def test_validate_parameters_invalid_url(self):
         """Test validation with invalid URL"""
-        tool = WebpageCaptureScreen(url="not-a-url", task_summary="Test")
-        with pytest.raises(ValidationError):
-            tool._validate_parameters()
+        with pytest.raises(PydanticValidationError):
+            WebpageCaptureScreen(input="not-a-url")
 
-    def test_validate_parameters_invalid_dimensions(self):
-        """Test validation with invalid dimensions"""
-        with pytest.raises(ValidationError):
-            WebpageCaptureScreen(
-                url="https://example.com", width=0, height=1080, task_summary="Test"
-            )
-
-        with pytest.raises(ValidationError):
-            WebpageCaptureScreen(
-                url="https://example.com", width=1920, height=0, task_summary="Test"
-            )
-
-    @patch("tools.content.web.webpage_capture_screen.webpage_capture_screen.requests.post")
-    def test_execute_live_mode_success(self, mock_post, monkeypatch):
-        """Test execution with mocked screenshot API"""
+    @patch("shared.base.get_rate_limiter")
+    @patch("tools.content.web.webpage_capture_screen.webpage_capture_screen.webdriver.Chrome")
+    def test_execute_live_mode_success(self, mock_chrome, mock_rate_limiter, monkeypatch):
+        """Test execution with mocked Chrome webdriver"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
-        monkeypatch.setenv("SCREENSHOT_API_KEY", "test_key")
 
-        mock_response = MagicMock()
-        mock_response.json.return_value = {"screenshot_url": "https://example.com/screenshot.png"}
-        mock_post.return_value = mock_response
+        # Mock rate limiter to allow requests
+        mock_limiter = MagicMock()
+        mock_limiter.check_rate_limit = MagicMock()
+        mock_rate_limiter.return_value = mock_limiter
 
-        tool = WebpageCaptureScreen(url="https://example.com", task_summary="Test")
-        result = tool.run()
+        mock_driver = MagicMock()
+        mock_driver.save_screenshot = MagicMock()
+        mock_driver.quit = MagicMock()
+        mock_chrome.return_value = mock_driver
 
-        assert result["success"] is True
-
-    def test_edge_case_various_screen_sizes(self, monkeypatch):
-        """Test various screen dimensions"""
-        monkeypatch.setenv("USE_MOCK_APIS", "true")
-        dimensions = [
-            (1920, 1080),  # Full HD
-            (1366, 768),  # Common laptop
-            (375, 667),  # Mobile (iPhone)
-            (768, 1024),  # Tablet
-            (3840, 2160),  # 4K
-        ]
-
-        for width, height in dimensions:
-            tool = WebpageCaptureScreen(
-                url="https://example.com", width=width, height=height, task_summary="Test"
-            )
-            result = tool.run()
-            assert result["success"] is True
-
-    def test_edge_case_full_page_capture(self, monkeypatch):
-        """Test full page screenshot (scrolling capture)"""
-        monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = WebpageCaptureScreen(
-            url="https://example.com/long-page",
-            width=1920,
-            height=10000,  # Very tall for full page
-            task_summary="Full page capture",
-        )
+        tool = WebpageCaptureScreen(input="https://example.com")
         result = tool.run()
 
         assert result["success"] is True
