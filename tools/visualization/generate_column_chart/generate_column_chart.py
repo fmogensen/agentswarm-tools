@@ -181,3 +181,23 @@ class GenerateColumnChart(BaseTool):
             return chart_spec
         except Exception as exc:
             raise APIError(f"Chart generation failed: {exc}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateColumnChart(
+        prompt="Quarterly Sales Performance",
+        params={"data": [
+            {"label": "Q1", "value": 100},
+            {"label": "Q2", "value": 120},
+            {"label": "Q3", "value": 90},
+            {"label": "Q4", "value": 150}
+        ]}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

@@ -99,3 +99,17 @@ class WebpageCaptureScreen(BaseTool):
             raise APIError(
                 f"Failed to capture screenshot: {e}", tool_name=self.tool_name
             )
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = WebpageCaptureScreen(
+        input="https://example.com"
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

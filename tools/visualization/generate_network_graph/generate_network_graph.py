@@ -174,3 +174,25 @@ class GenerateNetworkGraph(BaseTool):
             raise APIError(
                 f"Failed to construct network graph: {e}", tool_name=self.tool_name
             )
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateNetworkGraph(
+        prompt="Team Collaboration Network",
+        params={
+            "entities": ["Alice", "Bob", "Charlie", "Diana"],
+            "relationships": [
+                {"source": "Alice", "target": "Bob", "type": "collaborates_with"},
+                {"source": "Bob", "target": "Charlie", "type": "reports_to"},
+                {"source": "Charlie", "target": "Diana", "type": "mentors"}
+            ]
+        }
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

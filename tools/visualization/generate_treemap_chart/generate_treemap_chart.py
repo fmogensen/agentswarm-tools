@@ -186,3 +186,27 @@ class GenerateTreemapChart(BaseTool):
             ]
 
         return normalized
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateTreemapChart(
+        prompt="Company Budget Breakdown",
+        params={"data": {
+            "name": "Total Budget",
+            "value": 1000,
+            "children": [
+                {"name": "Engineering", "value": 400},
+                {"name": "Marketing", "value": 300},
+                {"name": "Operations", "value": 200},
+                {"name": "Admin", "value": 100}
+            ]
+        }}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

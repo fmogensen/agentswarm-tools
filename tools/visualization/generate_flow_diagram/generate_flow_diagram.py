@@ -173,3 +173,18 @@ class GenerateFlowDiagram(BaseTool):
             )
 
         return steps
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateFlowDiagram(
+        prompt="Order Processing -> Payment Verification -> Shipping -> Delivery",
+        params={}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

@@ -134,3 +134,24 @@ class GenerateRadarChart(BaseTool):
             results.append({"axis": key, "angle": angle, "radius": radius})
 
         return {"points": results, "dimension_count": dim_count, "normalized": True}
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateRadarChart(
+        prompt="Performance Metrics Analysis",
+        params={"data": {
+            "Speed": 85,
+            "Quality": 90,
+            "Cost": 70,
+            "Reliability": 95,
+            "Innovation": 80
+        }}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

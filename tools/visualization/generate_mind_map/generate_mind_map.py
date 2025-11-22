@@ -164,3 +164,18 @@ class GenerateMindMap(BaseTool):
             raise
         except Exception as e:
             raise APIError(f"Mind map generation failed: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateMindMap(
+        prompt="Product Development\nFeatures: User Auth, Dashboard, Analytics\nTesting: Unit, Integration, E2E",
+        params={}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

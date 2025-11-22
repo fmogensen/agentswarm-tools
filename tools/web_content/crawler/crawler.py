@@ -125,3 +125,18 @@ class Crawler(BaseTool):
             raise APIError(f"HTTP request failed: {e}", tool_name=self.tool_name)
         except Exception as e:
             raise APIError(f"Failed to process the URL: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = Crawler(
+        url="https://example.com",
+        max_depth=1
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

@@ -185,3 +185,18 @@ class GenerateBarChart(BaseTool):
         finally:
             if fig is not None:
                 plt.close(fig)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateBarChart(
+        prompt="Sales by Region",
+        params={"data": {"North": 45, "South": 32, "East": 38, "West": 50}}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

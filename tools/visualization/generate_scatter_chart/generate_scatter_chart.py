@@ -204,3 +204,23 @@ class GenerateScatterChart(BaseTool):
         finally:
             if fig is not None:
                 plt.close(fig)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateScatterChart(
+        prompt="Temperature vs Sales Correlation",
+        params={"data": [
+            {"x": 20, "y": 100},
+            {"x": 25, "y": 150},
+            {"x": 30, "y": 200},
+            {"x": 35, "y": 180}
+        ]}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

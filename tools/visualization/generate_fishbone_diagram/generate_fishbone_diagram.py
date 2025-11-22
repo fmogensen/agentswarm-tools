@@ -165,3 +165,18 @@ class GenerateFishboneDiagram(BaseTool):
             ]
 
         return diagram
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateFishboneDiagram(
+        prompt="Customer Complaints Increase",
+        params={"format": "text", "max_branches": 4}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

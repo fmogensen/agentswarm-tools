@@ -217,3 +217,22 @@ class GeneratePieChart(BaseTool):
         finally:
             if fig is not None:
                 plt.close(fig)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GeneratePieChart(
+        prompt="Market Share Distribution",
+        params={"data": [
+            {"label": "Product A", "value": 40},
+            {"label": "Product B", "value": 35},
+            {"label": "Product C", "value": 25}
+        ]}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

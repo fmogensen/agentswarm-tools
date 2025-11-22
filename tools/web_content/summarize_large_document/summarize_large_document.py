@@ -114,3 +114,17 @@ class SummarizeLargeDocument(BaseTool):
 
         except requests.RequestException as e:
             raise APIError(f"Error fetching document: {e}", tool_name=self.tool_name)
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = SummarizeLargeDocument(
+        input="https://example.com/document.pdf"
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

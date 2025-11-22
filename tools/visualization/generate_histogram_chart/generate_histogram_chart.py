@@ -144,3 +144,18 @@ class GenerateHistogramChart(BaseTool):
             "counts": counts.tolist(),
             "total_points": len(data),
         }
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateHistogramChart(
+        prompt="Age Distribution Analysis",
+        params={"data": [22, 25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50, 52, 55], "bins": 5}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")

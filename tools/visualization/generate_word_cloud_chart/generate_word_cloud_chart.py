@@ -129,3 +129,18 @@ class GenerateWordCloudChart(BaseTool):
             raise APIError(
                 f"Word cloud generation failed: {e}", tool_name=self.tool_name
             )
+
+
+if __name__ == "__main__":
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = GenerateWordCloudChart(
+        prompt="cloud computing data analytics machine learning artificial intelligence big data python programming",
+        params={"width": 800, "height": 400, "background_color": "white"}
+    )
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    assert result.get('success') == True, "Tool execution failed"
+    print(f"Result: {result.get('result')}")
