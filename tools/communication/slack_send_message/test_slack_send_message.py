@@ -15,10 +15,7 @@ class TestSlackSendMessage:
 
     def test_basic_message(self):
         """Test sending basic message."""
-        tool = SlackSendMessage(
-            channel="#general",
-            text="Hello Slack!"
-        )
+        tool = SlackSendMessage(channel="#general", text="Hello Slack!")
         result = tool.run()
 
         assert result["success"] == True
@@ -28,9 +25,7 @@ class TestSlackSendMessage:
     def test_thread_reply(self):
         """Test replying in thread."""
         tool = SlackSendMessage(
-            channel="#general",
-            text="Thread reply",
-            thread_ts="1234567890.123456"
+            channel="#general", text="Thread reply", thread_ts="1234567890.123456"
         )
         result = tool.run()
 
@@ -39,42 +34,28 @@ class TestSlackSendMessage:
 
     def test_custom_username(self):
         """Test custom username."""
-        tool = SlackSendMessage(
-            channel="#general",
-            text="Message",
-            username="CustomBot"
-        )
+        tool = SlackSendMessage(channel="#general", text="Message", username="CustomBot")
         result = tool.run()
 
         assert result["success"] == True
 
     def test_custom_emoji(self):
         """Test custom emoji icon."""
-        tool = SlackSendMessage(
-            channel="#general",
-            text="Message",
-            icon_emoji=":robot_face:"
-        )
+        tool = SlackSendMessage(channel="#general", text="Message", icon_emoji=":robot_face:")
         result = tool.run()
 
         assert result["success"] == True
 
     def test_channel_id_format(self):
         """Test channel ID format."""
-        tool = SlackSendMessage(
-            channel="C1234567890",
-            text="Message by channel ID"
-        )
+        tool = SlackSendMessage(channel="C1234567890", text="Message by channel ID")
         result = tool.run()
 
         assert result["success"] == True
 
     def test_dm_channel(self):
         """Test direct message channel."""
-        tool = SlackSendMessage(
-            channel="D1234567890",
-            text="Direct message"
-        )
+        tool = SlackSendMessage(channel="D1234567890", text="Direct message")
         result = tool.run()
 
         assert result["success"] == True
@@ -82,36 +63,24 @@ class TestSlackSendMessage:
     def test_validation_empty_channel(self):
         """Test validation for empty channel."""
         with pytest.raises(ValidationError):
-            tool = SlackSendMessage(
-                channel="",
-                text="Message"
-            )
+            tool = SlackSendMessage(channel="", text="Message")
             tool.run()
 
     def test_validation_empty_text(self):
         """Test validation for empty text."""
         with pytest.raises(ValidationError):
-            tool = SlackSendMessage(
-                channel="#general",
-                text=""
-            )
+            tool = SlackSendMessage(channel="#general", text="")
             tool.run()
 
     def test_validation_invalid_channel_format(self):
         """Test validation for invalid channel format."""
         with pytest.raises(ValidationError):
-            tool = SlackSendMessage(
-                channel="invalid-channel",
-                text="Message"
-            )
+            tool = SlackSendMessage(channel="invalid-channel", text="Message")
             tool.run()
 
     def test_mock_mode(self):
         """Test mock mode returns expected structure."""
-        tool = SlackSendMessage(
-            channel="#general",
-            text="Test"
-        )
+        tool = SlackSendMessage(channel="#general", text="Test")
         result = tool.run()
 
         assert result["metadata"]["mock_mode"] == True

@@ -34,9 +34,7 @@ class Crawler(BaseTool):
     # Tool metadata
     tool_name: str = "crawler"
     tool_category: str = "content"
-    tool_description: str = (
-        "Retrieve and convert content from URLs into readable format"
-    )
+    tool_description: str = "Retrieve and convert content from URLs into readable format"
 
     # Parameters
     url: str = Field(..., description="URL to crawl and extract content from")
@@ -117,7 +115,9 @@ class Crawler(BaseTool):
                 "max_depth": self.max_depth,
                 "content": text_content[:5000],  # Limit content size
                 "title": title,
-                "links": links[:20] if self.max_depth > 0 else [],  # Only include links if crawling deeper
+                "links": (
+                    links[:20] if self.max_depth > 0 else []
+                ),  # Only include links if crawling deeper
             }
 
             return result
@@ -129,14 +129,12 @@ class Crawler(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = Crawler(
-        url="https://example.com",
-        max_depth=1
-    )
+    tool = Crawler(url="https://example.com", max_depth=1)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

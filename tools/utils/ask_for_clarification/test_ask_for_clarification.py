@@ -31,10 +31,7 @@ class TestAskForClarification:
         assert tool.tool_category == "utils"
 
     def test_metadata_correct(self, tool: AskForClarification):
-        assert (
-            tool.tool_description
-            == "Request additional information from user when needed"
-        )
+        assert tool.tool_description == "Request additional information from user when needed"
 
     # ========== HAPPY PATH TESTS ==========
 
@@ -86,9 +83,7 @@ class TestAskForClarification:
 
     # ========== PARAMETRIZED TESTS ==========
 
-    @pytest.mark.parametrize(
-        "question", ["Hello?", "¿Cómo estás?", "Name @#$?", "a" * 200]
-    )
+    @pytest.mark.parametrize("question", ["Hello?", "¿Cómo estás?", "Name @#$?", "a" * 200])
     def test_valid_questions(self, question):
         tool = AskForClarification(question=question)
         result = tool.run()

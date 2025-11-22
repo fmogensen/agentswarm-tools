@@ -35,9 +35,7 @@ class GenerateHistogramChart(BaseTool):
     tool_category: str = "visualization"
 
     # Parameters
-    prompt: str = Field(
-        ..., description="Description of what to generate", min_length=1
-    )
+    prompt: str = Field(..., description="Description of what to generate", min_length=1)
     params: Dict[str, Any] = Field(
         default_factory=dict, description="Additional generation parameters"
     )
@@ -92,9 +90,7 @@ class GenerateHistogramChart(BaseTool):
                 details={"params": self.params},
             )
 
-        if not isinstance(data, list) or not all(
-            isinstance(x, (int, float)) for x in data
-        ):
+        if not isinstance(data, list) or not all(isinstance(x, (int, float)) for x in data):
             raise ValidationError(
                 "Data must be a list of numbers",
                 tool_name=self.tool_name,
@@ -135,9 +131,7 @@ class GenerateHistogramChart(BaseTool):
         try:
             counts, bin_edges = np.histogram(data, bins=bins)
         except Exception as e:
-            raise APIError(
-                f"Histogram generation failed: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Histogram generation failed: {e}", tool_name=self.tool_name)
 
         return {
             "bins": bin_edges.tolist(),
@@ -148,14 +142,15 @@ class GenerateHistogramChart(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateHistogramChart(
         prompt="Age Distribution Analysis",
-        params={"data": [22, 25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50, 52, 55], "bins": 5}
+        params={"data": [22, 25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50, 52, 55], "bins": 5},
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

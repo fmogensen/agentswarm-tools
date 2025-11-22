@@ -134,10 +134,7 @@ class GmailRead(BaseTool):
             service = build("gmail", "v1", credentials=creds)
 
             msg = (
-                service.users()
-                .messages()
-                .get(userId="me", id=self.input, format="full")
-                .execute()
+                service.users().messages().get(userId="me", id=self.input, format="full").execute()
             )
 
             snippet = msg.get("snippet", "")
@@ -185,6 +182,7 @@ if __name__ == "__main__":
     print("Testing GmailRead...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Read email by message ID
@@ -192,9 +190,9 @@ if __name__ == "__main__":
     tool = GmailRead(input="17ab3e1c9b2a4567")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'subject' in result.get('result', {})
-    assert 'body' in result.get('result', {})
+    assert result.get("success") == True
+    assert "subject" in result.get("result", {})
+    assert "body" in result.get("result", {})
     print(f"✅ Test 1 passed: Email retrieved successfully")
     print(f"   Subject: {result.get('result', {}).get('subject')}")
     print(f"   Snippet: {result.get('result', {}).get('snippet')}")
@@ -204,8 +202,8 @@ if __name__ == "__main__":
     tool = GmailRead(input="18xyz9876543def")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert result.get('metadata', {}).get('message_id') == "18xyz9876543def"
+    assert result.get("success") == True
+    assert result.get("metadata", {}).get("message_id") == "18xyz9876543def"
     print(f"✅ Test 2 passed: Different email retrieved")
 
     # Test 3: Validation - empty message ID
@@ -222,7 +220,7 @@ if __name__ == "__main__":
     tool = GmailRead(input="test123")
     result = tool.run()
 
-    assert result.get('result', {}).get('mock') == True
+    assert result.get("result", {}).get("mock") == True
     print(f"✅ Test 4 passed: Mock mode working correctly")
 
     print("\n✅ All tests passed!")

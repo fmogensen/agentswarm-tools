@@ -107,7 +107,9 @@ class GenerateColumnChart(BaseTool):
                     tool_name=self.tool_name,
                     field="data",
                 )
-            if not all(isinstance(item, dict) and "label" in item and "value" in item for item in data):
+            if not all(
+                isinstance(item, dict) and "label" in item and "value" in item for item in data
+            ):
                 raise ValidationError(
                     "When 'data' is provided, each item must have 'label' and 'value' keys",
                     tool_name=self.tool_name,
@@ -185,19 +187,22 @@ class GenerateColumnChart(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateColumnChart(
         prompt="Quarterly Sales Performance",
-        params={"data": [
-            {"label": "Q1", "value": 100},
-            {"label": "Q2", "value": 120},
-            {"label": "Q3", "value": 90},
-            {"label": "Q4", "value": 150}
-        ]}
+        params={
+            "data": [
+                {"label": "Q1", "value": 100},
+                {"label": "Q2", "value": 120},
+                {"label": "Q3", "value": 90},
+                {"label": "Q4", "value": 150},
+            ]
+        },
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

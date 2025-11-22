@@ -42,28 +42,16 @@ class BatchProcessor(BaseTool):
     tool_category: str = "utils"
 
     # Parameters
-    items: List[Any] = Field(
-        ...,
-        description="List of items to process",
-        min_items=1
-    )
+    items: List[Any] = Field(..., description="List of items to process", min_items=1)
     operation: str = Field(
-        ...,
-        description="Operation to perform: transform, filter, validate, aggregate, count"
+        ..., description="Operation to perform: transform, filter, validate, aggregate, count"
     )
     operation_config: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Configuration for the operation (e.g., {'method': 'uppercase'})"
+        None, description="Configuration for the operation (e.g., {'method': 'uppercase'})"
     )
-    batch_size: int = Field(
-        10,
-        description="Number of items to process per batch",
-        ge=1,
-        le=100
-    )
+    batch_size: int = Field(10, description="Number of items to process per batch", ge=1, le=100)
     continue_on_error: bool = Field(
-        True,
-        description="Whether to continue processing if an item fails"
+        True, description="Whether to continue processing if an item fails"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -87,8 +75,8 @@ class BatchProcessor(BaseTool):
                     "operation": self.operation,
                     "total_items": len(self.items),
                     "batch_size": self.batch_size,
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"Batch processing failed: {e}", tool_name=self.tool_name)
@@ -101,15 +89,11 @@ class BatchProcessor(BaseTool):
             raise ValidationError(
                 f"operation must be one of {valid_operations}",
                 tool_name=self.tool_name,
-                field="operation"
+                field="operation",
             )
 
         if not self.items or len(self.items) == 0:
-            raise ValidationError(
-                "items cannot be empty",
-                tool_name=self.tool_name,
-                field="items"
-            )
+            raise ValidationError("items cannot be empty", tool_name=self.tool_name, field="items")
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode enabled."""
@@ -120,18 +104,20 @@ class BatchProcessor(BaseTool):
         return {
             "success": True,
             "result": {
-                "processed_items": ["[MOCK] processed_item_" + str(i) for i in range(min(5, len(self.items)))],
+                "processed_items": [
+                    "[MOCK] processed_item_" + str(i) for i in range(min(5, len(self.items)))
+                ],
                 "total_processed": len(self.items),
                 "successful": len(self.items),
                 "failed": 0,
                 "batches_completed": (len(self.items) + self.batch_size - 1) // self.batch_size,
-                "processing_time_ms": 100.0
+                "processing_time_ms": 100.0,
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
-                "operation": self.operation
-            }
+                "operation": self.operation,
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -171,7 +157,7 @@ class BatchProcessor(BaseTool):
             "errors": errors,
             "batches_completed": min(batch_idx + 1, num_batches),
             "total_batches": num_batches,
-            "processing_time_ms": round(processing_time_ms, 2)
+            "processing_time_ms": round(processing_time_ms, 2),
         }
 
     def _process_batch(self, batch: List[Any], start_idx: int) -> Dict[str, Any]:
@@ -186,17 +172,15 @@ class BatchProcessor(BaseTool):
                 processed.append(result)
             except Exception as e:
                 failed.append(item)
-                errors.append({
-                    "item_index": start_idx + idx,
-                    "item": str(item)[:100],  # Limit item representation
-                    "error": str(e)
-                })
+                errors.append(
+                    {
+                        "item_index": start_idx + idx,
+                        "item": str(item)[:100],  # Limit item representation
+                        "error": str(e),
+                    }
+                )
 
-        return {
-            "processed": processed,
-            "failed": failed,
-            "errors": errors
-        }
+        return {"processed": processed, "failed": failed, "errors": errors}
 
     def _process_item(self, item: Any) -> Any:
         """Process a single item based on operation."""
@@ -242,7 +226,7 @@ class BatchProcessor(BaseTool):
             if method == "double":
                 return item * 2
             elif method == "square":
-                return item ** 2
+                return item**2
             elif method == "negate":
                 return -item
 
@@ -271,11 +255,7 @@ class BatchProcessor(BaseTool):
 
     def _validate_item(self, item: Any) -> Dict[str, Any]:
         """Validate an item and return validation result."""
-        validation_result = {
-            "item": item,
-            "valid": True,
-            "errors": []
-        }
+        validation_result = {"item": item, "valid": True, "errors": []}
 
         if not self.operation_config:
             return validation_result
@@ -289,23 +269,31 @@ class BatchProcessor(BaseTool):
                 expected_type = rule.get("expected_type")
                 if expected_type == "string" and not isinstance(item, str):
                     validation_result["valid"] = False
-                    validation_result["errors"].append(f"Expected string, got {type(item).__name__}")
+                    validation_result["errors"].append(
+                        f"Expected string, got {type(item).__name__}"
+                    )
 
                 elif expected_type == "number" and not isinstance(item, (int, float)):
                     validation_result["valid"] = False
-                    validation_result["errors"].append(f"Expected number, got {type(item).__name__}")
+                    validation_result["errors"].append(
+                        f"Expected number, got {type(item).__name__}"
+                    )
 
             elif rule_type == "min_length" and isinstance(item, str):
                 min_len = rule.get("value", 0)
                 if len(item) < min_len:
                     validation_result["valid"] = False
-                    validation_result["errors"].append(f"Length {len(item)} is less than minimum {min_len}")
+                    validation_result["errors"].append(
+                        f"Length {len(item)} is less than minimum {min_len}"
+                    )
 
             elif rule_type == "max_length" and isinstance(item, str):
-                max_len = rule.get("value", float('inf'))
+                max_len = rule.get("value", float("inf"))
                 if len(item) > max_len:
                     validation_result["valid"] = False
-                    validation_result["errors"].append(f"Length {len(item)} exceeds maximum {max_len}")
+                    validation_result["errors"].append(
+                        f"Length {len(item)} exceeds maximum {max_len}"
+                    )
 
         if not validation_result["valid"]:
             raise ValueError(f"Validation failed: {validation_result['errors']}")
@@ -323,10 +311,10 @@ if __name__ == "__main__":
         items=["item1", "item2", "item3", "item4", "item5"],
         operation="transform",
         operation_config={"method": "uppercase"},
-        batch_size=2
+        batch_size=2,
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True
+    assert result.get("success") == True
     print("BatchProcessor test passed!")

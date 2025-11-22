@@ -98,9 +98,7 @@ class TestMapsSearch:
     def test_unicode_query(self):
         """Test Unicode characters in query."""
         tool = MapsSearch(query="日本", max_results=5)
-        with patch.object(
-            tool, "_process", return_value=tool._generate_mock_results()["result"]
-        ):
+        with patch.object(tool, "_process", return_value=tool._generate_mock_results()["result"]):
             result = tool.run()
             assert result["success"] is True
 
@@ -108,9 +106,7 @@ class TestMapsSearch:
         """Test special characters in query."""
         special_query = "query with @#$%^&* special chars"
         tool = MapsSearch(query=special_query, max_results=5)
-        with patch.object(
-            tool, "_process", return_value=tool._generate_mock_results()["result"]
-        ):
+        with patch.object(tool, "_process", return_value=tool._generate_mock_results()["result"]):
             result = tool.run()
             assert result["success"] is True
 

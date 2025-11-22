@@ -19,21 +19,32 @@ from tools.visualization.generate_pie_chart.generate_pie_chart import GeneratePi
 from tools.visualization.generate_scatter_chart.generate_scatter_chart import GenerateScatterChart
 from tools.visualization.generate_area_chart.generate_area_chart import GenerateAreaChart
 from tools.visualization.generate_column_chart.generate_column_chart import GenerateColumnChart
-from tools.visualization.generate_dual_axes_chart.generate_dual_axes_chart import GenerateDualAxesChart
-from tools.visualization.generate_fishbone_diagram.generate_fishbone_diagram import GenerateFishboneDiagram
+from tools.visualization.generate_dual_axes_chart.generate_dual_axes_chart import (
+    GenerateDualAxesChart,
+)
+from tools.visualization.generate_fishbone_diagram.generate_fishbone_diagram import (
+    GenerateFishboneDiagram,
+)
 from tools.visualization.generate_flow_diagram.generate_flow_diagram import GenerateFlowDiagram
-from tools.visualization.generate_histogram_chart.generate_histogram_chart import GenerateHistogramChart
+from tools.visualization.generate_histogram_chart.generate_histogram_chart import (
+    GenerateHistogramChart,
+)
 from tools.visualization.generate_mind_map.generate_mind_map import GenerateMindMap
 from tools.visualization.generate_network_graph.generate_network_graph import GenerateNetworkGraph
 from tools.visualization.generate_radar_chart.generate_radar_chart import GenerateRadarChart
 from tools.visualization.generate_treemap_chart.generate_treemap_chart import GenerateTreemapChart
-from tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart import GenerateWordCloudChart
-from tools.visualization.generate_organization_chart.generate_organization_chart import GenerateOrganizationChart
+from tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart import (
+    GenerateWordCloudChart,
+)
+from tools.visualization.generate_organization_chart.generate_organization_chart import (
+    GenerateOrganizationChart,
+)
 
 from shared.errors import ValidationError, APIError
 
 
 # ========== GenerateLineChart Tests ==========
+
 
 class TestGenerateLineChart:
     """Comprehensive tests for GenerateLineChart tool"""
@@ -41,12 +52,7 @@ class TestGenerateLineChart:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         data = [{"x": 1, "y": 10}, {"x": 2, "y": 20}, {"x": 3, "y": 15}]
-        tool = GenerateLineChart(
-            data=data,
-            title="Sales Over Time",
-            width=800,
-            height=600
-        )
+        tool = GenerateLineChart(data=data, title="Sales Over Time", width=800, height=600)
         assert tool.data == data
         assert tool.title == "Sales Over Time"
         assert tool.width == 800
@@ -79,6 +85,7 @@ class TestGenerateLineChart:
 
 # ========== GenerateBarChart Tests ==========
 
+
 class TestGenerateBarChart:
     """Comprehensive tests for GenerateBarChart tool"""
 
@@ -102,6 +109,7 @@ class TestGenerateBarChart:
 
 
 # ========== GeneratePieChart Tests ==========
+
 
 class TestGeneratePieChart:
     """Comprehensive tests for GeneratePieChart tool"""
@@ -134,6 +142,7 @@ class TestGeneratePieChart:
 
 # ========== GenerateScatterChart Tests ==========
 
+
 class TestGenerateScatterChart:
     """Comprehensive tests for GenerateScatterChart tool"""
 
@@ -157,6 +166,7 @@ class TestGenerateScatterChart:
 
 
 # ========== GenerateAreaChart Tests ==========
+
 
 class TestGenerateAreaChart:
     """Comprehensive tests for GenerateAreaChart tool"""
@@ -182,6 +192,7 @@ class TestGenerateAreaChart:
 
 # ========== GenerateColumnChart Tests ==========
 
+
 class TestGenerateColumnChart:
     """Comprehensive tests for GenerateColumnChart tool"""
 
@@ -206,6 +217,7 @@ class TestGenerateColumnChart:
 
 # ========== GenerateDualAxesChart Tests ==========
 
+
 class TestGenerateDualAxesChart:
     """Comprehensive tests for GenerateDualAxesChart tool"""
 
@@ -213,7 +225,7 @@ class TestGenerateDualAxesChart:
         """Test successful tool initialization"""
         data = {
             "primary": [{"x": 1, "y": 10}, {"x": 2, "y": 20}],
-            "secondary": [{"x": 1, "y": 100}, {"x": 2, "y": 200}]
+            "secondary": [{"x": 1, "y": 100}, {"x": 2, "y": 200}],
         }
         tool = GenerateDualAxesChart(data=data, title="Dual Axes Chart")
         assert tool.data == data
@@ -223,10 +235,7 @@ class TestGenerateDualAxesChart:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        data = {
-            "primary": [{"x": 1, "y": 5}],
-            "secondary": [{"x": 1, "y": 50}]
-        }
+        data = {"primary": [{"x": 1, "y": 5}], "secondary": [{"x": 1, "y": 50}]}
         tool = GenerateDualAxesChart(data=data, title="Test Dual")
         result = tool.run()
 
@@ -235,6 +244,7 @@ class TestGenerateDualAxesChart:
 
 
 # ========== GenerateFishboneDiagram Tests ==========
+
 
 class TestGenerateFishboneDiagram:
     """Comprehensive tests for GenerateFishboneDiagram tool"""
@@ -245,8 +255,8 @@ class TestGenerateFishboneDiagram:
             "problem": "Low Sales",
             "causes": {
                 "Marketing": ["Poor ads", "Low budget"],
-                "Product": ["Quality issues", "High price"]
-            }
+                "Product": ["Quality issues", "High price"],
+            },
         }
         tool = GenerateFishboneDiagram(data=data, title="Root Cause Analysis")
         assert tool.data == data
@@ -266,6 +276,7 @@ class TestGenerateFishboneDiagram:
 
 # ========== GenerateFlowDiagram Tests ==========
 
+
 class TestGenerateFlowDiagram:
     """Comprehensive tests for GenerateFlowDiagram tool"""
 
@@ -273,7 +284,7 @@ class TestGenerateFlowDiagram:
         """Test successful tool initialization"""
         data = {
             "nodes": [{"id": "1", "label": "Start"}, {"id": "2", "label": "Process"}],
-            "edges": [{"from": "1", "to": "2"}]
+            "edges": [{"from": "1", "to": "2"}],
         }
         tool = GenerateFlowDiagram(data=data, title="Process Flow")
         assert tool.data == data
@@ -283,10 +294,7 @@ class TestGenerateFlowDiagram:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        data = {
-            "nodes": [{"id": "A", "label": "Node A"}],
-            "edges": []
-        }
+        data = {"nodes": [{"id": "A", "label": "Node A"}], "edges": []}
         tool = GenerateFlowDiagram(data=data, title="Test Flow")
         result = tool.run()
 
@@ -295,6 +303,7 @@ class TestGenerateFlowDiagram:
 
 
 # ========== GenerateHistogramChart Tests ==========
+
 
 class TestGenerateHistogramChart:
     """Comprehensive tests for GenerateHistogramChart tool"""
@@ -321,6 +330,7 @@ class TestGenerateHistogramChart:
 
 # ========== GenerateMindMap Tests ==========
 
+
 class TestGenerateMindMap:
     """Comprehensive tests for GenerateMindMap tool"""
 
@@ -330,8 +340,8 @@ class TestGenerateMindMap:
             "central": "Project",
             "branches": [
                 {"label": "Planning", "children": ["Timeline", "Budget"]},
-                {"label": "Execution", "children": ["Tasks", "Resources"]}
-            ]
+                {"label": "Execution", "children": ["Tasks", "Resources"]},
+            ],
         }
         tool = GenerateMindMap(data=data, title="Project Mind Map")
         assert tool.data == data
@@ -341,10 +351,7 @@ class TestGenerateMindMap:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        data = {
-            "central": "Main",
-            "branches": [{"label": "Branch1", "children": []}]
-        }
+        data = {"central": "Main", "branches": [{"label": "Branch1", "children": []}]}
         tool = GenerateMindMap(data=data, title="Test Mind Map")
         result = tool.run()
 
@@ -354,6 +361,7 @@ class TestGenerateMindMap:
 
 # ========== GenerateNetworkGraph Tests ==========
 
+
 class TestGenerateNetworkGraph:
     """Comprehensive tests for GenerateNetworkGraph tool"""
 
@@ -361,7 +369,7 @@ class TestGenerateNetworkGraph:
         """Test successful tool initialization"""
         data = {
             "nodes": [{"id": "1", "label": "Node 1"}, {"id": "2", "label": "Node 2"}],
-            "edges": [{"source": "1", "target": "2", "weight": 1}]
+            "edges": [{"source": "1", "target": "2", "weight": 1}],
         }
         tool = GenerateNetworkGraph(data=data, title="Network Diagram")
         assert tool.data == data
@@ -371,10 +379,7 @@ class TestGenerateNetworkGraph:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        data = {
-            "nodes": [{"id": "A", "label": "A"}],
-            "edges": []
-        }
+        data = {"nodes": [{"id": "A", "label": "A"}], "edges": []}
         tool = GenerateNetworkGraph(data=data, title="Test Network")
         result = tool.run()
 
@@ -384,6 +389,7 @@ class TestGenerateNetworkGraph:
 
 # ========== GenerateRadarChart Tests ==========
 
+
 class TestGenerateRadarChart:
     """Comprehensive tests for GenerateRadarChart tool"""
 
@@ -392,7 +398,7 @@ class TestGenerateRadarChart:
         data = [
             {"axis": "Speed", "value": 80},
             {"axis": "Reliability", "value": 90},
-            {"axis": "Cost", "value": 60}
+            {"axis": "Cost", "value": 60},
         ]
         tool = GenerateRadarChart(data=data, title="Performance Metrics")
         assert tool.data == data
@@ -412,6 +418,7 @@ class TestGenerateRadarChart:
 
 # ========== GenerateTreemapChart Tests ==========
 
+
 class TestGenerateTreemapChart:
     """Comprehensive tests for GenerateTreemapChart tool"""
 
@@ -419,7 +426,7 @@ class TestGenerateTreemapChart:
         """Test successful tool initialization"""
         data = [
             {"name": "Category A", "value": 100, "children": []},
-            {"name": "Category B", "value": 200, "children": []}
+            {"name": "Category B", "value": 200, "children": []},
         ]
         tool = GenerateTreemapChart(data=data, title="Hierarchy View")
         assert tool.data == data
@@ -439,6 +446,7 @@ class TestGenerateTreemapChart:
 
 # ========== GenerateWordCloudChart Tests ==========
 
+
 class TestGenerateWordCloudChart:
     """Comprehensive tests for GenerateWordCloudChart tool"""
 
@@ -447,7 +455,7 @@ class TestGenerateWordCloudChart:
         data = [
             {"word": "Python", "frequency": 100},
             {"word": "JavaScript", "frequency": 80},
-            {"word": "Java", "frequency": 60}
+            {"word": "Java", "frequency": 60},
         ]
         tool = GenerateWordCloudChart(data=data, title="Programming Languages")
         assert tool.data == data
@@ -467,6 +475,7 @@ class TestGenerateWordCloudChart:
 
 # ========== GenerateOrganizationChart Tests ==========
 
+
 class TestGenerateOrganizationChart:
     """Comprehensive tests for GenerateOrganizationChart tool"""
 
@@ -474,10 +483,7 @@ class TestGenerateOrganizationChart:
         """Test successful tool initialization"""
         data = {
             "name": "CEO",
-            "children": [
-                {"name": "CTO", "children": []},
-                {"name": "CFO", "children": []}
-            ]
+            "children": [{"name": "CTO", "children": []}, {"name": "CFO", "children": []}],
         }
         tool = GenerateOrganizationChart(data=data, title="Company Structure")
         assert tool.data == data

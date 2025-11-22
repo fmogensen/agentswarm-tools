@@ -120,7 +120,10 @@ class TestResourceDiscovery:
     # ========== ERROR CASES ==========
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false"}, clear=False)
-    @patch("tools.web.resource_discovery.resource_discovery.requests.get", side_effect=Exception("Network error"))
+    @patch(
+        "tools.web.resource_discovery.resource_discovery.requests.get",
+        side_effect=Exception("Network error"),
+    )
     def test_api_error(self, mock_get, tool: ResourceDiscovery):
         """Test that API errors are caught and returned in error format."""
         result = tool.run()

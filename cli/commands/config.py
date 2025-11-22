@@ -12,9 +12,9 @@ from typing import Dict, Any, Optional
 
 def get_config_path() -> Path:
     """Get the path to the config file."""
-    config_dir = Path.home() / '.agentswarm'
+    config_dir = Path.home() / ".agentswarm"
     config_dir.mkdir(exist_ok=True)
-    return config_dir / 'config.json'
+    return config_dir / "config.json"
 
 
 def load_config() -> Dict[str, Any]:
@@ -25,7 +25,7 @@ def load_config() -> Dict[str, Any]:
         return {}
 
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             return json.load(f)
     except Exception as e:
         print(f"Warning: Could not load config: {e}", file=sys.stderr)
@@ -37,7 +37,7 @@ def save_config(config: Dict[str, Any]) -> None:
     config_path = get_config_path()
 
     try:
-        with open(config_path, 'w') as f:
+        with open(config_path, "w") as f:
             json.dump(config, indent=2, fp=f)
     except Exception as e:
         raise Exception(f"Could not save config: {e}")
@@ -57,9 +57,9 @@ def show_config() -> None:
 
     for key, value in sorted(config.items()):
         # Mask sensitive values
-        if any(sensitive in key.lower() for sensitive in ['key', 'secret', 'password', 'token']):
+        if any(sensitive in key.lower() for sensitive in ["key", "secret", "password", "token"]):
             if value:
-                masked = value[:4] + '*' * (len(value) - 4) if len(value) > 4 else '****'
+                masked = value[:4] + "*" * (len(value) - 4) if len(value) > 4 else "****"
                 print(f"{key:30} = {masked}")
             else:
                 print(f"{key:30} = (not set)")
@@ -95,7 +95,7 @@ def validate_config() -> bool:
     config = load_config()
 
     required_keys = [
-        'GENSPARK_API_KEY',
+        "GENSPARK_API_KEY",
     ]
 
     valid = True
@@ -125,11 +125,11 @@ def execute(args) -> int:
             return 0
 
         if args.set:
-            if '=' not in args.set:
+            if "=" not in args.set:
                 print("Invalid format. Use: --set KEY=VALUE", file=sys.stderr)
                 return 1
 
-            key, value = args.set.split('=', 1)
+            key, value = args.set.split("=", 1)
             set_config_value(key.strip(), value.strip())
             print(f"Configuration updated: {key}")
             return 0

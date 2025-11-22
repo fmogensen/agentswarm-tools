@@ -53,32 +53,15 @@ class EmailSend(BaseTool):
     to: str = Field(
         ...,
         description="Recipient email address(es) - single email or comma-separated list",
-        min_length=1
+        min_length=1,
     )
-    subject: str = Field(
-        ...,
-        description="Email subject line",
-        min_length=1
-    )
-    body: str = Field(
-        ...,
-        description="Email body content (plain text or HTML)",
-        min_length=1
-    )
-    cc: Optional[str] = Field(
-        None,
-        description="CC recipients - comma-separated list"
-    )
-    bcc: Optional[str] = Field(
-        None,
-        description="BCC recipients - comma-separated list"
-    )
-    is_html: bool = Field(
-        False,
-        description="Whether body is HTML format"
-    )
+    subject: str = Field(..., description="Email subject line", min_length=1)
+    body: str = Field(..., description="Email body content (plain text or HTML)", min_length=1)
+    cc: Optional[str] = Field(None, description="CC recipients - comma-separated list")
+    bcc: Optional[str] = Field(None, description="BCC recipients - comma-separated list")
+    is_html: bool = Field(False, description="Whether body is HTML format")
 
-    @field_validator('to')
+    @field_validator("to")
     @classmethod
     def validate_to(cls, v: str) -> str:
         """Validate recipient email addresses."""
@@ -86,14 +69,14 @@ class EmailSend(BaseTool):
             raise ValueError("to cannot be empty")
 
         # Check for @ symbol in each email
-        emails = [e.strip() for e in v.split(',')]
+        emails = [e.strip() for e in v.split(",")]
         for email in emails:
-            if '@' not in email:
+            if "@" not in email:
                 raise ValueError(f"Invalid email address: {email}")
 
         return v
 
-    @field_validator('cc', 'bcc')
+    @field_validator("cc", "bcc")
     @classmethod
     def validate_optional_emails(cls, v: Optional[str]) -> Optional[str]:
         """Validate optional email fields."""
@@ -101,9 +84,9 @@ class EmailSend(BaseTool):
             return None
 
         # Check for @ symbol in each email
-        emails = [e.strip() for e in v.split(',')]
+        emails = [e.strip() for e in v.split(",")]
         for email in emails:
-            if '@' not in email:
+            if "@" not in email:
                 raise ValueError(f"Invalid email address: {email}")
 
         return v
@@ -129,52 +112,33 @@ class EmailSend(BaseTool):
                     "subject": self.subject,
                     "has_cc": self.cc is not None,
                     "has_bcc": self.bcc is not None,
-                    "is_html": self.is_html
-                }
+                    "is_html": self.is_html,
+                },
             }
         except HttpError as e:
-            raise APIError(
-                f"Gmail API error: {e}",
-                tool_name=self.tool_name,
-                api_name="Gmail API"
-            )
+            raise APIError(f"Gmail API error: {e}", tool_name=self.tool_name, api_name="Gmail API")
         except Exception as e:
-            raise APIError(
-                f"Failed to send email: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to send email: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate parameters."""
         if not self.to.strip():
-            raise ValidationError(
-                "to cannot be empty",
-                tool_name=self.tool_name,
-                field="to"
-            )
+            raise ValidationError("to cannot be empty", tool_name=self.tool_name, field="to")
 
         if not self.subject.strip():
             raise ValidationError(
-                "subject cannot be empty",
-                tool_name=self.tool_name,
-                field="subject"
+                "subject cannot be empty", tool_name=self.tool_name, field="subject"
             )
 
         if not self.body.strip():
-            raise ValidationError(
-                "body cannot be empty",
-                tool_name=self.tool_name,
-                field="body"
-            )
+            raise ValidationError("body cannot be empty", tool_name=self.tool_name, field="body")
 
         # Validate email format
-        to_emails = [e.strip() for e in self.to.split(',')]
+        to_emails = [e.strip() for e in self.to.split(",")]
         for email in to_emails:
-            if '@' not in email or '.' not in email:
+            if "@" not in email or "." not in email:
                 raise ValidationError(
-                    f"Invalid email address: {email}",
-                    tool_name=self.tool_name,
-                    field="to"
+                    f"Invalid email address: {email}", tool_name=self.tool_name, field="to"
                 )
 
     def _should_use_mock(self) -> bool:
@@ -184,6 +148,7 @@ class EmailSend(BaseTool):
     def _generate_mock_results(self) -> Dict[str, Any]:
         """Generate mock results."""
         import uuid
+
         mock_id = f"mock-msg-{uuid.uuid4().hex[:12]}"
 
         return {
@@ -193,14 +158,14 @@ class EmailSend(BaseTool):
                 "status": "sent",
                 "to": self.to,
                 "subject": self.subject,
-                "thread_id": f"mock-thread-{uuid.uuid4().hex[:12]}"
+                "thread_id": f"mock-thread-{uuid.uuid4().hex[:12]}",
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
                 "to": self.to,
-                "subject": self.subject
-            }
+                "subject": self.subject,
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -211,15 +176,12 @@ class EmailSend(BaseTool):
             raise AuthenticationError(
                 "Missing GOOGLE_SERVICE_ACCOUNT_FILE environment variable",
                 tool_name=self.tool_name,
-                api_name="Gmail API"
+                api_name="Gmail API",
             )
 
         # Create credentials with Gmail scopes
         scopes = ["https://www.googleapis.com/auth/gmail.send"]
-        creds = Credentials.from_service_account_file(
-            credentials_path,
-            scopes=scopes
-        )
+        creds = Credentials.from_service_account_file(credentials_path, scopes=scopes)
 
         # Build Gmail service
         service = build("gmail", "v1", credentials=creds)
@@ -228,64 +190,56 @@ class EmailSend(BaseTool):
         message = self._create_message()
 
         # Send message
-        sent_message = service.users().messages().send(
-            userId="me",
-            body=message
-        ).execute()
+        sent_message = service.users().messages().send(userId="me", body=message).execute()
 
         return {
             "message_id": sent_message.get("id"),
             "status": "sent",
             "thread_id": sent_message.get("threadId"),
-            "label_ids": sent_message.get("labelIds", [])
+            "label_ids": sent_message.get("labelIds", []),
         }
 
     def _create_message(self) -> Dict[str, str]:
         """Create email message in Gmail API format."""
         # Create MIME message
         if self.is_html:
-            message = MIMEMultipart('alternative')
-            html_part = MIMEText(self.body, 'html')
+            message = MIMEMultipart("alternative")
+            html_part = MIMEText(self.body, "html")
             message.attach(html_part)
         else:
-            message = MIMEText(self.body, 'plain')
+            message = MIMEText(self.body, "plain")
 
         # Set headers
-        message['to'] = self.to
-        message['subject'] = self.subject
+        message["to"] = self.to
+        message["subject"] = self.subject
 
         if self.cc:
-            message['cc'] = self.cc
+            message["cc"] = self.cc
 
         if self.bcc:
-            message['bcc'] = self.bcc
+            message["bcc"] = self.bcc
 
         # Encode message
-        raw_message = base64.urlsafe_b64encode(
-            message.as_bytes()
-        ).decode('utf-8')
+        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
 
-        return {'raw': raw_message}
+        return {"raw": raw_message}
 
 
 if __name__ == "__main__":
     print("Testing EmailSend...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test basic email
-    tool = EmailSend(
-        to="test@example.com",
-        subject="Test Email",
-        body="This is a test email."
-    )
+    tool = EmailSend(to="test@example.com", subject="Test Email", body="This is a test email.")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
     print(f"Message ID: {result.get('result', {}).get('message_id')}")
-    assert result.get('success') == True
-    assert result.get('result', {}).get('status') == 'sent'
+    assert result.get("success") == True
+    assert result.get("result", {}).get("status") == "sent"
 
     # Test HTML email with CC
     tool2 = EmailSend(
@@ -293,22 +247,22 @@ if __name__ == "__main__":
         subject="HTML Test",
         body="<html><body><h1>Hello</h1><p>This is <b>HTML</b> email.</p></body></html>",
         cc="cc@example.com",
-        is_html=True
+        is_html=True,
     )
     result2 = tool2.run()
 
     print(f"HTML Email Success: {result2.get('success')}")
-    assert result2.get('success') == True
+    assert result2.get("success") == True
 
     # Test multiple recipients
     tool3 = EmailSend(
         to="user1@example.com,user2@example.com",
         subject="Multiple Recipients",
-        body="Test with multiple recipients"
+        body="Test with multiple recipients",
     )
     result3 = tool3.run()
 
     print(f"Multiple Recipients Success: {result3.get('success')}")
-    assert result3.get('success') == True
+    assert result3.get("success") == True
 
     print("EmailSend tests passed!")

@@ -14,15 +14,15 @@ from typing import Dict, Any, List
 
 def get_all_tool_classes() -> List[tuple]:
     """Get all tool classes."""
-    tools_dir = Path(__file__).parent.parent.parent / 'tools'
+    tools_dir = Path(__file__).parent.parent.parent / "tools"
     tool_classes = []
 
     for category_dir in tools_dir.iterdir():
-        if not category_dir.is_dir() or category_dir.name.startswith('_'):
+        if not category_dir.is_dir() or category_dir.name.startswith("_"):
             continue
 
-        for tool_file in category_dir.glob('*.py'):
-            if tool_file.name.startswith('_'):
+        for tool_file in category_dir.glob("*.py"):
+            if tool_file.name.startswith("_"):
                 continue
 
             tool_name = tool_file.stem
@@ -33,7 +33,7 @@ def get_all_tool_classes() -> List[tuple]:
                 module = importlib.import_module(module_path)
 
                 for name, obj in inspect.getmembers(module, inspect.isclass):
-                    if hasattr(obj, 'tool_name') and not name.startswith('_'):
+                    if hasattr(obj, "tool_name") and not name.startswith("_"):
                         tool_classes.append((tool_name, category, obj))
                         break
 
@@ -47,40 +47,40 @@ def get_all_tool_classes() -> List[tuple]:
 def test_single_tool(tool_name: str, tool_class: type, verbose: bool = False) -> Dict[str, Any]:
     """Test a single tool."""
     result = {
-        'tool': tool_name,
-        'success': False,
-        'error': None,
-        'output': None,
+        "tool": tool_name,
+        "success": False,
+        "error": None,
+        "output": None,
     }
 
     try:
         # Set mock mode
-        os.environ['USE_MOCK_APIS'] = 'true'
+        os.environ["USE_MOCK_APIS"] = "true"
 
         # Get test parameters from the tool's test block if available
         # For now, we'll just try to instantiate with minimal params
         if verbose:
-            print(f"  Testing {tool_name}...", end=' ')
+            print(f"  Testing {tool_name}...", end=" ")
 
         # Try to run the tool
         tool_instance = tool_class()
         output = tool_instance.run()
 
-        result['success'] = True
-        result['output'] = output
+        result["success"] = True
+        result["output"] = output
 
         if verbose:
             print("✓ PASS")
 
     except Exception as e:
-        result['error'] = str(e)
+        result["error"] = str(e)
         if verbose:
             print(f"✗ FAIL: {e}")
 
     finally:
         # Clean up mock mode
-        if 'USE_MOCK_APIS' in os.environ:
-            del os.environ['USE_MOCK_APIS']
+        if "USE_MOCK_APIS" in os.environ:
+            del os.environ["USE_MOCK_APIS"]
 
     return result
 
@@ -90,7 +90,7 @@ def execute(args) -> int:
     try:
         # Enable mock mode
         if args.mock:
-            os.environ['USE_MOCK_APIS'] = 'true'
+            os.environ["USE_MOCK_APIS"] = "true"
 
         results = []
         passed = 0
@@ -98,12 +98,12 @@ def execute(args) -> int:
 
         if args.tool:
             # Test single tool
-            tools_dir = Path(__file__).parent.parent.parent / 'tools'
+            tools_dir = Path(__file__).parent.parent.parent / "tools"
             tool_class = None
             category = None
 
             for category_dir in tools_dir.iterdir():
-                if not category_dir.is_dir() or category_dir.name.startswith('_'):
+                if not category_dir.is_dir() or category_dir.name.startswith("_"):
                     continue
 
                 potential_file = category_dir / f"{args.tool}.py"
@@ -113,7 +113,7 @@ def execute(args) -> int:
                     module = importlib.import_module(module_path)
 
                     for name, obj in inspect.getmembers(module, inspect.isclass):
-                        if hasattr(obj, 'tool_name') and not name.startswith('_'):
+                        if hasattr(obj, "tool_name") and not name.startswith("_"):
                             tool_class = obj
                             break
                     break
@@ -136,7 +136,7 @@ def execute(args) -> int:
 
         # Count results
         for result in results:
-            if result['success']:
+            if result["success"]:
                 passed += 1
             else:
                 failed += 1
@@ -152,7 +152,7 @@ def execute(args) -> int:
         if failed > 0:
             print(f"\nFailed tests:")
             for result in results:
-                if not result['success']:
+                if not result["success"]:
                     print(f"  - {result['tool']}: {result['error']}")
 
         return 0 if failed == 0 else 1
@@ -162,5 +162,5 @@ def execute(args) -> int:
         return 1
     finally:
         # Clean up mock mode
-        if 'USE_MOCK_APIS' in os.environ:
-            del os.environ['USE_MOCK_APIS']
+        if "USE_MOCK_APIS" in os.environ:
+            del os.environ["USE_MOCK_APIS"]

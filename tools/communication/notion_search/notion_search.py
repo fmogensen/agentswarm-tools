@@ -64,8 +64,8 @@ class NotionSearch(BaseTool):
                     "tool_name": self.tool_name,
                     "query": self.query,
                     "max_results": self.max_results,
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
@@ -78,16 +78,14 @@ class NotionSearch(BaseTool):
         """
         if not self.query or not self.query.strip():
             raise ValidationError(
-                "Query cannot be empty",
-                tool_name=self.tool_name,
-                details={"query": self.query}
+                "Query cannot be empty", tool_name=self.tool_name, details={"query": self.query}
             )
 
         if not isinstance(self.max_results, int) or self.max_results < 1:
             raise ValidationError(
                 "max_results must be an integer >= 1",
                 tool_name=self.tool_name,
-                details={"max_results": self.max_results}
+                details={"max_results": self.max_results},
             )
 
     def _should_use_mock(self) -> bool:
@@ -101,7 +99,7 @@ class NotionSearch(BaseTool):
                 "id": f"mock-{i}",
                 "title": f"Mock Notion Page {i}",
                 "snippet": f"Mock content snippet for {self.query}",
-                "url": f"https://notion.mock/page/{i}"
+                "url": f"https://notion.mock/page/{i}",
             }
             for i in range(1, min(self.max_results, 10) + 1)
         ]
@@ -113,8 +111,8 @@ class NotionSearch(BaseTool):
                 "mock_mode": True,
                 "query": self.query,
                 "max_results": self.max_results,
-                "tool_version": "1.0.0"
-            }
+                "tool_version": "1.0.0",
+            },
         }
 
     def _process(self) -> List[Dict[str, Any]]:
@@ -129,36 +127,27 @@ class NotionSearch(BaseTool):
         """
         notion_token = os.getenv("NOTION_API_KEY")
         if not notion_token:
-            raise APIError(
-                "NOTION_API_KEY environment variable not set",
-                tool_name=self.tool_name
-            )
+            raise APIError("NOTION_API_KEY environment variable not set", tool_name=self.tool_name)
 
         headers = {
             "Authorization": f"Bearer {notion_token}",
             "Content-Type": "application/json",
-            "Notion-Version": "2022-06-28"
+            "Notion-Version": "2022-06-28",
         }
 
         payload = {"query": self.query}
 
         try:
             response = requests.post(
-                "https://api.notion.com/v1/search",
-                json=payload,
-                headers=headers,
-                timeout=10
+                "https://api.notion.com/v1/search", json=payload, headers=headers, timeout=10
             )
         except Exception as e:
-            raise APIError(
-                f"Request to Notion API failed: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Request to Notion API failed: {e}", tool_name=self.tool_name)
 
         if response.status_code != 200:
             raise APIError(
                 f"Notion API returned status {response.status_code}: {response.text}",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         data = response.json()
@@ -187,6 +176,7 @@ if __name__ == "__main__":
     print("Testing NotionSearch...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Search Notion workspace
@@ -194,9 +184,9 @@ if __name__ == "__main__":
     tool = NotionSearch(query="project documentation", max_results=5)
     result = tool.run()
 
-    assert result.get('success') == True
-    assert isinstance(result.get('result'), list)
-    assert len(result.get('result')) > 0
+    assert result.get("success") == True
+    assert isinstance(result.get("result"), list)
+    assert len(result.get("result")) > 0
     print(f"✅ Test 1 passed: Found {len(result.get('result'))} results")
     print(f"   First result: {result.get('result')[0].get('title')}")
 
@@ -205,8 +195,8 @@ if __name__ == "__main__":
     tool = NotionSearch(query="meeting notes")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert result.get('metadata', {}).get('query') == "meeting notes"
+    assert result.get("success") == True
+    assert result.get("metadata", {}).get("query") == "meeting notes"
     print(f"✅ Test 2 passed: Search executed successfully")
 
     # Test 3: Validation - empty query
@@ -223,8 +213,8 @@ if __name__ == "__main__":
     tool = NotionSearch(query="test", max_results=3)
     result = tool.run()
 
-    assert result.get('success') == True
-    assert len(result.get('result')) <= 3
+    assert result.get("success") == True
+    assert len(result.get("result")) <= 3
     print(f"✅ Test 4 passed: Max results limit working")
 
     print("\n✅ All tests passed!")

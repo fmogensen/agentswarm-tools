@@ -63,9 +63,7 @@ class OnedriveFileRead(BaseTool):
                 "metadata": {"tool_name": self.tool_name, "version": "1.0.0"},
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to read/process OneDrive file: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to read/process OneDrive file: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """
@@ -173,9 +171,7 @@ class OnedriveFileRead(BaseTool):
             }
 
         except Exception as e:
-            raise APIError(
-                f"Error reading OneDrive file: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Error reading OneDrive file: {e}", tool_name=self.tool_name)
 
     def _answer_question_about_content(self, query: str, content: str) -> str:
         """
@@ -201,18 +197,18 @@ if __name__ == "__main__":
 
     import os
     import json
+
     os.environ["USE_MOCK_APIS"] = "true"
 
-    test_input = json.dumps({
-        "query": "test",
-        "file_reference": {"base64_content": "SGVsbG8gV29ybGQ="}
-    })
+    test_input = json.dumps(
+        {"query": "test", "file_reference": {"base64_content": "SGVsbG8gV29ybGQ="}}
+    )
 
     tool = OnedriveFileRead(input=test_input)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
     print(f"Result: {result.get('result')}")
-    assert result.get('success') == True
-    assert result.get('result', {}).get('mock') == True
+    assert result.get("success") == True
+    assert result.get("result", {}).get("mock") == True
     print("All tests passed!")

@@ -15,6 +15,7 @@ from shared.errors import ValidationError, APIError, AuthenticationError
 try:
     from twilio.rest import Client
     from twilio.base.exceptions import TwilioRestException
+
     TWILIO_AVAILABLE = True
 except ImportError:
     TWILIO_AVAILABLE = False
@@ -72,42 +73,42 @@ class TwilioPhoneCall(BaseTool):
         ...,
         description="Name of the person receiving the call (for logging and tracking purposes)",
         min_length=1,
-        max_length=100
+        max_length=100,
     )
 
     phone_number: str = Field(
         ...,
         description="Phone number to call in E.164 format (e.g., +15551234567, +442071234567)",
         min_length=10,
-        max_length=20
+        max_length=20,
     )
 
     call_purpose: str = Field(
         ...,
         description="Purpose or reason for the call (e.g., 'Appointment reminder', 'Follow-up call', 'Customer survey')",
         min_length=1,
-        max_length=200
+        max_length=200,
     )
 
     ai_instructions: str = Field(
         ...,
         description="Detailed instructions for the AI voice agent to follow during the call",
         min_length=10,
-        max_length=3000
+        max_length=3000,
     )
 
     voice_style: Literal["professional", "friendly", "casual"] = Field(
         "professional",
-        description="Voice style for the call: professional (formal business), friendly (warm but professional), or casual (relaxed conversation)"
+        description="Voice style for the call: professional (formal business), friendly (warm but professional), or casual (relaxed conversation)",
     )
 
-    @field_validator('phone_number')
+    @field_validator("phone_number")
     @classmethod
     def validate_phone_format(cls, v):
         """Validate E.164 phone number format."""
         # E.164 format: +[country code][subscriber number]
         # Total length: 1 to 15 digits (plus the + sign)
-        pattern = re.compile(r'^\+[1-9]\d{1,14}$')
+        pattern = re.compile(r"^\+[1-9]\d{1,14}$")
         if not pattern.match(v.strip()):
             raise ValueError(
                 "Phone number must be in E.164 format (e.g., +15551234567). "
@@ -129,7 +130,7 @@ class TwilioPhoneCall(BaseTool):
             raise APIError(
                 "Twilio package not installed. Install with: pip install twilio",
                 tool_name=self.tool_name,
-                api_name="Twilio"
+                api_name="Twilio",
             )
 
         try:
@@ -144,54 +145,52 @@ class TwilioPhoneCall(BaseTool):
                     "call_purpose": self.call_purpose,
                     "voice_style": self.voice_style,
                     "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "mock_mode": False
-                }
+                    "mock_mode": False,
+                },
             }
         except Exception as e:
             # Handle Twilio-specific exceptions if available
             if TWILIO_AVAILABLE:
                 try:
                     if isinstance(e, TwilioRestException):
-                        error_code = getattr(e, 'code', None)
+                        error_code = getattr(e, "code", None)
                         if error_code == 21211:
                             raise ValidationError(
                                 f"Invalid phone number: {self.phone_number}. "
                                 f"Ensure it's in E.164 format (e.g., +15551234567).",
                                 tool_name=self.tool_name,
-                                field="phone_number"
+                                field="phone_number",
                             )
                         elif error_code in [20003, 20008]:
                             raise AuthenticationError(
                                 "Invalid Twilio credentials. Check TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.",
                                 tool_name=self.tool_name,
-                                api_name="Twilio API"
+                                api_name="Twilio API",
                             )
                         elif error_code == 21201:
                             raise ValidationError(
                                 "No 'To' number specified. Phone number is required.",
                                 tool_name=self.tool_name,
-                                field="phone_number"
+                                field="phone_number",
                             )
                         elif error_code == 21608:
                             raise ValidationError(
                                 "The 'From' number is not a valid Twilio phone number.",
                                 tool_name=self.tool_name,
-                                field="from_number"
+                                field="from_number",
                             )
                         raise APIError(
                             f"Twilio API error: {e.msg}",
                             tool_name=self.tool_name,
                             api_name="Twilio API",
-                            status_code=error_code
+                            status_code=error_code,
                         )
                 except NameError:
                     # TwilioRestException not defined (shouldn't happen but be safe)
                     pass
 
             raise APIError(
-                f"Failed to make phone call: {str(e)}",
-                tool_name=self.tool_name,
-                api_name="Twilio"
+                f"Failed to make phone call: {str(e)}", tool_name=self.tool_name, api_name="Twilio"
             )
 
     def _validate_parameters(self) -> None:
@@ -199,40 +198,32 @@ class TwilioPhoneCall(BaseTool):
         # Validate recipient name
         if not self.recipient_name.strip():
             raise ValidationError(
-                "recipient_name cannot be empty",
-                tool_name=self.tool_name,
-                field="recipient_name"
+                "recipient_name cannot be empty", tool_name=self.tool_name, field="recipient_name"
             )
 
         # Validate phone number (additional validation beyond Pydantic)
         if not self.phone_number.strip():
             raise ValidationError(
-                "phone_number cannot be empty",
-                tool_name=self.tool_name,
-                field="phone_number"
+                "phone_number cannot be empty", tool_name=self.tool_name, field="phone_number"
             )
 
         # Validate call purpose
         if not self.call_purpose.strip():
             raise ValidationError(
-                "call_purpose cannot be empty",
-                tool_name=self.tool_name,
-                field="call_purpose"
+                "call_purpose cannot be empty", tool_name=self.tool_name, field="call_purpose"
             )
 
         # Validate AI instructions
         if not self.ai_instructions.strip():
             raise ValidationError(
-                "ai_instructions cannot be empty",
-                tool_name=self.tool_name,
-                field="ai_instructions"
+                "ai_instructions cannot be empty", tool_name=self.tool_name, field="ai_instructions"
             )
 
         if len(self.ai_instructions.strip()) < 10:
             raise ValidationError(
                 "ai_instructions must be at least 10 characters long for meaningful call guidance",
                 tool_name=self.tool_name,
-                field="ai_instructions"
+                field="ai_instructions",
             )
 
     def _should_use_mock(self) -> bool:
@@ -242,10 +233,12 @@ class TwilioPhoneCall(BaseTool):
     def _generate_mock_results(self) -> Dict[str, Any]:
         """Generate mock results for testing."""
         # Generate deterministic mock call SID
-        mock_call_sid = f"CA{abs(hash(self.phone_number + self.ai_instructions))}".replace('-', '')[:34]
+        mock_call_sid = f"CA{abs(hash(self.phone_number + self.ai_instructions))}".replace("-", "")[
+            :34
+        ]
 
         # Generate mock account SID
-        mock_account_sid = f"AC{abs(hash('mock_account'))}".replace('-', '')[:34]
+        mock_account_sid = f"AC{abs(hash('mock_account'))}".replace("-", "")[:34]
 
         # Calculate mock duration based on instruction length (rough estimate)
         estimated_duration = min(120, max(30, len(self.ai_instructions) // 10))
@@ -267,7 +260,7 @@ class TwilioPhoneCall(BaseTool):
                 "duration": estimated_duration,
                 "date_created": datetime.now(timezone.utc).isoformat(),
                 "voice_style": self.voice_style,
-                "ai_instructions_delivered": True
+                "ai_instructions_delivered": True,
             },
             "metadata": {
                 "mock_mode": True,
@@ -276,8 +269,8 @@ class TwilioPhoneCall(BaseTool):
                 "phone_number": self._mask_phone_number(self.phone_number),
                 "call_purpose": self.call_purpose,
                 "voice_style": self.voice_style,
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            }
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -293,7 +286,7 @@ class TwilioPhoneCall(BaseTool):
                 "Missing TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN environment variables. "
                 "Please set these variables with your Twilio credentials.",
                 tool_name=self.tool_name,
-                api_name="Twilio API"
+                api_name="Twilio API",
             )
 
         if not from_number:
@@ -301,15 +294,15 @@ class TwilioPhoneCall(BaseTool):
                 "Missing TWILIO_PHONE_NUMBER environment variable. "
                 "Please set this to your Twilio phone number in E.164 format (e.g., +15551234567).",
                 tool_name=self.tool_name,
-                field="from_number"
+                field="from_number",
             )
 
         # Validate from_number format
-        if not re.match(r'^\+[1-9]\d{1,14}$', from_number):
+        if not re.match(r"^\+[1-9]\d{1,14}$", from_number):
             raise ValidationError(
                 f"TWILIO_PHONE_NUMBER must be in E.164 format. Got: {from_number}",
                 tool_name=self.tool_name,
-                field="from_number"
+                field="from_number",
             )
 
         # Create Twilio client
@@ -319,11 +312,7 @@ class TwilioPhoneCall(BaseTool):
         twiml = self._generate_twiml()
 
         # Make the call
-        call = client.calls.create(
-            to=self.phone_number,
-            from_=from_number,
-            twiml=twiml
-        )
+        call = client.calls.create(to=self.phone_number, from_=from_number, twiml=twiml)
 
         # Calculate estimated cost
         # Note: Actual cost depends on call duration and destination
@@ -346,7 +335,7 @@ class TwilioPhoneCall(BaseTool):
             "from_number": call.from_,
             "date_created": call.date_created.isoformat() if call.date_created else None,
             "voice_style": self.voice_style,
-            "ai_instructions_length": len(self.ai_instructions)
+            "ai_instructions_length": len(self.ai_instructions),
         }
 
     def _generate_twiml(self) -> str:
@@ -361,27 +350,27 @@ class TwilioPhoneCall(BaseTool):
         """
         # Map voice styles to Twilio voice options
         voice_map = {
-            'professional': 'Polly.Joanna',      # Professional female voice
-            'friendly': 'Polly.Matthew',         # Friendly male voice
-            'casual': 'alice'                    # Casual neutral voice
+            "professional": "Polly.Joanna",  # Professional female voice
+            "friendly": "Polly.Matthew",  # Friendly male voice
+            "casual": "alice",  # Casual neutral voice
         }
 
-        twilio_voice = voice_map.get(self.voice_style, 'Polly.Joanna')
+        twilio_voice = voice_map.get(self.voice_style, "Polly.Joanna")
 
         # Escape XML special characters in instructions
         escaped_instructions = self._escape_xml(self.ai_instructions)
 
         # Add greeting based on voice style
         greetings = {
-            'professional': f"Hello, this is a call for {self.recipient_name}.",
-            'friendly': f"Hi {self.recipient_name}, I'm calling to connect with you.",
-            'casual': f"Hey {self.recipient_name}, just reaching out to you."
+            "professional": f"Hello, this is a call for {self.recipient_name}.",
+            "friendly": f"Hi {self.recipient_name}, I'm calling to connect with you.",
+            "casual": f"Hey {self.recipient_name}, just reaching out to you.",
         }
 
-        greeting = self._escape_xml(greetings.get(self.voice_style, greetings['professional']))
+        greeting = self._escape_xml(greetings.get(self.voice_style, greetings["professional"]))
 
         # Generate comprehensive TwiML
-        twiml = f'''<?xml version="1.0" encoding="UTF-8"?>
+        twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Say voice="{twilio_voice}">{greeting}</Say>
     <Pause length="1"/>
@@ -391,7 +380,7 @@ class TwilioPhoneCall(BaseTool):
         <Say voice="{twilio_voice}">Please respond after the beep.</Say>
     </Gather>
     <Say voice="{twilio_voice}">Thank you for your time. Goodbye.</Say>
-</Response>'''
+</Response>"""
 
         return twiml
 
@@ -405,12 +394,13 @@ class TwilioPhoneCall(BaseTool):
         Returns:
             XML-safe text
         """
-        return (text
-                .replace('&', '&amp;')
-                .replace('<', '&lt;')
-                .replace('>', '&gt;')
-                .replace('"', '&quot;')
-                .replace("'", '&apos;'))
+        return (
+            text.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&apos;")
+        )
 
     def _estimate_call_cost(self, phone_number: str, instruction_length: int) -> float:
         """
@@ -434,12 +424,12 @@ class TwilioPhoneCall(BaseTool):
 
         # Determine rate based on destination
         # US/Canada: ~$0.013/min, UK: ~$0.024/min, others: ~$0.05/min
-        if phone_number.startswith('+1'):
+        if phone_number.startswith("+1"):
             rate_per_minute = 0.013  # US/Canada
-        elif phone_number.startswith('+44'):
+        elif phone_number.startswith("+44"):
             rate_per_minute = 0.024  # UK
         else:
-            rate_per_minute = 0.05   # International (conservative estimate)
+            rate_per_minute = 0.05  # International (conservative estimate)
 
         estimated_cost = estimated_duration_minutes * rate_per_minute
         return round(estimated_cost, 4)
@@ -456,7 +446,7 @@ class TwilioPhoneCall(BaseTool):
         """
         if len(phone) <= 6:
             return phone
-        return phone[:3] + '***' + phone[-4:]
+        return phone[:3] + "***" + phone[-4:]
 
 
 if __name__ == "__main__":
@@ -464,6 +454,7 @@ if __name__ == "__main__":
     print("=" * 60)
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Professional appointment reminder
@@ -473,7 +464,7 @@ if __name__ == "__main__":
         phone_number="+15551234567",
         call_purpose="Appointment confirmation",
         ai_instructions="This is a reminder about your upcoming medical appointment tomorrow at 2:30 PM with Dr. Smith. Please confirm your attendance by saying yes, or let us know if you need to reschedule by saying no.",
-        voice_style="professional"
+        voice_style="professional",
     )
     result1 = tool1.run()
 
@@ -482,10 +473,10 @@ if __name__ == "__main__":
     print(f"Status: {result1.get('result', {}).get('status')}")
     print(f"Tracking URL: {result1.get('result', {}).get('tracking_url')}")
     print(f"Estimated Cost: {result1.get('result', {}).get('estimated_cost')}")
-    assert result1.get('success') == True
-    assert result1.get('result', {}).get('status') == 'completed'
-    assert 'tracking_url' in result1.get('result', {})
-    assert 'estimated_cost' in result1.get('result', {})
+    assert result1.get("success") == True
+    assert result1.get("result", {}).get("status") == "completed"
+    assert "tracking_url" in result1.get("result", {})
+    assert "estimated_cost" in result1.get("result", {})
     print("[Test 1] PASSED")
 
     # Test 2: Friendly customer follow-up
@@ -495,7 +486,7 @@ if __name__ == "__main__":
         phone_number="+442071234567",
         call_purpose="Customer satisfaction survey",
         ai_instructions="We wanted to check in and see how your recent purchase is working out for you. On a scale of 1 to 5, how satisfied are you with your new product? Your feedback helps us improve our service.",
-        voice_style="friendly"
+        voice_style="friendly",
     )
     result2 = tool2.run()
 
@@ -503,9 +494,9 @@ if __name__ == "__main__":
     print(f"Recipient: {result2.get('result', {}).get('recipient_name')}")
     print(f"Purpose: {result2.get('result', {}).get('call_purpose')}")
     print(f"Voice Style: {result2.get('result', {}).get('voice_style')}")
-    assert result2.get('success') == True
-    assert result2.get('result', {}).get('voice_style') == 'friendly'
-    assert result2.get('result', {}).get('recipient_name') == 'John Smith'
+    assert result2.get("success") == True
+    assert result2.get("result", {}).get("voice_style") == "friendly"
+    assert result2.get("result", {}).get("recipient_name") == "John Smith"
     print("[Test 2] PASSED")
 
     # Test 3: Casual reminder call
@@ -515,14 +506,14 @@ if __name__ == "__main__":
         phone_number="+13105551234",
         call_purpose="Event reminder",
         ai_instructions="Just a quick heads up that the team meetup is happening this Friday at 6 PM at the usual spot. Hope to see you there! Let us know if you can make it.",
-        voice_style="casual"
+        voice_style="casual",
     )
     result3 = tool3.run()
 
     print(f"Success: {result3.get('success')}")
     print(f"Voice Style: {result3.get('result', {}).get('voice_style')}")
-    assert result3.get('success') == True
-    assert result3.get('result', {}).get('voice_style') == 'casual'
+    assert result3.get("success") == True
+    assert result3.get("result", {}).get("voice_style") == "casual"
     print("[Test 3] PASSED")
 
     # Test 4: Phone number validation (E.164 format)
@@ -532,7 +523,7 @@ if __name__ == "__main__":
             recipient_name="Invalid User",
             phone_number="555-1234",  # Invalid format
             call_purpose="Test",
-            ai_instructions="This should fail validation."
+            ai_instructions="This should fail validation.",
         )
         result4 = tool4.run()
         print("[Test 4] FAILED - Should have raised validation error")
@@ -548,7 +539,7 @@ if __name__ == "__main__":
             recipient_name="Test User",
             phone_number="+15551234567",
             call_purpose="Test",
-            ai_instructions=""  # Empty instructions
+            ai_instructions="",  # Empty instructions
         )
         result5 = tool5.run()
         print("[Test 5] FAILED - Should have raised validation error")
@@ -564,11 +555,11 @@ if __name__ == "__main__":
         phone_number="+19175551234",
         call_purpose="Metadata verification",
         ai_instructions="Testing that all metadata fields are properly populated in the response.",
-        voice_style="professional"
+        voice_style="professional",
     )
     result6 = tool6.run()
 
-    metadata = result6.get('metadata', {})
+    metadata = result6.get("metadata", {})
     print(f"Mock Mode: {metadata.get('mock_mode')}")
     print(f"Tool Name: {metadata.get('tool_name')}")
     print(f"Recipient: {metadata.get('recipient_name')}")
@@ -576,11 +567,11 @@ if __name__ == "__main__":
     print(f"Purpose: {metadata.get('call_purpose')}")
     print(f"Voice Style: {metadata.get('voice_style')}")
 
-    assert metadata.get('mock_mode') == True
-    assert metadata.get('tool_name') == 'twilio_phone_call'
-    assert metadata.get('recipient_name') == 'Metadata Test'
-    assert '***' in metadata.get('phone_number', '')  # Phone should be masked
-    assert metadata.get('voice_style') == 'professional'
+    assert metadata.get("mock_mode") == True
+    assert metadata.get("tool_name") == "twilio_phone_call"
+    assert metadata.get("recipient_name") == "Metadata Test"
+    assert "***" in metadata.get("phone_number", "")  # Phone should be masked
+    assert metadata.get("voice_style") == "professional"
     print("[Test 6] PASSED")
 
     print("\n" + "=" * 60)

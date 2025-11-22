@@ -431,26 +431,42 @@ if __name__ == "__main__":
 
     # Test search config
     print("\n2. Search API Config:")
-    print(f"   serpapi_key: {test_config.search.serpapi_key[:10]}..." if test_config.search.serpapi_key else "   serpapi_key: None")
+    print(
+        f"   serpapi_key: {test_config.search.serpapi_key[:10]}..."
+        if test_config.search.serpapi_key
+        else "   serpapi_key: None"
+    )
     assert test_config.search.serpapi_key == "test_serpapi_key"
     print("   [PASS] Search config loaded correctly")
 
     # Test AI config
     print("\n3. AI Config:")
-    print(f"   openai_api_key: {test_config.ai.openai_api_key[:10]}..." if test_config.ai.openai_api_key else "   openai_api_key: None")
+    print(
+        f"   openai_api_key: {test_config.ai.openai_api_key[:10]}..."
+        if test_config.ai.openai_api_key
+        else "   openai_api_key: None"
+    )
     assert test_config.ai.openai_api_key == "test_openai_key"
     print("   [PASS] AI config loaded correctly")
 
     # Test database config
     print("\n4. Database Config:")
-    print(f"   database_url: {test_config.database.database_url[:30]}..." if test_config.database.database_url else "   database_url: None")
+    print(
+        f"   database_url: {test_config.database.database_url[:30]}..."
+        if test_config.database.database_url
+        else "   database_url: None"
+    )
     assert test_config.database.database_url is not None
     print("   [PASS] Database config loaded correctly")
 
     # Test nested value access
     print("\n5. Nested Value Access:")
     value = test_config.get("search.serpapi_key")
-    print(f"   get('search.serpapi_key'): {value[:10]}..." if value else "   get('search.serpapi_key'): None")
+    print(
+        f"   get('search.serpapi_key'): {value[:10]}..."
+        if value
+        else "   get('search.serpapi_key'): None"
+    )
     assert value == "test_serpapi_key"
     print("   [PASS] Nested access works correctly")
 

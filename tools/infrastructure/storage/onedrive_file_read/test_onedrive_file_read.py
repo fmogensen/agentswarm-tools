@@ -169,9 +169,7 @@ class TestOnedriveFileRead:
         ],
     )
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
-    def test_query_variations(
-        self, query, should_pass: bool, encoded_content: str
-    ):
+    def test_query_variations(self, query, should_pass: bool, encoded_content: str):
         obj = {"file_reference": {"base64_content": encoded_content}}
         if query is not None:
             obj["query"] = query

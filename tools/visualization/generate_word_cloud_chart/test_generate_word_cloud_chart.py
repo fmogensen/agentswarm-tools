@@ -52,9 +52,7 @@ class TestGenerateWordCloudChart:
 
     # ========== HAPPY PATH ==========
 
-    @patch(
-        "tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud"
-    )
+    @patch("tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud")
     def test_execute_success(self, mock_wc, tool, mock_wc_instance):
         mock_wc.return_value = mock_wc_instance
         result = tool.run()
@@ -101,9 +99,7 @@ class TestGenerateWordCloudChart:
         assert result["success"] is False
         assert "error" in result
 
-    @patch(
-        "tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud"
-    )
+    @patch("tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud")
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_api_error_handled(self, mock_wc, valid_params):
         # Create fresh tool with mock disabled
@@ -116,18 +112,14 @@ class TestGenerateWordCloudChart:
 
     # ========== EDGE CASES ==========
 
-    @patch(
-        "tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud"
-    )
+    @patch("tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud")
     def test_unicode_prompt(self, mock_wc, tool, mock_wc_instance):
         mock_wc.return_value = mock_wc_instance
         tool.prompt = "你好 世界"
         result = tool.run()
         assert result["success"] is True
 
-    @patch(
-        "tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud"
-    )
+    @patch("tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud")
     def test_special_characters_prompt(self, mock_wc, tool, mock_wc_instance):
         mock_wc.return_value = mock_wc_instance
         tool.prompt = "@#$%^&*()!"
@@ -185,18 +177,14 @@ class TestGenerateWordCloudChart:
 
     # ========== INTEGRATION TESTS ==========
 
-    @patch(
-        "tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud"
-    )
+    @patch("tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud")
     def test_integration_full_run(self, mock_wc, mock_wc_instance):
         mock_wc.return_value = mock_wc_instance
         tool = GenerateWordCloudChart(prompt="integration", params={"width": 200})
         result = tool.run()
         assert result["success"] is True
 
-    @patch(
-        "tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud"
-    )
+    @patch("tools.visualization.generate_word_cloud_chart.generate_word_cloud_chart.WordCloud")
     def test_error_formatting_integration(self, mock_wc):
         tool = GenerateWordCloudChart(prompt="test", params={})
         with patch.object(tool, "_execute", side_effect=ValueError("Test error")):

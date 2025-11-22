@@ -175,6 +175,7 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = ResourceDiscovery(input="https://example.com/page")
@@ -182,4 +183,6 @@ if __name__ == "__main__":
 
     print(f"Success: {result.get('success')}")
     print(f"Resources found: {len(result.get('result', {}).get('resources', []))}")
-    print(f"First resource: {result.get('result', {}).get('resources', [{}])[0] if result.get('result', {}).get('resources') else 'None'}")
+    print(
+        f"First resource: {result.get('result', {}).get('resources', [{}])[0] if result.get('result', {}).get('resources') else 'None'}"
+    )

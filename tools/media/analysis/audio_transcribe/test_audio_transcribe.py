@@ -146,7 +146,12 @@ class TestAudioTranscribe:
             ("   ", False, False, True),  # Whitespace passes Pydantic, fails at runtime
             ("", False, False, True),  # Empty string passes Pydantic, fails custom validation
             (None, False, True, True),  # None fails Pydantic type check
-            ("http://example.com/audio.wav", False, False, False),  # URL fails custom validation (needs real mode)
+            (
+                "http://example.com/audio.wav",
+                False,
+                False,
+                False,
+            ),  # URL fails custom validation (needs real mode)
         ],
     )
     def test_parameter_validation(self, input_path, valid, is_pydantic_error, use_mock):
@@ -167,9 +172,7 @@ class TestAudioTranscribe:
     # ========== INTEGRATION TESTS ==========
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
-    def test_integration_with_analytics(
-        self, tool: AudioTranscribe, capture_analytics_events
-    ):
+    def test_integration_with_analytics(self, tool: AudioTranscribe, capture_analytics_events):
         tool.run()
         assert True  # analytics captured externally
 

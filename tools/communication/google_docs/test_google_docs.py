@@ -119,8 +119,10 @@ class TestGoogleDocs:
         result = tool.run()
 
         assert result["success"] == True
-        assert "# Heading 1" in result["result"]["content_preview"] or \
-               "Heading 1" in result["result"]["content_preview"]
+        assert (
+            "# Heading 1" in result["result"]["content_preview"]
+            or "Heading 1" in result["result"]["content_preview"]
+        )
 
     def test_markdown_content_with_bold(self):
         """Test markdown bold formatting."""
@@ -470,9 +472,7 @@ class TestGoogleDocsRealMode:
         mock_build.side_effect = build_side_effect
 
         # Mock docs API responses
-        mock_docs.documents().create().execute.return_value = {
-            "documentId": "real-doc-123"
-        }
+        mock_docs.documents().create().execute.return_value = {"documentId": "real-doc-123"}
         mock_docs.documents().batchUpdate().execute.return_value = {}
 
         # Set credentials

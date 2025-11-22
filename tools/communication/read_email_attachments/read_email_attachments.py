@@ -169,6 +169,7 @@ if __name__ == "__main__":
 
     import os
     import json
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Read attachments from email
@@ -177,9 +178,9 @@ if __name__ == "__main__":
     tool = ReadEmailAttachments(input=json.dumps(input_data))
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'attachments' in result.get('result', {})
-    assert isinstance(result.get('result', {}).get('attachments'), list)
+    assert result.get("success") == True
+    assert "attachments" in result.get("result", {})
+    assert isinstance(result.get("result", {}).get("attachments"), list)
     print(f"✅ Test 1 passed: Found {len(result.get('result', {}).get('attachments'))} attachments")
     print(f"   First attachment: {result.get('result', {}).get('attachments')[0].get('filename')}")
 
@@ -189,8 +190,8 @@ if __name__ == "__main__":
     tool = ReadEmailAttachments(input=json.dumps(input_data))
     result = tool.run()
 
-    assert result.get('success') == True
-    assert len(result.get('result', {}).get('attachments', [])) > 0
+    assert result.get("success") == True
+    assert len(result.get("result", {}).get("attachments", [])) > 0
     print(f"✅ Test 2 passed: Attachments retrieved")
 
     # Test 3: Validation - missing email_id

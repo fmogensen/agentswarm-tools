@@ -44,9 +44,7 @@ class TestAidriveTool:
         assert list_tool.tool_category == "storage"
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
-    @pytest.mark.parametrize(
-        "operation", ["list", "upload test", "download file", "compress text"]
-    )
+    @pytest.mark.parametrize("operation", ["list", "upload test", "download file", "compress text"])
     def test_mock_mode(self, operation: str):
         """Mock mode should return mock data for all operations."""
         tool = AidriveTool(input=operation)
@@ -87,9 +85,9 @@ class TestAidriveTool:
         """Test file download returns base64."""
         mock_data = b"hello"
 
-        with patch("shared.base.get_rate_limiter") as mock_limiter, \
-             patch("os.path.exists", return_value=True), \
-             patch("builtins.open", mock_open(read_data=mock_data)):
+        with patch("shared.base.get_rate_limiter") as mock_limiter, patch(
+            "os.path.exists", return_value=True
+        ), patch("builtins.open", mock_open(read_data=mock_data)):
 
             mock_limiter.return_value.check_rate_limit.return_value = None
             result = download_tool.run()

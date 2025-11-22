@@ -35,9 +35,7 @@ class GenerateFishboneDiagram(BaseTool):
     tool_description: str = "Generate fishbone diagram for cause-effect analysis"
 
     # Parameters
-    prompt: str = Field(
-        ..., description="Description of what to generate", min_length=1
-    )
+    prompt: str = Field(..., description="Description of what to generate", min_length=1)
     params: Dict[str, Any] = Field(
         default_factory=dict, description="Additional generation parameters"
     )
@@ -104,10 +102,7 @@ class GenerateFishboneDiagram(BaseTool):
                 )
 
         if "max_branches" in self.params:
-            if (
-                not isinstance(self.params["max_branches"], int)
-                or self.params["max_branches"] <= 0
-            ):
+            if not isinstance(self.params["max_branches"], int) or self.params["max_branches"] <= 0:
                 raise ValidationError(
                     "max_branches must be a positive integer",
                     tool_name=self.tool_name,
@@ -169,14 +164,14 @@ class GenerateFishboneDiagram(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateFishboneDiagram(
-        prompt="Customer Complaints Increase",
-        params={"format": "text", "max_branches": 4}
+        prompt="Customer Complaints Increase", params={"format": "text", "max_branches": 4}
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

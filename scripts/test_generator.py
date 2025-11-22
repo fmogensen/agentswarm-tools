@@ -35,11 +35,7 @@ class ToolTestGenerator:
             return test_path.read_text()
         return ""
 
-    def generate_test_code(
-        self,
-        tool_spec: Dict[str, Any],
-        tool_code: str
-    ) -> str:
+    def generate_test_code(self, tool_spec: Dict[str, Any], tool_code: str) -> str:
         """
         Generate comprehensive pytest tests.
 
@@ -55,12 +51,7 @@ class ToolTestGenerator:
         description = tool_spec["description"]
 
         # Create prompt
-        prompt = self._create_test_prompt(
-            tool_name,
-            category,
-            description,
-            tool_code
-        )
+        prompt = self._create_test_prompt(tool_name, category, description, tool_code)
 
         # Call OpenAI
         try:
@@ -68,7 +59,7 @@ class ToolTestGenerator:
                 model=self.model,
                 max_completion_tokens=4000,  # GPT-5.1 uses max_completion_tokens
                 # Note: GPT-5.1 only supports temperature=1 (default)
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             response_text = response.choices[0].message.content
@@ -87,11 +78,7 @@ class ToolTestGenerator:
             raise RuntimeError(f"Failed to generate tests for {tool_name}: {e}")
 
     def _create_test_prompt(
-        self,
-        tool_name: str,
-        category: str,
-        description: str,
-        tool_code: str
+        self, tool_name: str, category: str, description: str, tool_code: str
     ) -> str:
         """Create prompt for test generation."""
 
@@ -208,7 +195,7 @@ def main():
         spec = json.load(f)
 
     # For testing, use a simple mock code
-    tool_code = '''
+    tool_code = """
 class WebSearch(BaseTool):
     tool_name = "web_search"
     tool_category = "search"
@@ -216,7 +203,7 @@ class WebSearch(BaseTool):
 
     def _execute(self):
         return {"success": True, "result": []}
-'''
+"""
 
     generator = ToolTestGenerator()
     test_code = generator.generate_test_code(spec, tool_code)

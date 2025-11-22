@@ -72,64 +72,54 @@ class GenerateBarChart(BaseTool):
         """
         if not self.prompt or not isinstance(self.prompt, str):
             raise ValidationError(
-                "Prompt must be a non-empty string",
-                tool_name=self.tool_name,
-                field="prompt"
+                "Prompt must be a non-empty string", tool_name=self.tool_name, field="prompt"
             )
 
         if not isinstance(self.params, dict):
             raise ValidationError(
-                "Params must be a dictionary",
-                tool_name=self.tool_name,
-                field="params"
+                "Params must be a dictionary", tool_name=self.tool_name, field="params"
             )
 
         data = self.params.get("data")
         if data is None:
             raise ValidationError(
-                "Params must include 'data'",
-                tool_name=self.tool_name,
-                field="data"
+                "Params must include 'data'", tool_name=self.tool_name, field="data"
             )
 
         # Accept either dict of category/value pairs OR list of {label, value} objects
         if isinstance(data, list):
             if len(data) == 0:
                 raise ValidationError(
-                    "'data' must not be empty",
-                    tool_name=self.tool_name,
-                    field="data"
+                    "'data' must not be empty", tool_name=self.tool_name, field="data"
                 )
-            if not all(isinstance(item, dict) and "label" in item and "value" in item for item in data):
+            if not all(
+                isinstance(item, dict) and "label" in item and "value" in item for item in data
+            ):
                 raise ValidationError(
                     "When 'data' is a list, each item must have 'label' and 'value' keys",
                     tool_name=self.tool_name,
-                    field="data"
+                    field="data",
                 )
         elif isinstance(data, dict):
             if len(data) == 0:
                 raise ValidationError(
-                    "'data' must not be empty",
-                    tool_name=self.tool_name,
-                    field="data"
+                    "'data' must not be empty", tool_name=self.tool_name, field="data"
                 )
             if not all(isinstance(k, str) for k in data.keys()):
                 raise ValidationError(
                     "All category names (keys in data) must be strings",
                     tool_name=self.tool_name,
-                    field="data"
+                    field="data",
                 )
             if not all(isinstance(v, (int, float)) for v in data.values()):
                 raise ValidationError(
-                    "All values in data must be numeric",
-                    tool_name=self.tool_name,
-                    field="data"
+                    "All values in data must be numeric", tool_name=self.tool_name, field="data"
                 )
         else:
             raise ValidationError(
                 "Params 'data' must be a dict or list of {label, value} objects",
                 tool_name=self.tool_name,
-                field="data"
+                field="data",
             )
 
     def _should_use_mock(self) -> bool:
@@ -189,14 +179,15 @@ class GenerateBarChart(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateBarChart(
         prompt="Sales by Region",
-        params={"data": {"North": 45, "South": 32, "East": 38, "West": 50}}
+        params={"data": {"North": 45, "South": 32, "East": 38, "West": 50}},
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

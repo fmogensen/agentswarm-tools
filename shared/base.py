@@ -24,9 +24,11 @@ except ImportError:
 
     class AgencyBaseTool(BaseModel, ABC):
         """Fallback BaseTool for development."""
+
         @abstractmethod
         def run(self):
             pass
+
 
 from .errors import ToolError, ValidationError
 from .analytics import record_event, AnalyticsEvent, EventType
@@ -35,8 +37,7 @@ from .security import get_rate_limiter
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 
@@ -94,7 +95,7 @@ class BaseTool(AgencyBaseTool):
         """Initialize tool with request tracking."""
         super().__init__(**data)
         self._request_id = str(uuid.uuid4())
-        self._user_id: Optional[str] = data.get('user_id')
+        self._user_id: Optional[str] = data.get("user_id")
         self._logger = logging.getLogger(f"agentswarm.tools.{self.tool_name}")
         self._start_time: Optional[float] = None
 
@@ -159,7 +160,7 @@ class BaseTool(AgencyBaseTool):
                     EventType.TOOL_ERROR,
                     success=False,
                     error_code=e.error_code,
-                    error_message=str(e)
+                    error_message=str(e),
                 )
 
             return self._format_error_response(e)
@@ -173,14 +174,14 @@ class BaseTool(AgencyBaseTool):
                     EventType.TOOL_ERROR,
                     success=False,
                     error_code="UNEXPECTED_ERROR",
-                    error_message=str(e)
+                    error_message=str(e),
                 )
 
             # Wrap in ToolError
             tool_error = ToolError(
                 message=f"Unexpected error: {str(e)}",
                 tool_name=self.tool_name,
-                error_code="UNEXPECTED_ERROR"
+                error_code="UNEXPECTED_ERROR",
             )
             return self._format_error_response(tool_error)
 
@@ -201,7 +202,7 @@ class BaseTool(AgencyBaseTool):
 
                 # Retry on rate limit or temporary errors
                 if attempt < self.max_retries - 1:
-                    retry_delay = self.retry_delay * (2 ** attempt)  # Exponential backoff
+                    retry_delay = self.retry_delay * (2**attempt)  # Exponential backoff
                     self._logger.warning(
                         f"Attempt {attempt + 1} failed: {e}. Retrying in {retry_delay}s..."
                     )
@@ -235,7 +236,7 @@ class BaseTool(AgencyBaseTool):
         success: bool = True,
         error_code: Optional[str] = None,
         error_message: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Record analytics event."""
         duration_ms = None
@@ -251,7 +252,7 @@ class BaseTool(AgencyBaseTool):
             error_message=error_message,
             metadata=metadata or {},
             user_id=self._user_id,
-            request_id=self._request_id
+            request_id=self._request_id,
         )
 
         record_event(event)
@@ -259,9 +260,7 @@ class BaseTool(AgencyBaseTool):
     def _log_start(self) -> None:
         """Log tool execution start."""
         if self._enable_logging:
-            self._logger.info(
-                f"Starting {self.tool_name} [request_id={self._request_id}]"
-            )
+            self._logger.info(f"Starting {self.tool_name} [request_id={self._request_id}]")
 
     def _log_success(self, result: Any) -> None:
         """Log successful execution."""
@@ -286,7 +285,7 @@ class BaseTool(AgencyBaseTool):
         self._logger.error(
             f"Failed {self.tool_name} after {duration_ms:.2f}ms "
             f"[request_id={self._request_id}] Error: {str(error)}",
-            exc_info=not isinstance(error, ToolError)  # Full traceback for unexpected errors
+            exc_info=not isinstance(error, ToolError),  # Full traceback for unexpected errors
         )
 
     def _format_error_response(self, error: ToolError) -> Dict[str, Any]:
@@ -307,8 +306,8 @@ class BaseTool(AgencyBaseTool):
                 "tool": self.tool_name,
                 "retry_after": error.retry_after,
                 "details": error.details,
-                "request_id": self._request_id
-            }
+                "request_id": self._request_id,
+            },
         }
 
     def _get_metadata(self) -> Dict[str, Any]:
@@ -317,7 +316,7 @@ class BaseTool(AgencyBaseTool):
             "tool_name": self.tool_name,
             "tool_category": self.tool_category,
             "request_id": self._request_id,
-            "user_id": self._user_id
+            "user_id": self._user_id,
         }
 
     def _should_use_mock(self) -> bool:
@@ -337,6 +336,7 @@ class SimpleBaseTool(BaseTool):
 
 
 # Utility function for quick tool creation
+
 
 def create_simple_tool(name: str, execute_func, description: str = ""):
     """
@@ -360,6 +360,7 @@ def create_simple_tool(name: str, execute_func, description: str = ""):
         result = tool.run()  # "HELLO"
         ```
     """
+
     class DynamicTool(SimpleBaseTool):
         __doc__ = description or f"Dynamic tool: {name}"
         tool_name = name

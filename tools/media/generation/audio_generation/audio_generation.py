@@ -33,14 +33,10 @@ class AudioGeneration(BaseTool):
     # Tool metadata
     tool_name: str = "audio_generation"
     tool_category: str = "media"
-    tool_description: str = (
-        "Generate audio: TTS, sound effects, music, voice cloning, songs"
-    )
+    tool_description: str = "Generate audio: TTS, sound effects, music, voice cloning, songs"
 
     # Parameters
-    prompt: str = Field(
-        ..., description="Description of what to generate", min_length=1
-    )
+    prompt: str = Field(..., description="Description of what to generate", min_length=1)
     params: Dict[str, Any] = Field(
         default_factory=dict, description="Additional generation parameters"
     )
@@ -161,12 +157,10 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = AudioGeneration(
-        prompt="calm piano music",
-        params={"voice": "female", "duration": 30}
-    )
+    tool = AudioGeneration(prompt="calm piano music", params={"voice": "female", "duration": 30})
     result = tool.run()
 
     print(f"Success: {result.get('success')}")

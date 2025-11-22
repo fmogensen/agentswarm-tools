@@ -53,33 +53,19 @@ class ImageStyleTransfer(BaseTool):
     tool_category: str = "media"
 
     # Parameters
-    input_image: str = Field(
-        ...,
-        description="URL or path to the input image",
-        min_length=1
-    )
-    style: str = Field(
-        ...,
-        description="Style name or type to apply",
-        min_length=1
-    )
+    input_image: str = Field(..., description="URL or path to the input image", min_length=1)
+    style: str = Field(..., description="Style name or type to apply", min_length=1)
     style_image_url: Optional[str] = Field(
-        default=None,
-        description="Optional URL to custom style reference image"
+        default=None, description="Optional URL to custom style reference image"
     )
     style_strength: float = Field(
-        default=0.7,
-        description="Strength of style application (0.0-1.0)",
-        ge=0.0,
-        le=1.0
+        default=0.7, description="Strength of style application (0.0-1.0)", ge=0.0, le=1.0
     )
     preserve_color: bool = Field(
-        default=False,
-        description="Whether to preserve original image colors"
+        default=False, description="Whether to preserve original image colors"
     )
     output_size: Optional[str] = Field(
-        default=None,
-        description="Output image size (e.g., '1024x1024')"
+        default=None, description="Output image size (e.g., '1024x1024')"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -97,8 +83,8 @@ class ImageStyleTransfer(BaseTool):
                 "metadata": {
                     "tool_name": self.tool_name,
                     "style_applied": self.style,
-                    "style_strength": self.style_strength
-                }
+                    "style_strength": self.style_strength,
+                },
             }
         except Exception as e:
             raise APIError(f"Style transfer failed: {e}", tool_name=self.tool_name)
@@ -109,7 +95,7 @@ class ImageStyleTransfer(BaseTool):
             raise ValidationError(
                 "input_image must be a non-empty string",
                 tool_name=self.tool_name,
-                field="input_image"
+                field="input_image",
             )
 
         # Validate URL or file path format
@@ -120,27 +106,44 @@ class ImageStyleTransfer(BaseTool):
             raise ValidationError(
                 "input_image must be a valid URL or file path",
                 tool_name=self.tool_name,
-                field="input_image"
+                field="input_image",
             )
 
         # Validate style
         valid_styles = {
             # Famous artworks
-            "starry_night", "the_scream", "picasso", "monet", "van_gogh",
-            "mona_lisa", "guernica", "the_great_wave",
+            "starry_night",
+            "the_scream",
+            "picasso",
+            "monet",
+            "van_gogh",
+            "mona_lisa",
+            "guernica",
+            "the_great_wave",
             # Artistic movements
-            "impressionism", "cubism", "abstract", "pop_art", "surrealism",
-            "expressionism", "minimalism", "baroque",
+            "impressionism",
+            "cubism",
+            "abstract",
+            "pop_art",
+            "surrealism",
+            "expressionism",
+            "minimalism",
+            "baroque",
             # Effects
-            "oil_painting", "watercolor", "sketch", "anime", "comic_book",
-            "pixel_art", "low_poly", "stained_glass", "mosaic"
+            "oil_painting",
+            "watercolor",
+            "sketch",
+            "anime",
+            "comic_book",
+            "pixel_art",
+            "low_poly",
+            "stained_glass",
+            "mosaic",
         }
 
         if not self.style:
             raise ValidationError(
-                "style must be specified",
-                tool_name=self.tool_name,
-                field="style"
+                "style must be specified", tool_name=self.tool_name, field="style"
             )
 
         # Allow custom styles if style_image_url is provided
@@ -148,7 +151,7 @@ class ImageStyleTransfer(BaseTool):
             raise ValidationError(
                 f"Invalid style '{self.style}'. Valid styles: {sorted(valid_styles)} or provide style_image_url for custom style",
                 tool_name=self.tool_name,
-                field="style"
+                field="style",
             )
 
         # Validate style_image_url if provided
@@ -157,7 +160,7 @@ class ImageStyleTransfer(BaseTool):
                 raise ValidationError(
                     "style_image_url must be a valid URL",
                     tool_name=self.tool_name,
-                    field="style_image_url"
+                    field="style_image_url",
                 )
 
         # Validate output_size format
@@ -166,7 +169,7 @@ class ImageStyleTransfer(BaseTool):
                 raise ValidationError(
                     "output_size must be in format 'WIDTHxHEIGHT' (e.g., '1024x1024')",
                     tool_name=self.tool_name,
-                    field="output_size"
+                    field="output_size",
                 )
 
             try:
@@ -181,13 +184,13 @@ class ImageStyleTransfer(BaseTool):
                     raise ValidationError(
                         "Output size dimensions must not exceed 4096x4096",
                         tool_name=self.tool_name,
-                        field="output_size"
+                        field="output_size",
                     )
             except ValueError as e:
                 raise ValidationError(
                     f"Invalid output_size format: {e}",
                     tool_name=self.tool_name,
-                    field="output_size"
+                    field="output_size",
                 )
 
     def _should_use_mock(self) -> bool:
@@ -209,13 +212,9 @@ class ImageStyleTransfer(BaseTool):
                 "preserve_color": self.preserve_color,
                 "output_size": self.output_size or "original",
                 "processing_time_seconds": 3.5,
-                "mock": True
+                "mock": True,
             },
-            "metadata": {
-                "mock_mode": True,
-                "tool_name": self.tool_name,
-                "result_id": result_id
-            }
+            "metadata": {"mock_mode": True, "tool_name": self.tool_name, "result_id": result_id},
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -231,7 +230,7 @@ class ImageStyleTransfer(BaseTool):
                 "input_image": self.input_image,
                 "style": self.style,
                 "style_strength": self.style_strength,
-                "preserve_color": self.preserve_color
+                "preserve_color": self.preserve_color,
             }
 
             if self.style_image_url:
@@ -254,20 +253,18 @@ class ImageStyleTransfer(BaseTool):
                 "style_strength": self.style_strength,
                 "preserve_color": self.preserve_color,
                 "output_size": self.output_size or "original",
-                "result_id": result_id
+                "result_id": result_id,
             }
 
         except Exception as e:
-            raise APIError(
-                f"Style transfer API error: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Style transfer API error: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":
     print("Testing ImageStyleTransfer...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test with predefined style
@@ -276,7 +273,7 @@ if __name__ == "__main__":
         style="starry_night",
         style_strength=0.8,
         preserve_color=False,
-        output_size="1024x1024"
+        output_size="1024x1024",
     )
     result = tool.run()
 
@@ -293,7 +290,7 @@ if __name__ == "__main__":
         input_image="https://example.com/photo.jpg",
         style="custom",
         style_image_url="https://example.com/style_reference.jpg",
-        style_strength=0.6
+        style_strength=0.6,
     )
     result2 = tool2.run()
 

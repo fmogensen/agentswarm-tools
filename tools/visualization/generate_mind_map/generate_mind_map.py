@@ -32,9 +32,7 @@ class GenerateMindMap(BaseTool):
     # Tool metadata
     tool_name: str = "generate_mind_map"
     tool_category: str = "visualization"
-    tool_description: str = (
-        "Generate mind map for hierarchical information organization"
-    )
+    tool_description: str = "Generate mind map for hierarchical information organization"
 
     # Parameters
     prompt: str = Field(
@@ -168,14 +166,15 @@ class GenerateMindMap(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateMindMap(
         prompt="Product Development\nFeatures: User Auth, Dashboard, Analytics\nTesting: Unit, Integration, E2E",
-        params={}
+        params={},
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

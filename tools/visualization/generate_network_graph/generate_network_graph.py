@@ -127,9 +127,7 @@ class GenerateNetworkGraph(BaseTool):
             entities: List[str] = self.params.get("entities", [])
             relationships: List[Dict[str, str]] = self.params.get("relationships", [])
 
-            if not isinstance(entities, list) or not all(
-                isinstance(e, str) for e in entities
-            ):
+            if not isinstance(entities, list) or not all(isinstance(e, str) for e in entities):
                 raise ValidationError(
                     "params.entities must be a list of strings",
                     tool_name=self.tool_name,
@@ -162,22 +160,19 @@ class GenerateNetworkGraph(BaseTool):
                         details=rel,
                     )
 
-                edges.append(
-                    {"source": source, "target": target, "relationship": rel_type}
-                )
+                edges.append({"source": source, "target": target, "relationship": rel_type})
 
             return {"nodes": nodes, "edges": edges}
 
         except ValidationError:
             raise
         except Exception as e:
-            raise APIError(
-                f"Failed to construct network graph: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to construct network graph: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateNetworkGraph(
@@ -187,12 +182,12 @@ if __name__ == "__main__":
             "relationships": [
                 {"source": "Alice", "target": "Bob", "type": "collaborates_with"},
                 {"source": "Bob", "target": "Charlie", "type": "reports_to"},
-                {"source": "Charlie", "target": "Diana", "type": "mentors"}
-            ]
-        }
+                {"source": "Charlie", "target": "Diana", "type": "mentors"},
+            ],
+        },
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

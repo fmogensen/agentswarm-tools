@@ -35,9 +35,7 @@ class BashTool(BaseTool):
     tool_description: str = "Execute bash commands in sandboxed Linux environment"
 
     # Parameters
-    input: str = Field(
-        ..., description="Primary input parameter", min_length=1, max_length=5000
-    )
+    input: str = Field(..., description="Primary input parameter", min_length=1, max_length=5000)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -144,6 +142,7 @@ if __name__ == "__main__":
     print("Testing BashTool...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Execute simple echo command
@@ -151,8 +150,8 @@ if __name__ == "__main__":
     tool = BashTool(input="echo 'Hello World'")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'stdout' in result.get('result', {})
+    assert result.get("success") == True
+    assert "stdout" in result.get("result", {})
     print(f"✅ Test 1 passed: Command executed")
     print(f"   Output: {result.get('result', {}).get('stdout')}")
 
@@ -161,7 +160,7 @@ if __name__ == "__main__":
     tool = BashTool(input="pwd")
     result = tool.run()
 
-    assert result.get('success') == True
+    assert result.get("success") == True
     print(f"✅ Test 2 passed: Command executed successfully")
 
     # Test 3: Validation - empty command

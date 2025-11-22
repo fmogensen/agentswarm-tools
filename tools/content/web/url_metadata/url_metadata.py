@@ -64,9 +64,7 @@ class UrlMetadata(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
-        if not self.url.startswith("http://") and not self.url.startswith(
-            "https://"
-        ):
+        if not self.url.startswith("http://") and not self.url.startswith("https://"):
             raise ValidationError(
                 "Input must be a valid URL starting with http:// or https://",
                 tool_name=self.tool_name,
@@ -116,13 +114,12 @@ class UrlMetadata(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = UrlMetadata(
-        url="https://example.com/file.pdf"
-    )
+    tool = UrlMetadata(url="https://example.com/file.pdf")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

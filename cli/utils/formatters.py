@@ -49,7 +49,7 @@ def format_table(headers: List[str], rows: List[List[Any]], max_width: int = 100
         for i, cell in enumerate(row):
             cell_str = str(cell)
             if len(cell_str) > col_widths[i]:
-                truncated.append(cell_str[:col_widths[i] - 3] + "...")
+                truncated.append(cell_str[: col_widths[i] - 3] + "...")
             else:
                 truncated.append(cell_str)
         lines.append(fmt.format(*truncated))
@@ -136,7 +136,7 @@ def truncate_text(text: str, max_length: int = 80, suffix: str = "...") -> str:
     if len(text) <= max_length:
         return text
 
-    return text[:max_length - len(suffix)] + suffix
+    return text[: max_length - len(suffix)] + suffix
 
 
 def format_error(error: str, prefix: str = "Error") -> str:

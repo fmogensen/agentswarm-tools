@@ -24,6 +24,7 @@ try:
     import redis.asyncio as redis
 except ImportError:
     import redis
+
     redis.asyncio = redis
 
 # Import generators
@@ -31,8 +32,7 @@ from code_generator import ToolCodeGenerator
 from test_generator import ToolTestGenerator
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class AgentWorker:
         self.team_name = team_name
         self.redis_client = None
         self.current_assignment = None
-        self.autonomous_mode = os.getenv('AUTONOMOUS_MODE', 'true').lower() == 'true'
+        self.autonomous_mode = os.getenv("AUTONOMOUS_MODE", "true").lower() == "true"
 
         # Initialize AI generators
         try:
@@ -58,7 +58,7 @@ class AgentWorker:
 
     async def connect(self):
         """Connect to Redis."""
-        redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
+        redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
         self.redis_client = await redis.from_url(redis_url, decode_responses=True)
         logger.info(f"🤖 {self.team_id} ({self.team_name}) connected to Redis")
 
@@ -78,7 +78,9 @@ class AgentWorker:
             general_assignment = await self.redis_client.lpop("queue:pending")
             if general_assignment:
                 assignment = json.loads(general_assignment)
-                logger.info(f"📋 {self.team_id} received from general queue: {assignment.get('tool_name')}")
+                logger.info(
+                    f"📋 {self.team_id} received from general queue: {assignment.get('tool_name')}"
+                )
                 return assignment
 
             return None
@@ -100,8 +102,8 @@ class AgentWorker:
         6. Type check with mypy
         7. Report completion
         """
-        tool_name = assignment.get('tool_name')
-        category = assignment.get('category', 'unknown')
+        tool_name = assignment.get("tool_name")
+        category = assignment.get("category", "unknown")
 
         logger.info(f"🔨 {self.team_id} developing: {tool_name}")
 
@@ -147,19 +149,21 @@ class AgentWorker:
                     "assigned_to": self.team_id,
                     "started_at": assignment.get("assigned_at", datetime.now().isoformat()),
                     "completed_at": datetime.now().isoformat(),
-                    "category": category
-                }
+                    "category": category,
+                },
             )
 
             # Publish completion event
             await self.redis_client.publish(
                 "events:tool_completed",
-                json.dumps({
-                    "tool_name": tool_name,
-                    "team_id": self.team_id,
-                    "status": "completed",
-                    "timestamp": datetime.now().isoformat()
-                })
+                json.dumps(
+                    {
+                        "tool_name": tool_name,
+                        "team_id": self.team_id,
+                        "status": "completed",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
             )
 
             logger.info(f"✅ {self.team_id} completed: {tool_name}")
@@ -175,8 +179,8 @@ class AgentWorker:
                     "status": "failed",
                     "error": str(e),
                     "failed_at": datetime.now().isoformat(),
-                    "team_id": self.team_id
-                }
+                    "team_id": self.team_id,
+                },
             )
 
             return False
@@ -189,13 +193,7 @@ class AgentWorker:
                 return json.load(f)
         return None
 
-    def _write_tool_files(
-        self,
-        tool_name: str,
-        category: str,
-        tool_code: str,
-        test_code: str
-    ):
+    def _write_tool_files(self, tool_name: str, category: str, tool_code: str, test_code: str):
         """Write tool files to disk."""
         # Create directory
         tool_dir = Path(f"tools/{category}/{tool_name}")
@@ -226,12 +224,7 @@ __all__ = ["{class_name}"]
         tool_dir = Path(f"tools/{category}/{tool_name}")
 
         try:
-            subprocess.run(
-                ["black", str(tool_dir)],
-                capture_output=True,
-                check=True,
-                timeout=30
-            )
+            subprocess.run(["black", str(tool_dir)], capture_output=True, check=True, timeout=30)
             logger.info(f"  ✅ Code formatted")
         except subprocess.CalledProcessError as e:
             logger.warning(f"  ⚠️  Black formatting had issues: {e}")
@@ -244,7 +237,7 @@ __all__ = ["{class_name}"]
         status_data = {
             "phase": phase,
             "progress": progress,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
         await self.redis_client.set(status_key, json.dumps(status_data))
 
@@ -256,7 +249,7 @@ __all__ = ["{class_name}"]
         logger.info(f"   Autonomous mode: {self.autonomous_mode}")
         logger.info(f"   AI-powered development enabled")
 
-        check_interval = int(os.getenv('CHECK_INTERVAL', '60'))
+        check_interval = int(os.getenv("CHECK_INTERVAL", "60"))
 
         while True:
             try:
@@ -275,17 +268,18 @@ __all__ = ["{class_name}"]
                         await self.redis_client.incr("metrics:failed_attempts")
 
                         # Re-queue if auto-fix enabled
-                        if os.getenv('AUTO_FIX', 'true').lower() == 'true':
-                            retry_count = assignment.get('retry_count', 0)
-                            max_retries = int(os.getenv('RETRY_ATTEMPTS', '5'))
+                        if os.getenv("AUTO_FIX", "true").lower() == "true":
+                            retry_count = assignment.get("retry_count", 0)
+                            max_retries = int(os.getenv("RETRY_ATTEMPTS", "5"))
 
                             if retry_count < max_retries:
-                                assignment['retry_count'] = retry_count + 1
+                                assignment["retry_count"] = retry_count + 1
                                 await self.redis_client.rpush(
-                                    "queue:pending",
-                                    json.dumps(assignment)
+                                    "queue:pending", json.dumps(assignment)
                                 )
-                                logger.info(f"🔄 Re-queued {assignment['tool_name']} (attempt {retry_count + 1}/{max_retries})")
+                                logger.info(
+                                    f"🔄 Re-queued {assignment['tool_name']} (attempt {retry_count + 1}/{max_retries})"
+                                )
                 else:
                     # No work available - wait
                     logger.debug(f"💤 {self.team_id} waiting for work...")
@@ -303,13 +297,13 @@ __all__ = ["{class_name}"]
 
 async def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description='AgentSwarm Development Worker')
-    parser.add_argument('--team', required=True, help='Team ID (e.g., team1)')
+    parser = argparse.ArgumentParser(description="AgentSwarm Development Worker")
+    parser.add_argument("--team", required=True, help="Team ID (e.g., team1)")
     args = parser.parse_args()
 
     # Get team info from environment
-    team_id = os.getenv('TEAM_ID', args.team)
-    team_name = os.getenv('TEAM_NAME', 'unknown')
+    team_id = os.getenv("TEAM_ID", args.team)
+    team_name = os.getenv("TEAM_NAME", "unknown")
 
     # Create and run worker
     worker = AgentWorker(team_id, team_name)

@@ -17,9 +17,7 @@ class TestVideoMetadataExtractor:
     @pytest.fixture
     def tool(self):
         return VideoMetadataExtractor(
-            video_path="/path/to/test_video.mp4",
-            extract_thumbnails=False,
-            include_streams=True
+            video_path="/path/to/test_video.mp4", extract_thumbnails=False, include_streams=True
         )
 
     def test_initialization(self, tool):
@@ -60,10 +58,7 @@ class TestVideoMetadataExtractor:
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_extract_thumbnails(self):
         """Test thumbnail extraction."""
-        tool = VideoMetadataExtractor(
-            video_path="/path/to/test_video.mp4",
-            extract_thumbnails=True
-        )
+        tool = VideoMetadataExtractor(video_path="/path/to/test_video.mp4", extract_thumbnails=True)
         result = tool.run()
         assert "thumbnails" in result["result"]
         assert len(result["result"]["thumbnails"]) == 3
@@ -71,27 +66,20 @@ class TestVideoMetadataExtractor:
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_include_streams(self):
         """Test stream information inclusion."""
-        tool = VideoMetadataExtractor(
-            video_path="/path/to/test_video.mp4",
-            include_streams=True
-        )
+        tool = VideoMetadataExtractor(video_path="/path/to/test_video.mp4", include_streams=True)
         result = tool.run()
         assert "streams" in result["result"]
         assert len(result["result"]["streams"]) == 2
 
     def test_empty_path_validation(self):
         """Test validation with empty path."""
-        tool = VideoMetadataExtractor(
-            video_path="   "
-        )
+        tool = VideoMetadataExtractor(video_path="   ")
         result = tool.run()
         assert result["success"] is False
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_url_path(self):
         """Test with URL path."""
-        tool = VideoMetadataExtractor(
-            video_path="https://example.com/video.mp4"
-        )
+        tool = VideoMetadataExtractor(video_path="https://example.com/video.mp4")
         result = tool.run()
         assert result["success"] is True

@@ -40,9 +40,7 @@ class TestSummarizeLargeDocument:
     # ========== HAPPY PATH ==========
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
-    def test_execute_success(
-        self, tool: SummarizeLargeDocument, mock_response: Dict[str, Any]
-    ):
+    def test_execute_success(self, tool: SummarizeLargeDocument, mock_response: Dict[str, Any]):
         """Test successful execution."""
         with patch.object(tool, "_process", return_value=mock_response):
             result = tool.run()

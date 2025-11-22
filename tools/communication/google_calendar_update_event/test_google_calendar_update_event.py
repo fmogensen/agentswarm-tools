@@ -15,10 +15,7 @@ class TestGoogleCalendarUpdateEvent:
 
     def test_update_summary(self):
         """Test updating event summary."""
-        tool = GoogleCalendarUpdateEvent(
-            event_id="test-123",
-            summary="New Meeting Title"
-        )
+        tool = GoogleCalendarUpdateEvent(event_id="test-123", summary="New Meeting Title")
         result = tool.run()
 
         assert result["success"] == True
@@ -28,9 +25,7 @@ class TestGoogleCalendarUpdateEvent:
     def test_update_time(self):
         """Test updating event times."""
         tool = GoogleCalendarUpdateEvent(
-            event_id="test-123",
-            start_time="2025-01-15T10:00:00",
-            end_time="2025-01-15T11:00:00"
+            event_id="test-123", start_time="2025-01-15T10:00:00", end_time="2025-01-15T11:00:00"
         )
         result = tool.run()
 
@@ -40,10 +35,7 @@ class TestGoogleCalendarUpdateEvent:
 
     def test_update_location(self):
         """Test updating event location."""
-        tool = GoogleCalendarUpdateEvent(
-            event_id="test-123",
-            location="Conference Room A"
-        )
+        tool = GoogleCalendarUpdateEvent(event_id="test-123", location="Conference Room A")
         result = tool.run()
 
         assert result["success"] == True
@@ -52,8 +44,7 @@ class TestGoogleCalendarUpdateEvent:
     def test_update_attendees(self):
         """Test updating event attendees."""
         tool = GoogleCalendarUpdateEvent(
-            event_id="test-123",
-            attendees="user1@example.com,user2@example.com"
+            event_id="test-123", attendees="user1@example.com,user2@example.com"
         )
         result = tool.run()
 
@@ -66,7 +57,7 @@ class TestGoogleCalendarUpdateEvent:
             event_id="test-123",
             summary="Updated Meeting",
             location="New Location",
-            description="Updated description"
+            description="Updated description",
         )
         result = tool.run()
 
@@ -76,44 +67,32 @@ class TestGoogleCalendarUpdateEvent:
     def test_validation_empty_event_id(self):
         """Test validation for empty event ID."""
         with pytest.raises(ValidationError):
-            tool = GoogleCalendarUpdateEvent(
-                event_id="",
-                summary="Test"
-            )
+            tool = GoogleCalendarUpdateEvent(event_id="", summary="Test")
             tool.run()
 
     def test_validation_no_updates(self):
         """Test validation when no fields to update."""
         with pytest.raises(ValidationError):
-            tool = GoogleCalendarUpdateEvent(
-                event_id="test-123"
-            )
+            tool = GoogleCalendarUpdateEvent(event_id="test-123")
             tool.run()
 
     def test_validation_invalid_datetime(self):
         """Test validation for invalid datetime format."""
         with pytest.raises(ValidationError):
-            tool = GoogleCalendarUpdateEvent(
-                event_id="test-123",
-                start_time="invalid-date"
-            )
+            tool = GoogleCalendarUpdateEvent(event_id="test-123", start_time="invalid-date")
             tool.run()
 
     def test_validation_invalid_attendee_email(self):
         """Test validation for invalid attendee email."""
         with pytest.raises(ValidationError):
             tool = GoogleCalendarUpdateEvent(
-                event_id="test-123",
-                attendees="not-an-email,another-invalid"
+                event_id="test-123", attendees="not-an-email,another-invalid"
             )
             tool.run()
 
     def test_mock_mode(self):
         """Test mock mode returns expected structure."""
-        tool = GoogleCalendarUpdateEvent(
-            event_id="test-123",
-            summary="Test Meeting"
-        )
+        tool = GoogleCalendarUpdateEvent(event_id="test-123", summary="Test Meeting")
         result = tool.run()
 
         assert result["metadata"]["mock_mode"] == True

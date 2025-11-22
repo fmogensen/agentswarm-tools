@@ -89,9 +89,7 @@ class TestGenerateFishboneDiagram:
 
     def test_invalid_max_branches_value(self, valid_prompt):
         """Invalid max_branches fails custom validation and returns error dict."""
-        tool = GenerateFishboneDiagram(
-            prompt=valid_prompt, params={"max_branches": 0}
-        )
+        tool = GenerateFishboneDiagram(prompt=valid_prompt, params={"max_branches": 0})
         result = tool.run()
         assert result["success"] is False
 
@@ -155,9 +153,7 @@ class TestGenerateFishboneDiagram:
         assert result["success"] is True
 
     def test_full_workflow(self):
-        tool = GenerateFishboneDiagram(
-            prompt="workflow test", params={"max_branches": 5}
-        )
+        tool = GenerateFishboneDiagram(prompt="workflow test", params={"max_branches": 5})
         result = tool.run()
         assert result["success"] is True
         assert len(result["result"]["causes"]) <= 5

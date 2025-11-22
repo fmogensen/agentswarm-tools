@@ -158,6 +158,7 @@ if __name__ == "__main__":
     print("Testing EmailDraft...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Generate basic email draft
@@ -165,10 +166,10 @@ if __name__ == "__main__":
     tool = EmailDraft(input="Meeting tomorrow at 3pm")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'subject' in result.get('result', {})
-    assert 'body_text' in result.get('result', {})
-    assert 'body_html' in result.get('result', {})
+    assert result.get("success") == True
+    assert "subject" in result.get("result", {})
+    assert "body_text" in result.get("result", {})
+    assert "body_html" in result.get("result", {})
     print(f"✅ Test 1 passed: Email draft generated")
     print(f"   Subject: {result.get('result', {}).get('subject')}")
 
@@ -178,8 +179,8 @@ if __name__ == "__main__":
     tool = EmailDraft(input=long_input)
     result = tool.run()
 
-    assert result.get('success') == True
-    assert len(result.get('result', {}).get('body_text', '')) > 0
+    assert result.get("success") == True
+    assert len(result.get("result", {}).get("body_text", "")) > 0
     print(f"✅ Test 2 passed: Long email draft generated")
 
     # Test 3: Validation - empty input
@@ -196,8 +197,8 @@ if __name__ == "__main__":
     tool = EmailDraft(input="Project update")
     result = tool.run()
 
-    html_body = result.get('result', {}).get('body_html', '')
-    assert '<html>' in html_body or '<p>' in html_body
+    html_body = result.get("result", {}).get("body_html", "")
+    assert "<html>" in html_body or "<p>" in html_body
     print(f"✅ Test 4 passed: HTML body generated correctly")
 
     print("\n✅ All tests passed!")

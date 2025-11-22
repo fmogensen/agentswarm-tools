@@ -127,18 +127,14 @@ class TestGeneratePieChart:
 
     def test_length_mismatch(self):
         """Mismatched lengths fail custom validation and return error dict."""
-        tool = GeneratePieChart(
-            prompt="x", params={"labels": ["A"], "values": [1, 2]}
-        )
+        tool = GeneratePieChart(prompt="x", params={"labels": ["A"], "values": [1, 2]})
         result = tool.run()
         assert result["success"] is False
         assert result["error"]["code"] == "VALIDATION_ERROR"
 
     def test_values_not_numeric(self):
         """Non-numeric values fail custom validation and return error dict."""
-        tool = GeneratePieChart(
-            prompt="x", params={"labels": ["A"], "values": ["bad"]}
-        )
+        tool = GeneratePieChart(prompt="x", params={"labels": ["A"], "values": ["bad"]})
         result = tool.run()
         assert result["success"] is False
         assert result["error"]["code"] == "VALIDATION_ERROR"

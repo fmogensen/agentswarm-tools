@@ -27,7 +27,7 @@ class TestMeetingNotesAgent:
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
             export_formats=["markdown"],
-            meeting_title="Test Meeting"
+            meeting_title="Test Meeting",
         )
         result = tool.run()
 
@@ -42,7 +42,7 @@ class TestMeetingNotesAgent:
         """Test generating notes with multiple export formats"""
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
-            export_formats=["markdown", "pdf", "notion"]
+            export_formats=["markdown", "pdf", "notion"],
         )
         result = tool.run()
 
@@ -57,7 +57,7 @@ class TestMeetingNotesAgent:
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
             export_formats=["markdown"],
-            extract_action_items=True
+            extract_action_items=True,
         )
         result = tool.run()
 
@@ -70,7 +70,7 @@ class TestMeetingNotesAgent:
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
             export_formats=["markdown"],
-            extract_action_items=False
+            extract_action_items=False,
         )
         result = tool.run()
 
@@ -82,7 +82,7 @@ class TestMeetingNotesAgent:
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
             export_formats=["markdown"],
-            identify_speakers=True
+            identify_speakers=True,
         )
         result = tool.run()
 
@@ -94,7 +94,7 @@ class TestMeetingNotesAgent:
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
             export_formats=["notion"],
-            meeting_title="Notion Meeting"
+            meeting_title="Notion Meeting",
         )
         result = tool.run()
 
@@ -105,8 +105,7 @@ class TestMeetingNotesAgent:
     def test_pdf_export_only(self):
         """Test PDF export only"""
         tool = MeetingNotesAgent(
-            audio_url="https://example.com/meeting.mp3",
-            export_formats=["pdf"]
+            audio_url="https://example.com/meeting.mp3", export_formats=["pdf"]
         )
         result = tool.run()
 
@@ -118,7 +117,7 @@ class TestMeetingNotesAgent:
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
             export_formats=["markdown"],
-            include_transcript=True
+            include_transcript=True,
         )
         result = tool.run()
 
@@ -130,7 +129,7 @@ class TestMeetingNotesAgent:
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
             export_formats=["markdown"],
-            include_transcript=False
+            include_transcript=False,
         )
         result = tool.run()
 
@@ -140,10 +139,7 @@ class TestMeetingNotesAgent:
     def test_empty_audio_url_validation(self):
         """Test validation fails with empty audio URL"""
         with pytest.raises(ValidationError) as exc_info:
-            tool = MeetingNotesAgent(
-                audio_url="",
-                export_formats=["markdown"]
-            )
+            tool = MeetingNotesAgent(audio_url="", export_formats=["markdown"])
             tool.run()
 
         assert "audio_url cannot be empty" in str(exc_info.value)
@@ -151,10 +147,7 @@ class TestMeetingNotesAgent:
     def test_invalid_audio_url_validation(self):
         """Test validation fails with invalid URL format"""
         with pytest.raises(ValidationError) as exc_info:
-            tool = MeetingNotesAgent(
-                audio_url="invalid-url",
-                export_formats=["markdown"]
-            )
+            tool = MeetingNotesAgent(audio_url="invalid-url", export_formats=["markdown"])
             tool.run()
 
         assert "must be a valid HTTP/HTTPS URL" in str(exc_info.value)
@@ -162,10 +155,7 @@ class TestMeetingNotesAgent:
     def test_empty_export_formats_validation(self):
         """Test validation fails with empty export formats"""
         with pytest.raises(ValidationError) as exc_info:
-            tool = MeetingNotesAgent(
-                audio_url="https://example.com/meeting.mp3",
-                export_formats=[]
-            )
+            tool = MeetingNotesAgent(audio_url="https://example.com/meeting.mp3", export_formats=[])
             tool.run()
 
         assert "export_formats cannot be empty" in str(exc_info.value)
@@ -174,8 +164,7 @@ class TestMeetingNotesAgent:
         """Test validation fails with invalid export format"""
         with pytest.raises(ValidationError) as exc_info:
             tool = MeetingNotesAgent(
-                audio_url="https://example.com/meeting.mp3",
-                export_formats=["invalid_format"]
+                audio_url="https://example.com/meeting.mp3", export_formats=["invalid_format"]
             )
             tool.run()
 
@@ -186,7 +175,7 @@ class TestMeetingNotesAgent:
         with pytest.raises(ValidationError) as exc_info:
             tool = MeetingNotesAgent(
                 audio_url="https://example.com/meeting.mp3",
-                export_formats=["markdown", "invalid", "pdf"]
+                export_formats=["markdown", "invalid", "pdf"],
             )
             tool.run()
 
@@ -195,8 +184,7 @@ class TestMeetingNotesAgent:
     def test_default_meeting_title(self):
         """Test default meeting title when not provided"""
         tool = MeetingNotesAgent(
-            audio_url="https://example.com/meeting.mp3",
-            export_formats=["markdown"]
+            audio_url="https://example.com/meeting.mp3", export_formats=["markdown"]
         )
         result = tool.run()
 
@@ -209,7 +197,7 @@ class TestMeetingNotesAgent:
         tool = MeetingNotesAgent(
             audio_url="https://example.com/meeting.mp3",
             export_formats=["markdown"],
-            meeting_title=title
+            meeting_title=title,
         )
         result = tool.run()
 
@@ -221,8 +209,7 @@ class TestMeetingNotesAgent:
         os.environ["USE_MOCK_APIS"] = "true"
 
         tool = MeetingNotesAgent(
-            audio_url="https://example.com/meeting.mp3",
-            export_formats=["markdown"]
+            audio_url="https://example.com/meeting.mp3", export_formats=["markdown"]
         )
         result = tool.run()
 
@@ -237,7 +224,7 @@ class TestMeetingNotesAgent:
             include_transcript=True,
             extract_action_items=True,
             identify_speakers=True,
-            meeting_title="Complete Feature Test"
+            meeting_title="Complete Feature Test",
         )
         result = tool.run()
 
@@ -258,8 +245,7 @@ class TestMeetingNotesAgent:
 
         try:
             tool = MeetingNotesAgent(
-                audio_url="https://example.com/meeting.mp3",
-                export_formats=["markdown"]
+                audio_url="https://example.com/meeting.mp3", export_formats=["markdown"]
             )
 
             with patch("requests.head") as mock_head:
@@ -280,8 +266,7 @@ class TestMeetingNotesAgent:
     def test_duration_in_result(self):
         """Test that duration is included in result"""
         tool = MeetingNotesAgent(
-            audio_url="https://example.com/meeting.mp3",
-            export_formats=["markdown"]
+            audio_url="https://example.com/meeting.mp3", export_formats=["markdown"]
         )
         result = tool.run()
 
@@ -291,8 +276,7 @@ class TestMeetingNotesAgent:
     def test_metadata_structure(self):
         """Test metadata structure in response"""
         tool = MeetingNotesAgent(
-            audio_url="https://example.com/meeting.mp3",
-            export_formats=["markdown"]
+            audio_url="https://example.com/meeting.mp3", export_formats=["markdown"]
         )
         result = tool.run()
 
@@ -303,10 +287,7 @@ class TestMeetingNotesAgent:
     def test_whitespace_audio_url_validation(self):
         """Test validation fails with whitespace-only audio URL"""
         with pytest.raises(ValidationError) as exc_info:
-            tool = MeetingNotesAgent(
-                audio_url="   ",
-                export_formats=["markdown"]
-            )
+            tool = MeetingNotesAgent(audio_url="   ", export_formats=["markdown"])
             tool.run()
 
         assert "audio_url cannot be empty" in str(exc_info.value)

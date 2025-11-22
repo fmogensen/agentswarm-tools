@@ -95,7 +95,7 @@ class InMemoryCache(CacheBackend):
         """Retrieve a value from the cache."""
         with self._lock:
             if key in self._cache:
-                if self._expiry.get(key, float('inf')) > time.time():
+                if self._expiry.get(key, float("inf")) > time.time():
                     return self._cache[key]
                 # Entry has expired, clean it up
                 self.delete(key)
@@ -130,7 +130,7 @@ class InMemoryCache(CacheBackend):
         """Check if a key exists and is not expired."""
         with self._lock:
             if key in self._cache:
-                if self._expiry.get(key, float('inf')) > time.time():
+                if self._expiry.get(key, float("inf")) > time.time():
                     return True
                 self.delete(key)
             return False
@@ -138,10 +138,7 @@ class InMemoryCache(CacheBackend):
     def _cleanup_expired(self) -> None:
         """Remove all expired entries."""
         current_time = time.time()
-        expired_keys = [
-            key for key, expiry in self._expiry.items()
-            if expiry <= current_time
-        ]
+        expired_keys = [key for key, expiry in self._expiry.items() if expiry <= current_time]
         for key in expired_keys:
             self._cache.pop(key, None)
             self._expiry.pop(key, None)
@@ -175,7 +172,7 @@ class RedisCache(CacheBackend):
         port: int = 6379,
         db: int = 0,
         password: Optional[str] = None,
-        prefix: str = "agentswarm:"
+        prefix: str = "agentswarm:",
     ):
         """
         Initialize Redis cache connection.
@@ -193,6 +190,7 @@ class RedisCache(CacheBackend):
 
         try:
             import redis
+
             self._client = redis.Redis(
                 host=host,
                 port=port,
@@ -200,7 +198,7 @@ class RedisCache(CacheBackend):
                 password=password,
                 decode_responses=False,  # We'll handle serialization ourselves
                 socket_connect_timeout=2,
-                socket_timeout=2
+                socket_timeout=2,
             )
             # Test connection
             self._client.ping()
@@ -300,7 +298,7 @@ def generate_cache_key(func_name: str, args: Tuple, kwargs: Dict) -> str:
     key_data = {
         "func": func_name,
         "args": _serialize_for_key(args),
-        "kwargs": _serialize_for_key(kwargs)
+        "kwargs": _serialize_for_key(kwargs),
     }
 
     # Create a JSON string and hash it
@@ -349,9 +347,7 @@ def make_cache_key(*parts: Any, prefix: str = "") -> str:
 
 
 def cache_result(
-    ttl: int = 300,
-    cache: Optional[CacheBackend] = None,
-    key_prefix: str = ""
+    ttl: int = 300, cache: Optional[CacheBackend] = None, key_prefix: str = ""
 ) -> Callable:
     """
     Decorator to cache function results.
@@ -370,6 +366,7 @@ def cache_result(
             # ... expensive computation
             return result
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -395,6 +392,7 @@ def cache_result(
         wrapper.cache_info = lambda: {"cache": cache or default_cache}
 
         return wrapper
+
     return decorator
 
 
@@ -411,7 +409,7 @@ class CacheManager:
         redis_port: int = 6379,
         redis_db: int = 0,
         redis_password: Optional[str] = None,
-        fallback_to_memory: bool = True
+        fallback_to_memory: bool = True,
     ):
         """
         Initialize cache manager with optional Redis and in-memory fallback.
@@ -424,10 +422,7 @@ class CacheManager:
             fallback_to_memory: Whether to use in-memory cache as fallback.
         """
         self._redis_cache = RedisCache(
-            host=redis_host,
-            port=redis_port,
-            db=redis_db,
-            password=redis_password
+            host=redis_host, port=redis_port, db=redis_db, password=redis_password
         )
         self._memory_cache = InMemoryCache() if fallback_to_memory else None
 
@@ -559,7 +554,9 @@ if __name__ == "__main__":
     assert result1 == 3, "Failed: decorator result"
     assert result2 == 3, "Failed: cached result"
     assert result3 == 5, "Failed: different args result"
-    assert call_tracker["count"] == 2, f"Failed: function should be called twice, was called {call_tracker['count']} times"
+    assert (
+        call_tracker["count"] == 2
+    ), f"Failed: function should be called twice, was called {call_tracker['count']} times"
     print("   - Decorator caching: PASSED")
 
     # Test RedisCache (graceful fallback)
@@ -597,6 +594,7 @@ if __name__ == "__main__":
     # Test thread safety
     print("\n7. Testing thread safety...")
     import concurrent.futures
+
     thread_cache = InMemoryCache()
 
     def write_values(start):

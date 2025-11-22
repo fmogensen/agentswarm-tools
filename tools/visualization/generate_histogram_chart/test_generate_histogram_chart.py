@@ -107,9 +107,7 @@ class TestGenerateHistogramChart:
     @pytest.mark.parametrize("bins", [0, -1, 2.5, "ten"])
     def test_invalid_bins(self, bins):
         """Invalid bins fail custom validation and return error dict."""
-        tool = GenerateHistogramChart(
-            prompt="test", params={"data": [1, 2, 3], "bins": bins}
-        )
+        tool = GenerateHistogramChart(prompt="test", params={"data": [1, 2, 3], "bins": bins})
         result = tool.run()
         assert result["success"] is False
 

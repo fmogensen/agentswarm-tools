@@ -25,6 +25,7 @@ from shared.errors import ValidationError, APIError
 
 # ========== Think Tests ==========
 
+
 class TestThink:
     """Comprehensive tests for Think tool"""
 
@@ -62,14 +63,14 @@ class TestThink:
 
 # ========== AskForClarification Tests ==========
 
+
 class TestAskForClarification:
     """Comprehensive tests for AskForClarification tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = AskForClarification(
-            question="Could you clarify the requirements?",
-            context="Project specifications"
+            question="Could you clarify the requirements?", context="Project specifications"
         )
         assert tool.question == "Could you clarify the requirements?"
         assert tool.context == "Project specifications"
@@ -78,10 +79,7 @@ class TestAskForClarification:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = AskForClarification(
-            question="What is the deadline?",
-            context="Project timeline"
-        )
+        tool = AskForClarification(question="What is the deadline?", context="Project timeline")
         result = tool.run()
 
         assert result["success"] is True
@@ -96,17 +94,14 @@ class TestAskForClarification:
 
 # ========== BatchProcessor Tests ==========
 
+
 class TestBatchProcessor:
     """Comprehensive tests for BatchProcessor tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         items = ["item1", "item2", "item3"]
-        tool = BatchProcessor(
-            items=items,
-            operation="process",
-            batch_size=2
-        )
+        tool = BatchProcessor(items=items, operation="process", batch_size=2)
         assert tool.items == items
         assert tool.operation == "process"
         assert tool.batch_size == 2
@@ -145,16 +140,13 @@ class TestBatchProcessor:
 
 # ========== CreateProfile Tests ==========
 
+
 class TestCreateProfile:
     """Comprehensive tests for CreateProfile tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = CreateProfile(
-            name="John Doe",
-            email="john@example.com",
-            role="Developer"
-        )
+        tool = CreateProfile(name="John Doe", email="john@example.com", role="Developer")
         assert tool.name == "John Doe"
         assert tool.email == "john@example.com"
         assert tool.role == "Developer"
@@ -163,11 +155,7 @@ class TestCreateProfile:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = CreateProfile(
-            name="Jane Smith",
-            email="jane@example.com",
-            role="Manager"
-        )
+        tool = CreateProfile(name="Jane Smith", email="jane@example.com", role="Manager")
         result = tool.run()
 
         assert result["success"] is True
@@ -188,15 +176,13 @@ class TestCreateProfile:
 
 # ========== FactChecker Tests ==========
 
+
 class TestFactChecker:
     """Comprehensive tests for FactChecker tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = FactChecker(
-            statement="The Earth is round",
-            sources=["source1", "source2"]
-        )
+        tool = FactChecker(statement="The Earth is round", sources=["source1", "source2"])
         assert tool.statement == "The Earth is round"
         assert len(tool.sources) == 2
         assert tool.tool_name == "fact_checker"
@@ -205,8 +191,7 @@ class TestFactChecker:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = FactChecker(
-            statement="Water boils at 100 degrees Celsius",
-            sources=["physics textbook"]
+            statement="Water boils at 100 degrees Celsius", sources=["physics textbook"]
         )
         result = tool.run()
 
@@ -229,20 +214,18 @@ class TestFactChecker:
         mock_response.json.return_value = {
             "verdict": "true",
             "confidence": 0.95,
-            "sources_verified": 2
+            "sources_verified": 2,
         }
         mock_post.return_value = mock_response
 
-        tool = FactChecker(
-            statement="Test statement",
-            sources=["source1"]
-        )
+        tool = FactChecker(statement="Test statement", sources=["source1"])
         result = tool.run()
 
         assert result["success"] is True
 
 
 # ========== JsonValidator Tests ==========
+
 
 class TestJsonValidator:
     """Comprehensive tests for JsonValidator tool"""
@@ -279,15 +262,7 @@ class TestJsonValidator:
     def test_edge_case_nested_json(self, monkeypatch):
         """Test validation of deeply nested JSON"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        nested_json = json.dumps({
-            "level1": {
-                "level2": {
-                    "level3": {
-                        "level4": {"data": "value"}
-                    }
-                }
-            }
-        })
+        nested_json = json.dumps({"level1": {"level2": {"level3": {"level4": {"data": "value"}}}}})
         tool = JsonValidator(json_data=nested_json)
         result = tool.run()
 
@@ -305,15 +280,13 @@ class TestJsonValidator:
 
 # ========== TextFormatter Tests ==========
 
+
 class TestTextFormatter:
     """Comprehensive tests for TextFormatter tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = TextFormatter(
-            text="  Hello World  ",
-            format_type="trim"
-        )
+        tool = TextFormatter(text="  Hello World  ", format_type="trim")
         assert tool.text == "  Hello World  "
         assert tool.format_type == "trim"
         assert tool.tool_name == "text_formatter"
@@ -367,16 +340,13 @@ class TestTextFormatter:
 
 # ========== Translation Tests ==========
 
+
 class TestTranslation:
     """Comprehensive tests for Translation tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = Translation(
-            text="Hello world",
-            source_language="en",
-            target_language="es"
-        )
+        tool = Translation(text="Hello world", source_language="en", target_language="es")
         assert tool.text == "Hello world"
         assert tool.source_language == "en"
         assert tool.target_language == "es"
@@ -385,11 +355,7 @@ class TestTranslation:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = Translation(
-            text="Good morning",
-            source_language="en",
-            target_language="fr"
-        )
+        tool = Translation(text="Good morning", source_language="en", target_language="fr")
         result = tool.run()
 
         assert result["success"] is True
@@ -424,15 +390,11 @@ class TestTranslation:
         mock_response.json.return_value = {
             "translated_text": "Hola mundo",
             "source_language": "en",
-            "target_language": "es"
+            "target_language": "es",
         }
         mock_post.return_value = mock_response
 
-        tool = Translation(
-            text="Hello world",
-            source_language="en",
-            target_language="es"
-        )
+        tool = Translation(text="Hello world", source_language="en", target_language="es")
         result = tool.run()
 
         assert result["success"] is True
@@ -441,11 +403,7 @@ class TestTranslation:
         """Test translation of long text"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         long_text = "This is a sentence. " * 500
-        tool = Translation(
-            text=long_text,
-            source_language="en",
-            target_language="es"
-        )
+        tool = Translation(text=long_text, source_language="en", target_language="es")
         result = tool.run()
 
         assert result["success"] is True
@@ -454,11 +412,7 @@ class TestTranslation:
         """Test translation with special characters"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         special_text = "Hello! @user #hashtag $100 50%"
-        tool = Translation(
-            text=special_text,
-            source_language="en",
-            target_language="es"
-        )
+        tool = Translation(text=special_text, source_language="en", target_language="es")
         result = tool.run()
 
         assert result["success"] is True

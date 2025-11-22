@@ -27,7 +27,7 @@ class TestOfficeSlidesValidation:
         with pytest.raises(ValidationError) as exc_info:
             tool = OfficeSlidesTool(
                 slides=[{"title": "Test", "content": ["Content"], "layout": "content"}],
-                theme="invalid_theme"
+                theme="invalid_theme",
             )
             tool.run()
         assert "Invalid theme" in str(exc_info.value)
@@ -37,7 +37,7 @@ class TestOfficeSlidesValidation:
         with pytest.raises(ValidationError) as exc_info:
             tool = OfficeSlidesTool(
                 slides=[{"title": "Test", "content": ["Content"], "layout": "content"}],
-                output_format="invalid_format"
+                output_format="invalid_format",
             )
             tool.run()
         assert "Invalid output_format" in str(exc_info.value)
@@ -45,27 +45,21 @@ class TestOfficeSlidesValidation:
     def test_slide_missing_title_raises_error(self):
         """Test that slide missing title raises ValidationError."""
         with pytest.raises(ValidationError) as exc_info:
-            tool = OfficeSlidesTool(
-                slides=[{"content": ["Content"], "layout": "content"}]
-            )
+            tool = OfficeSlidesTool(slides=[{"content": ["Content"], "layout": "content"}])
             tool.run()
         assert "missing 'title'" in str(exc_info.value)
 
     def test_slide_missing_content_raises_error(self):
         """Test that slide missing content raises ValidationError."""
         with pytest.raises(ValidationError) as exc_info:
-            tool = OfficeSlidesTool(
-                slides=[{"title": "Test", "layout": "content"}]
-            )
+            tool = OfficeSlidesTool(slides=[{"title": "Test", "layout": "content"}])
             tool.run()
         assert "missing 'content'" in str(exc_info.value)
 
     def test_slide_missing_layout_raises_error(self):
         """Test that slide missing layout raises ValidationError."""
         with pytest.raises(ValidationError) as exc_info:
-            tool = OfficeSlidesTool(
-                slides=[{"title": "Test", "content": ["Content"]}]
-            )
+            tool = OfficeSlidesTool(slides=[{"title": "Test", "content": ["Content"]}])
             tool.run()
         assert "missing 'layout'" in str(exc_info.value)
 
@@ -83,7 +77,7 @@ class TestOfficeSlidesValidation:
         with pytest.raises(ValidationError) as exc_info:
             tool = OfficeSlidesTool(
                 slides=[{"title": "Test", "content": ["Content"], "layout": "content"}],
-                title_slide={"subtitle": "Subtitle only"}
+                title_slide={"subtitle": "Subtitle only"},
             )
             tool.run()
         assert "title_slide missing 'title'" in str(exc_info.value)
@@ -99,10 +93,10 @@ class TestOfficeSlidesToolMockMode:
         tool = OfficeSlidesTool(
             slides=[
                 {"title": "Slide 1", "content": ["Point A", "Point B"], "layout": "title_content"},
-                {"title": "Slide 2", "content": ["Data"], "layout": "content"}
+                {"title": "Slide 2", "content": ["Data"], "layout": "content"},
             ],
             theme="modern",
-            title_slide={"title": "Test Presentation", "subtitle": "2025"}
+            title_slide={"title": "Test Presentation", "subtitle": "2025"},
         )
         result = tool.run()
 
@@ -118,7 +112,7 @@ class TestOfficeSlidesToolMockMode:
 
         tool = OfficeSlidesTool(
             slides=[{"title": "Test", "content": ["Content"], "layout": "content"}],
-            output_format="pdf"
+            output_format="pdf",
         )
         result = tool.run()
 
@@ -132,7 +126,7 @@ class TestOfficeSlidesToolMockMode:
         tool = OfficeSlidesTool(
             slides=[
                 {"title": "Slide 1", "content": ["Content"], "layout": "content"},
-                {"title": "Slide 2", "content": ["More"], "layout": "content"}
+                {"title": "Slide 2", "content": ["More"], "layout": "content"},
             ]
         )
         result = tool.run()
@@ -146,7 +140,7 @@ class TestOfficeSlidesToolMockMode:
 
         tool = OfficeSlidesTool(
             slides=[{"title": "Data", "content": ["Chart here"], "layout": "content"}],
-            charts=[{"type": "bar", "data": [1, 2, 3]}]
+            charts=[{"type": "bar", "data": [1, 2, 3]}],
         )
         result = tool.run()
 
@@ -160,8 +154,7 @@ class TestOfficeSlidesToolMockMode:
 
         for theme in themes:
             tool = OfficeSlidesTool(
-                slides=[{"title": "Test", "content": ["Content"], "layout": "content"}],
-                theme=theme
+                slides=[{"title": "Test", "content": ["Content"], "layout": "content"}], theme=theme
             )
             result = tool.run()
 
@@ -193,11 +186,15 @@ class TestOfficeSlidesRealMode:
 
         tool = OfficeSlidesTool(
             slides=[
-                {"title": "Introduction", "content": ["Point 1", "Point 2"], "layout": "title_content"},
-                {"title": "Details", "content": ["Detail A", "Detail B"], "layout": "content"}
+                {
+                    "title": "Introduction",
+                    "content": ["Point 1", "Point 2"],
+                    "layout": "title_content",
+                },
+                {"title": "Details", "content": ["Detail A", "Detail B"], "layout": "content"},
             ],
             theme="modern",
-            title_slide={"title": "Test Report", "subtitle": "Q4 2025", "author": "Test User"}
+            title_slide={"title": "Test Report", "subtitle": "Q4 2025", "author": "Test User"},
         )
 
         try:
@@ -228,10 +225,10 @@ class TestOfficeSlidesRealMode:
                 {
                     "title": "Comparison",
                     "content": ["Left 1", "Left 2", "Right 1", "Right 2"],
-                    "layout": "two_column"
+                    "layout": "two_column",
                 }
             ],
-            theme="corporate"
+            theme="corporate",
         )
 
         try:
@@ -251,11 +248,7 @@ class TestOfficeSlidesRealMode:
         """Test blank layout generation."""
         os.environ["USE_MOCK_APIS"] = "false"
 
-        tool = OfficeSlidesTool(
-            slides=[
-                {"title": "Blank Slide", "content": [], "layout": "blank"}
-            ]
-        )
+        tool = OfficeSlidesTool(slides=[{"title": "Blank Slide", "content": [], "layout": "blank"}])
 
         try:
             result = tool.run()
@@ -275,7 +268,11 @@ class TestOfficeSlidesRealMode:
 
         tool = OfficeSlidesTool(
             slides=[
-                {"title": "String Content", "content": "This is a single paragraph.", "layout": "content"}
+                {
+                    "title": "String Content",
+                    "content": "This is a single paragraph.",
+                    "layout": "content",
+                }
             ]
         )
 
@@ -297,7 +294,7 @@ class TestOfficeSlidesRealMode:
 
         tool = OfficeSlidesTool(
             slides=[{"title": "Minimal", "content": ["Clean design"], "layout": "content"}],
-            theme="minimal"
+            theme="minimal",
         )
 
         try:
@@ -352,8 +349,8 @@ class TestOfficeSlidesEdgeCases:
             title_slide={
                 "title": "Complete Title Slide",
                 "subtitle": "Subtitle Information",
-                "author": "John Doe"
-            }
+                "author": "John Doe",
+            },
         )
         result = tool.run()
 
@@ -365,7 +362,7 @@ class TestOfficeSlidesEdgeCases:
 
         tool = OfficeSlidesTool(
             slides=[{"title": "Content", "content": ["Data"], "layout": "content"}],
-            title_slide={"title": "Just Title"}
+            title_slide={"title": "Just Title"},
         )
         result = tool.run()
 
@@ -395,31 +392,27 @@ class TestOfficeSlidesIntegration:
                 {
                     "title": "Executive Summary",
                     "content": ["Revenue up 25%", "New markets entered", "Team expanded"],
-                    "layout": "title_content"
+                    "layout": "title_content",
                 },
                 {
                     "title": "Key Metrics",
                     "content": ["Q1: $1M", "Q2: $1.2M", "Q3: $1.5M", "Q4: $2M"],
-                    "layout": "two_column"
+                    "layout": "two_column",
                 },
                 {
                     "title": "Detailed Analysis",
                     "content": "This section provides in-depth analysis of our performance...",
-                    "layout": "content"
+                    "layout": "content",
                 },
-                {
-                    "title": "Thank You",
-                    "content": [],
-                    "layout": "blank"
-                }
+                {"title": "Thank You", "content": [], "layout": "blank"},
             ],
             theme="corporate",
             title_slide={
                 "title": "Q4 Business Review",
                 "subtitle": "2025 Annual Report",
-                "author": "Finance Team"
+                "author": "Finance Team",
             },
-            output_format="pptx"
+            output_format="pptx",
         )
 
         result = tool.run()
@@ -437,16 +430,16 @@ class TestOfficeSlidesIntegration:
                 {
                     "title": "Introduction to Python",
                     "content": ["High-level language", "Easy to learn", "Versatile"],
-                    "layout": "title_content"
+                    "layout": "title_content",
                 },
                 {
                     "title": "Basic Syntax",
                     "content": ["Variables", "Functions", "Classes", "Modules"],
-                    "layout": "content"
-                }
+                    "layout": "content",
+                },
             ],
             theme="minimal",
-            title_slide={"title": "Python Programming 101", "author": "Prof. Smith"}
+            title_slide={"title": "Python Programming 101", "author": "Prof. Smith"},
         )
 
         result = tool.run()

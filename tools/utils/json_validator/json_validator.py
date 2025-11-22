@@ -40,23 +40,12 @@ class JsonValidator(BaseTool):
     tool_category: str = "utils"
 
     # Parameters
-    json_data: str = Field(
-        ...,
-        description="JSON data as a string or JSON string",
-        min_length=1
-    )
+    json_data: str = Field(..., description="JSON data as a string or JSON string", min_length=1)
     schema: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Optional JSON schema to validate against"
+        None, description="Optional JSON schema to validate against"
     )
-    strict: bool = Field(
-        True,
-        description="Whether to enforce strict validation"
-    )
-    validate_types: bool = Field(
-        True,
-        description="Whether to validate data types"
-    )
+    strict: bool = Field(True, description="Whether to enforce strict validation")
+    validate_types: bool = Field(True, description="Whether to validate data types")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute JSON validation."""
@@ -78,8 +67,8 @@ class JsonValidator(BaseTool):
                     "tool_name": self.tool_name,
                     "has_schema": self.schema is not None,
                     "strict_mode": self.strict,
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"JSON validation failed: {e}", tool_name=self.tool_name)
@@ -88,16 +77,14 @@ class JsonValidator(BaseTool):
         """Validate parameters."""
         if not self.json_data or not isinstance(self.json_data, str):
             raise ValidationError(
-                "json_data must be a non-empty string",
-                tool_name=self.tool_name,
-                field="json_data"
+                "json_data must be a non-empty string", tool_name=self.tool_name, field="json_data"
             )
 
         if not self.json_data.strip():
             raise ValidationError(
                 "json_data cannot be empty or whitespace",
                 tool_name=self.tool_name,
-                field="json_data"
+                field="json_data",
             )
 
     def _should_use_mock(self) -> bool:
@@ -114,13 +101,13 @@ class JsonValidator(BaseTool):
                 "errors": [],
                 "warnings": [],
                 "schema_valid": self.schema is not None,
-                "message": "Mock validation: JSON is valid"
+                "message": "Mock validation: JSON is valid",
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
-                "has_schema": self.schema is not None
-            }
+                "has_schema": self.schema is not None,
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -135,18 +122,20 @@ class JsonValidator(BaseTool):
             parsed_data = json.loads(self.json_data)
             is_valid = True
         except json.JSONDecodeError as e:
-            errors.append({
-                "type": "parse_error",
-                "message": f"Invalid JSON syntax: {str(e)}",
-                "line": e.lineno,
-                "column": e.colno
-            })
+            errors.append(
+                {
+                    "type": "parse_error",
+                    "message": f"Invalid JSON syntax: {str(e)}",
+                    "line": e.lineno,
+                    "column": e.colno,
+                }
+            )
             return {
                 "is_valid": False,
                 "parsed_data": None,
                 "errors": errors,
                 "warnings": warnings,
-                "message": "JSON parsing failed"
+                "message": "JSON parsing failed",
             }
 
         # Step 2: Validate against schema if provided
@@ -176,7 +165,7 @@ class JsonValidator(BaseTool):
             "errors": errors,
             "warnings": warnings,
             "schema_valid": schema_valid if self.schema else None,
-            "message": "JSON is valid" if final_valid else "JSON validation failed"
+            "message": "JSON is valid" if final_valid else "JSON validation failed",
         }
 
     def _validate_against_schema(self, data: Any, schema: Dict[str, Any]) -> list:
@@ -195,35 +184,41 @@ class JsonValidator(BaseTool):
                 "number": ("int", "float"),
                 "integer": "int",
                 "boolean": "bool",
-                "null": "NoneType"
+                "null": "NoneType",
             }
 
             expected_python_type = type_map.get(expected_type, expected_type)
 
             if isinstance(expected_python_type, tuple):
                 if actual_type not in expected_python_type:
-                    errors.append({
-                        "type": "type_mismatch",
-                        "message": f"Expected type {expected_type}, got {actual_type}",
-                        "path": "$"
-                    })
+                    errors.append(
+                        {
+                            "type": "type_mismatch",
+                            "message": f"Expected type {expected_type}, got {actual_type}",
+                            "path": "$",
+                        }
+                    )
             else:
                 if actual_type != expected_python_type:
-                    errors.append({
-                        "type": "type_mismatch",
-                        "message": f"Expected type {expected_type}, got {actual_type}",
-                        "path": "$"
-                    })
+                    errors.append(
+                        {
+                            "type": "type_mismatch",
+                            "message": f"Expected type {expected_type}, got {actual_type}",
+                            "path": "$",
+                        }
+                    )
 
         # Validate required properties for objects
         if isinstance(data, dict) and "required" in schema:
             for required_field in schema["required"]:
                 if required_field not in data:
-                    errors.append({
-                        "type": "missing_required",
-                        "message": f"Missing required field: {required_field}",
-                        "path": "$"
-                    })
+                    errors.append(
+                        {
+                            "type": "missing_required",
+                            "message": f"Missing required field: {required_field}",
+                            "path": "$",
+                        }
+                    )
 
         # Validate properties
         if isinstance(data, dict) and "properties" in schema:
@@ -243,20 +238,27 @@ class JsonValidator(BaseTool):
         if isinstance(data, dict):
             for key, value in data.items():
                 # Check for numeric strings
-                if isinstance(value, str) and value.strip().replace(".", "", 1).replace("-", "", 1).isdigit():
-                    warnings.append({
-                        "type": "type_warning",
-                        "message": f"Numeric value stored as string: '{value}'",
-                        "path": f"{path}.{key}"
-                    })
+                if (
+                    isinstance(value, str)
+                    and value.strip().replace(".", "", 1).replace("-", "", 1).isdigit()
+                ):
+                    warnings.append(
+                        {
+                            "type": "type_warning",
+                            "message": f"Numeric value stored as string: '{value}'",
+                            "path": f"{path}.{key}",
+                        }
+                    )
 
                 # Check for boolean strings
                 if isinstance(value, str) and value.lower() in ["true", "false"]:
-                    warnings.append({
-                        "type": "type_warning",
-                        "message": f"Boolean value stored as string: '{value}'",
-                        "path": f"{path}.{key}"
-                    })
+                    warnings.append(
+                        {
+                            "type": "type_warning",
+                            "message": f"Boolean value stored as string: '{value}'",
+                            "path": f"{path}.{key}",
+                        }
+                    )
 
                 # Recursive check
                 if isinstance(value, (dict, list)):
@@ -277,23 +279,29 @@ class JsonValidator(BaseTool):
             # Check for empty values
             for key, value in data.items():
                 if value is None:
-                    warnings.append({
-                        "type": "strict_warning",
-                        "message": f"Null value found",
-                        "path": f"$.{key}"
-                    })
+                    warnings.append(
+                        {
+                            "type": "strict_warning",
+                            "message": f"Null value found",
+                            "path": f"$.{key}",
+                        }
+                    )
                 elif isinstance(value, str) and not value.strip():
-                    warnings.append({
-                        "type": "strict_warning",
-                        "message": f"Empty string found",
-                        "path": f"$.{key}"
-                    })
+                    warnings.append(
+                        {
+                            "type": "strict_warning",
+                            "message": f"Empty string found",
+                            "path": f"$.{key}",
+                        }
+                    )
                 elif isinstance(value, (list, dict)) and not value:
-                    warnings.append({
-                        "type": "strict_warning",
-                        "message": f"Empty {type(value).__name__} found",
-                        "path": f"$.{key}"
-                    })
+                    warnings.append(
+                        {
+                            "type": "strict_warning",
+                            "message": f"Empty {type(value).__name__} found",
+                            "path": f"$.{key}",
+                        }
+                    )
 
         return warnings
 
@@ -304,12 +312,9 @@ if __name__ == "__main__":
     # Test with mock mode
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = JsonValidator(
-        json_data='{"name": "John", "age": 30}',
-        validate_types=True
-    )
+    tool = JsonValidator(json_data='{"name": "John", "age": 30}', validate_types=True)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True
+    assert result.get("success") == True
     print("JsonValidator test passed!")

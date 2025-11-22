@@ -43,46 +43,74 @@ CATEGORIES = {
 
 # All 101 tools
 ALL_TOOLS = [
-    ("web_search", "search"), ("scholar_search", "search"), ("image_search", "search"),
-    ("video_search", "search"), ("product_search", "search"), ("google_product_search", "search"),
-    ("financial_report", "search"), ("stock_price", "search"),
-    ("crawler", "web_content"), ("summarize_large_document", "web_content"),
-    ("url_metadata", "web_content"), ("webpage_capture_screen", "web_content"),
+    ("web_search", "search"),
+    ("scholar_search", "search"),
+    ("image_search", "search"),
+    ("video_search", "search"),
+    ("product_search", "search"),
+    ("google_product_search", "search"),
+    ("financial_report", "search"),
+    ("stock_price", "search"),
+    ("crawler", "web_content"),
+    ("summarize_large_document", "web_content"),
+    ("url_metadata", "web_content"),
+    ("webpage_capture_screen", "web_content"),
     ("resource_discovery", "web"),
-    ("image_generation", "media_generation"), ("video_generation", "media_generation"),
+    ("image_generation", "media_generation"),
+    ("video_generation", "media_generation"),
     ("audio_generation", "media_generation"),
-    ("understand_images", "media_analysis"), ("understand_video", "media_analysis"),
-    ("batch_understand_videos", "media_analysis"), ("analyze_media_content", "media_analysis"),
-    ("audio_transcribe", "media_analysis"), ("merge_audio", "media_analysis"),
+    ("understand_images", "media_analysis"),
+    ("understand_video", "media_analysis"),
+    ("batch_understand_videos", "media_analysis"),
+    ("analyze_media_content", "media_analysis"),
+    ("audio_transcribe", "media_analysis"),
+    ("merge_audio", "media_analysis"),
     ("extract_audio_from_video", "media_analysis"),
-    ("aidrive_tool", "storage"), ("file_format_converter", "storage"),
-    ("onedrive_search", "storage"), ("onedrive_file_read", "storage"),
-    ("gmail_search", "communication"), ("gmail_read", "communication"),
-    ("read_email_attachments", "communication"), ("email_draft", "communication"),
-    ("google_calendar_list", "communication"), ("google_calendar_create_event_draft", "communication"),
-    ("phone_call", "communication"), ("query_call_logs", "communication"),
-    ("generate_line_chart", "visualization"), ("generate_bar_chart", "visualization"),
-    ("generate_column_chart", "visualization"), ("generate_pie_chart", "visualization"),
-    ("generate_area_chart", "visualization"), ("generate_scatter_chart", "visualization"),
-    ("generate_dual_axes_chart", "visualization"), ("generate_histogram_chart", "visualization"),
-    ("generate_radar_chart", "visualization"), ("generate_treemap_chart", "visualization"),
-    ("generate_word_cloud_chart", "visualization"), ("generate_fishbone_diagram", "visualization"),
-    ("generate_flow_diagram", "visualization"), ("generate_mind_map", "visualization"),
+    ("aidrive_tool", "storage"),
+    ("file_format_converter", "storage"),
+    ("onedrive_search", "storage"),
+    ("onedrive_file_read", "storage"),
+    ("gmail_search", "communication"),
+    ("gmail_read", "communication"),
+    ("read_email_attachments", "communication"),
+    ("email_draft", "communication"),
+    ("google_calendar_list", "communication"),
+    ("google_calendar_create_event_draft", "communication"),
+    ("phone_call", "communication"),
+    ("query_call_logs", "communication"),
+    ("generate_line_chart", "visualization"),
+    ("generate_bar_chart", "visualization"),
+    ("generate_column_chart", "visualization"),
+    ("generate_pie_chart", "visualization"),
+    ("generate_area_chart", "visualization"),
+    ("generate_scatter_chart", "visualization"),
+    ("generate_dual_axes_chart", "visualization"),
+    ("generate_histogram_chart", "visualization"),
+    ("generate_radar_chart", "visualization"),
+    ("generate_treemap_chart", "visualization"),
+    ("generate_word_cloud_chart", "visualization"),
+    ("generate_fishbone_diagram", "visualization"),
+    ("generate_flow_diagram", "visualization"),
+    ("generate_mind_map", "visualization"),
     ("generate_network_graph", "visualization"),
     ("maps_search", "location"),
-    ("bash_tool", "code_execution"), ("read_tool", "code_execution"),
-    ("write_tool", "code_execution"), ("multiedit_tool", "code_execution"),
+    ("bash_tool", "code_execution"),
+    ("read_tool", "code_execution"),
+    ("write_tool", "code_execution"),
+    ("multiedit_tool", "code_execution"),
     ("downloadfilewrapper_tool", "code_execution"),
     ("create_agent", "document_creation"),
-    ("notion_search", "workspace"), ("notion_read", "workspace"),
-    ("think", "utils"), ("ask_for_clarification", "utils"),
+    ("notion_search", "workspace"),
+    ("notion_read", "workspace"),
+    ("think", "utils"),
+    ("ask_for_clarification", "utils"),
 ]
 
 
 def extract_tool_info(tool_path: Path) -> Dict:
     """Extract tool information from Python file."""
     try:
-        with open(tool_path, 'r') as f:
+        with open(tool_path, "r") as f:
             content = f.read()
 
         # Extract class docstring
@@ -98,7 +126,7 @@ def extract_tool_info(tool_path: Path) -> Dict:
 
         # Extract parameters
         params = []
-        param_pattern = r'(\w+):\s*\w+\s*=\s*Field\(([^)]+)\)'
+        param_pattern = r"(\w+):\s*\w+\s*=\s*Field\(([^)]+)\)"
         for match in re.finditer(param_pattern, content):
             param_name = match.group(1)
             param_def = match.group(2)
@@ -109,7 +137,7 @@ def extract_tool_info(tool_path: Path) -> Dict:
         return {
             "name": tool_name,
             "category": tool_category,
-            "description": description.split('\n')[0] if description else "",
+            "description": description.split("\n")[0] if description else "",
             "full_description": description,
             "parameters": params,
         }
@@ -133,9 +161,9 @@ def copy_reference_docs():
         dst = PROJECT_ROOT / dst_name
 
         if src.exists():
-            with open(src, 'r') as f:
+            with open(src, "r") as f:
                 content = f.read()
-            with open(dst, 'w') as f:
+            with open(dst, "w") as f:
                 f.write(content)
             print(f"  ✅ Created {dst_name}")
         else:
@@ -159,7 +187,7 @@ def generate_category_readmes():
             continue
 
         readme_path = category_path / "README.md"
-        category_title = CATEGORIES.get(category, category.replace('_', ' ').title())
+        category_title = CATEGORIES.get(category, category.replace("_", " ").title())
 
         content = f"""# {category_title}
 
@@ -176,7 +204,7 @@ This directory contains tools for {category_title.lower()}.
 
             if tool_file.exists():
                 info = extract_tool_info(tool_file)
-                desc = info.get('description', 'No description available')
+                desc = info.get("description", "No description available")
                 content += f"### {tool_name}\n\n{desc}\n\n"
 
         content += f"""## Usage
@@ -198,7 +226,7 @@ See individual tool READMEs for detailed documentation:
         for tool_name in sorted(tools):
             content += f"- [{tool_name}](./{tool_name}/README.md)\n"
 
-        with open(readme_path, 'w') as f:
+        with open(readme_path, "w") as f:
             f.write(content)
 
         print(f"  ✅ Created {category}/README.md ({len(tools)} tools)")
@@ -236,8 +264,8 @@ def generate_tool_readmes():
 
 """
 
-        if info.get('parameters'):
-            for param_name, param_desc in info['parameters']:
+        if info.get("parameters"):
+            for param_name, param_desc in info["parameters"]:
                 content += f"- **{param_name}**: {param_desc}\n"
         else:
             content += "No parameters documented.\n"
@@ -260,10 +288,10 @@ from tools.{category}.{tool_name} import {tool_name.replace('_', ' ').title().re
 tool = {tool_name.replace('_', ' ').title().replace(' ', '')}(
 """
 
-        if info.get('parameters'):
-            for i, (param_name, _) in enumerate(info['parameters'][:2]):
+        if info.get("parameters"):
+            for i, (param_name, _) in enumerate(info["parameters"][:2]):
                 content += f'    {param_name}="example_value"'
-                if i < min(len(info['parameters']), 2) - 1:
+                if i < min(len(info["parameters"]), 2) - 1:
                     content += ","
                 content += "\n"
 
@@ -294,7 +322,7 @@ pytest tools/{category}/{tool_name}/test_{tool_name}.py -v
 - [Category Overview](../README.md)
 """
 
-        with open(readme_path, 'w') as f:
+        with open(readme_path, "w") as f:
             f.write(content)
 
         count += 1
@@ -322,7 +350,9 @@ def main():
     print(f"   - 3 root-level documentation files")
     print(f"   - {len(set(cat for _, cat in ALL_TOOLS))} category README files")
     print(f"   - {len(ALL_TOOLS)} individual tool README files")
-    print(f"\n📁 Total: ~{3 + len(set(cat for _, cat in ALL_TOOLS)) + len(ALL_TOOLS)} documentation files created")
+    print(
+        f"\n📁 Total: ~{3 + len(set(cat for _, cat in ALL_TOOLS)) + len(ALL_TOOLS)} documentation files created"
+    )
 
 
 if __name__ == "__main__":

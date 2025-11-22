@@ -7,13 +7,15 @@ import os
 import time
 from datetime import datetime, timezone
 
+
 def clear_screen():
     """Clear the terminal screen."""
-    os.system('clear' if os.name != 'nt' else 'cls')
+    os.system("clear" if os.name != "nt" else "cls")
+
 
 def main():
     """Monitor agent progress in real-time."""
-    redis_host = os.getenv('REDIS_HOST', 'redis')
+    redis_host = os.getenv("REDIS_HOST", "redis")
     r = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
 
     print("🔄 Real-Time Progress Monitor")
@@ -51,9 +53,13 @@ def main():
         # Recently completed tools
         print("\n✅ Recently Completed:")
         completed_tools = [
-            "web_search", "scholar_search", "image_generation",
-            "video_generation", "audio_generation", "resource_discovery",
-            "understand_images"
+            "web_search",
+            "scholar_search",
+            "image_generation",
+            "video_generation",
+            "audio_generation",
+            "resource_discovery",
+            "understand_images",
         ]
         for tool in completed_tools[-5:]:
             print(f"   • {tool}")
@@ -72,6 +78,7 @@ def main():
         print("Press Ctrl+C to exit")
 
         time.sleep(5)  # Update every 5 seconds
+
 
 if __name__ == "__main__":
     try:

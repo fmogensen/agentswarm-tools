@@ -67,11 +67,7 @@ class TestAgentStatus:
 
     def test_full_status(self):
         """Test full status with all options."""
-        tool = AgentStatus(
-            agent_id="agent_full",
-            include_metrics=True,
-            include_tasks=True
-        )
+        tool = AgentStatus(agent_id="agent_full", include_metrics=True, include_tasks=True)
         result = tool.run()
 
         assert result["success"] == True

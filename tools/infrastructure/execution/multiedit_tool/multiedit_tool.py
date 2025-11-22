@@ -126,9 +126,7 @@ class MultieditTool(BaseTool):
         edits = data["edits"]
 
         if not os.path.exists(file_path):
-            raise APIError(
-                f"File does not exist: {file_path}", tool_name=self.tool_name
-            )
+            raise APIError(f"File does not exist: {file_path}", tool_name=self.tool_name)
 
         try:
             with open(file_path, "r", encoding="utf-8") as f:
@@ -202,6 +200,7 @@ if __name__ == "__main__":
 
     import os
     import json
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Multiple edits to file
@@ -210,25 +209,25 @@ if __name__ == "__main__":
         "file_path": "/tmp/test.txt",
         "edits": [
             {"action": "replace", "search": "old", "replace": "new"},
-            {"action": "insert", "line": 1, "text": "inserted line"}
-        ]
+            {"action": "insert", "line": 1, "text": "inserted line"},
+        ],
     }
     tool = MultieditTool(input=json.dumps(input_data))
     result = tool.run()
 
-    assert result.get('success') == True
+    assert result.get("success") == True
     print(f"✅ Test 1 passed: Multiple edits applied")
 
     # Test 2: Single replace edit
     print("\nTest 2: Single replace edit")
     input_data = {
         "file_path": "/tmp/file.py",
-        "edits": [{"action": "replace", "search": "foo", "replace": "bar"}]
+        "edits": [{"action": "replace", "search": "foo", "replace": "bar"}],
     }
     tool = MultieditTool(input=json.dumps(input_data))
     result = tool.run()
 
-    assert result.get('success') == True
+    assert result.get("success") == True
     print(f"✅ Test 2 passed: Replace edit applied")
 
     # Test 3: Validation - missing file_path

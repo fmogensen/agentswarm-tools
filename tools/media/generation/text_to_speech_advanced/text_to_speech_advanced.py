@@ -79,68 +79,21 @@ class TextToSpeechAdvanced(BaseTool):
     tool_category: str = "media"
 
     # Parameters
-    text: str = Field(
-        ...,
-        description="Text to convert to speech",
-        min_length=1,
-        max_length=50000
-    )
-    voice_id: Optional[str] = Field(
-        default=None,
-        description="Specific voice identifier"
-    )
-    gender: str = Field(
-        default="neutral",
-        description="Voice gender"
-    )
-    age: str = Field(
-        default="adult",
-        description="Voice age range"
-    )
-    accent: str = Field(
-        default="american",
-        description="Voice accent/dialect"
-    )
-    emotion: str = Field(
-        default="neutral",
-        description="Emotional expression"
-    )
+    text: str = Field(..., description="Text to convert to speech", min_length=1, max_length=50000)
+    voice_id: Optional[str] = Field(default=None, description="Specific voice identifier")
+    gender: str = Field(default="neutral", description="Voice gender")
+    age: str = Field(default="adult", description="Voice age range")
+    accent: str = Field(default="american", description="Voice accent/dialect")
+    emotion: str = Field(default="neutral", description="Emotional expression")
     emotion_intensity: float = Field(
-        default=0.5,
-        description="Emotion intensity (0.0-1.0)",
-        ge=0.0,
-        le=1.0
+        default=0.5, description="Emotion intensity (0.0-1.0)", ge=0.0, le=1.0
     )
-    pitch: float = Field(
-        default=0.0,
-        description="Pitch adjustment (-1.0 to 1.0)",
-        ge=-1.0,
-        le=1.0
-    )
-    rate: float = Field(
-        default=1.0,
-        description="Speaking rate (0.5 to 2.0)",
-        ge=0.5,
-        le=2.0
-    )
-    volume: float = Field(
-        default=1.0,
-        description="Volume level (0.0 to 1.0)",
-        ge=0.0,
-        le=1.0
-    )
-    use_ssml: bool = Field(
-        default=False,
-        description="Whether text contains SSML markup"
-    )
-    output_format: str = Field(
-        default="mp3",
-        description="Audio output format"
-    )
-    sample_rate: int = Field(
-        default=22050,
-        description="Audio sample rate in Hz"
-    )
+    pitch: float = Field(default=0.0, description="Pitch adjustment (-1.0 to 1.0)", ge=-1.0, le=1.0)
+    rate: float = Field(default=1.0, description="Speaking rate (0.5 to 2.0)", ge=0.5, le=2.0)
+    volume: float = Field(default=1.0, description="Volume level (0.0 to 1.0)", ge=0.0, le=1.0)
+    use_ssml: bool = Field(default=False, description="Whether text contains SSML markup")
+    output_format: str = Field(default="mp3", description="Audio output format")
+    sample_rate: int = Field(default=22050, description="Audio sample rate in Hz")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute advanced text-to-speech synthesis."""
@@ -161,9 +114,9 @@ class TextToSpeechAdvanced(BaseTool):
                         "gender": self.gender,
                         "age": self.age,
                         "accent": self.accent,
-                        "emotion": self.emotion
-                    }
-                }
+                        "emotion": self.emotion,
+                    },
+                },
             }
         except Exception as e:
             raise APIError(f"Text-to-speech synthesis failed: {e}", tool_name=self.tool_name)
@@ -172,9 +125,7 @@ class TextToSpeechAdvanced(BaseTool):
         """Validate input parameters."""
         if not self.text or not isinstance(self.text, str):
             raise ValidationError(
-                "text must be a non-empty string",
-                tool_name=self.tool_name,
-                field="text"
+                "text must be a non-empty string", tool_name=self.tool_name, field="text"
             )
 
         # Validate gender
@@ -183,7 +134,7 @@ class TextToSpeechAdvanced(BaseTool):
             raise ValidationError(
                 f"Invalid gender '{self.gender}'. Valid options: {valid_genders}",
                 tool_name=self.tool_name,
-                field="gender"
+                field="gender",
             )
 
         # Validate age
@@ -192,32 +143,52 @@ class TextToSpeechAdvanced(BaseTool):
             raise ValidationError(
                 f"Invalid age '{self.age}'. Valid options: {valid_ages}",
                 tool_name=self.tool_name,
-                field="age"
+                field="age",
             )
 
         # Validate accent
         valid_accents = [
-            "american", "british", "australian", "canadian", "indian",
-            "scottish", "irish", "southern", "new_york", "california"
+            "american",
+            "british",
+            "australian",
+            "canadian",
+            "indian",
+            "scottish",
+            "irish",
+            "southern",
+            "new_york",
+            "california",
         ]
         if self.accent not in valid_accents:
             raise ValidationError(
                 f"Invalid accent '{self.accent}'. Valid options: {valid_accents}",
                 tool_name=self.tool_name,
-                field="accent"
+                field="accent",
             )
 
         # Validate emotion
         valid_emotions = [
-            "neutral", "happy", "sad", "angry", "excited", "calm",
-            "fearful", "surprised", "disgusted", "contempt", "loving",
-            "playful", "serious", "confident", "anxious"
+            "neutral",
+            "happy",
+            "sad",
+            "angry",
+            "excited",
+            "calm",
+            "fearful",
+            "surprised",
+            "disgusted",
+            "contempt",
+            "loving",
+            "playful",
+            "serious",
+            "confident",
+            "anxious",
         ]
         if self.emotion not in valid_emotions:
             raise ValidationError(
                 f"Invalid emotion '{self.emotion}'. Valid options: {valid_emotions}",
                 tool_name=self.tool_name,
-                field="emotion"
+                field="emotion",
             )
 
         # Validate output format
@@ -226,7 +197,7 @@ class TextToSpeechAdvanced(BaseTool):
             raise ValidationError(
                 f"Invalid output format '{self.output_format}'. Valid options: {valid_formats}",
                 tool_name=self.tool_name,
-                field="output_format"
+                field="output_format",
             )
 
         # Validate sample rate
@@ -235,7 +206,7 @@ class TextToSpeechAdvanced(BaseTool):
             raise ValidationError(
                 f"Invalid sample rate {self.sample_rate}. Valid options: {valid_sample_rates}",
                 tool_name=self.tool_name,
-                field="sample_rate"
+                field="sample_rate",
             )
 
     def _should_use_mock(self) -> bool:
@@ -267,20 +238,13 @@ class TextToSpeechAdvanced(BaseTool):
                     "age": self.age,
                     "accent": self.accent,
                     "emotion": self.emotion,
-                    "emotion_intensity": self.emotion_intensity
+                    "emotion_intensity": self.emotion_intensity,
                 },
-                "prosody": {
-                    "pitch": self.pitch,
-                    "rate": self.rate,
-                    "volume": self.volume
-                },
+                "prosody": {"pitch": self.pitch, "rate": self.rate, "volume": self.volume},
                 "processing_time_seconds": 1.2,
-                "mock": True
+                "mock": True,
             },
-            "metadata": {
-                "mock_mode": True,
-                "tool_name": self.tool_name
-            }
+            "metadata": {"mock_mode": True, "tool_name": self.tool_name},
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -298,22 +262,12 @@ class TextToSpeechAdvanced(BaseTool):
                     "voice_id": self.voice_id,
                     "gender": self.gender,
                     "age": self.age,
-                    "accent": self.accent
+                    "accent": self.accent,
                 },
-                "emotion_config": {
-                    "emotion": self.emotion,
-                    "intensity": self.emotion_intensity
-                },
-                "prosody": {
-                    "pitch": self.pitch,
-                    "rate": self.rate,
-                    "volume": self.volume
-                },
-                "output_config": {
-                    "format": self.output_format,
-                    "sample_rate": self.sample_rate
-                },
-                "use_ssml": self.use_ssml
+                "emotion_config": {"emotion": self.emotion, "intensity": self.emotion_intensity},
+                "prosody": {"pitch": self.pitch, "rate": self.rate, "volume": self.volume},
+                "output_config": {"format": self.output_format, "sample_rate": self.sample_rate},
+                "use_ssml": self.use_ssml,
             }
 
             # Simulated API call
@@ -340,26 +294,20 @@ class TextToSpeechAdvanced(BaseTool):
                     "age": self.age,
                     "accent": self.accent,
                     "emotion": self.emotion,
-                    "emotion_intensity": self.emotion_intensity
+                    "emotion_intensity": self.emotion_intensity,
                 },
-                "prosody": {
-                    "pitch": self.pitch,
-                    "rate": self.rate,
-                    "volume": self.volume
-                }
+                "prosody": {"pitch": self.pitch, "rate": self.rate, "volume": self.volume},
             }
 
         except Exception as e:
-            raise APIError(
-                f"TTS API error: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"TTS API error: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":
     print("Testing TextToSpeechAdvanced...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test with emotional speech
@@ -374,7 +322,7 @@ if __name__ == "__main__":
         rate=1.1,
         volume=0.9,
         output_format="mp3",
-        sample_rate=44100
+        sample_rate=44100,
     )
     result = tool.run()
 
@@ -393,7 +341,7 @@ if __name__ == "__main__":
         gender="male",
         emotion="calm",
         emotion_intensity=0.7,
-        rate=0.9
+        rate=0.9,
     )
     result2 = tool2.run()
 

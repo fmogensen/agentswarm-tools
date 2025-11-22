@@ -24,12 +24,10 @@ MORE_TOOLS = [
     ("generate_flow_diagram", "team5", "visualization"),
     ("generate_mind_map", "team5", "visualization"),
     ("generate_network_graph", "team5", "visualization"),
-
     # Team 6 - Workspace & Documents
     ("notion_search", "team6", "workspace"),
     ("notion_read", "team6", "workspace"),
     ("create_agent", "team6", "document_creation"),
-
     # Team 4 - Communication (8 tools)
     ("gmail_search", "team4", "communication"),
     ("gmail_read", "team4", "communication"),
@@ -39,7 +37,6 @@ MORE_TOOLS = [
     ("google_calendar_create_event_draft", "team4", "communication"),
     ("phone_call", "team4", "communication"),
     ("query_call_logs", "team4", "communication"),
-
     # Team 7 - Utils & Code Execution
     ("think", "team7", "utils"),
     ("ask_for_clarification", "team7", "utils"),
@@ -48,14 +45,14 @@ MORE_TOOLS = [
     ("write_tool", "team7", "code_execution"),
     ("multiedit_tool", "team7", "code_execution"),
     ("downloadfilewrapper_tool", "team7", "code_execution"),
-
     # Team 1 - Location
     ("maps_search", "team1", "location"),
 ]
 
+
 def main():
     """Queue remaining tools."""
-    redis_host = os.getenv('REDIS_HOST', 'redis')
+    redis_host = os.getenv("REDIS_HOST", "redis")
     r = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
 
     print("🚀 Queueing Remaining Tools")
@@ -93,6 +90,7 @@ def main():
 
     print(f"\n📈 Total tasks queued: {total}")
     print("🤖 All 7 agent teams are now working!")
+
 
 if __name__ == "__main__":
     main()

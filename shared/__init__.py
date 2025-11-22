@@ -11,8 +11,9 @@ from .errors import (
     APIError,
     RateLimitError,
     AuthenticationError,
-    ConfigurationError
+    ConfigurationError,
 )
+
 # from .analytics import AnalyticsTracker, EventType
 # from .security import APIKeyManager, InputValidator, RateLimiter
 

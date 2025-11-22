@@ -30,7 +30,7 @@ def validate_api_key(api_key: str, key_name: str = "API key") -> bool:
         raise ValueError(f"{key_name} is too short")
 
     # Check for common placeholder values
-    if api_key.lower() in ['your_key_here', 'placeholder', 'example', 'test']:
+    if api_key.lower() in ["your_key_here", "placeholder", "example", "test"]:
         raise ValueError(f"{key_name} appears to be a placeholder")
 
     return True
@@ -57,7 +57,7 @@ def validate_url(url: str, key_name: str = "URL") -> bool:
         result = urlparse(url)
         if not all([result.scheme, result.netloc]):
             raise ValueError(f"{key_name} must be a valid URL with scheme and netloc")
-        if result.scheme not in ['http', 'https']:
+        if result.scheme not in ["http", "https"]:
             raise ValueError(f"{key_name} must use http or https scheme")
     except Exception as e:
         raise ValueError(f"Invalid {key_name}: {e}")
@@ -105,7 +105,7 @@ def validate_log_level(level: str, key_name: str = "Log level") -> bool:
     Raises:
         ValueError: If validation fails
     """
-    valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
     if level.upper() not in valid_levels:
         raise ValueError(f"{key_name} must be one of: {', '.join(valid_levels)}")
@@ -127,7 +127,7 @@ def validate_output_format(format: str, key_name: str = "Output format") -> bool
     Raises:
         ValueError: If validation fails
     """
-    valid_formats = ['json', 'yaml', 'text', 'table']
+    valid_formats = ["json", "yaml", "text", "table"]
 
     if format.lower() not in valid_formats:
         raise ValueError(f"{key_name} must be one of: {', '.join(valid_formats)}")
@@ -148,37 +148,37 @@ def validate_config(config: Dict[str, Any]) -> List[str]:
     errors = []
 
     # Validate API key
-    if 'GENSPARK_API_KEY' in config:
+    if "GENSPARK_API_KEY" in config:
         try:
-            validate_api_key(config['GENSPARK_API_KEY'], 'GENSPARK_API_KEY')
+            validate_api_key(config["GENSPARK_API_KEY"], "GENSPARK_API_KEY")
         except ValueError as e:
             errors.append(str(e))
 
     # Validate API URL
-    if 'GENSPARK_API_URL' in config:
+    if "GENSPARK_API_URL" in config:
         try:
-            validate_url(config['GENSPARK_API_URL'], 'GENSPARK_API_URL')
+            validate_url(config["GENSPARK_API_URL"], "GENSPARK_API_URL")
         except ValueError as e:
             errors.append(str(e))
 
     # Validate timeout
-    if 'TOOL_TIMEOUT' in config:
+    if "TOOL_TIMEOUT" in config:
         try:
-            validate_timeout(config['TOOL_TIMEOUT'], 'TOOL_TIMEOUT')
+            validate_timeout(config["TOOL_TIMEOUT"], "TOOL_TIMEOUT")
         except ValueError as e:
             errors.append(str(e))
 
     # Validate log level
-    if 'LOG_LEVEL' in config:
+    if "LOG_LEVEL" in config:
         try:
-            validate_log_level(config['LOG_LEVEL'], 'LOG_LEVEL')
+            validate_log_level(config["LOG_LEVEL"], "LOG_LEVEL")
         except ValueError as e:
             errors.append(str(e))
 
     # Validate output format
-    if 'DEFAULT_OUTPUT_FORMAT' in config:
+    if "DEFAULT_OUTPUT_FORMAT" in config:
         try:
-            validate_output_format(config['DEFAULT_OUTPUT_FORMAT'], 'DEFAULT_OUTPUT_FORMAT')
+            validate_output_format(config["DEFAULT_OUTPUT_FORMAT"], "DEFAULT_OUTPUT_FORMAT")
         except ValueError as e:
             errors.append(str(e))
 

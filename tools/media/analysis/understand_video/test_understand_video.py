@@ -38,9 +38,7 @@ class TestUnderstandVideo:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("requests.get")
-    def test_execute_success(
-        self, mock_get, tool: UnderstandVideo, mock_api_response: list
-    ):
+    def test_execute_success(self, mock_get, tool: UnderstandVideo, mock_api_response: list):
         mock_resp = MagicMock()
         mock_resp.status_code = 200
         mock_resp.json.return_value = mock_api_response
@@ -123,9 +121,7 @@ class TestUnderstandVideo:
     @pytest.mark.parametrize(
         "seconds,expected", [(0, "00:00"), (5, "00:05"), (65, "01:05"), (600, "10:00")]
     )
-    def test_format_timestamp(
-        self, tool: UnderstandVideo, seconds: float, expected: str
-    ):
+    def test_format_timestamp(self, tool: UnderstandVideo, seconds: float, expected: str):
         assert tool._format_timestamp(seconds) == expected
 
     # ========== ERROR HANDLING TESTS ==========

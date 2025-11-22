@@ -17,10 +17,8 @@ class TestVideoEffects:
     def tool(self):
         return VideoEffects(
             input_path="/path/to/test_video.mp4",
-            effects=[
-                {"type": "brightness", "parameters": {"value": 0.2}}
-            ],
-            output_format="mp4"
+            effects=[{"type": "brightness", "parameters": {"value": 0.2}}],
+            output_format="mp4",
         )
 
     def test_initialization(self, tool):
@@ -46,8 +44,8 @@ class TestVideoEffects:
                 {"type": "brightness", "parameters": {"value": 0.2}},
                 {"type": "saturation", "parameters": {"value": 0.3}},
                 {"type": "blur", "parameters": {"strength": 5}},
-                {"type": "vignette", "parameters": {"strength": 0.5}}
-            ]
+                {"type": "vignette", "parameters": {"strength": 0.5}},
+            ],
         )
         result = tool.run()
         assert result["success"] is True
@@ -55,10 +53,7 @@ class TestVideoEffects:
 
     def test_empty_effects_validation(self):
         """Test validation with empty effects list."""
-        tool = VideoEffects(
-            input_path="/path/to/test_video.mp4",
-            effects=[]
-        )
+        tool = VideoEffects(input_path="/path/to/test_video.mp4", effects=[])
         result = tool.run()
         assert result["success"] is False
 
@@ -66,9 +61,7 @@ class TestVideoEffects:
         """Test validation with invalid effect type."""
         tool = VideoEffects(
             input_path="/path/to/test_video.mp4",
-            effects=[
-                {"type": "invalid_effect", "parameters": {}}
-            ]
+            effects=[{"type": "invalid_effect", "parameters": {}}],
         )
         result = tool.run()
         assert result["success"] is False
@@ -83,13 +76,10 @@ class TestVideoEffects:
             {"type": "hue", "parameters": {"degrees": 45}},
             {"type": "sepia", "parameters": {}},
             {"type": "grayscale", "parameters": {}},
-            {"type": "invert", "parameters": {}}
+            {"type": "invert", "parameters": {}},
         ]
 
-        tool = VideoEffects(
-            input_path="/path/to/test_video.mp4",
-            effects=effects
-        )
+        tool = VideoEffects(input_path="/path/to/test_video.mp4", effects=effects)
         result = tool.run()
         assert result["success"] is True
         assert len(result["result"]["effects_applied"]) == 7
@@ -100,13 +90,10 @@ class TestVideoEffects:
         effects = [
             {"type": "blur", "parameters": {"strength": 5}},
             {"type": "sharpen", "parameters": {"strength": 7}},
-            {"type": "motion_blur", "parameters": {}}
+            {"type": "motion_blur", "parameters": {}},
         ]
 
-        tool = VideoEffects(
-            input_path="/path/to/test_video.mp4",
-            effects=effects
-        )
+        tool = VideoEffects(input_path="/path/to/test_video.mp4", effects=effects)
         result = tool.run()
         assert result["success"] is True
 
@@ -118,13 +105,10 @@ class TestVideoEffects:
             {"type": "vintage", "parameters": {}},
             {"type": "cinematic", "parameters": {}},
             {"type": "cartoon", "parameters": {}},
-            {"type": "edge_detect", "parameters": {}}
+            {"type": "edge_detect", "parameters": {}},
         ]
 
-        tool = VideoEffects(
-            input_path="/path/to/test_video.mp4",
-            effects=effects
-        )
+        tool = VideoEffects(input_path="/path/to/test_video.mp4", effects=effects)
         result = tool.run()
         assert result["success"] is True
 
@@ -134,13 +118,10 @@ class TestVideoEffects:
         effects = [
             {"type": "slow_motion", "parameters": {"speed": 0.5}},
             {"type": "speed_up", "parameters": {"speed": 2.0}},
-            {"type": "reverse", "parameters": {}}
+            {"type": "reverse", "parameters": {}},
         ]
 
-        tool = VideoEffects(
-            input_path="/path/to/test_video.mp4",
-            effects=effects
-        )
+        tool = VideoEffects(input_path="/path/to/test_video.mp4", effects=effects)
         result = tool.run()
         assert result["success"] is True
 
@@ -153,7 +134,7 @@ class TestVideoEffects:
             tool = VideoEffects(
                 input_path="/path/to/test_video.mp4",
                 effects=[{"type": "brightness", "parameters": {"value": 0.1}}],
-                output_format=fmt
+                output_format=fmt,
             )
             result = tool.run()
             assert result["success"] is True
@@ -164,7 +145,7 @@ class TestVideoEffects:
         tool = VideoEffects(
             input_path="/path/to/test_video.mp4",
             effects=[{"type": "brightness", "parameters": {}}],
-            output_format="invalid"
+            output_format="invalid",
         )
         result = tool.run()
         assert result["success"] is False
@@ -175,7 +156,7 @@ class TestVideoEffects:
         tool = VideoEffects(
             input_path="/path/to/test_video.mp4",
             effects=[{"type": "brightness", "parameters": {}}],
-            output_path="/path/to/custom_output.mp4"
+            output_path="/path/to/custom_output.mp4",
         )
         result = tool.run()
         assert result["success"] is True

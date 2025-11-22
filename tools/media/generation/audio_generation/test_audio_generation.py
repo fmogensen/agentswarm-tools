@@ -121,9 +121,7 @@ class TestAudioGeneration:
 
     # ========== PARAMETRIZED TESTS ==========
 
-    @pytest.mark.parametrize(
-        "param_key", ["voice", "duration", "style", "format", "seed", "model"]
-    )
+    @pytest.mark.parametrize("param_key", ["voice", "duration", "style", "format", "seed", "model"])
     def test_valid_param_keys(self, valid_prompt, param_key):
         tool = AudioGeneration(prompt=valid_prompt, params={param_key: "x"})
         result = tool.run()

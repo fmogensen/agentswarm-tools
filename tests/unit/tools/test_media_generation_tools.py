@@ -20,13 +20,16 @@ from tools.media_generation.video_generation.video_generation import VideoGenera
 from tools.media_generation.audio_generation.audio_generation import AudioGeneration
 from tools.media_generation.podcast_generator.podcast_generator import PodcastGenerator
 from tools.media_generation.image_style_transfer.image_style_transfer import ImageStyleTransfer
-from tools.media_generation.text_to_speech_advanced.text_to_speech_advanced import TextToSpeechAdvanced
+from tools.media_generation.text_to_speech_advanced.text_to_speech_advanced import (
+    TextToSpeechAdvanced,
+)
 from tools.media_generation.video_effects.video_effects import VideoEffects
 
 from shared.errors import ValidationError, APIError, MediaError
 
 
 # ========== ImageGeneration Tests ==========
+
 
 class TestImageGeneration:
     """Comprehensive tests for ImageGeneration tool"""
@@ -37,7 +40,7 @@ class TestImageGeneration:
             model="flux-pro",
             query="a beautiful sunset",
             aspect_ratio="16:9",
-            task_summary="Generate sunset image"
+            task_summary="Generate sunset image",
         )
         assert tool.model == "flux-pro"
         assert tool.query == "a beautiful sunset"
@@ -46,11 +49,7 @@ class TestImageGeneration:
 
     def test_initialization_with_defaults(self):
         """Test initialization with default parameters"""
-        tool = ImageGeneration(
-            model="flux-pro",
-            query="test image",
-            task_summary="Test"
-        )
+        tool = ImageGeneration(model="flux-pro", query="test image", task_summary="Test")
         assert tool.model == "flux-pro"
         assert tool.query == "test image"
 
@@ -58,9 +57,7 @@ class TestImageGeneration:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = ImageGeneration(
-            model="flux-pro",
-            query="mountain landscape",
-            task_summary="Generate landscape"
+            model="flux-pro", query="mountain landscape", task_summary="Generate landscape"
         )
         result = tool.run()
 
@@ -70,21 +67,13 @@ class TestImageGeneration:
 
     def test_validate_parameters_empty_query(self):
         """Test validation with empty query"""
-        tool = ImageGeneration(
-            model="flux-pro",
-            query="",
-            task_summary="Test"
-        )
+        tool = ImageGeneration(model="flux-pro", query="", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_empty_model(self):
         """Test validation with empty model"""
-        tool = ImageGeneration(
-            model="",
-            query="test image",
-            task_summary="Test"
-        )
+        tool = ImageGeneration(model="", query="test image", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
@@ -100,11 +89,7 @@ class TestImageGeneration:
         }
         mock_post.return_value = mock_response
 
-        tool = ImageGeneration(
-            model="gpt-image-1",
-            query="test image",
-            task_summary="Test"
-        )
+        tool = ImageGeneration(model="gpt-image-1", query="test image", task_summary="Test")
         result = tool.run()
 
         assert result["success"] is True
@@ -116,11 +101,7 @@ class TestImageGeneration:
         monkeypatch.setenv("OPENAI_API_KEY", "test_key")
 
         mock_post.side_effect = Exception("API failed")
-        tool = ImageGeneration(
-            model="gpt-image-1",
-            query="test",
-            task_summary="Test"
-        )
+        tool = ImageGeneration(model="gpt-image-1", query="test", task_summary="Test")
 
         with pytest.raises(APIError):
             tool.run()
@@ -130,15 +111,13 @@ class TestImageGeneration:
         valid_ratios = ["1:1", "16:9", "4:3", "9:16"]
         for ratio in valid_ratios:
             tool = ImageGeneration(
-                model="flux-pro",
-                query="test",
-                aspect_ratio=ratio,
-                task_summary="Test"
+                model="flux-pro", query="test", aspect_ratio=ratio, task_summary="Test"
             )
             # Should not raise
 
 
 # ========== VideoGeneration Tests ==========
+
 
 class TestVideoGeneration:
     """Comprehensive tests for VideoGeneration tool"""
@@ -149,7 +128,7 @@ class TestVideoGeneration:
             model="gemini/veo3",
             query="a cat playing piano",
             duration=5,
-            task_summary="Generate cat video"
+            task_summary="Generate cat video",
         )
         assert tool.model == "gemini/veo3"
         assert tool.query == "a cat playing piano"
@@ -160,9 +139,7 @@ class TestVideoGeneration:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = VideoGeneration(
-            model="kling/v2.5-pro",
-            query="dancing robot",
-            task_summary="Generate robot video"
+            model="kling/v2.5-pro", query="dancing robot", task_summary="Generate robot video"
         )
         result = tool.run()
 
@@ -172,23 +149,14 @@ class TestVideoGeneration:
 
     def test_validate_parameters_empty_query(self):
         """Test validation with empty query"""
-        tool = VideoGeneration(
-            model="gemini/veo3",
-            query="",
-            task_summary="Test"
-        )
+        tool = VideoGeneration(model="gemini/veo3", query="", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_invalid_duration(self):
         """Test validation with invalid duration"""
         with pytest.raises(ValidationError):
-            VideoGeneration(
-                model="gemini/veo3",
-                query="test",
-                duration=0,
-                task_summary="Test"
-            )
+            VideoGeneration(model="gemini/veo3", query="test", duration=0, task_summary="Test")
 
     @patch("tools.media_generation.video_generation.video_generation.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
@@ -197,22 +165,17 @@ class TestVideoGeneration:
         monkeypatch.setenv("OPENAI_API_KEY", "test_key")
 
         mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "video_url": "https://example.com/generated-video.mp4"
-        }
+        mock_response.json.return_value = {"video_url": "https://example.com/generated-video.mp4"}
         mock_post.return_value = mock_response
 
-        tool = VideoGeneration(
-            model="sora-2",
-            query="test video",
-            task_summary="Test"
-        )
+        tool = VideoGeneration(model="sora-2", query="test video", task_summary="Test")
         result = tool.run()
 
         assert result["success"] is True
 
 
 # ========== AudioGeneration Tests ==========
+
 
 class TestAudioGeneration:
     """Comprehensive tests for AudioGeneration tool"""
@@ -223,7 +186,7 @@ class TestAudioGeneration:
             model="google/gemini-2.5-pro-preview-tts",
             query="Hello world",
             voice="male",
-            task_summary="Generate greeting"
+            task_summary="Generate greeting",
         )
         assert tool.model == "google/gemini-2.5-pro-preview-tts"
         assert tool.query == "Hello world"
@@ -234,9 +197,7 @@ class TestAudioGeneration:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = AudioGeneration(
-            model="elevenlabs/v3-tts",
-            query="Test speech",
-            task_summary="Test TTS"
+            model="elevenlabs/v3-tts", query="Test speech", task_summary="Test TTS"
         )
         result = tool.run()
 
@@ -247,9 +208,7 @@ class TestAudioGeneration:
     def test_validate_parameters_empty_query(self):
         """Test validation with empty query"""
         tool = AudioGeneration(
-            model="google/gemini-2.5-pro-preview-tts",
-            query="",
-            task_summary="Test"
+            model="google/gemini-2.5-pro-preview-tts", query="", task_summary="Test"
         )
         with pytest.raises(ValidationError):
             tool._validate_parameters()
@@ -264,17 +223,14 @@ class TestAudioGeneration:
         mock_response.content = b"fake_audio_data"
         mock_post.return_value = mock_response
 
-        tool = AudioGeneration(
-            model="elevenlabs/v3-tts",
-            query="test audio",
-            task_summary="Test"
-        )
+        tool = AudioGeneration(model="elevenlabs/v3-tts", query="test audio", task_summary="Test")
         result = tool.run()
 
         assert result["success"] is True
 
 
 # ========== PodcastGenerator Tests ==========
+
 
 class TestPodcastGenerator:
     """Comprehensive tests for PodcastGenerator tool"""
@@ -285,7 +241,7 @@ class TestPodcastGenerator:
             topic="AI in healthcare",
             duration=10,
             hosts=["Host 1", "Host 2"],
-            task_summary="Generate podcast"
+            task_summary="Generate podcast",
         )
         assert tool.topic == "AI in healthcare"
         assert tool.duration == 10
@@ -295,11 +251,7 @@ class TestPodcastGenerator:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = PodcastGenerator(
-            topic="Climate change",
-            duration=5,
-            task_summary="Test podcast"
-        )
+        tool = PodcastGenerator(topic="Climate change", duration=5, task_summary="Test podcast")
         result = tool.run()
 
         assert result["success"] is True
@@ -308,25 +260,18 @@ class TestPodcastGenerator:
 
     def test_validate_parameters_empty_topic(self):
         """Test validation with empty topic"""
-        tool = PodcastGenerator(
-            topic="",
-            duration=5,
-            task_summary="Test"
-        )
+        tool = PodcastGenerator(topic="", duration=5, task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_invalid_duration(self):
         """Test validation with invalid duration"""
         with pytest.raises(ValidationError):
-            PodcastGenerator(
-                topic="test",
-                duration=0,
-                task_summary="Test"
-            )
+            PodcastGenerator(topic="test", duration=0, task_summary="Test")
 
 
 # ========== ImageStyleTransfer Tests ==========
+
 
 class TestImageStyleTransfer:
     """Comprehensive tests for ImageStyleTransfer tool"""
@@ -336,7 +281,7 @@ class TestImageStyleTransfer:
         tool = ImageStyleTransfer(
             source_image_url="https://example.com/source.jpg",
             style="oil painting",
-            task_summary="Apply style transfer"
+            task_summary="Apply style transfer",
         )
         assert tool.source_image_url == "https://example.com/source.jpg"
         assert tool.style == "oil painting"
@@ -348,7 +293,7 @@ class TestImageStyleTransfer:
         tool = ImageStyleTransfer(
             source_image_url="https://example.com/image.jpg",
             style="watercolor",
-            task_summary="Test style transfer"
+            task_summary="Test style transfer",
         )
         result = tool.run()
 
@@ -358,20 +303,14 @@ class TestImageStyleTransfer:
 
     def test_validate_parameters_empty_url(self):
         """Test validation with empty URL"""
-        tool = ImageStyleTransfer(
-            source_image_url="",
-            style="oil painting",
-            task_summary="Test"
-        )
+        tool = ImageStyleTransfer(source_image_url="", style="oil painting", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_invalid_url(self):
         """Test validation with invalid URL"""
         tool = ImageStyleTransfer(
-            source_image_url="not-a-url",
-            style="oil painting",
-            task_summary="Test"
+            source_image_url="not-a-url", style="oil painting", task_summary="Test"
         )
         with pytest.raises(ValidationError):
             tool._validate_parameters()
@@ -383,15 +322,11 @@ class TestImageStyleTransfer:
         monkeypatch.setenv("STABILITY_API_KEY", "test_key")
 
         mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "artifacts": [{"base64": "fake_base64_data"}]
-        }
+        mock_response.json.return_value = {"artifacts": [{"base64": "fake_base64_data"}]}
         mock_post.return_value = mock_response
 
         tool = ImageStyleTransfer(
-            source_image_url="https://example.com/test.jpg",
-            style="cartoon",
-            task_summary="Test"
+            source_image_url="https://example.com/test.jpg", style="cartoon", task_summary="Test"
         )
         result = tool.run()
 
@@ -399,6 +334,7 @@ class TestImageStyleTransfer:
 
 
 # ========== TextToSpeechAdvanced Tests ==========
+
 
 class TestTextToSpeechAdvanced:
     """Comprehensive tests for TextToSpeechAdvanced tool"""
@@ -410,7 +346,7 @@ class TestTextToSpeechAdvanced:
             voice="en-US-Neural2-A",
             speed=1.0,
             pitch=0,
-            task_summary="Generate speech"
+            task_summary="Generate speech",
         )
         assert tool.text == "Hello, this is a test."
         assert tool.voice == "en-US-Neural2-A"
@@ -420,10 +356,7 @@ class TestTextToSpeechAdvanced:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = TextToSpeechAdvanced(
-            text="Test speech generation",
-            task_summary="Test TTS"
-        )
+        tool = TextToSpeechAdvanced(text="Test speech generation", task_summary="Test TTS")
         result = tool.run()
 
         assert result["success"] is True
@@ -432,30 +365,19 @@ class TestTextToSpeechAdvanced:
 
     def test_validate_parameters_empty_text(self):
         """Test validation with empty text"""
-        tool = TextToSpeechAdvanced(
-            text="",
-            task_summary="Test"
-        )
+        tool = TextToSpeechAdvanced(text="", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_invalid_speed(self):
         """Test validation with invalid speed"""
         with pytest.raises(ValidationError):
-            TextToSpeechAdvanced(
-                text="test",
-                speed=0,
-                task_summary="Test"
-            )
+            TextToSpeechAdvanced(text="test", speed=0, task_summary="Test")
 
     def test_validate_parameters_speed_range(self):
         """Test validation with speed out of range"""
         with pytest.raises(ValidationError):
-            TextToSpeechAdvanced(
-                text="test",
-                speed=5.0,
-                task_summary="Test"
-            )
+            TextToSpeechAdvanced(text="test", speed=5.0, task_summary="Test")
 
     @patch("tools.media_generation.text_to_speech_advanced.text_to_speech_advanced.requests.post")
     def test_execute_live_mode_success(self, mock_post, monkeypatch):
@@ -464,21 +386,17 @@ class TestTextToSpeechAdvanced:
         monkeypatch.setenv("GOOGLE_CLOUD_API_KEY", "test_key")
 
         mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "audioContent": "base64_encoded_audio"
-        }
+        mock_response.json.return_value = {"audioContent": "base64_encoded_audio"}
         mock_post.return_value = mock_response
 
-        tool = TextToSpeechAdvanced(
-            text="test speech",
-            task_summary="Test"
-        )
+        tool = TextToSpeechAdvanced(text="test speech", task_summary="Test")
         result = tool.run()
 
         assert result["success"] is True
 
 
 # ========== VideoEffects Tests ==========
+
 
 class TestVideoEffects:
     """Comprehensive tests for VideoEffects tool"""
@@ -489,7 +407,7 @@ class TestVideoEffects:
             video_url="https://example.com/video.mp4",
             effect_type="blur",
             intensity=0.5,
-            task_summary="Apply video effects"
+            task_summary="Apply video effects",
         )
         assert tool.video_url == "https://example.com/video.mp4"
         assert tool.effect_type == "blur"
@@ -502,7 +420,7 @@ class TestVideoEffects:
         tool = VideoEffects(
             video_url="https://example.com/test.mp4",
             effect_type="sharpen",
-            task_summary="Test effects"
+            task_summary="Test effects",
         )
         result = tool.run()
 
@@ -512,11 +430,7 @@ class TestVideoEffects:
 
     def test_validate_parameters_empty_url(self):
         """Test validation with empty URL"""
-        tool = VideoEffects(
-            video_url="",
-            effect_type="blur",
-            task_summary="Test"
-        )
+        tool = VideoEffects(video_url="", effect_type="blur", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
@@ -527,7 +441,7 @@ class TestVideoEffects:
                 video_url="https://example.com/video.mp4",
                 effect_type="blur",
                 intensity=2.0,
-                task_summary="Test"
+                task_summary="Test",
             )
 
     @patch("tools.media_generation.video_effects.video_effects.requests.post")
@@ -543,9 +457,7 @@ class TestVideoEffects:
         mock_post.return_value = mock_response
 
         tool = VideoEffects(
-            video_url="https://example.com/test.mp4",
-            effect_type="sepia",
-            task_summary="Test"
+            video_url="https://example.com/test.mp4", effect_type="sepia", task_summary="Test"
         )
         result = tool.run()
 
@@ -560,7 +472,7 @@ class TestVideoEffects:
             tool = VideoEffects(
                 video_url="https://example.com/test.mp4",
                 effect_type=effect,
-                task_summary=f"Test {effect}"
+                task_summary=f"Test {effect}",
             )
             result = tool.run()
             assert result["success"] is True

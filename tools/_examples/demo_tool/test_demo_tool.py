@@ -31,12 +31,7 @@ class TestDemoTool:
     @pytest.fixture
     def demo_tool(self, valid_query: str) -> DemoTool:
         """Create DemoTool instance with valid parameters."""
-        return DemoTool(
-            query=valid_query,
-            max_results=10,
-            filter_type=None,
-            use_cache=True
-        )
+        return DemoTool(query=valid_query, max_results=10, filter_type=None, use_cache=True)
 
     @pytest.fixture
     def mock_results(self) -> list:
@@ -47,7 +42,7 @@ class TestDemoTool:
                 "title": f"Result {i}",
                 "description": f"Description {i}",
                 "score": 1.0 - (i * 0.1),
-                "source": "test"
+                "source": "test",
             }
             for i in range(1, 11)
         ]
@@ -56,11 +51,7 @@ class TestDemoTool:
 
     def test_tool_initialization_success(self, valid_query: str):
         """Test tool initializes with valid parameters."""
-        tool = DemoTool(
-            query=valid_query,
-            max_results=5,
-            filter_type="recent"
-        )
+        tool = DemoTool(query=valid_query, max_results=5, filter_type="recent")
 
         assert tool.query == valid_query
         assert tool.max_results == 5
@@ -181,11 +172,11 @@ class TestDemoTool:
     def test_filter_sorting_changes_order(self, demo_tool: DemoTool):
         """Test filters change result ordering."""
         # Get results with different filters
-        with patch.object(demo_tool, '_process_query') as mock_process:
+        with patch.object(demo_tool, "_process_query") as mock_process:
             mock_process.return_value = [
                 {"id": 1, "score": 0.5},
                 {"id": 2, "score": 0.9},
-                {"id": 3, "score": 0.7}
+                {"id": 3, "score": 0.7},
             ]
 
             demo_tool.filter_type = "popular"
@@ -200,7 +191,7 @@ class TestDemoTool:
 
     def test_api_error_propagates(self, demo_tool: DemoTool):
         """Test API errors are properly propagated."""
-        with patch.object(demo_tool, '_process_query', side_effect=Exception("API failed")):
+        with patch.object(demo_tool, "_process_query", side_effect=Exception("API failed")):
             with pytest.raises(APIError) as exc_info:
                 demo_tool.run()
 
@@ -211,10 +202,7 @@ class TestDemoTool:
     def test_full_workflow_with_filtering(self):
         """Test complete workflow with filtering."""
         tool = DemoTool(
-            query="python programming",
-            max_results=5,
-            filter_type="relevant",
-            use_cache=False
+            query="python programming", max_results=5, filter_type="relevant", use_cache=False
         )
 
         result = tool.run()
@@ -237,13 +225,16 @@ class TestDemoTool:
 
     # ========== PARAMETRIZED TESTS ==========
 
-    @pytest.mark.parametrize("query,max_results,expected_valid", [
-        ("valid query", 10, True),
-        ("a" * 500, 10, True),  # Max length
-        ("", 10, False),  # Empty query
-        ("test", 0, False),  # Invalid max_results
-        ("test", 101, False),  # Max_results too high
-    ])
+    @pytest.mark.parametrize(
+        "query,max_results,expected_valid",
+        [
+            ("valid query", 10, True),
+            ("a" * 500, 10, True),  # Max length
+            ("", 10, False),  # Empty query
+            ("test", 0, False),  # Invalid max_results
+            ("test", 101, False),  # Max_results too high
+        ],
+    )
     def test_parameter_validation(self, query: str, max_results: int, expected_valid: bool):
         """Test parameter validation with various inputs."""
         if expected_valid:
@@ -296,6 +287,7 @@ class TestDemoTool:
 
 # ========== INTEGRATION TEST CLASS ==========
 
+
 class TestDemoToolIntegration:
     """Integration tests with shared modules."""
 
@@ -317,7 +309,7 @@ class TestDemoToolIntegration:
 
     def test_error_formatting_integration(self, demo_tool: DemoTool):
         """Test error formatting with shared.errors."""
-        with patch.object(demo_tool, '_execute', side_effect=ValueError("Test error")):
+        with patch.object(demo_tool, "_execute", side_effect=ValueError("Test error")):
             result = demo_tool.run()
 
             # BaseTool.run() catches and formats errors

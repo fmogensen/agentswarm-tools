@@ -113,9 +113,7 @@ class DownloadfilewrapperTool(BaseTool):
         try:
             response = requests.get(self.input, timeout=30)
         except Exception as e:
-            raise APIError(
-                f"Network error while downloading: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error while downloading: {e}", tool_name=self.tool_name)
 
         if response.status_code != 200:
             raise APIError(
@@ -127,9 +125,7 @@ class DownloadfilewrapperTool(BaseTool):
             with open(output_path, "wb") as f:
                 f.write(response.content)
         except Exception as e:
-            raise APIError(
-                f"Failed to write file to sandbox: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to write file to sandbox: {e}", tool_name=self.tool_name)
 
         return {
             "sandbox_path": output_path,
@@ -143,6 +139,7 @@ if __name__ == "__main__":
     print("Testing DownloadfilewrapperTool...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = DownloadfilewrapperTool(input="https://example.com/file.pdf")
@@ -150,7 +147,7 @@ if __name__ == "__main__":
 
     print(f"Success: {result.get('success')}")
     print(f"Result: {result.get('result')}")
-    assert result.get('success') == True
-    assert result.get('result', {}).get('mock') == True
-    assert result.get('result', {}).get('source_url') == "https://example.com/file.pdf"
+    assert result.get("success") == True
+    assert result.get("result", {}).get("mock") == True
+    assert result.get("result", {}).get("source_url") == "https://example.com/file.pdf"
     print("All tests passed!")

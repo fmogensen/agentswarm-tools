@@ -13,7 +13,9 @@ from unittest.mock import patch, MagicMock, Mock
 from typing import Dict, Any
 
 from tools.web_content.crawler.crawler import Crawler
-from tools.web_content.summarize_large_document.summarize_large_document import SummarizeLargeDocument
+from tools.web_content.summarize_large_document.summarize_large_document import (
+    SummarizeLargeDocument,
+)
 from tools.web_content.url_metadata.url_metadata import UrlMetadata
 from tools.web_content.webpage_capture_screen.webpage_capture_screen import WebpageCaptureScreen
 
@@ -22,16 +24,13 @@ from shared.errors import ValidationError, APIError
 
 # ========== Crawler Tests ==========
 
+
 class TestCrawler:
     """Comprehensive tests for Crawler tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = Crawler(
-            url="https://example.com",
-            max_depth=2,
-            max_pages=10
-        )
+        tool = Crawler(url="https://example.com", max_depth=2, max_pages=10)
         assert tool.url == "https://example.com"
         assert tool.max_depth == 2
         assert tool.max_pages == 10
@@ -104,11 +103,7 @@ class TestCrawler:
     def test_edge_case_https_and_http(self, monkeypatch):
         """Test handling of both HTTP and HTTPS URLs"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        urls = [
-            "https://example.com",
-            "http://example.com",
-            "https://subdomain.example.com"
-        ]
+        urls = ["https://example.com", "http://example.com", "https://subdomain.example.com"]
 
         for url in urls:
             tool = Crawler(url=url, max_depth=1)
@@ -118,14 +113,14 @@ class TestCrawler:
 
 # ========== SummarizeLargeDocument Tests ==========
 
+
 class TestSummarizeLargeDocument:
     """Comprehensive tests for SummarizeLargeDocument tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = SummarizeLargeDocument(
-            document_url="https://example.com/document.pdf",
-            summary_length="medium"
+            document_url="https://example.com/document.pdf", summary_length="medium"
         )
         assert tool.document_url == "https://example.com/document.pdf"
         assert tool.summary_length == "medium"
@@ -135,8 +130,7 @@ class TestSummarizeLargeDocument:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = SummarizeLargeDocument(
-            document_url="https://example.com/doc.pdf",
-            summary_length="short"
+            document_url="https://example.com/doc.pdf", summary_length="short"
         )
         result = tool.run()
 
@@ -159,8 +153,7 @@ class TestSummarizeLargeDocument:
     def test_validate_parameters_invalid_summary_length(self):
         """Test validation with invalid summary length"""
         tool = SummarizeLargeDocument(
-            document_url="https://example.com/doc.pdf",
-            summary_length="invalid"
+            document_url="https://example.com/doc.pdf", summary_length="invalid"
         )
         with pytest.raises(ValidationError):
             tool._validate_parameters()
@@ -179,14 +172,11 @@ class TestSummarizeLargeDocument:
 
         # Mock summarization API
         mock_post_response = MagicMock()
-        mock_post_response.json.return_value = {
-            "summary": "This is a summary of the document."
-        }
+        mock_post_response.json.return_value = {"summary": "This is a summary of the document."}
         mock_post.return_value = mock_post_response
 
         tool = SummarizeLargeDocument(
-            document_url="https://example.com/doc.pdf",
-            summary_length="short"
+            document_url="https://example.com/doc.pdf", summary_length="short"
         )
         result = tool.run()
 
@@ -199,14 +189,14 @@ class TestSummarizeLargeDocument:
 
         for length in lengths:
             tool = SummarizeLargeDocument(
-                document_url="https://example.com/doc.pdf",
-                summary_length=length
+                document_url="https://example.com/doc.pdf", summary_length=length
             )
             result = tool.run()
             assert result["success"] is True
 
 
 # ========== UrlMetadata Tests ==========
+
 
 class TestUrlMetadata:
     """Comprehensive tests for UrlMetadata tool"""
@@ -282,7 +272,7 @@ class TestUrlMetadata:
         urls = [
             "https://example.com?param=value",
             "https://example.com?a=1&b=2",
-            "https://example.com/page?search=test#section"
+            "https://example.com/page?search=test#section",
         ]
 
         for url in urls:
@@ -293,16 +283,14 @@ class TestUrlMetadata:
 
 # ========== WebpageCaptureScreen Tests ==========
 
+
 class TestWebpageCaptureScreen:
     """Comprehensive tests for WebpageCaptureScreen tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = WebpageCaptureScreen(
-            url="https://example.com",
-            width=1920,
-            height=1080,
-            task_summary="Capture homepage"
+            url="https://example.com", width=1920, height=1080, task_summary="Capture homepage"
         )
         assert tool.url == "https://example.com"
         assert tool.width == 1920
@@ -311,10 +299,7 @@ class TestWebpageCaptureScreen:
 
     def test_initialization_with_defaults(self):
         """Test initialization with default parameters"""
-        tool = WebpageCaptureScreen(
-            url="https://example.com",
-            task_summary="Test"
-        )
+        tool = WebpageCaptureScreen(url="https://example.com", task_summary="Test")
         assert tool.url == "https://example.com"
         assert tool.width == 1280  # Default value
         assert tool.height == 720  # Default value
@@ -322,10 +307,7 @@ class TestWebpageCaptureScreen:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = WebpageCaptureScreen(
-            url="https://example.com",
-            task_summary="Test capture"
-        )
+        tool = WebpageCaptureScreen(url="https://example.com", task_summary="Test capture")
         result = tool.run()
 
         assert result["success"] is True
@@ -348,18 +330,12 @@ class TestWebpageCaptureScreen:
         """Test validation with invalid dimensions"""
         with pytest.raises(ValidationError):
             WebpageCaptureScreen(
-                url="https://example.com",
-                width=0,
-                height=1080,
-                task_summary="Test"
+                url="https://example.com", width=0, height=1080, task_summary="Test"
             )
 
         with pytest.raises(ValidationError):
             WebpageCaptureScreen(
-                url="https://example.com",
-                width=1920,
-                height=0,
-                task_summary="Test"
+                url="https://example.com", width=1920, height=0, task_summary="Test"
             )
 
     @patch("tools.web_content.webpage_capture_screen.webpage_capture_screen.requests.post")
@@ -369,15 +345,10 @@ class TestWebpageCaptureScreen:
         monkeypatch.setenv("SCREENSHOT_API_KEY", "test_key")
 
         mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "screenshot_url": "https://example.com/screenshot.png"
-        }
+        mock_response.json.return_value = {"screenshot_url": "https://example.com/screenshot.png"}
         mock_post.return_value = mock_response
 
-        tool = WebpageCaptureScreen(
-            url="https://example.com",
-            task_summary="Test"
-        )
+        tool = WebpageCaptureScreen(url="https://example.com", task_summary="Test")
         result = tool.run()
 
         assert result["success"] is True
@@ -387,18 +358,15 @@ class TestWebpageCaptureScreen:
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         dimensions = [
             (1920, 1080),  # Full HD
-            (1366, 768),   # Common laptop
-            (375, 667),    # Mobile (iPhone)
-            (768, 1024),   # Tablet
-            (3840, 2160)   # 4K
+            (1366, 768),  # Common laptop
+            (375, 667),  # Mobile (iPhone)
+            (768, 1024),  # Tablet
+            (3840, 2160),  # 4K
         ]
 
         for width, height in dimensions:
             tool = WebpageCaptureScreen(
-                url="https://example.com",
-                width=width,
-                height=height,
-                task_summary="Test"
+                url="https://example.com", width=width, height=height, task_summary="Test"
             )
             result = tool.run()
             assert result["success"] is True
@@ -410,7 +378,7 @@ class TestWebpageCaptureScreen:
             url="https://example.com/long-page",
             width=1920,
             height=10000,  # Very tall for full page
-            task_summary="Full page capture"
+            task_summary="Full page capture",
         )
         result = tool.run()
 

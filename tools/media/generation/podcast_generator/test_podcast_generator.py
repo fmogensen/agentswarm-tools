@@ -27,7 +27,7 @@ class TestPodcastGeneratorValidation:
             topic="Test Topic",
             duration_minutes=10,
             num_speakers=2,
-            speaker_personalities=["host", "guest"]
+            speaker_personalities=["host", "guest"],
         )
         assert tool.topic == "Test Topic"
         assert tool.duration_minutes == 10
@@ -40,7 +40,7 @@ class TestPodcastGeneratorValidation:
             topic="   ",  # Empty/whitespace only
             duration_minutes=10,
             num_speakers=2,
-            speaker_personalities=["host", "guest"]
+            speaker_personalities=["host", "guest"],
         )
         result = tool.run()
         assert result["success"] is False
@@ -53,7 +53,7 @@ class TestPodcastGeneratorValidation:
                 topic="Test",
                 duration_minutes=10,
                 num_speakers=3,
-                speaker_personalities=["host", "guest"]  # Only 2 for 3 speakers
+                speaker_personalities=["host", "guest"],  # Only 2 for 3 speakers
             )
         assert "exactly 3 entries" in str(exc_info.value)
 
@@ -63,20 +63,14 @@ class TestPodcastGeneratorValidation:
 
         # Too short
         tool1 = PodcastGenerator(
-            topic="Test",
-            duration_minutes=0,
-            num_speakers=1,
-            speaker_personalities=["host"]
+            topic="Test", duration_minutes=0, num_speakers=1, speaker_personalities=["host"]
         )
         result1 = tool1.run()
         assert result1["success"] is False
 
         # Too long
         tool2 = PodcastGenerator(
-            topic="Test",
-            duration_minutes=100,
-            num_speakers=1,
-            speaker_personalities=["host"]
+            topic="Test", duration_minutes=100, num_speakers=1, speaker_personalities=["host"]
         )
         result2 = tool2.run()
         assert result2["success"] is False
@@ -87,10 +81,7 @@ class TestPodcastGeneratorValidation:
 
         # Too few
         tool1 = PodcastGenerator(
-            topic="Test",
-            duration_minutes=10,
-            num_speakers=0,
-            speaker_personalities=[]
+            topic="Test", duration_minutes=10, num_speakers=0, speaker_personalities=[]
         )
         result1 = tool1.run()
         assert result1["success"] is False
@@ -100,7 +91,7 @@ class TestPodcastGeneratorValidation:
             topic="Test",
             duration_minutes=10,
             num_speakers=5,
-            speaker_personalities=["a", "b", "c", "d", "e"]
+            speaker_personalities=["a", "b", "c", "d", "e"],
         )
         result2 = tool2.run()
         assert result2["success"] is False
@@ -119,7 +110,7 @@ class TestPodcastGeneratorMockMode:
             topic="AI and Technology",
             duration_minutes=10,
             num_speakers=2,
-            speaker_personalities=["tech host", "AI expert"]
+            speaker_personalities=["tech host", "AI expert"],
         )
         result = tool.run()
 
@@ -136,13 +127,15 @@ class TestPodcastGeneratorMockMode:
             topic="Meditation Guide",
             duration_minutes=5,
             num_speakers=1,
-            speaker_personalities=["calm guide"]
+            speaker_personalities=["calm guide"],
         )
         result = tool.run()
 
         assert result["success"] is True
         assert len(result["speakers_used"]) == 1
-        assert "meditation" in result["transcript"].lower() or "guide" in result["transcript"].lower()
+        assert (
+            "meditation" in result["transcript"].lower() or "guide" in result["transcript"].lower()
+        )
 
     def test_four_speaker_panel(self):
         """Test maximum speaker count (4 speakers)."""
@@ -150,7 +143,7 @@ class TestPodcastGeneratorMockMode:
             topic="Business Discussion",
             duration_minutes=20,
             num_speakers=4,
-            speaker_personalities=["moderator", "founder", "investor", "advisor"]
+            speaker_personalities=["moderator", "founder", "investor", "advisor"],
         )
         result = tool.run()
 
@@ -171,7 +164,7 @@ Speaker 2: Absolutely, I'm excited to share."""
             duration_minutes=5,
             num_speakers=2,
             speaker_personalities=["host", "guest"],
-            script_content=custom_script
+            script_content=custom_script,
         )
         result = tool.run()
 
@@ -186,7 +179,7 @@ Speaker 2: Absolutely, I'm excited to share."""
             num_speakers=1,
             speaker_personalities=["host"],
             background_music=True,
-            music_style="upbeat"
+            music_style="upbeat",
         )
         result1 = tool1.run()
         assert result1["metadata"]["music_included"] is True
@@ -198,7 +191,7 @@ Speaker 2: Absolutely, I'm excited to share."""
             num_speakers=1,
             speaker_personalities=["host"],
             background_music=False,
-            music_style="none"
+            music_style="none",
         )
         result2 = tool2.run()
         assert result2["metadata"]["music_included"] is False
@@ -212,7 +205,7 @@ Speaker 2: Absolutely, I'm excited to share."""
             num_speakers=1,
             speaker_personalities=["host"],
             add_intro=True,
-            add_outro=True
+            add_outro=True,
         )
         result1 = tool1.run()
 
@@ -228,7 +221,7 @@ Speaker 2: Absolutely, I'm excited to share."""
             num_speakers=1,
             speaker_personalities=["host"],
             add_intro=False,
-            add_outro=False
+            add_outro=False,
         )
         result2 = tool2.run()
 
@@ -239,10 +232,7 @@ Speaker 2: Absolutely, I'm excited to share."""
         """Test different output formats."""
         # MP3 format
         tool1 = PodcastGenerator(
-            topic="Test",
-            num_speakers=1,
-            speaker_personalities=["host"],
-            output_format="mp3"
+            topic="Test", num_speakers=1, speaker_personalities=["host"], output_format="mp3"
         )
         result1 = tool1.run()
         assert result1["metadata"]["format"] == "mp3"
@@ -250,10 +240,7 @@ Speaker 2: Absolutely, I'm excited to share."""
 
         # WAV format
         tool2 = PodcastGenerator(
-            topic="Test",
-            num_speakers=1,
-            speaker_personalities=["host"],
-            output_format="wav"
+            topic="Test", num_speakers=1, speaker_personalities=["host"], output_format="wav"
         )
         result2 = tool2.run()
         assert result2["metadata"]["format"] == "wav"
@@ -265,7 +252,7 @@ Speaker 2: Absolutely, I'm excited to share."""
             topic="Test",
             num_speakers=2,
             speaker_personalities=["host", "guest"],
-            voice_consistency=True
+            voice_consistency=True,
         )
         result = tool.run()
 
@@ -280,7 +267,7 @@ Speaker 2: Absolutely, I'm excited to share."""
             topic="Comprehensive Test",
             duration_minutes=15,
             num_speakers=2,
-            speaker_personalities=["host", "expert"]
+            speaker_personalities=["host", "expert"],
         )
         result = tool.run()
 
@@ -297,7 +284,7 @@ Speaker 2: Absolutely, I'm excited to share."""
             "has_intro",
             "has_outro",
             "generated_at",
-            "mock_mode"
+            "mock_mode",
         ]
 
         for field in required_fields:
@@ -306,9 +293,7 @@ Speaker 2: Absolutely, I'm excited to share."""
     def test_speaker_configuration_structure(self):
         """Test speaker configuration structure."""
         tool = PodcastGenerator(
-            topic="Test",
-            num_speakers=3,
-            speaker_personalities=["host", "guest1", "guest2"]
+            topic="Test", num_speakers=3, speaker_personalities=["host", "guest1", "guest2"]
         )
         result = tool.run()
 
@@ -340,11 +325,7 @@ class TestPodcastGeneratorProduction:
         original_key = os.environ.pop("OPENAI_API_KEY", None)
 
         try:
-            tool = PodcastGenerator(
-                topic="Test",
-                num_speakers=1,
-                speaker_personalities=["host"]
-            )
+            tool = PodcastGenerator(topic="Test", num_speakers=1, speaker_personalities=["host"])
             result = tool.run()
 
             assert result["success"] is False
@@ -366,11 +347,7 @@ class TestPodcastGeneratorEdgeCases:
     def test_very_long_topic(self):
         """Test handling of very long topic."""
         long_topic = "A" * 500  # Maximum allowed length
-        tool = PodcastGenerator(
-            topic=long_topic,
-            num_speakers=1,
-            speaker_personalities=["host"]
-        )
+        tool = PodcastGenerator(topic=long_topic, num_speakers=1, speaker_personalities=["host"])
         result = tool.run()
         assert result["success"] is True
 
@@ -378,9 +355,7 @@ class TestPodcastGeneratorEdgeCases:
         """Test that topic over 500 chars fails."""
         with pytest.raises(ValueError):
             PodcastGenerator(
-                topic="A" * 501,  # Over limit
-                num_speakers=1,
-                speaker_personalities=["host"]
+                topic="A" * 501, num_speakers=1, speaker_personalities=["host"]  # Over limit
             )
 
     def test_empty_personality_fails(self):
@@ -389,7 +364,7 @@ class TestPodcastGeneratorEdgeCases:
             PodcastGenerator(
                 topic="Test",
                 num_speakers=2,
-                speaker_personalities=["host", ""]  # Empty personality
+                speaker_personalities=["host", ""],  # Empty personality
             )
         assert "non-empty string" in str(exc_info.value)
 
@@ -397,9 +372,7 @@ class TestPodcastGeneratorEdgeCases:
         """Test that personality over 200 chars fails."""
         with pytest.raises(ValueError) as exc_info:
             PodcastGenerator(
-                topic="Test",
-                num_speakers=1,
-                speaker_personalities=["A" * 201]  # Over limit
+                topic="Test", num_speakers=1, speaker_personalities=["A" * 201]  # Over limit
             )
         assert "too long" in str(exc_info.value)
 
@@ -410,7 +383,7 @@ class TestPodcastGeneratorEdgeCases:
                 topic="Test",
                 num_speakers=1,
                 speaker_personalities=["host"],
-                script_content="A" * 50001  # Over limit
+                script_content="A" * 50001,  # Over limit
             )
         assert "too long" in str(exc_info.value)
 
@@ -422,7 +395,7 @@ class TestPodcastGeneratorEdgeCases:
             num_speakers=1,
             speaker_personalities=["host"],
             add_intro=False,
-            add_outro=False
+            add_outro=False,
         )
         result = tool.run()
         assert result["success"] is True
@@ -434,7 +407,7 @@ class TestPodcastGeneratorEdgeCases:
             topic="Long Form Discussion",
             duration_minutes=60,  # Maximum
             num_speakers=2,
-            speaker_personalities=["host", "guest"]
+            speaker_personalities=["host", "guest"],
         )
         result = tool.run()
         assert result["success"] is True
@@ -451,9 +424,7 @@ class TestPodcastGeneratorTranscript:
     def test_transcript_includes_speakers(self):
         """Test that transcript includes speaker labels."""
         tool = PodcastGenerator(
-            topic="Test",
-            num_speakers=2,
-            speaker_personalities=["tech host", "expert guest"]
+            topic="Test", num_speakers=2, speaker_personalities=["tech host", "expert guest"]
         )
         result = tool.run()
 
@@ -467,7 +438,7 @@ class TestPodcastGeneratorTranscript:
             num_speakers=1,
             speaker_personalities=["host"],
             add_intro=True,
-            add_outro=True
+            add_outro=True,
         )
         result = tool.run()
 
@@ -482,7 +453,7 @@ class TestPodcastGeneratorTranscript:
             num_speakers=1,
             speaker_personalities=["host"],
             add_intro=False,
-            add_outro=False
+            add_outro=False,
         )
         result = tool.run()
 

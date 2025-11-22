@@ -94,7 +94,9 @@ class NotionRead(BaseTool):
 
     def _generate_mock_results(self) -> Dict[str, Any]:
         """Generate mock results for testing."""
-        mock_content = "Mock Notion page content. This is placeholder text simulating a real Notion page."
+        mock_content = (
+            "Mock Notion page content. This is placeholder text simulating a real Notion page."
+        )
         mock_summary = "Summary: Mock content summary."
 
         return {
@@ -151,9 +153,7 @@ class NotionRead(BaseTool):
         full_text_parts = []
         for block in blocks:
             text_items = (
-                block.get("paragraph", {}).get("rich_text", [])
-                if "paragraph" in block
-                else []
+                block.get("paragraph", {}).get("rich_text", []) if "paragraph" in block else []
             )
             for t in text_items:
                 if "plain_text" in t:
@@ -174,6 +174,7 @@ if __name__ == "__main__":
     print("Testing NotionRead...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Read Notion page by ID
@@ -181,9 +182,9 @@ if __name__ == "__main__":
     tool = NotionRead(input="abc123pageid")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'content' in result.get('result', {})
-    assert 'summary' in result.get('result', {})
+    assert result.get("success") == True
+    assert "content" in result.get("result", {})
+    assert "summary" in result.get("result", {})
     print(f"✅ Test 1 passed: Page read successfully")
     print(f"   Page ID: {result.get('result', {}).get('page_id')}")
     print(f"   Summary: {result.get('result', {}).get('summary')[:50]}...")
@@ -193,7 +194,7 @@ if __name__ == "__main__":
     tool = NotionRead(input="xyz789")
     result = tool.run()
 
-    assert result.get('success') == True
+    assert result.get("success") == True
     print(f"✅ Test 2 passed: Different page read successfully")
 
     # Test 3: Validation - empty input
@@ -210,7 +211,7 @@ if __name__ == "__main__":
     tool = NotionRead(input="test123")
     result = tool.run()
 
-    assert result.get('result', {}).get('mock') == True
+    assert result.get("result", {}).get("mock") == True
     print(f"✅ Test 4 passed: Mock mode working correctly")
 
     print("\n✅ All tests passed!")

@@ -36,9 +36,7 @@ class BatchUnderstandVideos(BaseTool):
 
     # Parameters
     media_url: str = Field(..., description="URL of media to analyze")
-    instruction: Optional[str] = Field(
-        default=None, description="What to analyze or extract"
-    )
+    instruction: Optional[str] = Field(default=None, description="What to analyze or extract")
 
     def _execute(self) -> Dict[str, Any]:
         """

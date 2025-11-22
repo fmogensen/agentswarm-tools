@@ -18,11 +18,11 @@ try:
     import redis.asyncio as redis
 except ImportError:
     import redis
+
     redis.asyncio = redis
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -32,11 +32,11 @@ class ContinuousDocumenter:
 
     def __init__(self):
         self.redis_client = None
-        self.auto_document = os.getenv('AUTO_DOCUMENT', 'true').lower() == 'true'
+        self.auto_document = os.getenv("AUTO_DOCUMENT", "true").lower() == "true"
 
     async def connect(self):
         """Connect to Redis."""
-        redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
+        redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
         self.redis_client = await redis.from_url(redis_url, decode_responses=True)
         logger.info("📚 Continuous Documenter connected to Redis")
 
@@ -74,10 +74,10 @@ class ContinuousDocumenter:
                 "docs_generated": True,
                 "files_created": [
                     f"docs/api/{category}/{tool_name}.md",
-                    f"docs/examples/{category}/{tool_name}_example.md"
+                    f"docs/examples/{category}/{tool_name}_example.md",
                 ],
                 "readme_updated": True,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
             logger.info(f"✅ Documentation generated: {tool_name}")
@@ -90,39 +90,39 @@ class ContinuousDocumenter:
                 "category": category,
                 "docs_generated": False,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
     async def process_documentation_results(self, results: Dict[str, Any]):
         """Process documentation results and update tool status."""
-        tool_name = results['tool_name']
+        tool_name = results["tool_name"]
 
-        if results.get('docs_generated'):
+        if results.get("docs_generated"):
             # Documentation generated - mark as complete
             await self.redis_client.hset(
                 f"tool:{tool_name}",
                 mapping={
                     "status": "completed",
                     "documented_at": datetime.now().isoformat(),
-                    "docs_files": json.dumps(results.get('files_created', []))
-                }
+                    "docs_files": json.dumps(results.get("files_created", [])),
+                },
             )
 
             # Store documentation results
             await self.redis_client.set(
-                f"docs_results:{tool_name}",
-                json.dumps(results),
-                ex=86400 * 7  # Keep for 7 days
+                f"docs_results:{tool_name}", json.dumps(results), ex=86400 * 7  # Keep for 7 days
             )
 
             # Publish completion event
             await self.redis_client.publish(
                 "events:tool_fully_complete",
-                json.dumps({
-                    "tool_name": tool_name,
-                    "status": "completed",
-                    "timestamp": datetime.now().isoformat()
-                })
+                json.dumps(
+                    {
+                        "tool_name": tool_name,
+                        "status": "completed",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
             )
 
             # Increment metrics
@@ -137,9 +137,9 @@ class ContinuousDocumenter:
                 f"tool:{tool_name}",
                 mapping={
                     "status": "doc_failed",
-                    "doc_error": results.get('error', 'Documentation generation failed'),
-                    "doc_failed_at": datetime.now().isoformat()
-                }
+                    "doc_error": results.get("error", "Documentation generation failed"),
+                    "doc_failed_at": datetime.now().isoformat(),
+                },
             )
 
             # Increment metrics
@@ -155,11 +155,7 @@ class ContinuousDocumenter:
             cursor = 0
 
             while True:
-                cursor, keys = await self.redis_client.scan(
-                    cursor,
-                    match="tool:*",
-                    count=100
-                )
+                cursor, keys = await self.redis_client.scan(cursor, match="tool:*", count=100)
 
                 for key in keys:
                     status = await self.redis_client.hget(key, "status")
@@ -189,9 +185,11 @@ class ContinuousDocumenter:
         try:
             # Get completion metrics
             completed = int(await self.redis_client.get("metrics:completed") or 0)
-            total = int(os.getenv('TOOLS_TO_DEVELOP', '61'))
+            total = int(os.getenv("TOOLS_TO_DEVELOP", "61"))
 
-            logger.info(f"📊 Progress: {completed}/{total} tools complete ({int(completed/total*100)}%)")
+            logger.info(
+                f"📊 Progress: {completed}/{total} tools complete ({int(completed/total*100)}%)"
+            )
 
         except Exception as e:
             logger.error(f"Error updating summary docs: {e}")
@@ -206,20 +204,20 @@ class ContinuousDocumenter:
         # Subscribe to tested tool events
         pubsub = await self.subscribe_to_tested_tools()
 
-        check_interval = int(os.getenv('CHECK_INTERVAL', '60'))
+        check_interval = int(os.getenv("CHECK_INTERVAL", "60"))
 
         while True:
             try:
                 # Check for event-driven notifications
                 message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=5)
 
-                if message and message['type'] == 'message':
-                    event = json.loads(message['data'])
-                    tool_name = event.get('tool_name')
+                if message and message["type"] == "message":
+                    event = json.loads(message["data"])
+                    tool_name = event.get("tool_name")
 
                     # Get tool details
                     tool_data = await self.redis_client.hgetall(f"tool:{tool_name}")
-                    category = tool_data.get('category', 'unknown')
+                    category = tool_data.get("category", "unknown")
 
                     # Generate documentation
                     results = await self.generate_documentation(tool_name, category)
@@ -230,7 +228,7 @@ class ContinuousDocumenter:
 
                 for tool_name in tools_needing_docs[:3]:  # Process up to 3 at a time
                     tool_data = await self.redis_client.hgetall(f"tool:{tool_name}")
-                    category = tool_data.get('category', 'unknown')
+                    category = tool_data.get("category", "unknown")
 
                     results = await self.generate_documentation(tool_name, category)
                     await self.process_documentation_results(results)

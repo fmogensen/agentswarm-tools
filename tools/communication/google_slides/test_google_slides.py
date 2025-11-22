@@ -25,13 +25,7 @@ class TestGoogleSlides:
         tool = GoogleSlides(
             mode="create",
             title="Test Presentation",
-            slides=[
-                {
-                    "layout": "title",
-                    "title": "Welcome",
-                    "subtitle": "Introduction"
-                }
-            ]
+            slides=[{"layout": "title", "title": "Welcome", "subtitle": "Introduction"}],
         )
 
         result = tool.run()
@@ -52,10 +46,15 @@ class TestGoogleSlides:
                 {"layout": "title", "title": "Title Slide", "subtitle": "Subtitle"},
                 {"layout": "title_and_body", "title": "Content", "content": "Body text"},
                 {"layout": "section_header", "title": "Section"},
-                {"layout": "two_columns", "title": "Columns", "left_content": "Left", "right_content": "Right"},
-                {"layout": "blank"}
+                {
+                    "layout": "two_columns",
+                    "title": "Columns",
+                    "left_content": "Left",
+                    "right_content": "Right",
+                },
+                {"layout": "blank"},
             ],
-            theme="modern"
+            theme="modern",
         )
 
         result = tool.run()
@@ -71,7 +70,7 @@ class TestGoogleSlides:
             mode="create",
             title="Shared Presentation",
             slides=[{"layout": "blank"}],
-            share_with=["user1@example.com", "user2@example.com"]
+            share_with=["user1@example.com", "user2@example.com"],
         )
 
         result = tool.run()
@@ -91,9 +90,9 @@ class TestGoogleSlides:
                     "layout": "title_and_body",
                     "title": "Image Slide",
                     "content": "Description",
-                    "image_url": "https://example.com/image.jpg"
+                    "image_url": "https://example.com/image.jpg",
                 }
-            ]
+            ],
         )
 
         result = tool.run()
@@ -111,9 +110,9 @@ class TestGoogleSlides:
                     "layout": "title_and_body",
                     "title": "Slide with Notes",
                     "content": "Main content",
-                    "notes": "Speaker notes here"
+                    "notes": "Speaker notes here",
                 }
-            ]
+            ],
         )
 
         result = tool.run()
@@ -126,13 +125,7 @@ class TestGoogleSlides:
         tool = GoogleSlides(
             mode="modify",
             presentation_id="existing-presentation-id",
-            slides=[
-                {
-                    "layout": "title_and_body",
-                    "title": "New Slide",
-                    "content": "Added content"
-                }
-            ]
+            slides=[{"layout": "title_and_body", "title": "New Slide", "content": "Added content"}],
         )
 
         result = tool.run()
@@ -151,7 +144,7 @@ class TestGoogleSlides:
                 mode="create",
                 title=f"Presentation with {theme} theme",
                 slides=[{"layout": "blank"}],
-                theme=theme
+                theme=theme,
             )
 
             result = tool.run()
@@ -165,15 +158,16 @@ class TestGoogleSlides:
             {"layout": "title", "title": "Title", "subtitle": "Subtitle"},
             {"layout": "title_and_body", "title": "Title", "content": "Body"},
             {"layout": "section_header", "title": "Section"},
-            {"layout": "two_columns", "title": "Columns", "left_content": "L", "right_content": "R"},
-            {"layout": "blank"}
+            {
+                "layout": "two_columns",
+                "title": "Columns",
+                "left_content": "L",
+                "right_content": "R",
+            },
+            {"layout": "blank"},
         ]
 
-        tool = GoogleSlides(
-            mode="create",
-            title="All Layouts",
-            slides=layouts
-        )
+        tool = GoogleSlides(mode="create", title="All Layouts", slides=layouts)
 
         result = tool.run()
 
@@ -185,10 +179,7 @@ class TestGoogleSlides:
     def test_validation_missing_title_create_mode(self):
         """Test validation fails when title missing in create mode"""
         with pytest.raises(Exception) as exc_info:
-            tool = GoogleSlides(
-                mode="create",
-                slides=[{"layout": "blank"}]
-            )
+            tool = GoogleSlides(mode="create", slides=[{"layout": "blank"}])
             tool.run()
 
         assert "title is required" in str(exc_info.value).lower()
@@ -196,10 +187,7 @@ class TestGoogleSlides:
     def test_validation_missing_presentation_id_modify_mode(self):
         """Test validation fails when presentation_id missing in modify mode"""
         with pytest.raises(Exception) as exc_info:
-            tool = GoogleSlides(
-                mode="modify",
-                slides=[{"layout": "blank"}]
-            )
+            tool = GoogleSlides(mode="modify", slides=[{"layout": "blank"}])
             tool.run()
 
         assert "presentation_id is required" in str(exc_info.value).lower()
@@ -207,11 +195,7 @@ class TestGoogleSlides:
     def test_validation_empty_slides(self):
         """Test validation fails when slides list is empty"""
         with pytest.raises(Exception) as exc_info:
-            tool = GoogleSlides(
-                mode="create",
-                title="Test",
-                slides=[]
-            )
+            tool = GoogleSlides(mode="create", title="Test", slides=[])
             tool.run()
 
         assert "at least one slide" in str(exc_info.value).lower()
@@ -219,11 +203,7 @@ class TestGoogleSlides:
     def test_validation_missing_layout(self):
         """Test validation fails when slide missing layout"""
         with pytest.raises(Exception) as exc_info:
-            tool = GoogleSlides(
-                mode="create",
-                title="Test",
-                slides=[{"title": "No Layout"}]
-            )
+            tool = GoogleSlides(mode="create", title="Test", slides=[{"title": "No Layout"}])
             tool.run()
 
         assert "missing required 'layout' field" in str(exc_info.value).lower()
@@ -231,11 +211,7 @@ class TestGoogleSlides:
     def test_validation_invalid_layout(self):
         """Test validation fails for invalid layout"""
         with pytest.raises(Exception) as exc_info:
-            tool = GoogleSlides(
-                mode="create",
-                title="Test",
-                slides=[{"layout": "invalid_layout"}]
-            )
+            tool = GoogleSlides(mode="create", title="Test", slides=[{"layout": "invalid_layout"}])
             tool.run()
 
         assert "invalid layout" in str(exc_info.value).lower()
@@ -244,9 +220,7 @@ class TestGoogleSlides:
         """Test validation fails when title layout missing title field"""
         with pytest.raises(Exception) as exc_info:
             tool = GoogleSlides(
-                mode="create",
-                title="Test",
-                slides=[{"layout": "title", "subtitle": "Sub"}]
+                mode="create", title="Test", slides=[{"layout": "title", "subtitle": "Sub"}]
             )
             tool.run()
 
@@ -258,7 +232,7 @@ class TestGoogleSlides:
             tool = GoogleSlides(
                 mode="create",
                 title="Test",
-                slides=[{"layout": "title_and_body", "content": "Content"}]
+                slides=[{"layout": "title_and_body", "content": "Content"}],
             )
             tool.run()
 
@@ -268,9 +242,7 @@ class TestGoogleSlides:
         """Test validation fails when two_columns missing required content"""
         with pytest.raises(Exception) as exc_info:
             tool = GoogleSlides(
-                mode="create",
-                title="Test",
-                slides=[{"layout": "two_columns", "title": "Title"}]
+                mode="create", title="Test", slides=[{"layout": "two_columns", "title": "Title"}]
             )
             tool.run()
 
@@ -283,7 +255,7 @@ class TestGoogleSlides:
                 mode="create",
                 title="Test",
                 slides=[{"layout": "blank"}],
-                share_with=["invalid-email"]
+                share_with=["invalid-email"],
             )
             tool.run()
 
@@ -292,11 +264,7 @@ class TestGoogleSlides:
     def test_validation_invalid_mode(self):
         """Test validation fails for invalid mode"""
         with pytest.raises(Exception) as exc_info:
-            tool = GoogleSlides(
-                mode="invalid",
-                title="Test",
-                slides=[{"layout": "blank"}]
-            )
+            tool = GoogleSlides(mode="invalid", title="Test", slides=[{"layout": "blank"}])
 
         # Pydantic validation should catch this
         assert "mode" in str(exc_info.value).lower()
@@ -305,10 +273,7 @@ class TestGoogleSlides:
         """Test validation fails for invalid theme"""
         with pytest.raises(Exception) as exc_info:
             tool = GoogleSlides(
-                mode="create",
-                title="Test",
-                slides=[{"layout": "blank"}],
-                theme="invalid_theme"
+                mode="create", title="Test", slides=[{"layout": "blank"}], theme="invalid_theme"
             )
 
         # Pydantic validation should catch this
@@ -318,11 +283,7 @@ class TestGoogleSlides:
 
     def test_mock_mode_enabled(self):
         """Test that mock mode returns mock results"""
-        tool = GoogleSlides(
-            mode="create",
-            title="Mock Test",
-            slides=[{"layout": "blank"}]
-        )
+        tool = GoogleSlides(mode="create", title="Mock Test", slides=[{"layout": "blank"}])
 
         result = tool.run()
 
@@ -337,10 +298,10 @@ class TestGoogleSlides:
             title="Test Title",
             slides=[
                 {"layout": "title", "title": "Slide 1", "subtitle": "Sub"},
-                {"layout": "blank"}
+                {"layout": "blank"},
             ],
             theme="modern",
-            share_with=["user@example.com"]
+            share_with=["user@example.com"],
         )
 
         result = tool.run()
@@ -356,11 +317,7 @@ class TestGoogleSlides:
         """Test with very long title"""
         long_title = "A" * 250  # Near max length
 
-        tool = GoogleSlides(
-            mode="create",
-            title=long_title,
-            slides=[{"layout": "blank"}]
-        )
+        tool = GoogleSlides(mode="create", title=long_title, slides=[{"layout": "blank"}])
 
         result = tool.run()
 
@@ -371,11 +328,7 @@ class TestGoogleSlides:
         """Test with many slides"""
         slides = [{"layout": "blank"} for _ in range(50)]
 
-        tool = GoogleSlides(
-            mode="create",
-            title="Many Slides",
-            slides=slides
-        )
+        tool = GoogleSlides(mode="create", title="Many Slides", slides=slides)
 
         result = tool.run()
 
@@ -387,10 +340,7 @@ class TestGoogleSlides:
         emails = [f"user{i}@example.com" for i in range(20)]
 
         tool = GoogleSlides(
-            mode="create",
-            title="Widely Shared",
-            slides=[{"layout": "blank"}],
-            share_with=emails
+            mode="create", title="Widely Shared", slides=[{"layout": "blank"}], share_with=emails
         )
 
         result = tool.run()
@@ -407,9 +357,9 @@ class TestGoogleSlides:
                 {
                     "layout": "title_and_body",
                     "title": "Unicode Content 中文",
-                    "content": "Emoji support: 🎉 🚀 💡"
+                    "content": "Emoji support: 🎉 🚀 💡",
                 }
-            ]
+            ],
         )
 
         result = tool.run()
@@ -425,9 +375,9 @@ class TestGoogleSlides:
                 {
                     "layout": "title_and_body",
                     "title": "Title with \"quotes\" and 'apostrophes'",
-                    "content": "Content with\nnewlines\tand\ttabs"
+                    "content": "Content with\nnewlines\tand\ttabs",
                 }
-            ]
+            ],
         )
 
         result = tool.run()
@@ -447,11 +397,16 @@ class TestGoogleSlides:
                     "title": "Content",
                     "content": "Text",
                     "image_url": "https://example.com/img.jpg",
-                    "notes": "Notes"
+                    "notes": "Notes",
                 },
                 {"layout": "section_header", "title": "Section"},
-                {"layout": "two_columns", "title": "Cols", "left_content": "L", "right_content": "R"}
-            ]
+                {
+                    "layout": "two_columns",
+                    "title": "Cols",
+                    "left_content": "L",
+                    "right_content": "R",
+                },
+            ],
         )
 
         result = tool.run()
@@ -461,6 +416,7 @@ class TestGoogleSlides:
 
 
 # Integration-style tests (still using mock mode)
+
 
 class TestGoogleSlidesIntegration:
     """Integration-style tests for GoogleSlides tool"""
@@ -479,9 +435,9 @@ class TestGoogleSlidesIntegration:
             title="Team Update",
             slides=[
                 {"layout": "title", "title": "Team Update", "subtitle": "Q4 2024"},
-                {"layout": "title_and_body", "title": "Updates", "content": "Key points"}
+                {"layout": "title_and_body", "title": "Updates", "content": "Key points"},
             ],
-            share_with=["team@example.com"]
+            share_with=["team@example.com"],
         )
 
         create_result = create_tool.run()
@@ -493,9 +449,7 @@ class TestGoogleSlidesIntegration:
         modify_tool = GoogleSlides(
             mode="modify",
             presentation_id=presentation_id,
-            slides=[
-                {"layout": "title_and_body", "title": "Follow-up", "content": "Next steps"}
-            ]
+            slides=[{"layout": "title_and_body", "title": "Follow-up", "content": "Next steps"}],
         )
 
         modify_result = modify_tool.run()
@@ -508,39 +462,30 @@ class TestGoogleSlidesIntegration:
             mode="create",
             title="Full Featured Presentation",
             slides=[
-                {
-                    "layout": "title",
-                    "title": "Welcome",
-                    "subtitle": "Comprehensive Demo"
-                },
-                {
-                    "layout": "section_header",
-                    "title": "Section 1: Overview"
-                },
+                {"layout": "title", "title": "Welcome", "subtitle": "Comprehensive Demo"},
+                {"layout": "section_header", "title": "Section 1: Overview"},
                 {
                     "layout": "title_and_body",
                     "title": "Content Slide",
                     "content": "Detailed information\nBullet points\nKey facts",
-                    "notes": "Remember to emphasize the key facts"
+                    "notes": "Remember to emphasize the key facts",
                 },
                 {
                     "layout": "two_columns",
                     "title": "Comparison",
                     "left_content": "Pros:\n- Benefit 1\n- Benefit 2",
-                    "right_content": "Cons:\n- Challenge 1\n- Challenge 2"
+                    "right_content": "Cons:\n- Challenge 1\n- Challenge 2",
                 },
                 {
                     "layout": "title_and_body",
                     "title": "Visual Content",
                     "content": "Chart and diagrams below",
-                    "image_url": "https://example.com/chart.png"
+                    "image_url": "https://example.com/chart.png",
                 },
-                {
-                    "layout": "blank"
-                }
+                {"layout": "blank"},
             ],
             theme="modern",
-            share_with=["stakeholder@example.com"]
+            share_with=["stakeholder@example.com"],
         )
 
         result = tool.run()

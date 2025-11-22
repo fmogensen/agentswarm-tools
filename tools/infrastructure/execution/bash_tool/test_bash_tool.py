@@ -42,10 +42,7 @@ class TestBashTool:
     def test_metadata_correct(self, tool: BashTool):
         assert tool.tool_name == "bash_tool"
         assert tool.tool_category == "code_execution"
-        assert (
-            tool.tool_description
-            == "Execute bash commands in sandboxed Linux environment"
-        )
+        assert tool.tool_description == "Execute bash commands in sandboxed Linux environment"
 
     # ========== HAPPY PATH ==========
 
@@ -62,9 +59,7 @@ class TestBashTool:
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     @patch("subprocess.run")
-    def test_process_called_correctly(
-        self, mock_run, tool: BashTool, mock_completed_process
-    ):
+    def test_process_called_correctly(self, mock_run, tool: BashTool, mock_completed_process):
         mock_run.return_value = mock_completed_process
 
         tool.run()
@@ -102,9 +97,7 @@ class TestBashTool:
         result = tool.run()
         assert result["success"] is False
 
-    @pytest.mark.parametrize(
-        "forbidden", ["rm -rf", "shutdown", "reboot", ":(){:|:&};:"]
-    )
+    @pytest.mark.parametrize("forbidden", ["rm -rf", "shutdown", "reboot", ":(){:|:&};:"])
     def test_forbidden_commands_raise_error(self, forbidden: str):
         tool = BashTool(input=f"{forbidden} /tmp/test")
         result = tool.run()

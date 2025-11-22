@@ -33,12 +33,8 @@ class OnedriveSearch(BaseTool):
     tool_name: str = "onedrive_search"
     tool_category: str = "infrastructure"
 
-    query: str = Field(
-        ..., description="Search query string", min_length=1, max_length=500
-    )
-    max_results: int = Field(
-        10, description="Maximum number of results to return", ge=1, le=200
-    )
+    query: str = Field(..., description="Search query string", min_length=1, max_length=500)
+    max_results: int = Field(10, description="Maximum number of results to return", ge=1, le=200)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -122,9 +118,7 @@ class OnedriveSearch(BaseTool):
         """
         token = os.getenv("MS_GRAPH_TOKEN")
         if not token:
-            raise APIError(
-                "MS_GRAPH_TOKEN environment variable not set", tool_name=self.tool_name
-            )
+            raise APIError("MS_GRAPH_TOKEN environment variable not set", tool_name=self.tool_name)
 
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -166,6 +160,7 @@ if __name__ == "__main__":
     print("Testing OnedriveSearch...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = OnedriveSearch(query="test", max_results=5)
@@ -173,6 +168,6 @@ if __name__ == "__main__":
 
     print(f"Success: {result.get('success')}")
     print(f"Results count: {len(result.get('result', []))}")
-    assert result.get('success') == True
-    assert len(result.get('result', [])) == 5
+    assert result.get("success") == True
+    assert len(result.get("result", [])) == 5
     print("All tests passed!")

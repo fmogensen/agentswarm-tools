@@ -42,27 +42,12 @@ class TaskQueueManager(BaseTool):
     tool_category: str = "infrastructure"
 
     # Parameters
-    action: str = Field(
-        ...,
-        description="Action: add, remove, list, prioritize, clear, stats"
-    )
-    task_id: Optional[str] = Field(
-        None,
-        description="Task ID for remove/prioritize actions"
-    )
-    task_data: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Task data for add action"
-    )
-    queue_id: Optional[str] = Field(
-        None,
-        description="Queue ID (defaults to 'default')"
-    )
+    action: str = Field(..., description="Action: add, remove, list, prioritize, clear, stats")
+    task_id: Optional[str] = Field(None, description="Task ID for remove/prioritize actions")
+    task_data: Optional[Dict[str, Any]] = Field(None, description="Task data for add action")
+    queue_id: Optional[str] = Field(None, description="Queue ID (defaults to 'default')")
     priority: Optional[int] = Field(
-        None,
-        description="Priority level (1-10, higher is more urgent)",
-        ge=1,
-        le=10
+        None, description="Priority level (1-10, higher is more urgent)", ge=1, le=10
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -86,8 +71,8 @@ class TaskQueueManager(BaseTool):
                     "action": self.action,
                     "queue_id": self.queue_id or "default",
                     "timestamp": datetime.utcnow().isoformat(),
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"Task queue management failed: {e}", tool_name=self.tool_name)
@@ -98,9 +83,7 @@ class TaskQueueManager(BaseTool):
 
         if self.action not in valid_actions:
             raise ValidationError(
-                f"action must be one of {valid_actions}",
-                tool_name=self.tool_name,
-                field="action"
+                f"action must be one of {valid_actions}", tool_name=self.tool_name, field="action"
             )
 
         # Validate required parameters for specific actions
@@ -108,21 +91,21 @@ class TaskQueueManager(BaseTool):
             raise ValidationError(
                 "task_data is required for 'add' action",
                 tool_name=self.tool_name,
-                field="task_data"
+                field="task_data",
             )
 
         if self.action in ["remove", "prioritize"] and not self.task_id:
             raise ValidationError(
                 f"task_id is required for '{self.action}' action",
                 tool_name=self.tool_name,
-                field="task_id"
+                field="task_id",
             )
 
         if self.action == "prioritize" and self.priority is None:
             raise ValidationError(
                 "priority is required for 'prioritize' action",
                 tool_name=self.tool_name,
-                field="priority"
+                field="priority",
             )
 
     def _should_use_mock(self) -> bool:
@@ -141,13 +124,9 @@ class TaskQueueManager(BaseTool):
                     "task_id": f"task_{uuid.uuid4().hex[:8]}",
                     "queue_id": queue_id,
                     "position": 5,
-                    "added_at": datetime.utcnow().isoformat()
+                    "added_at": datetime.utcnow().isoformat(),
                 },
-                "metadata": {
-                    "mock_mode": True,
-                    "tool_name": self.tool_name,
-                    "queue_id": queue_id
-                }
+                "metadata": {"mock_mode": True, "tool_name": self.tool_name, "queue_id": queue_id},
             }
 
         elif self.action == "remove":
@@ -157,12 +136,9 @@ class TaskQueueManager(BaseTool):
                     "action": "remove",
                     "task_id": self.task_id,
                     "queue_id": queue_id,
-                    "removed": True
+                    "removed": True,
                 },
-                "metadata": {
-                    "mock_mode": True,
-                    "tool_name": self.tool_name
-                }
+                "metadata": {"mock_mode": True, "tool_name": self.tool_name},
             }
 
         elif self.action == "list":
@@ -176,21 +152,18 @@ class TaskQueueManager(BaseTool):
                             "task_id": "task_001",
                             "status": "pending",
                             "priority": 5,
-                            "created_at": datetime.utcnow().isoformat()
+                            "created_at": datetime.utcnow().isoformat(),
                         },
                         {
                             "task_id": "task_002",
                             "status": "in_progress",
                             "priority": 8,
-                            "created_at": datetime.utcnow().isoformat()
-                        }
+                            "created_at": datetime.utcnow().isoformat(),
+                        },
                     ],
-                    "total_tasks": 2
+                    "total_tasks": 2,
                 },
-                "metadata": {
-                    "mock_mode": True,
-                    "tool_name": self.tool_name
-                }
+                "metadata": {"mock_mode": True, "tool_name": self.tool_name},
             }
 
         elif self.action == "prioritize":
@@ -201,26 +174,16 @@ class TaskQueueManager(BaseTool):
                     "task_id": self.task_id,
                     "queue_id": queue_id,
                     "old_priority": 5,
-                    "new_priority": self.priority
+                    "new_priority": self.priority,
                 },
-                "metadata": {
-                    "mock_mode": True,
-                    "tool_name": self.tool_name
-                }
+                "metadata": {"mock_mode": True, "tool_name": self.tool_name},
             }
 
         elif self.action == "clear":
             return {
                 "success": True,
-                "result": {
-                    "action": "clear",
-                    "queue_id": queue_id,
-                    "tasks_removed": 5
-                },
-                "metadata": {
-                    "mock_mode": True,
-                    "tool_name": self.tool_name
-                }
+                "result": {"action": "clear", "queue_id": queue_id, "tasks_removed": 5},
+                "metadata": {"mock_mode": True, "tool_name": self.tool_name},
             }
 
         elif self.action == "stats":
@@ -235,12 +198,9 @@ class TaskQueueManager(BaseTool):
                     "completed": 2,
                     "failed": 0,
                     "average_wait_time_seconds": 120.5,
-                    "oldest_task_age_seconds": 300
+                    "oldest_task_age_seconds": 300,
                 },
-                "metadata": {
-                    "mock_mode": True,
-                    "tool_name": self.tool_name
-                }
+                "metadata": {"mock_mode": True, "tool_name": self.tool_name},
             }
 
         return {"success": True, "result": {}, "metadata": {"mock_mode": True}}
@@ -280,7 +240,7 @@ class TaskQueueManager(BaseTool):
             "queue_id": queue_id,
             "position": 0,  # Would be actual position in queue
             "added_at": datetime.utcnow().isoformat(),
-            "task_data": self.task_data
+            "task_data": self.task_data,
         }
 
     def _remove_task(self, queue_id: str) -> Dict[str, Any]:
@@ -291,18 +251,13 @@ class TaskQueueManager(BaseTool):
             "task_id": self.task_id,
             "queue_id": queue_id,
             "removed": True,
-            "removed_at": datetime.utcnow().isoformat()
+            "removed_at": datetime.utcnow().isoformat(),
         }
 
     def _list_tasks(self, queue_id: str) -> Dict[str, Any]:
         """List all tasks in the queue."""
         # In real implementation, query actual queue
-        return {
-            "action": "list",
-            "queue_id": queue_id,
-            "tasks": [],
-            "total_tasks": 0
-        }
+        return {"action": "list", "queue_id": queue_id, "tasks": [], "total_tasks": 0}
 
     def _prioritize_task(self, queue_id: str) -> Dict[str, Any]:
         """Change task priority."""
@@ -313,7 +268,7 @@ class TaskQueueManager(BaseTool):
             "queue_id": queue_id,
             "old_priority": 5,  # Would be actual old priority
             "new_priority": self.priority,
-            "updated_at": datetime.utcnow().isoformat()
+            "updated_at": datetime.utcnow().isoformat(),
         }
 
     def _clear_queue(self, queue_id: str) -> Dict[str, Any]:
@@ -323,7 +278,7 @@ class TaskQueueManager(BaseTool):
             "action": "clear",
             "queue_id": queue_id,
             "tasks_removed": 0,  # Would be actual count
-            "cleared_at": datetime.utcnow().isoformat()
+            "cleared_at": datetime.utcnow().isoformat(),
         }
 
     def _get_queue_stats(self, queue_id: str) -> Dict[str, Any]:
@@ -339,7 +294,7 @@ class TaskQueueManager(BaseTool):
             "failed": 0,
             "average_wait_time_seconds": 0.0,
             "oldest_task_age_seconds": 0,
-            "newest_task_age_seconds": 0
+            "newest_task_age_seconds": 0,
         }
 
 
@@ -351,11 +306,10 @@ if __name__ == "__main__":
 
     # Test add action
     tool = TaskQueueManager(
-        action="add",
-        task_data={"type": "process", "payload": {"data": "test"}}
+        action="add", task_data={"type": "process", "payload": {"data": "test"}}
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True
+    assert result.get("success") == True
     print("TaskQueueManager test passed!")

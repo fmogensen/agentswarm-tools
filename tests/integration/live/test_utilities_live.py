@@ -17,17 +17,19 @@ def reset_rate_limiter_for_test():
     """Reset rate limiter before each test by giving buckets full tokens."""
     from shared.security import get_rate_limiter
     from datetime import datetime
+
     limiter = get_rate_limiter()
     # Clear all buckets
     limiter._buckets.clear()
     # Pre-populate common tool buckets with full tokens
     # Use naive datetime to match the code's datetime.utcnow()
-    for tool in ["think:anonymous", "ask_for_clarification:anonymous",
-                 "write_tool:anonymous", "read_tool:anonymous"]:
-        limiter._buckets[tool] = {
-            "tokens": 60,  # Full bucket
-            "last_update": datetime.utcnow()
-        }
+    for tool in [
+        "think:anonymous",
+        "ask_for_clarification:anonymous",
+        "write_tool:anonymous",
+        "read_tool:anonymous",
+    ]:
+        limiter._buckets[tool] = {"tokens": 60, "last_update": datetime.utcnow()}  # Full bucket
     yield
 
 

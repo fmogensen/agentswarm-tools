@@ -7,5 +7,5 @@ __category__ = "media"
 
 # This module contains media-related tools organized into subcategories:
 # - generation: Image, video, and audio generation tools
-# - analysis: Media analysis and understanding tools  
+# - analysis: Media analysis and understanding tools
 # - processing: Media editing and processing tools

@@ -18,12 +18,15 @@ from tools.code_execution.bash_tool.bash_tool import BashTool
 from tools.code_execution.read_tool.read_tool import ReadTool
 from tools.code_execution.write_tool.write_tool import WriteTool
 from tools.code_execution.multiedit_tool.multiedit_tool import MultiEditTool
-from tools.code_execution.downloadfilewrapper_tool.downloadfilewrapper_tool import DownloadFileWrapperTool
+from tools.code_execution.downloadfilewrapper_tool.downloadfilewrapper_tool import (
+    DownloadFileWrapperTool,
+)
 
 from shared.errors import ValidationError, APIError
 
 
 # ========== BashTool Tests ==========
+
 
 class TestBashTool:
     """Comprehensive tests for BashTool (Bash command execution)"""
@@ -99,11 +102,7 @@ class TestBashTool:
 
     def test_security_dangerous_commands(self):
         """Test validation of potentially dangerous commands"""
-        dangerous_commands = [
-            "rm -rf /",
-            "dd if=/dev/zero of=/dev/sda",
-            ":(){ :|:& };:"
-        ]
+        dangerous_commands = ["rm -rf /", "dd if=/dev/zero of=/dev/sda", ":(){ :|:& };:"]
 
         for cmd in dangerous_commands:
             tool = BashTool(command=cmd)
@@ -113,6 +112,7 @@ class TestBashTool:
 
 
 # ========== ReadTool Tests ==========
+
 
 class TestReadTool:
     """Comprehensive tests for ReadTool (File reading)"""
@@ -166,7 +166,7 @@ class TestReadTool:
         special_paths = [
             "/path/with spaces/file.txt",
             "/path/with-dashes/file.txt",
-            "/path/with_underscores/file.txt"
+            "/path/with_underscores/file.txt",
         ]
 
         for path in special_paths:
@@ -177,15 +177,13 @@ class TestReadTool:
 
 # ========== WriteTool Tests ==========
 
+
 class TestWriteTool:
     """Comprehensive tests for WriteTool (File writing)"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = WriteTool(
-            file_path="/path/to/file.txt",
-            content="test content"
-        )
+        tool = WriteTool(file_path="/path/to/file.txt", content="test content")
         assert tool.file_path == "/path/to/file.txt"
         assert tool.content == "test content"
         assert tool.tool_name == "write_tool"
@@ -193,10 +191,7 @@ class TestWriteTool:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = WriteTool(
-            file_path="/test/output.txt",
-            content="Hello World"
-        )
+        tool = WriteTool(file_path="/test/output.txt", content="Hello World")
         result = tool.run()
 
         assert result["success"] is True
@@ -219,10 +214,7 @@ class TestWriteTool:
         """Test execution with mocked file writing"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
 
-        tool = WriteTool(
-            file_path="/test/output.txt",
-            content="test content"
-        )
+        tool = WriteTool(file_path="/test/output.txt", content="test content")
         result = tool.run()
 
         assert result["success"] is True
@@ -232,10 +224,7 @@ class TestWriteTool:
         """Test writing large content"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         large_content = "x" * 1000000  # 1MB
-        tool = WriteTool(
-            file_path="/test/large.txt",
-            content=large_content
-        )
+        tool = WriteTool(file_path="/test/large.txt", content=large_content)
         result = tool.run()
 
         assert result["success"] is True
@@ -244,16 +233,14 @@ class TestWriteTool:
         """Test writing binary content"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         binary_content = bytes([0, 1, 2, 3, 4, 5])
-        tool = WriteTool(
-            file_path="/test/binary.dat",
-            content=binary_content
-        )
+        tool = WriteTool(file_path="/test/binary.dat", content=binary_content)
         result = tool.run()
 
         assert result["success"] is True
 
 
 # ========== MultiEditTool Tests ==========
+
 
 class TestMultiEditTool:
     """Comprehensive tests for MultiEditTool (Multiple file edits)"""
@@ -262,7 +249,7 @@ class TestMultiEditTool:
         """Test successful tool initialization"""
         edits = [
             {"file_path": "/file1.txt", "old_text": "old1", "new_text": "new1"},
-            {"file_path": "/file2.txt", "old_text": "old2", "new_text": "new2"}
+            {"file_path": "/file2.txt", "old_text": "old2", "new_text": "new2"},
         ]
         tool = MultiEditTool(edits=edits)
         assert len(tool.edits) == 2
@@ -271,9 +258,7 @@ class TestMultiEditTool:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        edits = [
-            {"file_path": "/test.txt", "old_text": "hello", "new_text": "world"}
-        ]
+        edits = [{"file_path": "/test.txt", "old_text": "hello", "new_text": "world"}]
         tool = MultiEditTool(edits=edits)
         result = tool.run()
 
@@ -288,9 +273,7 @@ class TestMultiEditTool:
 
     def test_validate_parameters_invalid_edit_format(self):
         """Test validation with invalid edit format"""
-        edits = [
-            {"file_path": "/test.txt"}  # Missing old_text and new_text
-        ]
+        edits = [{"file_path": "/test.txt"}]  # Missing old_text and new_text
         tool = MultiEditTool(edits=edits)
         with pytest.raises(ValidationError):
             tool._validate_parameters()
@@ -300,9 +283,7 @@ class TestMultiEditTool:
         """Test execution with mocked file editing"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
 
-        edits = [
-            {"file_path": "/test.txt", "old_text": "old", "new_text": "new"}
-        ]
+        edits = [{"file_path": "/test.txt", "old_text": "old", "new_text": "new"}]
         tool = MultiEditTool(edits=edits)
         result = tool.run()
 
@@ -313,7 +294,7 @@ class TestMultiEditTool:
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         edits = [
             {"file_path": "/test.txt", "old_text": "a", "new_text": "b"},
-            {"file_path": "/test.txt", "old_text": "c", "new_text": "d"}
+            {"file_path": "/test.txt", "old_text": "c", "new_text": "d"},
         ]
         tool = MultiEditTool(edits=edits)
         result = tool.run()
@@ -323,14 +304,14 @@ class TestMultiEditTool:
 
 # ========== DownloadFileWrapperTool Tests ==========
 
+
 class TestDownloadFileWrapperTool:
     """Comprehensive tests for DownloadFileWrapperTool (File downloading)"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = DownloadFileWrapperTool(
-            url="https://example.com/file.txt",
-            destination="/path/to/save/file.txt"
+            url="https://example.com/file.txt", destination="/path/to/save/file.txt"
         )
         assert tool.url == "https://example.com/file.txt"
         assert tool.destination == "/path/to/save/file.txt"
@@ -340,8 +321,7 @@ class TestDownloadFileWrapperTool:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = DownloadFileWrapperTool(
-            url="https://example.com/test.pdf",
-            destination="/downloads/test.pdf"
+            url="https://example.com/test.pdf", destination="/downloads/test.pdf"
         )
         result = tool.run()
 
@@ -378,8 +358,7 @@ class TestDownloadFileWrapperTool:
         mock_get.return_value = mock_response
 
         tool = DownloadFileWrapperTool(
-            url="https://example.com/file.txt",
-            destination="/downloads/file.txt"
+            url="https://example.com/file.txt", destination="/downloads/file.txt"
         )
         result = tool.run()
 
@@ -397,8 +376,7 @@ class TestDownloadFileWrapperTool:
         mock_get.return_value = mock_response
 
         tool = DownloadFileWrapperTool(
-            url="https://example.com/nonexistent.txt",
-            destination="/downloads/file.txt"
+            url="https://example.com/nonexistent.txt", destination="/downloads/file.txt"
         )
         with pytest.raises(APIError):
             tool.run()
@@ -407,8 +385,7 @@ class TestDownloadFileWrapperTool:
         """Test downloading large file"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = DownloadFileWrapperTool(
-            url="https://example.com/large-file.zip",
-            destination="/downloads/large-file.zip"
+            url="https://example.com/large-file.zip", destination="/downloads/large-file.zip"
         )
         result = tool.run()
 
@@ -418,8 +395,7 @@ class TestDownloadFileWrapperTool:
         """Test destination path with special characters"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = DownloadFileWrapperTool(
-            url="https://example.com/file.txt",
-            destination="/path with spaces/file name.txt"
+            url="https://example.com/file.txt", destination="/path with spaces/file name.txt"
         )
         result = tool.run()
 

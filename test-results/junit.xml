@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="5" time="1.397" timestamp="2025-11-22T20:02:50.795945+01:00" hostname="Franks-iMac.home"><testcase classname="" name="tests.integration.test_photo_editor_standalone" time="0.000"><error message="collection failure">tests/integration/test_photo_editor_standalone.py:26: in &lt;module&gt;
+    import shared.base
+        ABC        = &lt;class 'abc.ABC'&gt;
+        BaseModel  = &lt;class 'pydantic.main.BaseModel'&gt;
+        MockAgencyBaseTool = &lt;class 'test_photo_editor_standalone.MockAgencyBaseTool'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/tests/integration/__pycache__/test_photo_editor_standalone.cpython-314.pyc'
+        __doc__    = ('\n'
+ 'Standalone test for PhotoEditorTool (without agency-swarm dependency)\n'
+ 'This test verifies the tool logic works correctly.\n')
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/tests/integration/test_photo_editor_standalone.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x108beba10&gt;
+        __name__   = 'test_photo_editor_standalone'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_photo_editor_standalone', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x108beba10&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/tests/integration/test_photo_editor_standalone.py')
+        abstractmethod = &lt;function abstractmethod at 0x102eb81a0&gt;
+        os         = &lt;module 'os' (frozen)&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+shared/__init__.py:7: in &lt;module&gt;
+    from .base import BaseTool
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/shared/__pycache__/__init__.cpython-314.pyc'
+        __doc__    = ('\n'
+ 'AgentSwarm Tools - Shared Utilities\n'
+ '\n'
+ 'This package contains shared utilities and base classes for all tools.\n')
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/shared/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10a788bf0&gt;
+        __name__   = 'shared'
+        __package__ = 'shared'
+        __path__   = ['/Users/frank/Documents/Code/Genspark/agentswarm-tools/shared']
+        __spec__   = ModuleSpec(name='shared', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10a788bf0&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/shared/__init__.py', submodule_search_locations=['/Users/frank/Documents/Code/Genspark/agentswarm-tools/shared'])
+shared/base.py:19: in &lt;module&gt;
+    from agency_swarm.tools.base_tool import BaseTool as AgencyBaseTool
+        Any        = typing.Any
+        Dict       = typing.Dict
+        Optional   = typing.Optional
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/shared/__pycache__/base.cpython-314.pyc'
+        __doc__    = ('\n'
+ 'Base tool class for AgentSwarm Tools Framework.\n'
+ 'Provides built-in error handling, analytics, security, and logging.\n'
+ '\n'
+ "This class extends Agency Swarm's BaseTool while maintaining 100% "
+ 'compatibility.\n')
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/shared/base.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10a789250&gt;
+        __name__   = 'shared.base'
+        __package__ = 'shared'
+        __spec__   = ModuleSpec(name='shared.base', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10a789250&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/shared/base.py')
+        abstractmethod = &lt;function abstractmethod at 0x102eb81a0&gt;
+        datetime   = &lt;class 'datetime.datetime'&gt;
+        logging    = &lt;module 'logging' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py'&gt;
+        os         = &lt;module 'os' (frozen)&gt;
+        time       = &lt;module 'time' (built-in)&gt;
+        uuid       = &lt;module 'uuid' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/uuid.py'&gt;
+        warnings   = &lt;module 'warnings' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/warnings.py'&gt;
+.venv/lib/python3.14/site-packages/agency_swarm/__init__.py:47: in &lt;module&gt;
+    from .agency.core import Agency  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        AgentHooks = agents.lifecycle.AgentHooksBase[~TContext, agents.agent.Agent]
+        AgentOutputSchemaBase = &lt;class 'agents.agent_output.AgentOutputSchemaBase'&gt;
+        AsyncComputer = &lt;class 'agents.computer.AsyncComputer'&gt;
+        Body       = &lt;class 'object'&gt;
+        Computer   = &lt;class 'agents.computer.Computer'&gt;
+        DynamicPromptFunction = typing.Callable[[agents.prompts.GenerateDynamicPromptData], collections.abc.Awaitable[agents.prompts.Prompt] | agents.prompts.Prompt]
+        GenerateDynamicPromptData = &lt;class 'agents.prompts.GenerateDynamicPromptData'&gt;
+        GuardrailFunctionOutput = &lt;class 'agents.guardrail.GuardrailFunctionOutput'&gt;
+        Handoff    = &lt;class 'agents.handoffs.Handoff'&gt;
+        Headers    = collections.abc.Mapping[str, str | typing.Annotated[openai.Omit, &lt;class 'agents.model_settings._OmitTypeAnnotation'&gt;]]
+        InputGuardrailTripwireTriggered = &lt;class 'agents.exceptions.InputGuardrailTripwireTriggered'&gt;
+        MCPToolChoice = &lt;class 'agents.model_settings.MCPToolChoice'&gt;
+        Model      = &lt;class 'agents.models.interface.Model'&gt;
+        ModelSettings = &lt;class 'agents.model_settings.ModelSettings'&gt;
+        OpenAIChatCompletionsModel = &lt;class 'agents.models.openai_chatcompletions.OpenAIChatCompletionsModel'&gt;
+        OutputGuardrailTripwireTriggered = &lt;class 'agents.exceptions.OutputGuardrailTripwireTriggered'&gt;
+        Query      = typing.Mapping[str, object]
+        Reasoning  = &lt;class 'openai.types.shared.reasoning.Reasoning'&gt;
+        ResponseIncludable = typing.Literal['file_search_call.results', 'web_search_call.results', 'web_search_call.action.sources', 'message.input_image.image_url', 'computer_call_output.output.image_url', 'code_interpreter_call.outputs', 'reasoning.encrypted_content', 'message.output_text.logprobs']
+        RunContextWrapper = &lt;class 'agents.run_context.RunContextWrapper'&gt;
+        RunHooks   = agents.lifecycle.RunHooksBase[~TContext, agents.agent.Agent]
+        RunResult  = &lt;class 'agents.result.RunResult'&gt;
+        RunResultStreaming = &lt;class 'agents.result.RunResultStreaming'&gt;
+        StopAtTools = &lt;class 'agents.agent.StopAtTools'&gt;
+        ToolChoice = typing.Literal['auto', 'required', 'none'] | str | agents.model_settings.MCPToolChoice | None
+        ToolsToFinalOutputFunction = typing.Callable[[agents.run_context.RunContextWrapper[~TContext], list[agents.tool.FunctionToolResult]], collections.abc.Awaitable[agents.agent.ToolsToFinalOutputResult] | agents.agent.ToolsToFinalOutputResult]
+        _LITELLM_AVAILABLE = False
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/__pycache__/__init__.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10a789130&gt;
+        __name__   = 'agency_swarm'
+        __package__ = 'agency_swarm'
+        __path__   = ['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm']
+        __spec__   = ModuleSpec(name='agency_swarm', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10a789130&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/__init__.py', submodule_search_locations=['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm'])
+        context    = &lt;module 'agency_swarm.context' from '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/context.py'&gt;
+        function_tool = &lt;function function_tool at 0x10c613950&gt;
+        input_guardrail = &lt;function input_guardrail at 0x10c6a8510&gt;
+        load_dotenv = &lt;function load_dotenv at 0x10a7d1010&gt;
+        messages   = &lt;module 'agency_swarm.messages' from '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/messages/__init__.py'&gt;
+        output_guardrail = &lt;function output_guardrail at 0x10c6a8a90&gt;
+        set_tracing_disabled = &lt;function set_tracing_disabled at 0x10c2fa770&gt;
+        trace      = &lt;function trace at 0x10bdec460&gt;
+.venv/lib/python3.14/site-packages/agency_swarm/agency/__init__.py:15: in &lt;module&gt;
+    from .core import Agency, AgencyChart, AgencyChartEntry, CommunicationFlowEntry
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agency/__pycache__/__init__.cpython-314.pyc'
+        __doc__    = ('\n'
+ 'Agency package for orchestrating multi-agent systems.\n'
+ '\n'
+ 'Split into modules for maintainability:\n'
+ '- core: Main Agency class and initialization\n'
+ '- setup: Agent registration and configuration\n'
+ '- responses: Modern response methods\n'
+ '- completions: Deprecated completion methods\n'
+ '- helpers: Utility helper functions\n'
+ '- visualization: Structure visualization and demos\n')
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agency/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17ebd0&gt;
+        __name__   = 'agency_swarm.agency'
+        __package__ = 'agency_swarm.agency'
+        __path__   = ['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agency']
+        __spec__   = ModuleSpec(name='agency_swarm.agency', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17ebd0&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agency/__init__.py', submodule_search_locations=['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agency'])
+.venv/lib/python3.14/site-packages/agency_swarm/agency/core.py:10: in &lt;module&gt;
+    from agency_swarm.agent.agent_flow import AgentFlow
+        Any        = typing.Any
+        RunConfig  = &lt;class 'agents.run.RunConfig'&gt;
+        RunHooks   = agents.lifecycle.RunHooksBase[~TContext, agents.agent.Agent]
+        RunResult  = &lt;class 'agents.result.RunResult'&gt;
+        TResponseInputItem = openai.types.responses.easy_input_message_param.EasyInputMessageParam | openai.types.responses.response_input_item_param.Message | openai.types.responses.response_output_message_param.ResponseOutputMessageParam | openai.types.responses.response_file_search_tool_call_param.ResponseFileSearchToolCallParam | openai.types.responses.response_computer_tool_call_param.ResponseComputerToolCallParam | openai.types.responses.response_input_item_param.ComputerCallOutput | openai.types.responses.response_function_web_search_param.ResponseFunctionWebSearchParam | openai.types.responses.response_function_tool_call_param.ResponseFunctionToolCallParam | openai.types.responses.response_input_item_param.FunctionCallOutput | openai.types.responses.response_reasoning_item_param.ResponseReasoningItemParam | openai.types.responses.response_input_item_param.ImageGenerationCall | openai.types.responses.response_code_interpreter_tool_call_param.ResponseCodeInterpreterToolCallParam | openai.types.responses.response_input_item_param.LocalShellCall | openai.types.responses.response_input_item_param.LocalShellCallOutput | openai.types.responses.response_input_item_param.ShellCall | openai.types.responses.response_input_item_param.ShellCallOutput | openai.types.responses.response_input_item_param.ApplyPatchCall | openai.types.responses.response_input_item_param.ApplyPatchCallOutput | openai.types.responses.response_input_item_param.McpListTools | openai.types.responses.response_input_item_param.McpApprovalRequest | openai.types.responses.response_input_item_param.McpApprovalResponse | openai.types.responses.response_input_item_param.McpCall | openai.types.responses.response_custom_tool_call_output_param.ResponseCustomToolCallOutputParam | openai.types.responses.response_custom_tool_call_param.ResponseCustomToolCallParam | openai.types.responses.response_input_item_param.ItemReference
+        TYPE_CHECKING = False
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agency/__pycache__/core.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agency/core.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17ec30&gt;
+        __name__   = 'agency_swarm.agency.core'
+        __package__ = 'agency_swarm.agency'
+        __spec__   = ModuleSpec(name='agency_swarm.agency.core', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17ec30&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agency/core.py')
+        atexit     = &lt;module 'atexit' (built-in)&gt;
+        logging    = &lt;module 'logging' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py'&gt;
+        os         = &lt;module 'os' (frozen)&gt;
+        warnings   = &lt;module 'warnings' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/warnings.py'&gt;
+.venv/lib/python3.14/site-packages/agency_swarm/agent/__init__.py:8: in &lt;module&gt;
+    from .execution import Execution
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/__pycache__/__init__.cpython-314.pyc'
+        __doc__    = ('\n'
+ 'Agent domain services.\n'
+ '\n'
+ 'This package contains domain-specific functions extracted from the Agent '
+ 'class\n'
+ 'to maintain clean separation of concerns and reduce file sizes.\n')
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17f2f0&gt;
+        __name__   = 'agency_swarm.agent'
+        __package__ = 'agency_swarm.agent'
+        __path__   = ['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent']
+        __spec__   = ModuleSpec(name='agency_swarm.agent', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17f2f0&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/__init__.py', submodule_search_locations=['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent'])
+        context_types = &lt;module 'agency_swarm.agent.context_types' from '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/context_types.py'&gt;
+.venv/lib/python3.14/site-packages/agency_swarm/agent/execution.py:16: in &lt;module&gt;
+    from agency_swarm.agent.execution_helpers import (
+        Any        = typing.Any
+        AsyncGenerator = &lt;class 'collections.abc.AsyncGenerator'&gt;
+        MessageOutputItem = &lt;class 'agents.items.MessageOutputItem'&gt;
+        RunConfig  = &lt;class 'agents.run.RunConfig'&gt;
+        RunHooks   = agents.lifecycle.RunHooksBase[~TContext, agents.agent.Agent]
+        RunResult  = &lt;class 'agents.result.RunResult'&gt;
+        StreamEvent = agents.stream_events.RawResponsesStreamEvent | agents.stream_events.RunItemStreamEvent | agents.stream_events.AgentUpdatedStreamEvent
+        TResponseInputItem = openai.types.responses.easy_input_message_param.EasyInputMessageParam | openai.types.responses.response_input_item_param.Message | openai.types.responses.response_output_message_param.ResponseOutputMessageParam | openai.types.responses.response_file_search_tool_call_param.ResponseFileSearchToolCallParam | openai.types.responses.response_computer_tool_call_param.ResponseComputerToolCallParam | openai.types.responses.response_input_item_param.ComputerCallOutput | openai.types.responses.response_function_web_search_param.ResponseFunctionWebSearchParam | openai.types.responses.response_function_tool_call_param.ResponseFunctionToolCallParam | openai.types.responses.response_input_item_param.FunctionCallOutput | openai.types.responses.response_reasoning_item_param.ResponseReasoningItemParam | openai.types.responses.response_input_item_param.ImageGenerationCall | openai.types.responses.response_code_interpreter_tool_call_param.ResponseCodeInterpreterToolCallParam | openai.types.responses.response_input_item_param.LocalShellCall | openai.types.responses.response_input_item_param.LocalShellCallOutput | openai.types.responses.response_input_item_param.ShellCall | openai.types.responses.response_input_item_param.ShellCallOutput | openai.types.responses.response_input_item_param.ApplyPatchCall | openai.types.responses.response_input_item_param.ApplyPatchCallOutput | openai.types.responses.response_input_item_param.McpListTools | openai.types.responses.response_input_item_param.McpApprovalRequest | openai.types.responses.response_input_item_param.McpApprovalResponse | openai.types.responses.response_input_item_param.McpCall | openai.types.responses.response_custom_tool_call_output_param.ResponseCustomToolCallOutputParam | openai.types.responses.response_custom_tool_call_param.ResponseCustomToolCallParam | openai.types.responses.response_input_item_param.ItemReference
+        TYPE_CHECKING = False
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/__pycache__/execution.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/execution.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17f4d0&gt;
+        __name__   = 'agency_swarm.agent.execution'
+        __package__ = 'agency_swarm.agent'
+        __spec__   = ModuleSpec(name='agency_swarm.agent.execution', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17f4d0&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/execution.py')
+        asyncio    = &lt;module 'asyncio' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/__init__.py'&gt;
+        logging    = &lt;module 'logging' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py'&gt;
+        uuid       = &lt;module 'uuid' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/uuid.py'&gt;
+.venv/lib/python3.14/site-packages/agency_swarm/agent/execution_helpers.py:28: in &lt;module&gt;
+    from agency_swarm.tools.mcp_manager import default_mcp_manager
+        AgentRuntimeState = &lt;class 'agency_swarm.agent.context_types.AgentRuntimeState'&gt;
+        AgentsException = &lt;class 'agents.exceptions.AgentsException'&gt;
+        Any        = typing.Any
+        AsyncExitStack = &lt;class 'contextlib.AsyncExitStack'&gt;
+        Callable   = &lt;class 'collections.abc.Callable'&gt;
+        InputGuardrailTripwireTriggered = &lt;class 'agents.exceptions.InputGuardrailTripwireTriggered'&gt;
+        MasterContext = &lt;class 'agency_swarm.context.MasterContext'&gt;
+        MessageFormatter = &lt;class 'agency_swarm.messages.message_formatter.MessageFormatter'&gt;
+        OutputGuardrailTripwireTriggered = &lt;class 'agents.exceptions.OutputGuardrailTripwireTriggered'&gt;
+        ResponseFileSearchToolCall = &lt;class 'openai.types.responses.response_file_search_tool_call.ResponseFileSearchToolCall'&gt;
+        ResponseFunctionWebSearch = &lt;class 'openai.types.responses.response_function_web_search.ResponseFunctionWebSearch'&gt;
+        RunConfig  = &lt;class 'agents.run.RunConfig'&gt;
+        RunHooks   = agents.lifecycle.RunHooksBase[~TContext, agents.agent.Agent]
+        RunItem    = agents.items.MessageOutputItem | agents.items.HandoffCallItem | agents.items.HandoffOutputItem | agents.items.ToolCallItem | agents.items.ToolCallOutputItem | agents.items.ReasoningItem | agents.items.MCPListToolsItem | agents.items.MCPApprovalRequestItem | agents.items.MCPApprovalResponseItem
+        RunResult  = &lt;class 'agents.result.RunResult'&gt;
+        Runner     = &lt;class 'agents.run.Runner'&gt;
+        TResponseInputItem = openai.types.responses.easy_input_message_param.EasyInputMessageParam | openai.types.responses.response_input_item_param.Message | openai.types.responses.response_output_message_param.ResponseOutputMessageParam | openai.types.responses.response_file_search_tool_call_param.ResponseFileSearchToolCallParam | openai.types.responses.response_computer_tool_call_param.ResponseComputerToolCallParam | openai.types.responses.response_input_item_param.ComputerCallOutput | openai.types.responses.response_function_web_search_param.ResponseFunctionWebSearchParam | openai.types.responses.response_function_tool_call_param.ResponseFunctionToolCallParam | openai.types.responses.response_input_item_param.FunctionCallOutput | openai.types.responses.response_reasoning_item_param.ResponseReasoningItemParam | openai.types.responses.response_input_item_param.ImageGenerationCall | openai.types.responses.response_code_interpreter_tool_call_param.ResponseCodeInterpreterToolCallParam | openai.types.responses.response_input_item_param.LocalShellCall | openai.types.responses.response_input_item_param.LocalShellCallOutput | openai.types.responses.response_input_item_param.ShellCall | openai.types.responses.response_input_item_param.ShellCallOutput | openai.types.responses.response_input_item_param.ApplyPatchCall | openai.types.responses.response_input_item_param.ApplyPatchCallOutput | openai.types.responses.response_input_item_param.McpListTools | openai.types.responses.response_input_item_param.McpApprovalRequest | openai.types.responses.response_input_item_param.McpApprovalResponse | openai.types.responses.response_input_item_param.McpCall | openai.types.responses.response_custom_tool_call_output_param.ResponseCustomToolCallOutputParam | openai.types.responses.response_custom_tool_call_param.ResponseCustomToolCallParam | openai.types.responses.response_input_item_param.ItemReference
+        TYPE_CHECKING = False
+        ToolCallItem = &lt;class 'agents.items.ToolCallItem'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/__pycache__/execution_helpers.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/execution_helpers.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17f8f0&gt;
+        __name__   = 'agency_swarm.agent.execution_helpers'
+        __package__ = 'agency_swarm.agent'
+        __spec__   = ModuleSpec(name='agency_swarm.agent.execution_helpers', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d17f8f0&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/agent/execution_helpers.py')
+        inspect    = &lt;module 'inspect' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/inspect.py'&gt;
+        logging    = &lt;module 'logging' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py'&gt;
+        re         = &lt;module 're' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/re/__init__.py'&gt;
+        tracing    = &lt;module 'agents.tracing' from '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agents/tracing/__init__.py'&gt;
+.venv/lib/python3.14/site-packages/agency_swarm/tools/__init__.py:31: in &lt;module&gt;
+    from .built_in import LoadFileAttachment, PersistentShellTool
+        BaseTool   = &lt;class 'agency_swarm.tools.base_tool.BaseTool'&gt;
+        CodeInterpreter = &lt;class 'openai.types.responses.tool_param.CodeInterpreter'&gt;
+        CodeInterpreterContainer = str | openai.types.responses.tool_param.CodeInterpreterContainerCodeInterpreterToolAuto
+        CodeInterpreterContainerCodeInterpreterToolAuto = &lt;class 'openai.types.responses.tool_param.CodeInterpreterContainerCodeInterpreterToolAuto'&gt;
+        CodeInterpreterTool = &lt;class 'agents.tool.CodeInterpreterTool'&gt;
+        ComputerTool = &lt;class 'agents.tool.ComputerTool'&gt;
+        FileSearchTool = &lt;class 'agents.tool.FileSearchTool'&gt;
+        FunctionTool = &lt;class 'agents.tool.FunctionTool'&gt;
+        FunctionToolResult = &lt;class 'agents.tool.FunctionToolResult'&gt;
+        HostedMCPTool = &lt;class 'agents.tool.HostedMCPTool'&gt;
+        ImageGeneration = &lt;class 'openai.types.responses.tool_param.ImageGeneration'&gt;
+        ImageGenerationInputImageMask = &lt;class 'openai.types.responses.tool_param.ImageGenerationInputImageMask'&gt;
+        ImageGenerationTool = &lt;class 'agents.tool.ImageGenerationTool'&gt;
+        LocalShellTool = &lt;class 'agents.tool.LocalShellTool'&gt;
+        Mcp        = &lt;class 'openai.types.responses.tool_param.Mcp'&gt;
+        McpAllowedTools = typing.Sequence[str] | openai.types.responses.tool_param.McpAllowedToolsMcpToolFilter
+        McpRequireApproval = openai.types.responses.tool_param.McpRequireApprovalMcpToolApprovalFilter | typing.Literal['always', 'never']
+        ToolOutputFileContent = &lt;class 'agents.tool.ToolOutputFileContent'&gt;
+        ToolOutputFileContentDict = &lt;class 'agents.tool.ToolOutputFileContentDict'&gt;
+        ToolOutputImage = &lt;class 'agents.tool.ToolOutputImage'&gt;
+        ToolOutputImageDict = &lt;class 'agents.tool.ToolOutputImageDict'&gt;
+        ToolOutputText = &lt;class 'agents.tool.ToolOutputText'&gt;
+        ToolOutputTextDict = &lt;class 'agents.tool.ToolOutputTextDict'&gt;
+        WebSearchTool = &lt;class 'agents.tool.WebSearchTool'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/__pycache__/__init__.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d1ed850&gt;
+        __name__   = 'agency_swarm.tools'
+        __package__ = 'agency_swarm.tools'
+        __path__   = ['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools']
+        __spec__   = ModuleSpec(name='agency_swarm.tools', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d1ed850&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/__init__.py', submodule_search_locations=['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools'])
+        base_tool  = &lt;module 'agency_swarm.tools.base_tool' from '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/base_tool.py'&gt;
+        function_tool = &lt;function function_tool at 0x10c613950&gt;
+.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in/__init__.py:1: in &lt;module&gt;
+    from .LoadFileAttachment import LoadFileAttachment
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in/__pycache__/__init__.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d1edfd0&gt;
+        __name__   = 'agency_swarm.tools.built_in'
+        __package__ = 'agency_swarm.tools.built_in'
+        __path__   = ['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in']
+        __spec__   = ModuleSpec(name='agency_swarm.tools.built_in', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d1edfd0&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in/__init__.py', submodule_search_locations=['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in'])
+.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in/LoadFileAttachment.py:6: in &lt;module&gt;
+    from agency_swarm.tools.utils import tool_output_file_from_path, tool_output_image_from_path
+        BaseTool   = &lt;class 'agency_swarm.tools.base_tool.BaseTool'&gt;
+        Field      = &lt;function Field at 0x10a795220&gt;
+        Path       = &lt;class 'pathlib.Path'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in/__pycache__/LoadFileAttachment.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in/LoadFileAttachment.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d2318b0&gt;
+        __name__   = 'agency_swarm.tools.built_in.LoadFileAttachment'
+        __package__ = 'agency_swarm.tools.built_in'
+        __spec__   = ModuleSpec(name='agency_swarm.tools.built_in.LoadFileAttachment', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d2318b0&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/built_in/LoadFileAttachment.py')
+.venv/lib/python3.14/site-packages/agency_swarm/tools/utils.py:18: in &lt;module&gt;
+    from datamodel_code_generator.model import get_data_model_types
+        Any        = typing.Any
+        Callable   = &lt;class 'collections.abc.Callable'&gt;
+        DataModelType = &lt;enum 'DataModelType'&gt;
+        Decimal    = &lt;class 'decimal.Decimal'&gt;
+        Enum       = &lt;enum 'Enum'&gt;
+        FunctionTool = &lt;class 'agents.tool.FunctionTool'&gt;
+        Literal    = typing.Literal
+        Optional   = typing.Optional
+        Path       = &lt;class 'pathlib.Path'&gt;
+        PythonVersion = &lt;enum 'PythonVersion'&gt;
+        RunContextWrapper = &lt;class 'agents.run_context.RunContextWrapper'&gt;
+        ToolOutputFileContent = &lt;class 'agents.tool.ToolOutputFileContent'&gt;
+        ToolOutputImage = &lt;class 'agents.tool.ToolOutputImage'&gt;
+        Union      = &lt;class 'typing.Union'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/__pycache__/utils.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/utils.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d231af0&gt;
+        __name__   = 'agency_swarm.tools.utils'
+        __package__ = 'agency_swarm.tools'
+        __spec__   = ModuleSpec(name='agency_swarm.tools.utils', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d231af0&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/agency_swarm/tools/utils.py')
+        base64     = &lt;module 'base64' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/base64.py'&gt;
+        date       = &lt;class 'datetime.date'&gt;
+        datetime   = &lt;class 'datetime.datetime'&gt;
+        ensure_strict_json_schema = &lt;function ensure_strict_json_schema at 0x10c31d010&gt;
+        httpx      = &lt;module 'httpx' from '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/httpx/__init__.py'&gt;
+        json       = &lt;module 'json' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py'&gt;
+        jsonref    = &lt;module 'jsonref' from '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/jsonref.py'&gt;
+        logging    = &lt;module 'logging' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/logging/__init__.py'&gt;
+        mimetypes  = &lt;module 'mimetypes' from '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/mimetypes.py'&gt;
+.venv/lib/python3.14/site-packages/datamodel_code_generator/model/__init__.py:16: in &lt;module&gt;
+    DEFAULT_TARGET_PYTHON_VERSION = PythonVersion(f"{sys.version_info.major}.{sys.version_info.minor}")
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Callable   = typing.Callable
+        ConstraintsBase = &lt;class 'datamodel_code_generator.model.base.ConstraintsBase'&gt;
+        DataModel  = &lt;class 'datamodel_code_generator.model.base.DataModel'&gt;
+        DataModelFieldBase = &lt;class 'datamodel_code_generator.model.base.DataModelFieldBase'&gt;
+        NamedTuple = &lt;function NamedTuple at 0x108146e50&gt;
+        PythonVersion = &lt;enum 'PythonVersion'&gt;
+        TYPE_CHECKING = False
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/datamodel_code_generator/model/__pycache__/__init__.cpython-314.pyc'
+        __doc__    = None
+        __file__   = '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/datamodel_code_generator/model/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x10d42f950&gt;
+        __name__   = 'datamodel_code_generator.model'
+        __package__ = 'datamodel_code_generator.model'
+        __path__   = ['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/datamodel_code_generator/model']
+        __spec__   = ModuleSpec(name='datamodel_code_generator.model', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x10d42f950&gt;, origin='/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/datamodel_code_generator/model/__init__.py', submodule_search_locations=['/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/datamodel_code_generator/model'])
+        annotations = _Feature((3, 7, 0, 'beta', 1), None, 16777216)
+        base       = &lt;module 'datamodel_code_generator.model.base' from '/Users/frank/Documents/Code/Genspark/agentswarm-tools/.venv/lib/python3.14/site-packages/datamodel_code_generator/model/base.py'&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/enum.py:707: in __call__
+    return cls.__new__(cls, value)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+        boundary   = None
+        cls        = &lt;enum 'PythonVersion'&gt;
+        module     = None
+        names      = &lt;not given&gt;
+        qualname   = None
+        start      = 1
+        type       = None
+        value      = '3.14'
+        values     = ()
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/enum.py:1192: in __new__
+    raise ve_exc
+E   ValueError: '3.14' is not a valid PythonVersion
+        cls        = &lt;enum 'PythonVersion'&gt;
+        exc        = None
+        result     = None
+        value      = '3.14'
+        ve_exc     = None</error></testcase><testcase classname="" name="tests.unit.shared.test_analytics" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/frank/Documents/Code/Genspark/agentswarm-tools/tests/unit/shared/test_analytics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.14/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1398: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1342: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/shared/test_analytics.py:15: in &lt;module&gt;
+    from shared.analytics import (
+E   ModuleNotFoundError: No module named 'shared.analytics'</error></testcase><testcase classname="" name="tests.unit.shared.test_base" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/frank/Documents/Code/Genspark/agentswarm-tools/tests/unit/shared/test_base.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.14/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1398: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1342: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/shared/test_base.py:14: in &lt;module&gt;
+    from shared.base import BaseTool, SimpleBaseTool, create_simple_tool
+E   ModuleNotFoundError: No module named 'shared.base'</error></testcase><testcase classname="" name="tests.unit.shared.test_errors" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/frank/Documents/Code/Genspark/agentswarm-tools/tests/unit/shared/test_errors.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.14/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1398: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1342: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/shared/test_errors.py:10: in &lt;module&gt;
+    from shared.errors import (
+E   ModuleNotFoundError: No module named 'shared.errors'</error></testcase><testcase classname="" name="tests.unit.shared.test_security" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/frank/Documents/Code/Genspark/agentswarm-tools/tests/unit/shared/test_security.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.14/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1398: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1342: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:938: in _load_unlocked
+    ???
+.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/shared/test_security.py:12: in &lt;module&gt;
+    from shared.security import (
+E   ModuleNotFoundError: No module named 'shared.security'</error></testcase></testsuite></testsuites>

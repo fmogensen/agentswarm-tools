@@ -17,7 +17,7 @@ class TestBatchVideoAnalysis:
     def tool(self):
         return BatchVideoAnalysis(
             video_urls="https://example.com/video1.mp4,https://example.com/video2.mp4",
-            analysis_types=["scene_detection", "object_recognition"]
+            analysis_types=["scene_detection", "object_recognition"],
         )
 
     def test_initialization(self, tool):
@@ -37,10 +37,7 @@ class TestBatchVideoAnalysis:
 
     def test_empty_video_urls_validation(self):
         """Test validation with empty video URLs."""
-        tool = BatchVideoAnalysis(
-            video_urls="   ",
-            analysis_types=["scene_detection"]
-        )
+        tool = BatchVideoAnalysis(video_urls="   ", analysis_types=["scene_detection"])
         result = tool.run()
         assert result["success"] is False
         assert "video_urls" in str(result.get("error", {}))
@@ -48,8 +45,7 @@ class TestBatchVideoAnalysis:
     def test_invalid_analysis_type(self):
         """Test validation with invalid analysis type."""
         tool = BatchVideoAnalysis(
-            video_urls="https://example.com/video1.mp4",
-            analysis_types=["invalid_type"]
+            video_urls="https://example.com/video1.mp4", analysis_types=["invalid_type"]
         )
         result = tool.run()
         assert result["success"] is False
@@ -60,7 +56,7 @@ class TestBatchVideoAnalysis:
         tool = BatchVideoAnalysis(
             video_urls="https://example.com/video1.mp4",
             analysis_types=["scene_detection"],
-            custom_instruction="Focus on action scenes"
+            custom_instruction="Focus on action scenes",
         )
         result = tool.run()
         assert result["success"] is True
@@ -71,7 +67,7 @@ class TestBatchVideoAnalysis:
         """Test with multiple analysis types."""
         tool = BatchVideoAnalysis(
             video_urls="https://example.com/video1.mp4",
-            analysis_types=["scene_detection", "object_recognition", "sentiment", "transcript"]
+            analysis_types=["scene_detection", "object_recognition", "sentiment", "transcript"],
         )
         result = tool.run()
         assert result["success"] is True

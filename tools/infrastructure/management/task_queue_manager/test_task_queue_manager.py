@@ -16,8 +16,7 @@ class TestTaskQueueManager:
     def test_add_task(self):
         """Test adding a task."""
         tool = TaskQueueManager(
-            action="add",
-            task_data={"type": "test", "payload": {"data": "value"}}
+            action="add", task_data={"type": "test", "payload": {"data": "value"}}
         )
         result = tool.run()
 
@@ -27,10 +26,7 @@ class TestTaskQueueManager:
 
     def test_remove_task(self):
         """Test removing a task."""
-        tool = TaskQueueManager(
-            action="remove",
-            task_id="task_123"
-        )
+        tool = TaskQueueManager(action="remove", task_id="task_123")
         result = tool.run()
 
         assert result["success"] == True
@@ -49,11 +45,7 @@ class TestTaskQueueManager:
 
     def test_prioritize_task(self):
         """Test prioritizing a task."""
-        tool = TaskQueueManager(
-            action="prioritize",
-            task_id="task_123",
-            priority=9
-        )
+        tool = TaskQueueManager(action="prioritize", task_id="task_123", priority=9)
         result = tool.run()
 
         assert result["success"] == True
@@ -81,10 +73,7 @@ class TestTaskQueueManager:
 
     def test_custom_queue_id(self):
         """Test with custom queue ID."""
-        tool = TaskQueueManager(
-            action="list",
-            queue_id="custom_queue"
-        )
+        tool = TaskQueueManager(action="list", queue_id="custom_queue")
         result = tool.run()
 
         assert result["success"] == True
@@ -125,26 +114,18 @@ class TestTaskQueueManager:
         # Priority too low
         with pytest.raises(Exception):  # Pydantic validation
             tool = TaskQueueManager(
-                action="prioritize",
-                task_id="task_123",
-                priority=0  # Below minimum
+                action="prioritize", task_id="task_123", priority=0  # Below minimum
             )
 
         # Priority too high
         with pytest.raises(Exception):  # Pydantic validation
             tool = TaskQueueManager(
-                action="prioritize",
-                task_id="task_123",
-                priority=11  # Above maximum
+                action="prioritize", task_id="task_123", priority=11  # Above maximum
             )
 
     def test_add_with_priority(self):
         """Test adding task with priority."""
-        tool = TaskQueueManager(
-            action="add",
-            task_data={"type": "urgent"},
-            priority=10
-        )
+        tool = TaskQueueManager(action="add", task_data={"type": "urgent"}, priority=10)
         result = tool.run()
 
         assert result["success"] == True

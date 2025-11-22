@@ -103,9 +103,7 @@ class TestGenerateFlowDiagram:
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_internal_error_wrapped(self, tool: GenerateFlowDiagram):
         """Internal error from _extract_steps_from_prompt returns error dict."""
-        with patch.object(
-            tool, "_extract_steps_from_prompt", side_effect=Exception("fail")
-        ):
+        with patch.object(tool, "_extract_steps_from_prompt", side_effect=Exception("fail")):
             result = tool.run()
             assert result["success"] is False
 
@@ -178,9 +176,7 @@ class TestGenerateFlowDiagram:
     # ========== INTEGRATION TESTS ==========
 
     def test_full_workflow(self):
-        tool = GenerateFlowDiagram(
-            prompt="Start -> Middle -> End", params={"style": "modern"}
-        )
+        tool = GenerateFlowDiagram(prompt="Start -> Middle -> End", params={"style": "modern"})
         result = tool.run()
         assert result["success"] is True
         assert result["metadata"]["tool_name"] == "generate_flow_diagram"

@@ -21,10 +21,7 @@ class TestCreateProfile:
 
     def test_basic_user_profile(self):
         """Test creating a basic user profile."""
-        tool = CreateProfile(
-            name="John Doe",
-            profile_type="user"
-        )
+        tool = CreateProfile(name="John Doe", profile_type="user")
         result = tool.run()
 
         assert result["success"] is True
@@ -39,11 +36,8 @@ class TestCreateProfile:
             name="DataAnalyst",
             profile_type="agent",
             role="Data analysis specialist",
-            attributes={
-                "specialty": "ML",
-                "level": "expert"
-            },
-            tags=["AI", "data-science"]
+            attributes={"specialty": "ML", "level": "expert"},
+            tags=["AI", "data-science"],
         )
         result = tool.run()
 
@@ -62,7 +56,7 @@ class TestCreateProfile:
             description="Manages system operations",
             attributes={"permissions": "admin", "level": 5},
             tags=["system", "admin", "ops"],
-            metadata={"department": "IT", "location": "HQ"}
+            metadata={"department": "IT", "location": "HQ"},
         )
         result = tool.run()
 
@@ -85,17 +79,17 @@ class TestCreateProfile:
             tool = CreateProfile(name="Test", profile_type="invalid_type")
             tool.run()
 
-        assert "profile type" in str(exc_info.value).lower() or "invalid" in str(exc_info.value).lower()
+        assert (
+            "profile type" in str(exc_info.value).lower()
+            or "invalid" in str(exc_info.value).lower()
+        )
 
     def test_valid_profile_types(self):
         """Test all valid profile types."""
         valid_types = ["user", "agent", "system", "custom"]
 
         for profile_type in valid_types:
-            tool = CreateProfile(
-                name=f"Test_{profile_type}",
-                profile_type=profile_type
-            )
+            tool = CreateProfile(name=f"Test_{profile_type}", profile_type=profile_type)
             result = tool.run()
 
             assert result["success"] is True
@@ -107,17 +101,10 @@ class TestCreateProfile:
             name="ComplexAgent",
             profile_type="agent",
             attributes={
-                "config": {
-                    "model": "gpt-4",
-                    "temperature": 0.7,
-                    "max_tokens": 1000
-                },
+                "config": {"model": "gpt-4", "temperature": 0.7, "max_tokens": 1000},
                 "capabilities": ["search", "analysis", "generation"],
-                "limits": {
-                    "daily_requests": 1000,
-                    "rate_per_minute": 60
-                }
-            }
+                "limits": {"daily_requests": 1000, "rate_per_minute": 60},
+            },
         )
         result = tool.run()
 

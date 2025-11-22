@@ -120,23 +120,17 @@ class AidriveTool(BaseTool):
 
         if operation == "upload":
             if not argument:
-                raise ValidationError(
-                    "Upload requires file data string", tool_name=self.tool_name
-                )
+                raise ValidationError("Upload requires file data string", tool_name=self.tool_name)
             return self._upload(argument)
 
         if operation == "download":
             if not argument:
-                raise ValidationError(
-                    "Download requires filename", tool_name=self.tool_name
-                )
+                raise ValidationError("Download requires filename", tool_name=self.tool_name)
             return self._download(argument)
 
         if operation == "compress":
             if not argument:
-                raise ValidationError(
-                    "Compress requires text content", tool_name=self.tool_name
-                )
+                raise ValidationError("Compress requires text content", tool_name=self.tool_name)
             return self._compress(argument)
 
         raise APIError("Unknown operation", tool_name=self.tool_name)
@@ -199,6 +193,7 @@ class AidriveTool(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = AidriveTool(input="list")

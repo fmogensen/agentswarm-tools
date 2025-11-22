@@ -75,11 +75,7 @@ class GenerateFlowDiagram(BaseTool):
         Raises:
             ValidationError: If prompt is empty or params is invalid
         """
-        if (
-            not self.prompt
-            or not isinstance(self.prompt, str)
-            or not self.prompt.strip()
-        ):
+        if not self.prompt or not isinstance(self.prompt, str) or not self.prompt.strip():
             raise ValidationError(
                 "Prompt must be a non-empty string",
                 tool_name=self.tool_name,
@@ -144,9 +140,7 @@ class GenerateFlowDiagram(BaseTool):
             }
 
         except Exception as e:
-            raise APIError(
-                f"Flow diagram generation failed: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Flow diagram generation failed: {e}", tool_name=self.tool_name)
 
     def _extract_steps_from_prompt(self, prompt: str) -> List[str]:
         """Extract workflow steps from the prompt.
@@ -177,14 +171,14 @@ class GenerateFlowDiagram(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateFlowDiagram(
-        prompt="Order Processing -> Payment Verification -> Shipping -> Delivery",
-        params={}
+        prompt="Order Processing -> Payment Verification -> Shipping -> Delivery", params={}
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

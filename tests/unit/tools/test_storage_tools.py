@@ -22,6 +22,7 @@ from shared.errors import ValidationError, APIError, ResourceNotFoundError
 
 # ========== AIDriveTool Tests ==========
 
+
 class TestAIDriveTool:
     """Comprehensive tests for AIDriveTool"""
 
@@ -34,11 +35,7 @@ class TestAIDriveTool:
 
     def test_initialization_success_upload(self):
         """Test successful initialization for upload action"""
-        tool = AIDriveTool(
-            action="upload",
-            path="/test/file.txt",
-            content="test content"
-        )
+        tool = AIDriveTool(action="upload", path="/test/file.txt", content="test content")
         assert tool.action == "upload"
         assert tool.path == "/test/file.txt"
         assert tool.content == "test content"
@@ -62,11 +59,7 @@ class TestAIDriveTool:
     def test_execute_mock_mode_upload(self, monkeypatch):
         """Test upload action in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = AIDriveTool(
-            action="upload",
-            path="/test.txt",
-            content="test"
-        )
+        tool = AIDriveTool(action="upload", path="/test.txt", content="test")
         result = tool.run()
 
         assert result["success"] is True
@@ -126,11 +119,7 @@ class TestAIDriveTool:
         mock_file = MagicMock()
         mock_open.return_value.__enter__.return_value = mock_file
 
-        tool = AIDriveTool(
-            action="upload",
-            path="/mnt/aidrive/test.txt",
-            content="test content"
-        )
+        tool = AIDriveTool(action="upload", path="/mnt/aidrive/test.txt", content="test content")
         result = tool.run()
 
         assert result["success"] is True
@@ -147,15 +136,14 @@ class TestAIDriveTool:
 
 # ========== FileFormatConverter Tests ==========
 
+
 class TestFileFormatConverter:
     """Comprehensive tests for FileFormatConverter tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = FileFormatConverter(
-            source_file="input.pdf",
-            target_format="docx",
-            task_summary="Convert PDF to DOCX"
+            source_file="input.pdf", target_format="docx", task_summary="Convert PDF to DOCX"
         )
         assert tool.source_file == "input.pdf"
         assert tool.target_format == "docx"
@@ -165,9 +153,7 @@ class TestFileFormatConverter:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = FileFormatConverter(
-            source_file="test.xlsx",
-            target_format="csv",
-            task_summary="Convert Excel to CSV"
+            source_file="test.xlsx", target_format="csv", task_summary="Convert Excel to CSV"
         )
         result = tool.run()
 
@@ -177,31 +163,19 @@ class TestFileFormatConverter:
 
     def test_validate_parameters_empty_source(self):
         """Test validation with empty source file"""
-        tool = FileFormatConverter(
-            source_file="",
-            target_format="pdf",
-            task_summary="Test"
-        )
+        tool = FileFormatConverter(source_file="", target_format="pdf", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_empty_target_format(self):
         """Test validation with empty target format"""
-        tool = FileFormatConverter(
-            source_file="test.doc",
-            target_format="",
-            task_summary="Test"
-        )
+        tool = FileFormatConverter(source_file="test.doc", target_format="", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_unsupported_format(self):
         """Test validation with unsupported format"""
-        tool = FileFormatConverter(
-            source_file="test.xyz",
-            target_format="abc",
-            task_summary="Test"
-        )
+        tool = FileFormatConverter(source_file="test.xyz", target_format="abc", task_summary="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
@@ -218,9 +192,7 @@ class TestFileFormatConverter:
         mock_post.return_value = mock_response
 
         tool = FileFormatConverter(
-            source_file="test.pdf",
-            target_format="docx",
-            task_summary="Test"
+            source_file="test.pdf", target_format="docx", task_summary="Test"
         )
         result = tool.run()
 
@@ -229,11 +201,7 @@ class TestFileFormatConverter:
     def test_edge_case_same_format(self, monkeypatch):
         """Test converting to same format"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = FileFormatConverter(
-            source_file="test.pdf",
-            target_format="pdf",
-            task_summary="Test"
-        )
+        tool = FileFormatConverter(source_file="test.pdf", target_format="pdf", task_summary="Test")
         result = tool.run()
 
         assert result["success"] is True
@@ -246,20 +214,21 @@ class TestFileFormatConverter:
             ("test.xlsx", "csv"),
             ("test.doc", "pdf"),
             ("test.pptx", "pdf"),
-            ("test.png", "jpg")
+            ("test.png", "jpg"),
         ]
 
         for source, target in conversions:
             tool = FileFormatConverter(
                 source_file=source,
                 target_format=target,
-                task_summary=f"Convert {source} to {target}"
+                task_summary=f"Convert {source} to {target}",
             )
             result = tool.run()
             assert result["success"] is True
 
 
 # ========== OneDriveSearch Tests ==========
+
 
 class TestOneDriveSearch:
     """Comprehensive tests for OneDriveSearch tool"""
@@ -303,7 +272,7 @@ class TestOneDriveSearch:
         mock_response.json.return_value = {
             "value": [
                 {"name": "document1.docx", "id": "file1"},
-                {"name": "document2.pdf", "id": "file2"}
+                {"name": "document2.pdf", "id": "file2"},
             ]
         }
         mock_get.return_value = mock_response
@@ -326,12 +295,7 @@ class TestOneDriveSearch:
     def test_edge_case_special_characters_in_query(self, monkeypatch):
         """Test handling of special characters in search query"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        special_queries = [
-            "file@name.txt",
-            "folder/subfolder",
-            "item#123",
-            "test & verify"
-        ]
+        special_queries = ["file@name.txt", "folder/subfolder", "item#123", "test & verify"]
 
         for query in special_queries:
             tool = OneDriveSearch(query=query)
@@ -340,6 +304,7 @@ class TestOneDriveSearch:
 
 
 # ========== OneDriveFileRead Tests ==========
+
 
 class TestOneDriveFileRead:
     """Comprehensive tests for OneDriveFileRead tool"""

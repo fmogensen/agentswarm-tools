@@ -45,17 +45,14 @@ class BatchVideoAnalysis(BaseTool):
 
     # Parameters
     video_urls: str = Field(
-        ...,
-        description="Comma-separated video URLs or file paths",
-        min_length=1
+        ..., description="Comma-separated video URLs or file paths", min_length=1
     )
     analysis_types: List[str] = Field(
         default=["scene_detection", "object_recognition"],
-        description="Types of analysis to perform on each video"
+        description="Types of analysis to perform on each video",
     )
     custom_instruction: Optional[str] = Field(
-        default=None,
-        description="Custom analysis instruction for specialized requirements"
+        default=None, description="Custom analysis instruction for specialized requirements"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -73,8 +70,8 @@ class BatchVideoAnalysis(BaseTool):
                 "metadata": {
                     "tool_name": self.tool_name,
                     "videos_processed": len(result.get("analyses", [])),
-                    "analysis_types": self.analysis_types
-                }
+                    "analysis_types": self.analysis_types,
+                },
             }
         except Exception as e:
             raise APIError(f"Batch video analysis failed: {e}", tool_name=self.tool_name)
@@ -85,7 +82,7 @@ class BatchVideoAnalysis(BaseTool):
             raise ValidationError(
                 "video_urls must be a non-empty string",
                 tool_name=self.tool_name,
-                field="video_urls"
+                field="video_urls",
             )
 
         # Parse and validate URLs
@@ -94,17 +91,17 @@ class BatchVideoAnalysis(BaseTool):
             raise ValidationError(
                 "video_urls must contain at least one URL or file path",
                 tool_name=self.tool_name,
-                field="video_urls"
+                field="video_urls",
             )
 
         # Validate URL format
-        url_pattern = r'^(https?://|/|[a-zA-Z]:\\)'
+        url_pattern = r"^(https?://|/|[a-zA-Z]:\\)"
         for url in url_list:
             if not re.match(url_pattern, url):
                 raise ValidationError(
                     f"Invalid video URL or path: {url}",
                     tool_name=self.tool_name,
-                    field="video_urls"
+                    field="video_urls",
                 )
 
         # Validate analysis types
@@ -115,14 +112,14 @@ class BatchVideoAnalysis(BaseTool):
             "sentiment",
             "action_recognition",
             "face_detection",
-            "audio_analysis"
+            "audio_analysis",
         }
 
         if not self.analysis_types or not isinstance(self.analysis_types, list):
             raise ValidationError(
                 "analysis_types must be a non-empty list",
                 tool_name=self.tool_name,
-                field="analysis_types"
+                field="analysis_types",
             )
 
         invalid_types = [t for t in self.analysis_types if t not in valid_types]
@@ -130,7 +127,7 @@ class BatchVideoAnalysis(BaseTool):
             raise ValidationError(
                 f"Invalid analysis types: {invalid_types}. Valid types: {valid_types}",
                 tool_name=self.tool_name,
-                field="analysis_types"
+                field="analysis_types",
             )
 
     def _should_use_mock(self) -> bool:
@@ -143,33 +140,29 @@ class BatchVideoAnalysis(BaseTool):
         mock_analyses = []
 
         for i, url in enumerate(urls, start=1):
-            analysis = {
-                "video_url": url,
-                "video_index": i,
-                "analyses": {}
-            }
+            analysis = {"video_url": url, "video_index": i, "analyses": {}}
 
             for analysis_type in self.analysis_types:
                 if analysis_type == "scene_detection":
                     analysis["analyses"]["scene_detection"] = {
                         "scenes": [
                             {"start_time": 0, "end_time": 5.2, "description": "Opening scene"},
-                            {"start_time": 5.2, "end_time": 12.8, "description": "Main action"}
+                            {"start_time": 5.2, "end_time": 12.8, "description": "Main action"},
                         ],
-                        "total_scenes": 2
+                        "total_scenes": 2,
                     }
                 elif analysis_type == "object_recognition":
                     analysis["analyses"]["object_recognition"] = {
                         "objects": [
                             {"label": "person", "confidence": 0.95, "count": 2},
-                            {"label": "car", "confidence": 0.88, "count": 1}
+                            {"label": "car", "confidence": 0.88, "count": 1},
                         ]
                     }
                 elif analysis_type == "transcript":
                     analysis["analyses"]["transcript"] = {
                         "text": "Mock transcript for video analysis",
                         "language": "en",
-                        "confidence": 0.92
+                        "confidence": 0.92,
                     }
                 elif analysis_type == "sentiment":
                     analysis["analyses"]["sentiment"] = {
@@ -177,14 +170,11 @@ class BatchVideoAnalysis(BaseTool):
                         "score": 0.75,
                         "segments": [
                             {"timestamp": "0:00-0:30", "sentiment": "neutral", "score": 0.5},
-                            {"timestamp": "0:30-1:00", "sentiment": "positive", "score": 0.85}
-                        ]
+                            {"timestamp": "0:30-1:00", "sentiment": "positive", "score": 0.85},
+                        ],
                     }
                 else:
-                    analysis["analyses"][analysis_type] = {
-                        "status": "completed",
-                        "mock": True
-                    }
+                    analysis["analyses"][analysis_type] = {"status": "completed", "mock": True}
 
             if self.custom_instruction:
                 analysis["custom_analysis"] = f"Mock analysis based on: {self.custom_instruction}"
@@ -198,12 +188,9 @@ class BatchVideoAnalysis(BaseTool):
                 "total_videos": len(urls),
                 "analysis_types_applied": self.analysis_types,
                 "custom_instruction": self.custom_instruction,
-                "mock": True
+                "mock": True,
             },
-            "metadata": {
-                "mock_mode": True,
-                "tool_name": self.tool_name
-            }
+            "metadata": {"mock_mode": True, "tool_name": self.tool_name},
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -217,12 +204,9 @@ class BatchVideoAnalysis(BaseTool):
                 analyses.append(video_analysis)
             except Exception as e:
                 # Continue processing other videos even if one fails
-                analyses.append({
-                    "video_url": url,
-                    "video_index": i,
-                    "error": str(e),
-                    "status": "failed"
-                })
+                analyses.append(
+                    {"video_url": url, "video_index": i, "error": str(e), "status": "failed"}
+                )
 
         return {
             "analyses": analyses,
@@ -230,7 +214,7 @@ class BatchVideoAnalysis(BaseTool):
             "successful": len([a for a in analyses if a.get("status") != "failed"]),
             "failed": len([a for a in analyses if a.get("status") == "failed"]),
             "analysis_types_applied": self.analysis_types,
-            "custom_instruction": self.custom_instruction
+            "custom_instruction": self.custom_instruction,
         }
 
     def _analyze_single_video(self, url: str, index: int) -> Dict[str, Any]:
@@ -239,19 +223,14 @@ class BatchVideoAnalysis(BaseTool):
 
         In production, this would call actual video analysis APIs.
         """
-        analysis = {
-            "video_url": url,
-            "video_index": index,
-            "status": "completed",
-            "analyses": {}
-        }
+        analysis = {"video_url": url, "video_index": index, "status": "completed", "analyses": {}}
 
         # Simulate analysis for each type
         for analysis_type in self.analysis_types:
             # Placeholder for actual API calls
             analysis["analyses"][analysis_type] = {
                 "status": "completed",
-                "data": f"Analysis results for {analysis_type}"
+                "data": f"Analysis results for {analysis_type}",
             }
 
         if self.custom_instruction:
@@ -264,13 +243,14 @@ if __name__ == "__main__":
     print("Testing BatchVideoAnalysis...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test with mock data
     tool = BatchVideoAnalysis(
         video_urls="https://example.com/video1.mp4,https://example.com/video2.mp4",
         analysis_types=["scene_detection", "object_recognition", "sentiment"],
-        custom_instruction="Focus on identifying key moments"
+        custom_instruction="Focus on identifying key moments",
     )
     result = tool.run()
 

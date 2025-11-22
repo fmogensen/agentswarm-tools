@@ -32,9 +32,7 @@ class SummarizeLargeDocument(BaseTool):
     # Tool metadata
     tool_name: str = "summarize_large_document"
     tool_category: str = "content"
-    tool_description: str = (
-        "Fetch and summarize text-based documents, answering specific questions"
-    )
+    tool_description: str = "Fetch and summarize text-based documents, answering specific questions"
 
     # Parameters
     input: str = Field(..., description="Primary input parameter")
@@ -67,9 +65,7 @@ class SummarizeLargeDocument(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
-        if not self.input.startswith("http://") and not self.input.startswith(
-            "https://"
-        ):
+        if not self.input.startswith("http://") and not self.input.startswith("https://"):
             raise ValidationError(
                 "Input must be a valid URL starting with http:// or https://",
                 tool_name=self.tool_name,
@@ -118,13 +114,12 @@ class SummarizeLargeDocument(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = SummarizeLargeDocument(
-        input="https://example.com/document.pdf"
-    )
+    tool = SummarizeLargeDocument(input="https://example.com/document.pdf")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

@@ -143,9 +143,7 @@ class TestGoogleCalendarCreateEventDraft:
         ],
     )
     def test_param_validation(self, input_data, expected_valid):
-        input_str = (
-            json.dumps(input_data) if not isinstance(input_data, str) else input_data
-        )
+        input_str = json.dumps(input_data) if not isinstance(input_data, str) else input_data
 
         if expected_valid:
             tool = GoogleCalendarCreateEventDraft(input=input_str)

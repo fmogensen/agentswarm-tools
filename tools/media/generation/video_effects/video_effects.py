@@ -86,24 +86,12 @@ class VideoEffects(BaseTool):
     tool_category: str = "media"
 
     # Parameters
-    input_path: str = Field(
-        ...,
-        description="Path to input video file",
-        min_length=1
-    )
+    input_path: str = Field(..., description="Path to input video file", min_length=1)
     effects: List[Dict[str, Any]] = Field(
-        ...,
-        description="List of effect configurations to apply",
-        min_length=1
+        ..., description="List of effect configurations to apply", min_length=1
     )
-    output_path: Optional[str] = Field(
-        default=None,
-        description="Output file path (optional)"
-    )
-    output_format: str = Field(
-        default="mp4",
-        description="Output format (mp4, mov, avi, webm)"
-    )
+    output_path: Optional[str] = Field(default=None, description="Output file path (optional)")
+    output_format: str = Field(default="mp4", description="Output format (mp4, mov, avi, webm)")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute video effects processing."""
@@ -121,8 +109,8 @@ class VideoEffects(BaseTool):
                     "tool_name": self.tool_name,
                     "effects_applied": len(self.effects),
                     "input_path": self.input_path,
-                    "output_format": self.output_format
-                }
+                    "output_format": self.output_format,
+                },
             }
         except Exception as e:
             raise APIError(f"Video effects processing failed: {e}", tool_name=self.tool_name)
@@ -133,7 +121,7 @@ class VideoEffects(BaseTool):
             raise ValidationError(
                 "input_path must be a non-empty string",
                 tool_name=self.tool_name,
-                field="input_path"
+                field="input_path",
             )
 
         # Check if file exists (skip for mock mode)
@@ -142,7 +130,7 @@ class VideoEffects(BaseTool):
                 raise ValidationError(
                     f"Input video file not found: {self.input_path}",
                     tool_name=self.tool_name,
-                    field="input_path"
+                    field="input_path",
                 )
 
         # Validate video file extension
@@ -151,32 +139,47 @@ class VideoEffects(BaseTool):
             raise ValidationError(
                 f"Unsupported video format. Supported: {valid_extensions}",
                 tool_name=self.tool_name,
-                field="input_path"
+                field="input_path",
             )
 
         # Validate effects list
         if not self.effects or not isinstance(self.effects, list):
             raise ValidationError(
-                "effects must be a non-empty list",
-                tool_name=self.tool_name,
-                field="effects"
+                "effects must be a non-empty list", tool_name=self.tool_name, field="effects"
             )
 
         # Validate each effect
         valid_effect_types = {
             # Color effects
-            "brightness", "contrast", "saturation", "hue", "sepia",
-            "grayscale", "invert",
+            "brightness",
+            "contrast",
+            "saturation",
+            "hue",
+            "sepia",
+            "grayscale",
+            "invert",
             # Blur/Sharpen
-            "blur", "sharpen", "motion_blur",
+            "blur",
+            "sharpen",
+            "motion_blur",
             # Stylistic
-            "vignette", "vintage", "cinematic", "cartoon", "edge_detect",
+            "vignette",
+            "vintage",
+            "cinematic",
+            "cartoon",
+            "edge_detect",
             # Distortion
-            "fisheye", "lens_distortion", "glitch",
+            "fisheye",
+            "lens_distortion",
+            "glitch",
             # Time effects
-            "slow_motion", "speed_up", "reverse",
+            "slow_motion",
+            "speed_up",
+            "reverse",
             # Transitions
-            "fade_in", "fade_out", "crossfade"
+            "fade_in",
+            "fade_out",
+            "crossfade",
         }
 
         for i, effect in enumerate(self.effects):
@@ -184,21 +187,21 @@ class VideoEffects(BaseTool):
                 raise ValidationError(
                     f"Effect at index {i} must be a dictionary",
                     tool_name=self.tool_name,
-                    field="effects"
+                    field="effects",
                 )
 
             if "type" not in effect:
                 raise ValidationError(
                     f"Effect at index {i} missing 'type' field",
                     tool_name=self.tool_name,
-                    field="effects"
+                    field="effects",
                 )
 
             if effect["type"] not in valid_effect_types:
                 raise ValidationError(
                     f"Invalid effect type '{effect['type']}'. Valid types: {valid_effect_types}",
                     tool_name=self.tool_name,
-                    field="effects"
+                    field="effects",
                 )
 
             if "parameters" not in effect:
@@ -210,7 +213,7 @@ class VideoEffects(BaseTool):
             raise ValidationError(
                 f"Invalid output format '{self.output_format}'. Valid formats: {valid_formats}",
                 tool_name=self.tool_name,
-                field="output_format"
+                field="output_format",
             )
 
     def _should_use_mock(self) -> bool:
@@ -223,12 +226,14 @@ class VideoEffects(BaseTool):
 
         effects_applied = []
         for effect in self.effects:
-            effects_applied.append({
-                "type": effect["type"],
-                "parameters": effect.get("parameters", {}),
-                "status": "applied",
-                "mock": True
-            })
+            effects_applied.append(
+                {
+                    "type": effect["type"],
+                    "parameters": effect.get("parameters", {}),
+                    "status": "applied",
+                    "mock": True,
+                }
+            )
 
         return {
             "success": True,
@@ -238,13 +243,13 @@ class VideoEffects(BaseTool):
                 "output_format": self.output_format,
                 "effects_applied": effects_applied,
                 "processing_time_seconds": 12.5,
-                "mock": True
+                "mock": True,
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
-                "total_effects": len(self.effects)
-            }
+                "total_effects": len(self.effects),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -259,30 +264,29 @@ class VideoEffects(BaseTool):
             cmd = [
                 "ffmpeg",
                 "-y",  # Overwrite output file
-                "-i", self.input_path,
-                "-vf", filter_chain,
-                "-c:a", "copy",  # Copy audio stream
-                output_file
+                "-i",
+                self.input_path,
+                "-vf",
+                filter_chain,
+                "-c:a",
+                "copy",  # Copy audio stream
+                output_file,
             ]
 
             result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=600  # 10 minute timeout
+                cmd, capture_output=True, text=True, timeout=600  # 10 minute timeout
             )
 
             if result.returncode != 0:
                 raise APIError(
-                    f"ffmpeg processing failed: {result.stderr}",
-                    tool_name=self.tool_name
+                    f"ffmpeg processing failed: {result.stderr}", tool_name=self.tool_name
                 )
 
             effects_applied = [
                 {
                     "type": effect["type"],
                     "parameters": effect.get("parameters", {}),
-                    "status": "applied"
+                    "status": "applied",
                 }
                 for effect in self.effects
             ]
@@ -291,19 +295,15 @@ class VideoEffects(BaseTool):
                 "input_path": self.input_path,
                 "output_path": output_file,
                 "output_format": self.output_format,
-                "effects_applied": effects_applied
+                "effects_applied": effects_applied,
             }
 
         except FileNotFoundError:
             raise APIError(
-                "ffmpeg is not installed. Please install ffmpeg.",
-                tool_name=self.tool_name
+                "ffmpeg is not installed. Please install ffmpeg.", tool_name=self.tool_name
             )
         except Exception as e:
-            raise APIError(
-                f"Video effects processing failed: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Video effects processing failed: {e}", tool_name=self.tool_name)
 
     def _build_filter_chain(self) -> str:
         """Build ffmpeg video filter chain from effects list."""
@@ -416,6 +416,7 @@ if __name__ == "__main__":
     print("Testing VideoEffects...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test with multiple effects
@@ -425,9 +426,9 @@ if __name__ == "__main__":
             {"type": "brightness", "parameters": {"value": 0.2}},
             {"type": "saturation", "parameters": {"value": 0.3}},
             {"type": "vignette", "parameters": {"strength": 0.5}},
-            {"type": "blur", "parameters": {"strength": 3}}
+            {"type": "blur", "parameters": {"strength": 3}},
         ],
-        output_format="mp4"
+        output_format="mp4",
     )
     result = tool.run()
 

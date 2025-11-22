@@ -12,6 +12,7 @@ from shared.errors import ValidationError, APIError, AuthenticationError
 try:
     from slack_sdk import WebClient
     from slack_sdk.errors import SlackApiError
+
     SLACK_SDK_AVAILABLE = True
 except ImportError:
     SLACK_SDK_AVAILABLE = False
@@ -50,31 +51,17 @@ class SlackSendMessage(BaseTool):
 
     # Parameters
     channel: str = Field(
-        ...,
-        description="Channel ID or name (e.g., #general, C1234567890)",
-        min_length=1
+        ..., description="Channel ID or name (e.g., #general, C1234567890)", min_length=1
     )
-    text: str = Field(
-        ...,
-        description="Message text content",
-        min_length=1
-    )
+    text: str = Field(..., description="Message text content", min_length=1)
     thread_ts: Optional[str] = Field(
-        None,
-        description="Timestamp of parent message to reply in thread"
+        None, description="Timestamp of parent message to reply in thread"
     )
     blocks: Optional[str] = Field(
-        None,
-        description="Structured blocks in JSON format for rich formatting"
+        None, description="Structured blocks in JSON format for rich formatting"
     )
-    username: Optional[str] = Field(
-        None,
-        description="Bot username override"
-    )
-    icon_emoji: Optional[str] = Field(
-        None,
-        description="Emoji icon (e.g., :robot_face:)"
-    )
+    username: Optional[str] = Field(None, description="Bot username override")
+    icon_emoji: Optional[str] = Field(None, description="Emoji icon (e.g., :robot_face:)")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute Slack message send."""
@@ -89,7 +76,7 @@ class SlackSendMessage(BaseTool):
         if not SLACK_SDK_AVAILABLE:
             raise APIError(
                 "slack_sdk package not installed. Install with: pip install slack-sdk",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         try:
@@ -100,57 +87,42 @@ class SlackSendMessage(BaseTool):
                 "metadata": {
                     "tool_name": self.tool_name,
                     "channel": self.channel,
-                    "is_thread_reply": self.thread_ts is not None
-                }
+                    "is_thread_reply": self.thread_ts is not None,
+                },
             }
         except SlackApiError as e:
-            error_msg = e.response.get('error', str(e))
-            if error_msg == 'channel_not_found':
+            error_msg = e.response.get("error", str(e))
+            if error_msg == "channel_not_found":
                 raise ValidationError(
-                    f"Channel not found: {self.channel}",
-                    tool_name=self.tool_name,
-                    field="channel"
+                    f"Channel not found: {self.channel}", tool_name=self.tool_name, field="channel"
                 )
-            elif error_msg in ['invalid_auth', 'not_authed']:
+            elif error_msg in ["invalid_auth", "not_authed"]:
                 raise AuthenticationError(
-                    "Invalid Slack API token",
-                    tool_name=self.tool_name,
-                    api_name="Slack API"
+                    "Invalid Slack API token", tool_name=self.tool_name, api_name="Slack API"
                 )
             raise APIError(
-                f"Slack API error: {error_msg}",
-                tool_name=self.tool_name,
-                api_name="Slack API"
+                f"Slack API error: {error_msg}", tool_name=self.tool_name, api_name="Slack API"
             )
         except Exception as e:
-            raise APIError(
-                f"Failed to send Slack message: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to send Slack message: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate parameters."""
         if not self.channel.strip():
             raise ValidationError(
-                "channel cannot be empty",
-                tool_name=self.tool_name,
-                field="channel"
+                "channel cannot be empty", tool_name=self.tool_name, field="channel"
             )
 
         if not self.text.strip():
-            raise ValidationError(
-                "text cannot be empty",
-                tool_name=self.tool_name,
-                field="text"
-            )
+            raise ValidationError("text cannot be empty", tool_name=self.tool_name, field="text")
 
         # Validate channel format
         channel = self.channel.strip()
-        if not (channel.startswith('#') or channel.startswith('C') or channel.startswith('D')):
+        if not (channel.startswith("#") or channel.startswith("C") or channel.startswith("D")):
             raise ValidationError(
                 "channel must start with # (name) or C/D (ID)",
                 tool_name=self.tool_name,
-                field="channel"
+                field="channel",
             )
 
     def _should_use_mock(self) -> bool:
@@ -176,15 +148,15 @@ class SlackSendMessage(BaseTool):
                     "bot_id": "B0MOCKBOT123",
                     "type": "message",
                     "subtype": "bot_message",
-                    "ts": mock_ts
-                }
+                    "ts": mock_ts,
+                },
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
                 "channel": self.channel,
-                "is_thread_reply": self.thread_ts is not None
-            }
+                "is_thread_reply": self.thread_ts is not None,
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -195,30 +167,26 @@ class SlackSendMessage(BaseTool):
             raise AuthenticationError(
                 "Missing SLACK_BOT_TOKEN environment variable",
                 tool_name=self.tool_name,
-                api_name="Slack API"
+                api_name="Slack API",
             )
 
         # Create Slack client
         client = WebClient(token=token)
 
         # Prepare message arguments
-        kwargs = {
-            "channel": self.channel,
-            "text": self.text
-        }
+        kwargs = {"channel": self.channel, "text": self.text}
 
         if self.thread_ts:
             kwargs["thread_ts"] = self.thread_ts
 
         if self.blocks:
             import json
+
             try:
                 kwargs["blocks"] = json.loads(self.blocks)
             except json.JSONDecodeError:
                 raise ValidationError(
-                    "blocks must be valid JSON",
-                    tool_name=self.tool_name,
-                    field="blocks"
+                    "blocks must be valid JSON", tool_name=self.tool_name, field="blocks"
                 )
 
         if self.username:
@@ -234,7 +202,7 @@ class SlackSendMessage(BaseTool):
             "ok": response.get("ok"),
             "channel": response.get("channel"),
             "ts": response.get("ts"),
-            "message": response.get("message", {})
+            "message": response.get("message", {}),
         }
 
 
@@ -242,52 +210,45 @@ if __name__ == "__main__":
     print("Testing SlackSendMessage...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test basic message
-    tool = SlackSendMessage(
-        channel="#general",
-        text="Hello from AgentSwarm!"
-    )
+    tool = SlackSendMessage(channel="#general", text="Hello from AgentSwarm!")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
     print(f"Message timestamp: {result.get('result', {}).get('ts')}")
-    assert result.get('success') == True
-    assert result.get('result', {}).get('ok') == True
+    assert result.get("success") == True
+    assert result.get("result", {}).get("ok") == True
 
     # Test thread reply
     tool2 = SlackSendMessage(
-        channel="#general",
-        text="This is a thread reply",
-        thread_ts="1234567890.123456"
+        channel="#general", text="This is a thread reply", thread_ts="1234567890.123456"
     )
     result2 = tool2.run()
 
     print(f"Thread Reply Success: {result2.get('success')}")
-    assert result2.get('success') == True
-    assert result2.get('metadata', {}).get('is_thread_reply') == True
+    assert result2.get("success") == True
+    assert result2.get("metadata", {}).get("is_thread_reply") == True
 
     # Test with custom username and emoji
     tool3 = SlackSendMessage(
         channel="#general",
         text="Custom bot message",
         username="CustomBot",
-        icon_emoji=":robot_face:"
+        icon_emoji=":robot_face:",
     )
     result3 = tool3.run()
 
     print(f"Custom Bot Success: {result3.get('success')}")
-    assert result3.get('success') == True
+    assert result3.get("success") == True
 
     # Test channel ID format
-    tool4 = SlackSendMessage(
-        channel="C1234567890",
-        text="Message to channel by ID"
-    )
+    tool4 = SlackSendMessage(channel="C1234567890", text="Message to channel by ID")
     result4 = tool4.run()
 
     print(f"Channel ID Success: {result4.get('success')}")
-    assert result4.get('success') == True
+    assert result4.get("success") == True
 
     print("SlackSendMessage tests passed!")

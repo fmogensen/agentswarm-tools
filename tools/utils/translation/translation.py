@@ -84,33 +84,26 @@ class Translation(BaseTool):
 
     # Parameters
     text: str = Field(
-        ...,
-        description="Text to translate (required)",
-        min_length=1,
-        max_length=10000
+        ..., description="Text to translate (required)", min_length=1, max_length=10000
     )
 
     source_lang: Optional[str] = Field(
         default=None,
-        description="Source language code (auto-detect if None, e.g., 'en', 'es', 'fr')"
+        description="Source language code (auto-detect if None, e.g., 'en', 'es', 'fr')",
     )
 
     target_lang: str = Field(
         ...,
         description="Target language code (required, e.g., 'es', 'fr', 'de', 'ja', 'zh')",
         min_length=2,
-        max_length=10
+        max_length=10,
     )
 
     preserve_formatting: bool = Field(
-        default=True,
-        description="Whether to preserve markdown/HTML formatting"
+        default=True, description="Whether to preserve markdown/HTML formatting"
     )
 
-    api_provider: str = Field(
-        default="google",
-        description="Which API to use: 'google' or 'deepl'"
-    )
+    api_provider: str = Field(default="google", description="Which API to use: 'google' or 'deepl'")
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -137,8 +130,8 @@ class Translation(BaseTool):
                     "tool_name": self.tool_name,
                     "api_provider": self.api_provider,
                     "source_lang": result.get("source_lang"),
-                    "target_lang": self.target_lang
-                }
+                    "target_lang": self.target_lang,
+                },
             }
         except Exception as e:
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
@@ -147,16 +140,14 @@ class Translation(BaseTool):
         """Validate input parameters."""
         if not self.text.strip():
             raise ValidationError(
-                "Text cannot be empty",
-                tool_name=self.tool_name,
-                details={"text": self.text}
+                "Text cannot be empty", tool_name=self.tool_name, details={"text": self.text}
             )
 
         if not self.target_lang.strip():
             raise ValidationError(
                 "Target language is required",
                 tool_name=self.tool_name,
-                details={"target_lang": self.target_lang}
+                details={"target_lang": self.target_lang},
             )
 
         # Validate API provider
@@ -165,7 +156,7 @@ class Translation(BaseTool):
             raise ValidationError(
                 f"Invalid API provider. Must be one of: {valid_providers}",
                 tool_name=self.tool_name,
-                details={"api_provider": self.api_provider}
+                details={"api_provider": self.api_provider},
             )
 
         # Validate language codes (basic check)
@@ -174,14 +165,14 @@ class Translation(BaseTool):
                 raise ValidationError(
                     f"Invalid source language code: {self.source_lang}",
                     tool_name=self.tool_name,
-                    details={"source_lang": self.source_lang}
+                    details={"source_lang": self.source_lang},
                 )
 
         if not self._is_valid_language_code(self.target_lang):
             raise ValidationError(
                 f"Invalid target language code: {self.target_lang}",
                 tool_name=self.tool_name,
-                details={"target_lang": self.target_lang}
+                details={"target_lang": self.target_lang},
             )
 
     def _should_use_mock(self) -> bool:
@@ -204,13 +195,12 @@ class Translation(BaseTool):
             "pt": "Olá, mundo!",
             "ko": "안녕하세요, 세계!",
             "ar": "مرحبا بالعالم!",
-            "hi": "नमस्ते, दुनिया!"
+            "hi": "नमस्ते, दुनिया!",
         }
 
         # Get mock translation or default
         mock_text = mock_translations.get(
-            self.target_lang.lower(),
-            f"[Mock translation to {self.target_lang}]: {self.text}"
+            self.target_lang.lower(), f"[Mock translation to {self.target_lang}]: {self.text}"
         )
 
         detected_lang = self.source_lang or "en"
@@ -223,12 +213,9 @@ class Translation(BaseTool):
                 "source_lang": detected_lang,
                 "target_lang": self.target_lang,
                 "character_count": len(self.text),
-                "preserved_format": self.preserve_formatting
+                "preserved_format": self.preserve_formatting,
             },
-            "metadata": {
-                "mock_mode": True,
-                "api_provider": self.api_provider
-            }
+            "metadata": {"mock_mode": True, "api_provider": self.api_provider},
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -247,7 +234,7 @@ class Translation(BaseTool):
             raise ConfigurationError(
                 "Missing GOOGLE_TRANSLATE_API_KEY environment variable",
                 tool_name=self.tool_name,
-                config_key="GOOGLE_TRANSLATE_API_KEY"
+                config_key="GOOGLE_TRANSLATE_API_KEY",
             )
 
         try:
@@ -265,7 +252,7 @@ class Translation(BaseTool):
                 "key": api_key,
                 "q": text_to_translate,
                 "target": self.target_lang,
-                "format": "html" if self.preserve_formatting else "text"
+                "format": "html" if self.preserve_formatting else "text",
             }
 
             # Add source language if specified
@@ -282,7 +269,7 @@ class Translation(BaseTool):
                 raise APIError(
                     "Invalid response from Google Translate API",
                     tool_name=self.tool_name,
-                    api_name="Google Translate"
+                    api_name="Google Translate",
                 )
 
             translation_data = result["data"]["translations"][0]
@@ -299,14 +286,14 @@ class Translation(BaseTool):
                 "source_lang": self.source_lang or detected_lang,
                 "target_lang": self.target_lang,
                 "character_count": len(self.text),
-                "preserved_format": self.preserve_formatting
+                "preserved_format": self.preserve_formatting,
             }
 
         except requests.RequestException as e:
             raise APIError(
                 f"Google Translate API request failed: {e}",
                 tool_name=self.tool_name,
-                api_name="Google Translate"
+                api_name="Google Translate",
             )
 
     def _translate_with_deepl(self) -> Dict[str, Any]:
@@ -317,7 +304,7 @@ class Translation(BaseTool):
             raise ConfigurationError(
                 "Missing DEEPL_API_KEY environment variable",
                 tool_name=self.tool_name,
-                config_key="DEEPL_API_KEY"
+                config_key="DEEPL_API_KEY",
             )
 
         try:
@@ -330,13 +317,10 @@ class Translation(BaseTool):
             # Build API request
             headers = {
                 "Authorization": f"DeepL-Auth-Key {api_key}",
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/x-www-form-urlencoded",
             }
 
-            data = {
-                "text": self.text,
-                "target_lang": self.target_lang.upper()
-            }
+            data = {"text": self.text, "target_lang": self.target_lang.upper()}
 
             # Add source language if specified
             if self.source_lang:
@@ -354,9 +338,7 @@ class Translation(BaseTool):
             # Extract translation
             if "translations" not in result or not result["translations"]:
                 raise APIError(
-                    "Invalid response from DeepL API",
-                    tool_name=self.tool_name,
-                    api_name="DeepL"
+                    "Invalid response from DeepL API", tool_name=self.tool_name, api_name="DeepL"
                 )
 
             translation_data = result["translations"][0]
@@ -369,14 +351,12 @@ class Translation(BaseTool):
                 "source_lang": self.source_lang or detected_lang,
                 "target_lang": self.target_lang,
                 "character_count": len(self.text),
-                "preserved_format": self.preserve_formatting
+                "preserved_format": self.preserve_formatting,
             }
 
         except requests.RequestException as e:
             raise APIError(
-                f"DeepL API request failed: {e}",
-                tool_name=self.tool_name,
-                api_name="DeepL"
+                f"DeepL API request failed: {e}", tool_name=self.tool_name, api_name="DeepL"
             )
 
     def _extract_formatting(self, text: str) -> tuple:
@@ -388,28 +368,28 @@ class Translation(BaseTool):
         cleaned_text = text
 
         # Preserve markdown links [text](url)
-        markdown_links = re.findall(r'\[([^\]]+)\]\(([^\)]+)\)', cleaned_text)
+        markdown_links = re.findall(r"\[([^\]]+)\]\(([^\)]+)\)", cleaned_text)
         for i, (link_text, url) in enumerate(markdown_links):
             marker = f"__MDLINK_{i}__"
             format_markers[marker] = f"[{link_text}]({url})"
             cleaned_text = cleaned_text.replace(f"[{link_text}]({url})", marker, 1)
 
         # Preserve markdown bold **text**
-        bold_matches = re.findall(r'\*\*([^\*]+)\*\*', cleaned_text)
+        bold_matches = re.findall(r"\*\*([^\*]+)\*\*", cleaned_text)
         for i, bold_text in enumerate(bold_matches):
             marker = f"__BOLD_{i}__"
             format_markers[marker] = f"**{bold_text}**"
             cleaned_text = cleaned_text.replace(f"**{bold_text}**", marker, 1)
 
         # Preserve markdown italic *text*
-        italic_matches = re.findall(r'\*([^\*]+)\*', cleaned_text)
+        italic_matches = re.findall(r"\*([^\*]+)\*", cleaned_text)
         for i, italic_text in enumerate(italic_matches):
             marker = f"__ITALIC_{i}__"
             format_markers[marker] = f"*{italic_text}*"
             cleaned_text = cleaned_text.replace(f"*{italic_text}*", marker, 1)
 
         # Preserve code blocks ```code```
-        code_blocks = re.findall(r'```([^`]+)```', cleaned_text)
+        code_blocks = re.findall(r"```([^`]+)```", cleaned_text)
         for i, code in enumerate(code_blocks):
             marker = f"__CODE_{i}__"
             format_markers[marker] = f"```{code}```"
@@ -434,13 +414,90 @@ class Translation(BaseTool):
         """
         # Common language codes (not exhaustive, but covers major languages)
         valid_codes = {
-            "en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "zh-CN", "zh-TW",
-            "ar", "hi", "bn", "pa", "te", "mr", "ta", "ur", "gu", "kn", "ml", "or",
-            "nl", "sv", "pl", "tr", "vi", "th", "id", "ms", "fil", "he", "fa", "uk",
-            "ro", "hu", "cs", "el", "da", "fi", "no", "sk", "bg", "hr", "sr", "sl",
-            "lt", "lv", "et", "sq", "mk", "bs", "is", "mt", "cy", "ga", "eu", "ca",
-            "gl", "af", "sw", "zu", "xh", "so", "ha", "yo", "ig", "am", "km", "lo",
-            "my", "si", "ka", "hy", "az", "kk", "uz", "ky", "tg", "mn", "ne", "ps"
+            "en",
+            "es",
+            "fr",
+            "de",
+            "it",
+            "pt",
+            "ru",
+            "ja",
+            "ko",
+            "zh",
+            "zh-CN",
+            "zh-TW",
+            "ar",
+            "hi",
+            "bn",
+            "pa",
+            "te",
+            "mr",
+            "ta",
+            "ur",
+            "gu",
+            "kn",
+            "ml",
+            "or",
+            "nl",
+            "sv",
+            "pl",
+            "tr",
+            "vi",
+            "th",
+            "id",
+            "ms",
+            "fil",
+            "he",
+            "fa",
+            "uk",
+            "ro",
+            "hu",
+            "cs",
+            "el",
+            "da",
+            "fi",
+            "no",
+            "sk",
+            "bg",
+            "hr",
+            "sr",
+            "sl",
+            "lt",
+            "lv",
+            "et",
+            "sq",
+            "mk",
+            "bs",
+            "is",
+            "mt",
+            "cy",
+            "ga",
+            "eu",
+            "ca",
+            "gl",
+            "af",
+            "sw",
+            "zu",
+            "xh",
+            "so",
+            "ha",
+            "yo",
+            "ig",
+            "am",
+            "km",
+            "lo",
+            "my",
+            "si",
+            "ka",
+            "hy",
+            "az",
+            "kk",
+            "uz",
+            "ky",
+            "tg",
+            "mn",
+            "ne",
+            "ps",
         }
 
         return lang_code.lower() in valid_codes or len(lang_code) == 2
@@ -452,14 +509,13 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic translation
     print("\n--- Test 1: Basic translation (English to Spanish) ---")
     tool = Translation(
-        text="Hello, world! How are you?",
-        target_lang="es",
-        preserve_formatting=False
+        text="Hello, world! How are you?", target_lang="es", preserve_formatting=False
     )
     result = tool.run()
 
@@ -472,9 +528,7 @@ if __name__ == "__main__":
     # Test 2: With auto-detection
     print("\n--- Test 2: Auto-detect source language ---")
     tool2 = Translation(
-        text="Bonjour, comment allez-vous?",
-        target_lang="en",
-        preserve_formatting=False
+        text="Bonjour, comment allez-vous?", target_lang="en", preserve_formatting=False
     )
     result2 = tool2.run()
 
@@ -487,7 +541,7 @@ if __name__ == "__main__":
     tool3 = Translation(
         text="**Hello**, this is a *test* with [a link](https://example.com) and ```code```",
         target_lang="fr",
-        preserve_formatting=True
+        preserve_formatting=True,
     )
     result3 = tool3.run()
 
@@ -498,10 +552,7 @@ if __name__ == "__main__":
     # Test 4: DeepL provider
     print("\n--- Test 4: Using DeepL provider ---")
     tool4 = Translation(
-        text="Good morning!",
-        target_lang="de",
-        api_provider="deepl",
-        preserve_formatting=False
+        text="Good morning!", target_lang="de", api_provider="deepl", preserve_formatting=False
     )
     result4 = tool4.run()
 
@@ -512,9 +563,7 @@ if __name__ == "__main__":
     # Test 5: Japanese translation
     print("\n--- Test 5: Translate to Japanese ---")
     tool5 = Translation(
-        text="Welcome to the translation tool!",
-        target_lang="ja",
-        preserve_formatting=False
+        text="Welcome to the translation tool!", target_lang="ja", preserve_formatting=False
     )
     result5 = tool5.run()
 
@@ -523,11 +572,7 @@ if __name__ == "__main__":
 
     # Test 6: Chinese (Simplified)
     print("\n--- Test 6: Translate to Chinese (Simplified) ---")
-    tool6 = Translation(
-        text="This is a test message.",
-        target_lang="zh",
-        preserve_formatting=False
-    )
+    tool6 = Translation(text="This is a test message.", target_lang="zh", preserve_formatting=False)
     result6 = tool6.run()
 
     print(f"Success: {result6.get('success')}")

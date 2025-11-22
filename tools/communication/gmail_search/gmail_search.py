@@ -126,9 +126,7 @@ class GmailSearch(BaseTool):
                 )
 
             scopes = ["https://www.googleapis.com/auth/gmail.readonly"]
-            creds = Credentials.from_service_account_file(
-                credentials_path, scopes=scopes
-            )
+            creds = Credentials.from_service_account_file(credentials_path, scopes=scopes)
 
             service = build("gmail", "v1", credentials=creds)
 
@@ -156,9 +154,7 @@ class GmailSearch(BaseTool):
                 )
 
                 headers = msg_detail.get("payload", {}).get("headers", [])
-                subject = next(
-                    (h["value"] for h in headers if h["name"] == "Subject"), ""
-                )
+                subject = next((h["value"] for h in headers if h["name"] == "Subject"), "")
                 sender = next((h["value"] for h in headers if h["name"] == "From"), "")
                 snippet = msg_detail.get("snippet", "")
 
@@ -181,6 +177,7 @@ class GmailSearch(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GmailSearch(query="from:example@gmail.com", max_results=5)

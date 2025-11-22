@@ -12,9 +12,9 @@ import json
 
 def get_config_path() -> Path:
     """Get the path to the config file."""
-    config_dir = Path.home() / '.agentswarm'
+    config_dir = Path.home() / ".agentswarm"
     config_dir.mkdir(exist_ok=True)
-    return config_dir / 'config.json'
+    return config_dir / "config.json"
 
 
 def load_config() -> Dict[str, str]:
@@ -25,7 +25,7 @@ def load_config() -> Dict[str, str]:
         return {}
 
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             return json.load(f)
     except Exception:
         return {}
@@ -35,7 +35,7 @@ def save_config(config: Dict[str, str]) -> None:
     """Save configuration to file."""
     config_path = get_config_path()
 
-    with open(config_path, 'w') as f:
+    with open(config_path, "w") as f:
         json.dump(config, indent=2, fp=f)
 
 
@@ -104,7 +104,7 @@ def list_api_keys() -> List[str]:
         List of API key names
     """
     config = load_config()
-    env_keys = [k for k in os.environ.keys() if k.endswith('_API_KEY')]
+    env_keys = [k for k in os.environ.keys() if k.endswith("_API_KEY")]
 
     all_keys = set(list(config.keys()) + env_keys)
     return sorted(all_keys)

@@ -1,31 +1,50 @@
 """
 Create or modify calendar event draft (requires confirmation)
+
+DEPRECATED: This tool is deprecated. Use UnifiedGoogleCalendar with action="create" instead.
+This wrapper maintains backward compatibility and will be removed in a future version.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from pydantic import Field
-import os
 import json
+import warnings
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import ValidationError
 
 
 class GoogleCalendarCreateEventDraft(BaseTool):
     """
     Create or modify calendar event draft (requires confirmation)
 
+    DEPRECATED: Use UnifiedGoogleCalendar with action="create" instead.
+    This wrapper maintains backward compatibility.
+
     Args:
-        input: Primary input parameter containing event draft details in JSON format
+        input: JSON string containing event details (title, start_time, end_time, optional: description, location, attendees)
 
     Returns:
         Dict containing:
         - success: Boolean indicating success
-        - result: Tool-specific results (draft event data)
-        - metadata: Additional information including mock mode indicator
+        - result: Created event data
+        - metadata: Additional information (includes deprecated flag)
 
     Example:
-        >>> tool = GoogleCalendarCreateEventDraft(input="example")
+        >>> # Deprecated usage (still works)
+        >>> import json
+        >>> event_data = {"title": "Meeting", "start_time": "2025-01-20T10:00:00", "end_time": "2025-01-20T11:00:00"}
+        >>> tool = GoogleCalendarCreateEventDraft(input=json.dumps(event_data))
+        >>> result = tool.run()
+        >>>
+        >>> # New recommended usage
+        >>> from tools.communication.unified_google_calendar import UnifiedGoogleCalendar
+        >>> tool = UnifiedGoogleCalendar(
+        ...     action="create",
+        ...     summary="Meeting",
+        ...     start_time="2025-01-20T10:00:00",
+        ...     end_time="2025-01-20T11:00:00"
+        ... )
         >>> result = tool.run()
     """
 
@@ -34,131 +53,73 @@ class GoogleCalendarCreateEventDraft(BaseTool):
 
     input: str = Field(
         ...,
-        description="Primary input parameter. Must be a JSON string containing event draft details.",
+        description="JSON string containing event details",
     )
 
     def _execute(self) -> Dict[str, Any]:
         """
-        Execute the google_calendar_create_event_draft tool.
+        Execute the google_calendar_create_event_draft tool (delegates to UnifiedGoogleCalendar).
 
         Returns:
             Dict with results
-
-        Raises:
-            ValidationError: If input is invalid
-            APIError: If processing fails
         """
-        self._validate_parameters()
+        # Emit deprecation warning
+        warnings.warn(
+            "GoogleCalendarCreateEventDraft is deprecated. Use UnifiedGoogleCalendar with action='create' instead. "
+            "This wrapper will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
-        if self._should_use_mock():
-            return self._generate_mock_results()
-
+        # Parse JSON input
         try:
-            result = self._process()
-            return {
-                "success": True,
-                "result": result,
-                "metadata": {"tool_name": self.tool_name, "mock_mode": False},
-            }
-        except Exception as e:
-            raise APIError(f"Failed: {e}", tool_name=self.tool_name)
-
-    def _validate_parameters(self) -> None:
-        """
-        Validate input parameters.
-
-        Raises:
-            ValidationError: If input JSON is invalid or missing required fields
-        """
-        if not self.input or not self.input.strip():
-            raise ValidationError(
-                "Input cannot be empty",
-                tool_name=self.tool_name,
-                details={"input": self.input},
-            )
-
-        try:
-            parsed = json.loads(self.input)
+            event_data = json.loads(self.input)
         except Exception:
             raise ValidationError(
-                "Input must be valid JSON",
-                tool_name=self.tool_name,
-                details={"input": self.input},
+                "Input must be valid JSON", tool_name=self.tool_name, details={"input": self.input}
             )
 
-        if not isinstance(parsed, dict):
+        if not isinstance(event_data, dict):
             raise ValidationError(
                 "Input JSON must represent an object",
                 tool_name=self.tool_name,
-                details={"parsed": parsed},
+                details={"parsed": event_data},
             )
 
-        required_fields = ["title", "start_time", "end_time"]
-        missing = [f for f in required_fields if f not in parsed]
+        # Map old field names to new field names
+        # Old format uses "title", new format uses "summary"
+        summary = event_data.get("title") or event_data.get("summary")
+        start_time = event_data.get("start_time")
+        end_time = event_data.get("end_time")
+        description = event_data.get("description")
+        location = event_data.get("location")
+        attendees = event_data.get("attendees")
 
-        if missing:
-            raise ValidationError(
-                "Missing required event fields",
-                tool_name=self.tool_name,
-                details={"missing_fields": missing},
-            )
+        # Import and delegate to unified tool
+        from tools.communication.unified_google_calendar import UnifiedGoogleCalendar
 
-    def _should_use_mock(self) -> bool:
-        """
-        Check if mock mode is enabled.
+        unified_tool = UnifiedGoogleCalendar(
+            action="create",
+            summary=summary,
+            start_time=start_time,
+            end_time=end_time,
+            description=description,
+            location=location,
+            attendees=attendees,
+        )
 
-        Returns:
-            True if USE_MOCK_APIS=true, otherwise False
-        """
-        return os.getenv("USE_MOCK_APIS", "false").lower() == "true"
+        # Execute unified tool
+        result = unified_tool._execute()
 
-    def _generate_mock_results(self) -> Dict[str, Any]:
-        """
-        Generate mock results for testing.
+        # Update metadata to indicate this was called via deprecated wrapper
+        if "metadata" not in result:
+            result["metadata"] = {}
 
-        Returns:
-            Mocked draft event dictionary
-        """
-        return {
-            "success": True,
-            "result": {
-                "event_id": "mock-event-123",
-                "status": "draft_created",
-                "echo": self.input,
-                "mock": True,
-            },
-            "metadata": {"mock_mode": True, "tool_name": self.tool_name},
-        }
+        result["metadata"]["original_tool"] = self.tool_name
+        result["metadata"]["deprecated"] = True
+        result["metadata"]["use_instead"] = "UnifiedGoogleCalendar with action='create'"
 
-    def _process(self) -> Any:
-        """
-        Main processing logic.
-
-        Creates or updates a calendar event draft. Does not commit the event.
-        Returns the parsed event draft structure.
-
-        Returns:
-            Parsed event draft dictionary
-
-        Raises:
-            APIError: If external service failure occurs
-        """
-        try:
-            draft = json.loads(self.input)
-
-            # Simulated real processing logic
-            draft_event = {
-                "event_id": "draft-" + draft.get("title", "").replace(" ", "-"),
-                "status": "draft_created",
-                "data": draft,
-            }
-
-            return draft_event
-
-        except Exception as e:
-            raise APIError(
-                f"Failed to process event draft: {e}", tool_name=self.tool_name
-            )
+        return result
 
 
 if __name__ == "__main__":
@@ -166,6 +127,7 @@ if __name__ == "__main__":
 
     import os
     import json
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Create basic event draft
@@ -173,13 +135,13 @@ if __name__ == "__main__":
     event_data = {
         "title": "Team Meeting",
         "start_time": "2025-01-15T10:00:00Z",
-        "end_time": "2025-01-15T11:00:00Z"
+        "end_time": "2025-01-15T11:00:00Z",
     }
     tool = GoogleCalendarCreateEventDraft(input=json.dumps(event_data))
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'event_id' in result.get('result', {})
+    assert result.get("success") == True
+    assert "event_id" in result.get("result", {})
     print(f"✅ Test 1 passed: Event draft created")
     print(f"   Event ID: {result.get('result', {}).get('event_id')}")
 
@@ -189,12 +151,12 @@ if __name__ == "__main__":
         "title": "Project Review",
         "start_time": "2025-01-20T14:00:00Z",
         "end_time": "2025-01-20T15:30:00Z",
-        "description": "Quarterly project status review"
+        "description": "Quarterly project status review",
     }
     tool = GoogleCalendarCreateEventDraft(input=json.dumps(event_data))
     result = tool.run()
 
-    assert result.get('success') == True
+    assert result.get("success") == True
     print(f"✅ Test 2 passed: Event with description created")
 
     # Test 3: Validation - missing required field

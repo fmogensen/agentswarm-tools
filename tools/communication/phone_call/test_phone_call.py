@@ -59,7 +59,7 @@ class TestPhoneCall:
             message="Test message",
             voice="female",
             language="es-ES",
-            wait_for_response=True
+            wait_for_response=True,
         )
         assert tool.voice == "female"
         assert tool.language == "es-ES"
@@ -67,12 +67,15 @@ class TestPhoneCall:
 
     # ========== HAPPY PATH TESTS ==========
 
-    @patch.dict("os.environ", {
-        "USE_MOCK_APIS": "false",
-        "TWILIO_ACCOUNT_SID": "AC1234567890",
-        "TWILIO_AUTH_TOKEN": "fake_token",
-        "TWILIO_PHONE_NUMBER": "+15559876543"
-    })
+    @patch.dict(
+        "os.environ",
+        {
+            "USE_MOCK_APIS": "false",
+            "TWILIO_ACCOUNT_SID": "AC1234567890",
+            "TWILIO_AUTH_TOKEN": "fake_token",
+            "TWILIO_PHONE_NUMBER": "+15559876543",
+        },
+    )
     @patch("tools.communication.phone_call.phone_call.TWILIO_AVAILABLE", True)
     @patch("twilio.rest.Client")
     def test_execute_success(self, mock_client_class, tool, mock_twilio_call):
@@ -103,11 +106,7 @@ class TestPhoneCall:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_mock_mode_with_voice(self):
-        tool = PhoneCall(
-            phone_number="+15551234567",
-            message="Test",
-            voice="male"
-        )
+        tool = PhoneCall(phone_number="+15551234567", message="Test", voice="male")
         result = tool.run()
         assert result["success"] is True
         assert result["result"]["voice_used"] == "male"
@@ -126,7 +125,11 @@ class TestPhoneCall:
         tool = PhoneCall(phone_number="15551234567", message="Test")
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "international format" in error_msg
 
     def test_invalid_phone_format_too_short(self):
@@ -152,29 +155,37 @@ class TestPhoneCall:
         tool = PhoneCall(phone_number="+15551234567", message="   ")
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "message cannot be empty" in error_msg
 
     def test_invalid_voice_type(self):
         tool = PhoneCall(
-            phone_number="+15551234567",
-            message="Test",
-            voice="robot"  # Invalid voice
+            phone_number="+15551234567", message="Test", voice="robot"  # Invalid voice
         )
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "voice must be one of" in error_msg
 
     def test_invalid_language_format(self):
         tool = PhoneCall(
-            phone_number="+15551234567",
-            message="Test",
-            language="english"  # Invalid format
+            phone_number="+15551234567", message="Test", language="english"  # Invalid format
         )
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "language must be in format" in error_msg
 
     def test_message_too_long(self):
@@ -204,11 +215,14 @@ class TestPhoneCall:
                 error = result.get("error", {})
                 assert "TWILIO_ACCOUNT_SID" in str(error) or "AUTH_ERROR" in str(error)
 
-    @patch.dict("os.environ", {
-        "USE_MOCK_APIS": "false",
-        "TWILIO_ACCOUNT_SID": "AC1234567890",
-        "TWILIO_AUTH_TOKEN": "fake_token"
-    })
+    @patch.dict(
+        "os.environ",
+        {
+            "USE_MOCK_APIS": "false",
+            "TWILIO_ACCOUNT_SID": "AC1234567890",
+            "TWILIO_AUTH_TOKEN": "fake_token",
+        },
+    )
     @patch("tools.communication.phone_call.phone_call.TWILIO_AVAILABLE", True)
     @patch("shared.base.get_rate_limiter")
     def test_missing_from_number(self, mock_rate_limiter, tool: PhoneCall):
@@ -219,7 +233,11 @@ class TestPhoneCall:
 
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "TWILIO_PHONE_NUMBER" in error_msg
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
@@ -233,15 +251,22 @@ class TestPhoneCall:
 
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "twilio package not installed" in error_msg
 
-    @patch.dict("os.environ", {
-        "USE_MOCK_APIS": "false",
-        "TWILIO_ACCOUNT_SID": "AC1234567890",
-        "TWILIO_AUTH_TOKEN": "fake_token",
-        "TWILIO_PHONE_NUMBER": "+15559876543"
-    })
+    @patch.dict(
+        "os.environ",
+        {
+            "USE_MOCK_APIS": "false",
+            "TWILIO_ACCOUNT_SID": "AC1234567890",
+            "TWILIO_AUTH_TOKEN": "fake_token",
+            "TWILIO_PHONE_NUMBER": "+15559876543",
+        },
+    )
     @patch("tools.communication.phone_call.phone_call.TWILIO_AVAILABLE", True)
     @patch("twilio.rest.Client")
     @patch("shared.base.get_rate_limiter")
@@ -255,25 +280,29 @@ class TestPhoneCall:
 
         mock_client = MagicMock()
         mock_error = TwilioRestException(
-            status=400,
-            uri="/mock/uri",
-            msg="Invalid phone number",
-            code=21211
+            status=400, uri="/mock/uri", msg="Invalid phone number", code=21211
         )
         mock_client.calls.create.side_effect = mock_error
         mock_client_class.return_value = mock_client
 
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "Invalid phone number" in error_msg
 
-    @patch.dict("os.environ", {
-        "USE_MOCK_APIS": "false",
-        "TWILIO_ACCOUNT_SID": "AC1234567890",
-        "TWILIO_AUTH_TOKEN": "fake_token",
-        "TWILIO_PHONE_NUMBER": "+15559876543"
-    })
+    @patch.dict(
+        "os.environ",
+        {
+            "USE_MOCK_APIS": "false",
+            "TWILIO_ACCOUNT_SID": "AC1234567890",
+            "TWILIO_AUTH_TOKEN": "fake_token",
+            "TWILIO_PHONE_NUMBER": "+15559876543",
+        },
+    )
     @patch("tools.communication.phone_call.phone_call.TWILIO_AVAILABLE", True)
     @patch("twilio.rest.Client")
     @patch("shared.base.get_rate_limiter")
@@ -287,10 +316,7 @@ class TestPhoneCall:
 
         mock_client = MagicMock()
         mock_error = TwilioRestException(
-            status=401,
-            uri="/mock/uri",
-            msg="Authentication failed",
-            code=20003
+            status=401, uri="/mock/uri", msg="Authentication failed", code=20003
         )
         mock_client.calls.create.side_effect = mock_error
         mock_client_class.return_value = mock_client
@@ -304,10 +330,7 @@ class TestPhoneCall:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_unicode_message(self):
-        tool = PhoneCall(
-            phone_number="+15551234567",
-            message="你好，这是一个测试电话。"
-        )
+        tool = PhoneCall(phone_number="+15551234567", message="你好，这是一个测试电话。")
         result = tool.run()
         assert result["success"] is True
         assert result["result"]["message_delivered"] == "你好，这是一个测试电话。"
@@ -323,9 +346,9 @@ class TestPhoneCall:
     def test_international_phone_numbers(self):
         test_numbers = [
             "+442012345678",  # UK
-            "+34612345678",   # Spain
-            "+81312345678",   # Japan
-            "+61212345678",   # Australia
+            "+34612345678",  # Spain
+            "+81312345678",  # Japan
+            "+61212345678",  # Australia
         ]
         for number in test_numbers:
             tool = PhoneCall(phone_number=number, message="Test")
@@ -345,43 +368,39 @@ class TestPhoneCall:
     def test_twiml_generation_simple(self, tool: PhoneCall):
         twiml = tool._generate_twiml()
         assert '<?xml version="1.0" encoding="UTF-8"?>' in twiml
-        assert '<Response>' in twiml
-        assert '<Say' in twiml
-        assert tool.message in twiml or '&' in twiml  # May be escaped
+        assert "<Response>" in twiml
+        assert "<Say" in twiml
+        assert tool.message in twiml or "&" in twiml  # May be escaped
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_twiml_generation_with_response(self):
-        tool = PhoneCall(
-            phone_number="+15551234567",
-            message="Test",
-            wait_for_response=True
-        )
+        tool = PhoneCall(phone_number="+15551234567", message="Test", wait_for_response=True)
         twiml = tool._generate_twiml()
-        assert '<Gather' in twiml
+        assert "<Gather" in twiml
         assert 'input="speech"' in twiml
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_twiml_xml_escaping(self):
-        tool = PhoneCall(
-            phone_number="+15551234567",
-            message="Test <>&'\" message"
-        )
+        tool = PhoneCall(phone_number="+15551234567", message="Test <>&'\" message")
         twiml = tool._generate_twiml()
-        assert '&lt;' in twiml  # < escaped
-        assert '&gt;' in twiml  # > escaped
-        assert '&amp;' in twiml  # & escaped
+        assert "&lt;" in twiml  # < escaped
+        assert "&gt;" in twiml  # > escaped
+        assert "&amp;" in twiml  # & escaped
 
     # ========== PARAMETRIZED TESTS ==========
 
-    @pytest.mark.parametrize("phone,valid", [
-        ("+15551234567", True),
-        ("+442012345678", True),
-        ("+34612345678", True),
-        ("15551234567", False),  # No +
-        ("+1555", False),  # Too short - Pydantic error
-        ("+155512345678901234", False),  # Too long
-        ("+1555abc1234", False),  # Contains letters
-    ])
+    @pytest.mark.parametrize(
+        "phone,valid",
+        [
+            ("+15551234567", True),
+            ("+442012345678", True),
+            ("+34612345678", True),
+            ("15551234567", False),  # No +
+            ("+1555", False),  # Too short - Pydantic error
+            ("+155512345678901234", False),  # Too long
+            ("+1555abc1234", False),  # Contains letters
+        ],
+    )
     def test_phone_number_validation(self, phone, valid):
         if phone == "+1555":
             # Too short - caught by Pydantic validation
@@ -397,22 +416,21 @@ class TestPhoneCall:
             result = tool.run()
             assert result["success"] is False
 
-    @pytest.mark.parametrize("voice,valid", [
-        ("male", True),
-        ("female", True),
-        ("neutral", True),
-        ("Male", True),  # Case insensitive
-        ("FEMALE", True),
-        (None, True),  # Optional
-        ("robot", False),
-        ("british", False),
-    ])
+    @pytest.mark.parametrize(
+        "voice,valid",
+        [
+            ("male", True),
+            ("female", True),
+            ("neutral", True),
+            ("Male", True),  # Case insensitive
+            ("FEMALE", True),
+            (None, True),  # Optional
+            ("robot", False),
+            ("british", False),
+        ],
+    )
     def test_voice_validation(self, voice, valid):
-        tool = PhoneCall(
-            phone_number="+15551234567",
-            message="Test",
-            voice=voice
-        )
+        tool = PhoneCall(phone_number="+15551234567", message="Test", voice=voice)
         if valid:
             with patch.dict("os.environ", {"USE_MOCK_APIS": "true"}):
                 result = tool.run()
@@ -421,22 +439,21 @@ class TestPhoneCall:
             result = tool.run()
             assert result["success"] is False
 
-    @pytest.mark.parametrize("language,valid", [
-        ("en-US", True),
-        ("es-ES", True),
-        ("fr-FR", True),
-        ("de-DE", True),
-        ("en", False),  # Missing country
-        ("english", False),
-        ("en-us", False),  # Wrong case
-        ("EN-US", False),
-    ])
+    @pytest.mark.parametrize(
+        "language,valid",
+        [
+            ("en-US", True),
+            ("es-ES", True),
+            ("fr-FR", True),
+            ("de-DE", True),
+            ("en", False),  # Missing country
+            ("english", False),
+            ("en-us", False),  # Wrong case
+            ("EN-US", False),
+        ],
+    )
     def test_language_validation(self, language, valid):
-        tool = PhoneCall(
-            phone_number="+15551234567",
-            message="Test",
-            language=language
-        )
+        tool = PhoneCall(phone_number="+15551234567", message="Test", language=language)
         if valid:
             with patch.dict("os.environ", {"USE_MOCK_APIS": "true"}):
                 result = tool.run()
@@ -451,10 +468,7 @@ class TestPhoneCallIntegration:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_basic_run_integration(self):
-        tool = PhoneCall(
-            phone_number="+15551234567",
-            message="Integration test message"
-        )
+        tool = PhoneCall(phone_number="+15551234567", message="Integration test message")
         result = tool.run()
         assert result["success"] is True
         assert "result" in result
@@ -467,7 +481,7 @@ class TestPhoneCallIntegration:
             message="Test",
             voice="female",
             language="es-ES",
-            wait_for_response=True
+            wait_for_response=True,
         )
         result = tool.run()
         metadata = result["metadata"]
@@ -483,8 +497,7 @@ class TestPhoneCallIntegration:
         # "invalid" is too short (< 10 chars), caught by Pydantic
         # Use a longer invalid number that passes Pydantic but fails runtime validation
         tool = PhoneCall(
-            phone_number="invalid12345",  # 13 chars, passes Pydantic min_length
-            message="Test"
+            phone_number="invalid12345", message="Test"  # 13 chars, passes Pydantic min_length
         )
         result = tool.run()
         assert result["success"] is False

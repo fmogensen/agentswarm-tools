@@ -14,29 +14,31 @@ from ..utils.formatters import format_table, format_json, format_yaml
 
 def get_all_tools() -> Dict[str, List[Dict[str, Any]]]:
     """Discover all tools organized by category."""
-    tools_dir = Path(__file__).parent.parent.parent / 'tools'
+    tools_dir = Path(__file__).parent.parent.parent / "tools"
     categories = {}
 
     if not tools_dir.exists():
         return {}
 
     for category_dir in sorted(tools_dir.iterdir()):
-        if not category_dir.is_dir() or category_dir.name.startswith('_'):
+        if not category_dir.is_dir() or category_dir.name.startswith("_"):
             continue
 
         category_name = category_dir.name
         tools = []
 
-        for tool_file in sorted(category_dir.glob('*.py')):
-            if tool_file.name.startswith('_'):
+        for tool_file in sorted(category_dir.glob("*.py")):
+            if tool_file.name.startswith("_"):
                 continue
 
             tool_name = tool_file.stem
-            tools.append({
-                'name': tool_name,
-                'category': category_name,
-                'path': str(tool_file),
-            })
+            tools.append(
+                {
+                    "name": tool_name,
+                    "category": category_name,
+                    "path": str(tool_file),
+                }
+            )
 
         if tools:
             categories[category_name] = tools
@@ -55,9 +57,9 @@ def execute(args) -> int:
 
         # List categories only
         if args.categories:
-            if args.format == 'json':
+            if args.format == "json":
                 print(json.dumps(list(categories.keys()), indent=2))
-            elif args.format == 'yaml':
+            elif args.format == "yaml":
                 print(yaml.dump(list(categories.keys()), default_flow_style=False))
             else:
                 print("\nAvailable Categories:")
@@ -78,21 +80,23 @@ def execute(args) -> int:
         all_tools = []
         for category, tools in categories.items():
             for tool in tools:
-                all_tools.append({
-                    'Tool': tool['name'],
-                    'Category': category,
-                    'Path': tool['path'],
-                })
+                all_tools.append(
+                    {
+                        "Tool": tool["name"],
+                        "Category": category,
+                        "Path": tool["path"],
+                    }
+                )
 
         # Output based on format
-        if args.format == 'json':
+        if args.format == "json":
             print(json.dumps(all_tools, indent=2))
-        elif args.format == 'yaml':
+        elif args.format == "yaml":
             print(yaml.dump(all_tools, default_flow_style=False))
         else:
             # Table format
-            headers = ['Tool', 'Category']
-            rows = [[t['Tool'], t['Category']] for t in all_tools]
+            headers = ["Tool", "Category"]
+            rows = [[t["Tool"], t["Category"]] for t in all_tools]
             print(format_table(headers, rows))
             print(f"\nTotal: {len(all_tools)} tools")
 

@@ -57,9 +57,7 @@ class TestWebpageCaptureScreen:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     @patch("selenium.webdriver.Chrome")
-    def test_api_error_handled(
-        self, mock_chrome: MagicMock, tool: WebpageCaptureScreen
-    ):
+    def test_api_error_handled(self, mock_chrome: MagicMock, tool: WebpageCaptureScreen):
         """Test API error handling."""
         mock_chrome.side_effect = Exception("API failed")
 

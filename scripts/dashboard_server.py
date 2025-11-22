@@ -19,11 +19,11 @@ try:
     import redis.asyncio as redis
 except ImportError:
     import redis
+
     redis.asyncio = redis
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -33,19 +33,19 @@ class DashboardServer:
 
     def __init__(self):
         self.redis_client = None
-        self.port = int(os.getenv('DASHBOARD_PORT', '8080'))
-        self.refresh_interval = int(os.getenv('DASHBOARD_AUTO_REFRESH', '30'))
+        self.port = int(os.getenv("DASHBOARD_PORT", "8080"))
+        self.refresh_interval = int(os.getenv("DASHBOARD_AUTO_REFRESH", "30"))
 
     async def connect(self):
         """Connect to Redis."""
-        redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
+        redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
         self.redis_client = await redis.from_url(redis_url, decode_responses=True)
         logger.info("📊 Dashboard connected to Redis")
 
     async def get_metrics(self) -> Dict[str, Any]:
         """Get current metrics from Redis."""
         try:
-            total = int(os.getenv('TOOLS_TO_DEVELOP', '61'))
+            total = int(os.getenv("TOOLS_TO_DEVELOP", "61"))
             completed = int(await self.redis_client.get("metrics:completed") or 0)
             tests_passed = int(await self.redis_client.get("metrics:tests_passed") or 0)
             tests_failed = int(await self.redis_client.get("metrics:tests_failed") or 0)
@@ -61,7 +61,7 @@ class DashboardServer:
                 "tests_passed": tests_passed,
                 "tests_failed": tests_failed,
                 "documented": documented,
-                "progress_percent": int((completed / total) * 100) if total > 0 else 0
+                "progress_percent": int((completed / total) * 100) if total > 0 else 0,
             }
         except Exception as e:
             logger.error(f"Error getting metrics: {e}")
@@ -74,11 +74,7 @@ class DashboardServer:
             cursor = 0
 
             while True:
-                cursor, keys = await self.redis_client.scan(
-                    cursor,
-                    match="tool:*",
-                    count=100
-                )
+                cursor, keys = await self.redis_client.scan(cursor, match="tool:*", count=100)
 
                 for key in keys:
                     tool_status = await self.redis_client.hget(key, "status")
@@ -100,28 +96,27 @@ class DashboardServer:
             cursor = 0
 
             while True:
-                cursor, keys = await self.redis_client.scan(
-                    cursor,
-                    match="tool:*",
-                    count=100
-                )
+                cursor, keys = await self.redis_client.scan(cursor, match="tool:*", count=100)
 
                 for key in keys:
                     tool_data = await self.redis_client.hgetall(key)
-                    if tool_data.get('status') == status:
+                    if tool_data.get("status") == status:
                         tool_name = key.replace("tool:", "")
-                        tools.append({
-                            "name": tool_name,
-                            "category": tool_data.get('category', 'unknown'),
-                            "status": tool_data.get('status'),
-                            "updated_at": tool_data.get('completed_at') or tool_data.get('started_at')
-                        })
+                        tools.append(
+                            {
+                                "name": tool_name,
+                                "category": tool_data.get("category", "unknown"),
+                                "status": tool_data.get("status"),
+                                "updated_at": tool_data.get("completed_at")
+                                or tool_data.get("started_at"),
+                            }
+                        )
 
                 if cursor == 0:
                     break
 
             # Sort by most recent
-            tools.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+            tools.sort(key=lambda x: x.get("updated_at", ""), reverse=True)
             return tools[:limit]
 
         except Exception as e:
@@ -322,7 +317,7 @@ class DashboardServer:
 </html>
         """
 
-        return web.Response(text=html, content_type='text/html')
+        return web.Response(text=html, content_type="text/html")
 
     async def handle_api_metrics(self, request):
         """API endpoint for metrics."""
@@ -338,14 +333,14 @@ class DashboardServer:
         await self.connect()
 
         app = web.Application()
-        app.router.add_get('/', self.handle_index)
-        app.router.add_get('/api/metrics', self.handle_api_metrics)
-        app.router.add_get('/health', self.handle_health)
+        app.router.add_get("/", self.handle_index)
+        app.router.add_get("/api/metrics", self.handle_api_metrics)
+        app.router.add_get("/health", self.handle_health)
 
         runner = web.AppRunner(app)
         await runner.setup()
 
-        site = web.TCPSite(runner, '0.0.0.0', self.port)
+        site = web.TCPSite(runner, "0.0.0.0", self.port)
         await site.start()
 
         logger.info(f"🚀 Dashboard server started on http://0.0.0.0:{self.port}")

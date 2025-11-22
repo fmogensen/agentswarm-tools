@@ -27,7 +27,7 @@ class TestGenerateOrganizationChart:
                 {"id": "cto", "name": "CTO", "parent": "ceo"},
                 {"id": "cfo", "name": "CFO", "parent": "ceo"},
             ],
-            title="Simple Org"
+            title="Simple Org",
         )
         result = tool.run()
 
@@ -59,7 +59,7 @@ class TestGenerateOrganizationChart:
                 {"id": "head", "name": "Department Head"},
                 {"id": "member1", "name": "Member 1", "parent": "head"},
             ],
-            orientation="horizontal"
+            orientation="horizontal",
         )
         result = tool.run()
 
@@ -73,7 +73,7 @@ class TestGenerateOrganizationChart:
                 {"id": "head", "name": "Department Head"},
                 {"id": "member1", "name": "Member 1", "parent": "head"},
             ],
-            orientation="vertical"
+            orientation="vertical",
         )
         result = tool.run()
 
@@ -87,7 +87,7 @@ class TestGenerateOrganizationChart:
                 {"id": "node1", "name": "Node 1"},
             ],
             width=1600,
-            height=1000
+            height=1000,
         )
         result = tool.run()
 
@@ -104,7 +104,7 @@ class TestGenerateOrganizationChart:
                 data=[
                     {"id": "node1", "name": "Node 1"},
                 ],
-                node_template=template
+                node_template=template,
             )
             result = tool.run()
 
@@ -138,7 +138,7 @@ class TestGenerateOrganizationChart:
                 data=[
                     {"id": "node1", "name": "Node 1"},
                 ],
-                orientation="diagonal"  # Invalid
+                orientation="diagonal",  # Invalid
             )
             tool.run()
 
@@ -223,7 +223,7 @@ class TestGenerateOrganizationChart:
                     "title": "CEO",
                     "department": "Executive",
                     "email": "jane@company.com",
-                    "custom_field": "custom_value"
+                    "custom_field": "custom_value",
                 },
             ]
         )
@@ -242,7 +242,7 @@ class TestGenerateOrganizationChart:
             data=[
                 {"id": "node1", "name": "Node 1"},
             ],
-            params={"color_scheme": "blue", "show_photos": True}
+            params={"color_scheme": "blue", "show_photos": True},
         )
         result = tool.run()
 

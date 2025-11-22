@@ -63,25 +63,21 @@ class DemoTool(BaseTool):
         ...,  # Required parameter
         description="Search query to process",
         min_length=1,
-        max_length=500
+        max_length=500,
     )
 
     max_results: int = Field(
         default=10,
         description="Maximum number of results to return",
         ge=1,  # Greater than or equal to 1
-        le=100  # Less than or equal to 100
+        le=100,  # Less than or equal to 100
     )
 
     filter_type: Optional[str] = Field(
-        default=None,
-        description="Optional filter: 'recent', 'popular', or 'relevant'"
+        default=None, description="Optional filter: 'recent', 'popular', or 'relevant'"
     )
 
-    use_cache: bool = Field(
-        default=True,
-        description="Whether to use cached results if available"
-    )
+    use_cache: bool = Field(default=True, description="Whether to use cached results if available")
 
     # ========== IMPLEMENTATION ==========
 
@@ -115,7 +111,7 @@ class DemoTool(BaseTool):
         try:
             results = self._process_query()
             filtered_results = self._apply_filters(results)
-            final_results = filtered_results[:self.max_results]
+            final_results = filtered_results[: self.max_results]
 
             # 4. RETURN STRUCTURED DATA
             return {
@@ -127,16 +123,13 @@ class DemoTool(BaseTool):
                     "max_results": self.max_results,
                     "filter_type": self.filter_type,
                     "used_cache": self.use_cache,
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
 
         except Exception as e:
             # Wrap unexpected errors in APIError
-            raise APIError(
-                f"Failed to process query: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to process query: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """
@@ -148,9 +141,7 @@ class DemoTool(BaseTool):
         # Check query is not empty (Pydantic already handles this, but showing explicitly)
         if not self.query or not self.query.strip():
             raise ValidationError(
-                "Query cannot be empty",
-                tool_name=self.tool_name,
-                details={"query": self.query}
+                "Query cannot be empty", tool_name=self.tool_name, details={"query": self.query}
             )
 
         # Check filter_type is valid
@@ -159,7 +150,7 @@ class DemoTool(BaseTool):
             raise ValidationError(
                 f"Invalid filter_type. Must be one of: {valid_filters}",
                 tool_name=self.tool_name,
-                details={"filter_type": self.filter_type}
+                details={"filter_type": self.filter_type},
             )
 
     def _should_use_mock(self) -> bool:
@@ -178,7 +169,7 @@ class DemoTool(BaseTool):
                 "title": f"Result {i}: {self.query}",
                 "description": f"This is mock result {i} for query: {self.query}",
                 "score": 1.0 - (i * 0.1),
-                "source": "mock"
+                "source": "mock",
             }
             for i in range(1, min(self.max_results + 1, 11))
         ]
@@ -193,8 +184,8 @@ class DemoTool(BaseTool):
                 "filter_type": self.filter_type,
                 "used_cache": False,
                 "mock_mode": True,
-                "tool_version": "1.0.0"
-            }
+                "tool_version": "1.0.0",
+            },
         }
 
     def _process_query(self) -> List[Dict[str, Any]]:
@@ -215,7 +206,7 @@ class DemoTool(BaseTool):
                 "title": f"Real Result {i}",
                 "description": f"Description for result {i}",
                 "score": 0.95 - (i * 0.05),
-                "source": "api"
+                "source": "api",
             }
             for i in range(1, 21)  # Simulate 20 results from API
         ]
@@ -250,6 +241,7 @@ class DemoTool(BaseTool):
 
 # ========== HELPER FUNCTION (Optional) ==========
 
+
 def run_demo_tool(query: str, max_results: int = 10) -> Dict[str, Any]:
     """
     Convenience function to run demo tool.
@@ -273,6 +265,7 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic usage

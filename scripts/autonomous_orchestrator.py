@@ -30,11 +30,8 @@ except ImportError:
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('/data/logs/orchestrator.log')
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("/data/logs/orchestrator.log")],
 )
 logger = logging.getLogger(__name__)
 
@@ -45,50 +42,78 @@ class AutonomousOrchestrator:
     # All 101 tools to develop
     ALL_TOOLS = [
         # Search & Information (8)
-        "web_search", "scholar_search", "image_search", "video_search",
-        "product_search", "google_product_search", "financial_report", "stock_price",
-
+        "web_search",
+        "scholar_search",
+        "image_search",
+        "video_search",
+        "product_search",
+        "google_product_search",
+        "financial_report",
+        "stock_price",
         # Web Content (5)
-        "crawler", "summarize_large_document", "url_metadata",
-        "webpage_capture_screen", "resource_discovery",
-
+        "crawler",
+        "summarize_large_document",
+        "url_metadata",
+        "webpage_capture_screen",
+        "resource_discovery",
         # Media Generation (3)
-        "image_generation", "video_generation", "audio_generation",
-
+        "image_generation",
+        "video_generation",
+        "audio_generation",
         # Media Analysis (7)
-        "understand_images", "understand_video", "batch_understand_videos",
-        "analyze_media_content", "audio_transcribe", "merge_audio",
+        "understand_images",
+        "understand_video",
+        "batch_understand_videos",
+        "analyze_media_content",
+        "audio_transcribe",
+        "merge_audio",
         "extract_audio_from_video",
-
         # Storage (4)
-        "aidrive_tool", "file_format_converter", "onedrive_search", "onedrive_file_read",
-
+        "aidrive_tool",
+        "file_format_converter",
+        "onedrive_search",
+        "onedrive_file_read",
         # Communication (8)
-        "gmail_search", "gmail_read", "read_email_attachments", "email_draft",
-        "google_calendar_list", "google_calendar_create_event_draft",
-        "phone_call", "query_call_logs",
-
+        "gmail_search",
+        "gmail_read",
+        "read_email_attachments",
+        "email_draft",
+        "google_calendar_list",
+        "google_calendar_create_event_draft",
+        "phone_call",
+        "query_call_logs",
         # Visualization (15)
-        "generate_line_chart", "generate_bar_chart", "generate_column_chart",
-        "generate_pie_chart", "generate_area_chart", "generate_scatter_chart",
-        "generate_dual_axes_chart", "generate_histogram_chart", "generate_radar_chart",
-        "generate_treemap_chart", "generate_word_cloud_chart", "generate_fishbone_diagram",
-        "generate_flow_diagram", "generate_mind_map", "generate_network_graph",
-
+        "generate_line_chart",
+        "generate_bar_chart",
+        "generate_column_chart",
+        "generate_pie_chart",
+        "generate_area_chart",
+        "generate_scatter_chart",
+        "generate_dual_axes_chart",
+        "generate_histogram_chart",
+        "generate_radar_chart",
+        "generate_treemap_chart",
+        "generate_word_cloud_chart",
+        "generate_fishbone_diagram",
+        "generate_flow_diagram",
+        "generate_mind_map",
+        "generate_network_graph",
         # Location (1)
         "maps_search",
-
         # Code Execution (5)
-        "bash_tool", "read_tool", "write_tool", "multiedit_tool", "downloadfilewrapper_tool",
-
+        "bash_tool",
+        "read_tool",
+        "write_tool",
+        "multiedit_tool",
+        "downloadfilewrapper_tool",
         # Documents (1)
         "create_agent",
-
         # Workspace (2)
-        "notion_search", "notion_read",
-
+        "notion_search",
+        "notion_read",
         # Utils (2)
-        "think", "ask_for_clarification",
+        "think",
+        "ask_for_clarification",
     ]
 
     def __init__(self):
@@ -102,15 +127,15 @@ class AutonomousOrchestrator:
         # Load tool specifications
         self.tool_specs = self._load_tool_specs()
 
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("🤖 AUTONOMOUS ORCHESTRATOR INITIALIZED")
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info(f"Total tools to develop: {len(self.ALL_TOOLS)}")
         logger.info(f"Tool specs loaded: {len(self.tool_specs)}")
         logger.info(f"Autonomous mode: {os.getenv('AUTONOMOUS_MODE', 'true')}")
         logger.info(f"Auto-fix: {os.getenv('AUTO_FIX', 'true')}")
         logger.info(f"Auto-merge: {os.getenv('AUTO_MERGE', 'true')}")
-        logger.info("="*80)
+        logger.info("=" * 80)
 
     def _load_tool_specs(self) -> Dict[str, Dict]:
         """Load all tool specifications."""
@@ -139,17 +164,19 @@ class AutonomousOrchestrator:
         for attempt in range(max_retries):
             try:
                 r = redis.Redis(
-                    host=os.getenv('REDIS_HOST', 'redis'),
-                    port=int(os.getenv('REDIS_PORT', 6379)),
+                    host=os.getenv("REDIS_HOST", "redis"),
+                    port=int(os.getenv("REDIS_PORT", 6379)),
                     decode_responses=True,
-                    socket_connect_timeout=5
+                    socket_connect_timeout=5,
                 )
                 r.ping()
                 logger.info(f"✅ Connected to Redis at {os.getenv('REDIS_HOST', 'redis')}:6379")
                 return r
             except redis.ConnectionError as e:
                 if attempt < max_retries - 1:
-                    logger.warning(f"Redis connection attempt {attempt + 1}/{max_retries} failed. Retrying in {retry_delay}s...")
+                    logger.warning(
+                        f"Redis connection attempt {attempt + 1}/{max_retries} failed. Retrying in {retry_delay}s..."
+                    )
                     asyncio.run(asyncio.sleep(retry_delay))
                 else:
                     logger.error(f"❌ Failed to connect to Redis after {max_retries} attempts")
@@ -180,10 +207,10 @@ class AutonomousOrchestrator:
     async def run_autonomous_development(self):
         """Main autonomous loop."""
         logger.info("\n🚀 STARTING AUTONOMOUS DEVELOPMENT")
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info("System will run continuously until all 101 tools are complete")
         logger.info("No human intervention required")
-        logger.info("="*80 + "\n")
+        logger.info("=" * 80 + "\n")
 
         # Initialize queue
         await self.initialize_queue()
@@ -192,7 +219,9 @@ class AutonomousOrchestrator:
         while not self.all_tools_complete():
             self.iteration += 1
             logger.info(f"\n{'='*80}")
-            logger.info(f"🔄 ITERATION {self.iteration} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            logger.info(
+                f"🔄 ITERATION {self.iteration} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
             logger.info(f"{'='*80}")
 
             try:
@@ -222,14 +251,14 @@ class AutonomousOrchestrator:
                 logger.info("⚕️  Self-healing and continuing...")
 
             # Brief pause before next iteration
-            check_interval = int(os.getenv('CHECK_INTERVAL', 60))
+            check_interval = int(os.getenv("CHECK_INTERVAL", 60))
             logger.info(f"⏳ Sleeping for {check_interval}s before next check...")
             await asyncio.sleep(check_interval)
 
         # All done!
-        logger.info("\n" + "="*80)
+        logger.info("\n" + "=" * 80)
         logger.info("🎉 ALL 61 TOOLS COMPLETE!")
-        logger.info("="*80)
+        logger.info("=" * 80)
         await self.finalize_deployment()
 
     async def assess_state(self):
@@ -258,7 +287,7 @@ class AutonomousOrchestrator:
             "failed": failed,
             "blocked": blocked,
             "progress_percent": progress_pct,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
         self.redis.set("metrics:current", json.dumps(metrics))
 
@@ -288,7 +317,7 @@ class AutonomousOrchestrator:
                         "category": category,
                         "team": team,
                         "assigned_at": datetime.now().isoformat(),
-                        "status": "assigned"
+                        "status": "assigned",
                     }
 
                     self.redis.set(f"agent:{team}:current_tool", tool)
@@ -358,7 +387,7 @@ class AutonomousOrchestrator:
 
     async def auto_resolve_blocker(self, tool: str, blocker: Dict) -> bool:
         """Attempt to automatically resolve a blocker."""
-        reason = blocker.get('reason', '').lower()
+        reason = blocker.get("reason", "").lower()
 
         # API key missing - use mock mode
         if "api" in reason or "key" in reason:
@@ -453,7 +482,7 @@ class AutonomousOrchestrator:
             "pending": self.redis.llen("tools:pending"),
             "failed": len(self.failed_tools),
             "total": len(self.ALL_TOOLS),
-            "progress_percent": (len(self.completed_tools) / len(self.ALL_TOOLS)) * 100
+            "progress_percent": (len(self.completed_tools) / len(self.ALL_TOOLS)) * 100,
         }
 
         self.redis.set("dashboard:metrics", json.dumps(metrics))
@@ -479,7 +508,9 @@ class AutonomousOrchestrator:
 
                         # If stuck for > 1 hour, restart
                         if duration > timedelta(hours=1):
-                            logger.warning(f"⚕️  {team} stuck on {current_tool} for {duration}, restarting...")
+                            logger.warning(
+                                f"⚕️  {team} stuck on {current_tool} for {duration}, restarting..."
+                            )
                             self.redis.delete(f"agent:{team}:current_tool")
                             self.redis.delete(f"agent:{team}:started_at")
                             # Re-queue the tool
@@ -494,7 +525,7 @@ class AutonomousOrchestrator:
     async def finalize_deployment(self):
         """Final deployment steps."""
         logger.info("\n🎉 FINALIZATION STARTED")
-        logger.info("="*80)
+        logger.info("=" * 80)
 
         logger.info("📝 Generating final documentation...")
         logger.info("🧪 Running full integration tests...")
@@ -502,12 +533,12 @@ class AutonomousOrchestrator:
         logger.info("🏷️  Tagging release v1.0.0...")
         logger.info("🚀 Deployment complete!")
 
-        logger.info("\n" + "="*80)
+        logger.info("\n" + "=" * 80)
         logger.info("✅ AUTONOMOUS DEVELOPMENT COMPLETE")
-        logger.info("="*80)
+        logger.info("=" * 80)
         logger.info(f"Total tools developed: {len(self.completed_tools)}/61")
         logger.info(f"Duration: {self.iteration} iterations")
-        logger.info("="*80)
+        logger.info("=" * 80)
 
 
 async def main():

@@ -20,9 +20,7 @@ class TestBatchUnderstandVideos:
 
     @pytest.fixture
     def tool(self, valid_urls: str) -> BatchUnderstandVideos:
-        return BatchUnderstandVideos(
-            media_url=valid_urls, instruction="Summarize videos"
-        )
+        return BatchUnderstandVideos(media_url=valid_urls, instruction="Summarize videos")
 
     @pytest.fixture
     def mock_env_off(self):
@@ -37,9 +35,7 @@ class TestBatchUnderstandVideos:
     # ========== INITIALIZATION TESTS ==========
 
     def test_initialization(self, valid_urls: str):
-        tool = BatchUnderstandVideos(
-            media_url=valid_urls, instruction="Test instruction"
-        )
+        tool = BatchUnderstandVideos(media_url=valid_urls, instruction="Test instruction")
         assert tool.media_url == valid_urls
         assert tool.instruction == "Test instruction"
         assert tool.tool_name == "batch_understand_videos"
@@ -102,9 +98,7 @@ class TestBatchUnderstandVideos:
         assert tool._extract_video_id(url) == "validid"
 
     def test_extract_video_id_invalid(self):
-        tool = BatchUnderstandVideos(
-            media_url="https://youtube.com/noid", instruction="test"
-        )
+        tool = BatchUnderstandVideos(media_url="https://youtube.com/noid", instruction="test")
         # _extract_video_id raises ValidationError directly when called internally
         try:
             tool._extract_video_id("https://youtube.com/noid")

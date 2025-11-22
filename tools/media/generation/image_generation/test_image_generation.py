@@ -47,9 +47,7 @@ class TestImageGeneration:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_called(self, tool):
-        with patch.object(
-            tool, "_process", return_value={"image_url": "x"}
-        ) as mock_process:
+        with patch.object(tool, "_process", return_value={"image_url": "x"}) as mock_process:
             tool.run()
             mock_process.assert_called_once()
 
@@ -159,9 +157,7 @@ class TestImageGeneration:
     # ========== INTEGRATION TESTS ==========
 
     def test_full_workflow(self):
-        tool = ImageGeneration(
-            prompt="mountain landscape", params={"size": "512x512", "steps": 5}
-        )
+        tool = ImageGeneration(prompt="mountain landscape", params={"size": "512x512", "steps": 5})
         result = tool.run()
 
         assert result["success"] is True

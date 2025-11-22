@@ -130,9 +130,7 @@ class GenerateAreaChart(BaseTool):
                 )
 
             if len(x) == 0:
-                raise ValidationError(
-                    "'x' and 'y' must not be empty", tool_name=self.tool_name
-                )
+                raise ValidationError("'x' and 'y' must not be empty", tool_name=self.tool_name)
         else:
             raise ValidationError(
                 "Params must include either 'data' (list of {x, y}) or 'x' and 'y' arrays",
@@ -186,26 +184,22 @@ class GenerateAreaChart(BaseTool):
             return chart_data
 
         except Exception as e:
-            raise APIError(
-                f"Error generating area chart: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Error generating area chart: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateAreaChart(
         prompt="Revenue Growth Over Time",
-        params={"data": [
-            {"x": 1, "y": 100},
-            {"x": 2, "y": 150},
-            {"x": 3, "y": 180},
-            {"x": 4, "y": 220}
-        ]}
+        params={
+            "data": [{"x": 1, "y": 100}, {"x": 2, "y": 150}, {"x": 3, "y": 180}, {"x": 4, "y": 220}]
+        },
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

@@ -127,9 +127,7 @@ class TestMergeAudio:
 
     @patch("tools.media_analysis.merge_audio.AudioSegment")
     def test_single_clip(self, mock_audio_seg, mock_audio):
-        input_json = json.dumps(
-            {"clips": [{"path": "a.mp3", "start": 0}], "output_format": "wav"}
-        )
+        input_json = json.dumps({"clips": [{"path": "a.mp3", "start": 0}], "output_format": "wav"})
         mock_audio_seg.from_file.return_value = mock_audio
         mock_audio_seg.silent.return_value = mock_audio
         mock_audio.overlay.return_value = mock_audio
@@ -144,9 +142,7 @@ class TestMergeAudio:
         mock_audio_seg.silent.return_value = mock_audio
         mock_audio.overlay.return_value = mock_audio
 
-        inp = json.dumps(
-            {"clips": [{"path": "a.mp3", "start": 999999}], "output_format": "mp3"}
-        )
+        inp = json.dumps({"clips": [{"path": "a.mp3", "start": 999999}], "output_format": "mp3"})
 
         tool = MergeAudio(input=inp)
         result = tool.run()

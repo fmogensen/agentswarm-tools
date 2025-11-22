@@ -13,6 +13,7 @@ from shared.errors import ValidationError, APIError, AuthenticationError
 try:
     from twilio.rest import Client
     from twilio.base.exceptions import TwilioRestException
+
     TWILIO_AVAILABLE = True
 except ImportError:
     TWILIO_AVAILABLE = False
@@ -53,26 +54,14 @@ class PhoneCall(BaseTool):
         ...,
         description="Phone number to call in international format (e.g., +1234567890)",
         min_length=10,
-        max_length=20
+        max_length=20,
     )
     message: str = Field(
-        ...,
-        description="Message to deliver via AI voice",
-        min_length=1,
-        max_length=2000
+        ..., description="Message to deliver via AI voice", min_length=1, max_length=2000
     )
-    voice: Optional[str] = Field(
-        None,
-        description="Voice type: male, female, or neutral"
-    )
-    language: str = Field(
-        "en-US",
-        description="Language code (e.g., en-US, es-ES, fr-FR)"
-    )
-    wait_for_response: bool = Field(
-        False,
-        description="Whether to wait for caller response"
-    )
+    voice: Optional[str] = Field(None, description="Voice type: male, female, or neutral")
+    language: str = Field("en-US", description="Language code (e.g., en-US, es-ES, fr-FR)")
+    wait_for_response: bool = Field(False, description="Whether to wait for caller response")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute phone call via Twilio."""
@@ -87,7 +76,7 @@ class PhoneCall(BaseTool):
         if not TWILIO_AVAILABLE:
             raise APIError(
                 "twilio package not installed. Install with: pip install twilio",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         try:
@@ -100,84 +89,77 @@ class PhoneCall(BaseTool):
                     "phone_number": self._mask_phone_number(self.phone_number),
                     "language": self.language,
                     "wait_for_response": self.wait_for_response,
-                    "mock_mode": False
-                }
+                    "mock_mode": False,
+                },
             }
         except Exception as e:
             # Handle Twilio-specific exceptions if available
             if TWILIO_AVAILABLE:
                 try:
                     if isinstance(e, TwilioRestException):
-                        error_code = getattr(e, 'code', None)
+                        error_code = getattr(e, "code", None)
                         if error_code == 21211:
                             raise ValidationError(
                                 f"Invalid phone number: {self.phone_number}",
                                 tool_name=self.tool_name,
-                                field="phone_number"
+                                field="phone_number",
                             )
                         elif error_code in [20003, 20008]:
                             raise AuthenticationError(
                                 "Invalid Twilio credentials",
                                 tool_name=self.tool_name,
-                                api_name="Twilio API"
+                                api_name="Twilio API",
                             )
                         raise APIError(
                             f"Twilio API error: {e.msg}",
                             tool_name=self.tool_name,
                             api_name="Twilio API",
-                            status_code=error_code
+                            status_code=error_code,
                         )
                 except NameError:
                     # TwilioRestException not defined (shouldn't happen but be safe)
                     pass
 
-            raise APIError(
-                f"Failed to make phone call: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to make phone call: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate parameters."""
         # Validate phone number
         if not self.phone_number.strip():
             raise ValidationError(
-                "phone_number cannot be empty",
-                tool_name=self.tool_name,
-                field="phone_number"
+                "phone_number cannot be empty", tool_name=self.tool_name, field="phone_number"
             )
 
         # Check phone number format (international format)
-        phone_pattern = re.compile(r'^\+\d{10,15}$')
+        phone_pattern = re.compile(r"^\+\d{10,15}$")
         if not phone_pattern.match(self.phone_number.strip()):
             raise ValidationError(
                 "phone_number must be in international format (e.g., +1234567890)",
                 tool_name=self.tool_name,
-                field="phone_number"
+                field="phone_number",
             )
 
         # Validate message
         if not self.message.strip():
             raise ValidationError(
-                "message cannot be empty",
-                tool_name=self.tool_name,
-                field="message"
+                "message cannot be empty", tool_name=self.tool_name, field="message"
             )
 
         # Validate voice type if provided
-        if self.voice and self.voice.lower() not in ['male', 'female', 'neutral']:
+        if self.voice and self.voice.lower() not in ["male", "female", "neutral"]:
             raise ValidationError(
                 "voice must be one of: male, female, neutral",
                 tool_name=self.tool_name,
-                field="voice"
+                field="voice",
             )
 
         # Validate language code format
-        language_pattern = re.compile(r'^[a-z]{2}-[A-Z]{2}$')
+        language_pattern = re.compile(r"^[a-z]{2}-[A-Z]{2}$")
         if not language_pattern.match(self.language):
             raise ValidationError(
                 "language must be in format: xx-XX (e.g., en-US, es-ES)",
                 tool_name=self.tool_name,
-                field="language"
+                field="language",
             )
 
     def _should_use_mock(self) -> bool:
@@ -188,7 +170,7 @@ class PhoneCall(BaseTool):
         """Generate mock results."""
         import time
 
-        mock_call_sid = f"CA{abs(hash(self.phone_number + self.message))}".replace('-', '')[:34]
+        mock_call_sid = f"CA{abs(hash(self.phone_number + self.message))}".replace("-", "")[:34]
 
         return {
             "success": True,
@@ -202,15 +184,15 @@ class PhoneCall(BaseTool):
                 "price_unit": "USD",
                 "date_created": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "message_delivered": self.message,
-                "voice_used": self.voice or "neutral"
+                "voice_used": self.voice or "neutral",
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
                 "phone_number": self._mask_phone_number(self.phone_number),
                 "language": self.language,
-                "wait_for_response": self.wait_for_response
-            }
+                "wait_for_response": self.wait_for_response,
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -224,14 +206,14 @@ class PhoneCall(BaseTool):
             raise AuthenticationError(
                 "Missing TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN environment variables",
                 tool_name=self.tool_name,
-                api_name="Twilio API"
+                api_name="Twilio API",
             )
 
         if not from_number:
             raise ValidationError(
                 "Missing TWILIO_PHONE_NUMBER environment variable",
                 tool_name=self.tool_name,
-                field="from_number"
+                field="from_number",
             )
 
         # Create Twilio client
@@ -241,11 +223,7 @@ class PhoneCall(BaseTool):
         twiml = self._generate_twiml()
 
         # Make the call
-        call = client.calls.create(
-            to=self.phone_number,
-            from_=from_number,
-            twiml=twiml
-        )
+        call = client.calls.create(to=self.phone_number, from_=from_number, twiml=twiml)
 
         # Return call details
         return {
@@ -257,7 +235,7 @@ class PhoneCall(BaseTool):
             "date_created": call.date_created.isoformat() if call.date_created else None,
             "price": call.price,
             "price_unit": call.price_unit,
-            "message_delivered": self.message
+            "message_delivered": self.message,
         }
 
     def _generate_twiml(self) -> str:
@@ -268,40 +246,37 @@ class PhoneCall(BaseTool):
             TwiML XML string
         """
         # Map voice to Twilio voice options
-        voice_map = {
-            'male': 'man',
-            'female': 'woman',
-            'neutral': 'alice'
-        }
+        voice_map = {"male": "man", "female": "woman", "neutral": "alice"}
 
-        twilio_voice = voice_map.get(self.voice.lower() if self.voice else 'neutral', 'alice')
+        twilio_voice = voice_map.get(self.voice.lower() if self.voice else "neutral", "alice")
 
         # Escape XML special characters in message
-        escaped_message = (self.message
-                          .replace('&', '&amp;')
-                          .replace('<', '&lt;')
-                          .replace('>', '&gt;')
-                          .replace('"', '&quot;')
-                          .replace("'", '&apos;'))
+        escaped_message = (
+            self.message.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&apos;")
+        )
 
         if self.wait_for_response:
             # Include gather for response
-            twiml = f'''<?xml version="1.0" encoding="UTF-8"?>
+            twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Say voice="{twilio_voice}" language="{self.language}">{escaped_message}</Say>
     <Gather input="speech" timeout="5" action="/handle-response">
         <Say voice="{twilio_voice}" language="{self.language}">Please respond after the beep.</Say>
     </Gather>
     <Say voice="{twilio_voice}" language="{self.language}">Thank you for your response. Goodbye.</Say>
-</Response>'''
+</Response>"""
         else:
             # Simple message delivery
-            twiml = f'''<?xml version="1.0" encoding="UTF-8"?>
+            twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Say voice="{twilio_voice}" language="{self.language}">{escaped_message}</Say>
     <Pause length="1"/>
     <Say voice="{twilio_voice}" language="{self.language}">Goodbye.</Say>
-</Response>'''
+</Response>"""
 
         return twiml
 
@@ -317,61 +292,58 @@ class PhoneCall(BaseTool):
         """
         if len(phone) <= 6:
             return phone
-        return phone[:3] + '***' + phone[-6:]
+        return phone[:3] + "***" + phone[-6:]
 
 
 if __name__ == "__main__":
     print("Testing PhoneCall...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test basic call
     tool = PhoneCall(
-        phone_number="+15551234567",
-        message="Hello, this is a test call from AgentSwarm."
+        phone_number="+15551234567", message="Hello, this is a test call from AgentSwarm."
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
     print(f"Call SID: {result.get('result', {}).get('call_sid')}")
     print(f"Status: {result.get('result', {}).get('status')}")
-    assert result.get('success') == True
-    assert result.get('result', {}).get('status') == 'completed'
+    assert result.get("success") == True
+    assert result.get("result", {}).get("status") == "completed"
 
     # Test with voice and language
     tool2 = PhoneCall(
         phone_number="+34612345678",
         message="Hola, esta es una llamada de prueba.",
         voice="female",
-        language="es-ES"
+        language="es-ES",
     )
     result2 = tool2.run()
 
     print(f"Spanish Call Success: {result2.get('success')}")
-    assert result2.get('success') == True
-    assert result2.get('metadata', {}).get('language') == 'es-ES'
+    assert result2.get("success") == True
+    assert result2.get("metadata", {}).get("language") == "es-ES"
 
     # Test with response waiting
     tool3 = PhoneCall(
         phone_number="+15551234567",
         message="Please confirm your appointment by saying yes or no.",
-        wait_for_response=True
+        wait_for_response=True,
     )
     result3 = tool3.run()
 
     print(f"Interactive Call Success: {result3.get('success')}")
-    assert result3.get('success') == True
-    assert result3.get('metadata', {}).get('wait_for_response') == True
+    assert result3.get("success") == True
+    assert result3.get("metadata", {}).get("wait_for_response") == True
 
     # Test phone number validation
     try:
-        tool4 = PhoneCall(
-            phone_number="123456",  # Invalid format
-            message="Test"
-        )
+        tool4 = PhoneCall(phone_number="123456", message="Test")  # Invalid format
         result4 = tool4.run()
-        assert result4.get('success') == False
+        assert result4.get("success") == False
         print("Phone validation test passed (invalid number rejected)")
     except Exception:
         print("Phone validation test passed (invalid number rejected)")

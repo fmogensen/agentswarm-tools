@@ -102,9 +102,7 @@ class TestGenerateMindMap:
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_process_validation_error_passthrough(self, tool: GenerateMindMap):
         """ValidationError from process returns error dict."""
-        with patch.object(
-            tool, "_process", side_effect=ValidationError("Bad", tool_name="x")
-        ):
+        with patch.object(tool, "_process", side_effect=ValidationError("Bad", tool_name="x")):
             result = tool.run()
             assert result["success"] is False
 

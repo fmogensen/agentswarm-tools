@@ -17,9 +17,7 @@ class TestAudioEffects:
     def tool(self):
         return AudioEffects(
             input_path="/path/to/test_audio.wav",
-            effects=[
-                {"type": "normalize", "parameters": {"target_level": -3}}
-            ]
+            effects=[{"type": "normalize", "parameters": {"target_level": -3}}],
         )
 
     def test_initialization(self, tool):
@@ -45,8 +43,8 @@ class TestAudioEffects:
             effects=[
                 {"type": "normalize", "parameters": {"target_level": -3}},
                 {"type": "reverb", "parameters": {"delay": 60, "decay": 0.5}},
-                {"type": "eq", "parameters": {"bass": 2, "treble": -1}}
-            ]
+                {"type": "eq", "parameters": {"bass": 2, "treble": -1}},
+            ],
         )
         result = tool.run()
         assert result["success"] is True
@@ -54,10 +52,7 @@ class TestAudioEffects:
 
     def test_empty_effects_validation(self):
         """Test validation with empty effects list."""
-        tool = AudioEffects(
-            input_path="/path/to/test_audio.wav",
-            effects=[]
-        )
+        tool = AudioEffects(input_path="/path/to/test_audio.wav", effects=[])
         result = tool.run()
         assert result["success"] is False
 
@@ -65,9 +60,7 @@ class TestAudioEffects:
         """Test validation with invalid effect type."""
         tool = AudioEffects(
             input_path="/path/to/test_audio.wav",
-            effects=[
-                {"type": "invalid_effect", "parameters": {}}
-            ]
+            effects=[{"type": "invalid_effect", "parameters": {}}],
         )
         result = tool.run()
         assert result["success"] is False
@@ -78,7 +71,7 @@ class TestAudioEffects:
         tool = AudioEffects(
             input_path="/path/to/test_audio.wav",
             effects=[{"type": "normalize", "parameters": {}}],
-            output_path="/path/to/custom_output.wav"
+            output_path="/path/to/custom_output.wav",
         )
         result = tool.run()
         assert result["success"] is True
@@ -97,13 +90,10 @@ class TestAudioEffects:
             {"type": "tempo_change", "parameters": {"tempo": 1.1}},
             {"type": "fade_in", "parameters": {"duration": 2}},
             {"type": "fade_out", "parameters": {"duration": 2, "start_time": 10}},
-            {"type": "noise_reduction", "parameters": {"cutoff_frequency": 100}}
+            {"type": "noise_reduction", "parameters": {"cutoff_frequency": 100}},
         ]
 
-        tool = AudioEffects(
-            input_path="/path/to/test_audio.wav",
-            effects=effects
-        )
+        tool = AudioEffects(input_path="/path/to/test_audio.wav", effects=effects)
         result = tool.run()
         assert result["success"] is True
         assert len(result["result"]["effects_applied"]) == 10

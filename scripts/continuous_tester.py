@@ -18,11 +18,11 @@ try:
     import redis.asyncio as redis
 except ImportError:
     import redis
+
     redis.asyncio = redis
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -32,12 +32,12 @@ class ContinuousTester:
 
     def __init__(self):
         self.redis_client = None
-        self.auto_fix = os.getenv('AUTO_FIX', 'true').lower() == 'true'
-        self.min_coverage = int(os.getenv('MIN_TEST_COVERAGE', '80'))
+        self.auto_fix = os.getenv("AUTO_FIX", "true").lower() == "true"
+        self.min_coverage = int(os.getenv("MIN_TEST_COVERAGE", "80"))
 
     async def connect(self):
         """Connect to Redis."""
-        redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
+        redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
         self.redis_client = await redis.from_url(redis_url, decode_responses=True)
         logger.info("🧪 Continuous Tester connected to Redis")
 
@@ -80,7 +80,7 @@ class ContinuousTester:
                 "linting_passed": True,
                 "type_check_passed": True,
                 "security_scan_passed": True,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
             logger.info(f"✅ Tests passed: {tool_name} (coverage: {results['coverage']}%)")
@@ -93,39 +93,39 @@ class ContinuousTester:
                 "category": category,
                 "tests_passed": False,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
     async def process_test_results(self, results: Dict[str, Any]):
         """Process test results and update tool status."""
-        tool_name = results['tool_name']
+        tool_name = results["tool_name"]
 
-        if results.get('tests_passed') and results.get('coverage', 0) >= self.min_coverage:
+        if results.get("tests_passed") and results.get("coverage", 0) >= self.min_coverage:
             # Tests passed - mark as ready for documentation
             await self.redis_client.hset(
                 f"tool:{tool_name}",
                 mapping={
                     "status": "tested",
-                    "test_coverage": results.get('coverage', 0),
-                    "tested_at": datetime.now().isoformat()
-                }
+                    "test_coverage": results.get("coverage", 0),
+                    "tested_at": datetime.now().isoformat(),
+                },
             )
 
             # Store test results
             await self.redis_client.set(
-                f"test_results:{tool_name}",
-                json.dumps(results),
-                ex=86400 * 7  # Keep for 7 days
+                f"test_results:{tool_name}", json.dumps(results), ex=86400 * 7  # Keep for 7 days
             )
 
             # Publish test success event
             await self.redis_client.publish(
                 "events:tool_tested",
-                json.dumps({
-                    "tool_name": tool_name,
-                    "status": "tested",
-                    "timestamp": datetime.now().isoformat()
-                })
+                json.dumps(
+                    {
+                        "tool_name": tool_name,
+                        "status": "tested",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                ),
             )
 
             # Increment metrics
@@ -139,9 +139,9 @@ class ContinuousTester:
                 f"tool:{tool_name}",
                 mapping={
                     "status": "test_failed",
-                    "test_error": results.get('error', 'Quality standards not met'),
-                    "test_failed_at": datetime.now().isoformat()
-                }
+                    "test_error": results.get("error", "Quality standards not met"),
+                    "test_failed_at": datetime.now().isoformat(),
+                },
             )
 
             # Increment metrics
@@ -152,13 +152,15 @@ class ContinuousTester:
                 # Re-queue for development with fix instructions
                 await self.redis_client.rpush(
                     "queue:pending",
-                    json.dumps({
-                        "tool_name": tool_name,
-                        "category": results.get('category'),
-                        "action": "fix_tests",
-                        "error": results.get('error'),
-                        "retry_count": 0
-                    })
+                    json.dumps(
+                        {
+                            "tool_name": tool_name,
+                            "category": results.get("category"),
+                            "action": "fix_tests",
+                            "error": results.get("error"),
+                            "retry_count": 0,
+                        }
+                    ),
                 )
                 logger.info(f"🔄 Re-queued {tool_name} for auto-fix")
 
@@ -170,11 +172,7 @@ class ContinuousTester:
             cursor = 0
 
             while True:
-                cursor, keys = await self.redis_client.scan(
-                    cursor,
-                    match="tool:*",
-                    count=100
-                )
+                cursor, keys = await self.redis_client.scan(cursor, match="tool:*", count=100)
 
                 for key in keys:
                     status = await self.redis_client.hget(key, "status")
@@ -202,17 +200,17 @@ class ContinuousTester:
         # Subscribe to completion events
         pubsub = await self.subscribe_to_completions()
 
-        check_interval = int(os.getenv('CHECK_INTERVAL', '60'))
+        check_interval = int(os.getenv("CHECK_INTERVAL", "60"))
 
         while True:
             try:
                 # Check for event-driven notifications
                 message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=5)
 
-                if message and message['type'] == 'message':
-                    event = json.loads(message['data'])
-                    tool_name = event.get('tool_name')
-                    category = event.get('category', 'unknown')
+                if message and message["type"] == "message":
+                    event = json.loads(message["data"])
+                    tool_name = event.get("tool_name")
+                    category = event.get("category", "unknown")
 
                     # Run tests
                     results = await self.test_tool(tool_name, category)
@@ -223,7 +221,7 @@ class ContinuousTester:
 
                 for tool_name in tools_needing_tests[:5]:  # Process up to 5 at a time
                     tool_data = await self.redis_client.hgetall(f"tool:{tool_name}")
-                    category = tool_data.get('category', 'unknown')
+                    category = tool_data.get("category", "unknown")
 
                     results = await self.test_tool(tool_name, category)
                     await self.process_test_results(results)

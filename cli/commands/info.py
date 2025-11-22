@@ -16,14 +16,14 @@ from ..utils.formatters import format_json, format_yaml
 
 def get_tool_info(tool_name: str) -> Dict[str, Any]:
     """Get detailed information about a tool."""
-    tools_dir = Path(__file__).parent.parent.parent / 'tools'
+    tools_dir = Path(__file__).parent.parent.parent / "tools"
 
     # Find the tool file
     tool_file = None
     category = None
 
     for category_dir in tools_dir.iterdir():
-        if not category_dir.is_dir() or category_dir.name.startswith('_'):
+        if not category_dir.is_dir() or category_dir.name.startswith("_"):
             continue
 
         potential_file = category_dir / f"{tool_name}.py"
@@ -43,7 +43,7 @@ def get_tool_info(tool_name: str) -> Dict[str, Any]:
         # Find the tool class (should be a subclass of BaseTool)
         tool_class = None
         for name, obj in inspect.getmembers(module, inspect.isclass):
-            if hasattr(obj, 'tool_name') and not name.startswith('_'):
+            if hasattr(obj, "tool_name") and not name.startswith("_"):
                 tool_class = obj
                 break
 
@@ -52,23 +52,23 @@ def get_tool_info(tool_name: str) -> Dict[str, Any]:
 
         # Extract information
         info = {
-            'name': tool_name,
-            'category': category,
-            'class_name': tool_class.__name__,
-            'description': inspect.getdoc(tool_class) or "No description available",
-            'path': str(tool_file),
-            'fields': {},
+            "name": tool_name,
+            "category": category,
+            "class_name": tool_class.__name__,
+            "description": inspect.getdoc(tool_class) or "No description available",
+            "path": str(tool_file),
+            "fields": {},
         }
 
         # Get field information from Pydantic model
-        if hasattr(tool_class, 'model_fields'):
+        if hasattr(tool_class, "model_fields"):
             for field_name, field_info in tool_class.model_fields.items():
-                if field_name in ['tool_name', 'tool_category']:
+                if field_name in ["tool_name", "tool_category"]:
                     continue
-                info['fields'][field_name] = {
-                    'type': str(field_info.annotation),
-                    'required': field_info.is_required(),
-                    'description': field_info.description or "",
+                info["fields"][field_name] = {
+                    "type": str(field_info.annotation),
+                    "required": field_info.is_required(),
+                    "description": field_info.description or "",
                 }
 
         return info
@@ -82,9 +82,9 @@ def execute(args) -> int:
     try:
         info = get_tool_info(args.tool)
 
-        if args.format == 'json':
+        if args.format == "json":
             print(json.dumps(info, indent=2))
-        elif args.format == 'yaml':
+        elif args.format == "yaml":
             print(yaml.dump(info, default_flow_style=False))
         else:
             # Text format
@@ -96,15 +96,15 @@ def execute(args) -> int:
             print(f"Path:        {info['path']}")
             print(f"\nDescription:\n{info['description']}\n")
 
-            if info['fields']:
+            if info["fields"]:
                 print("Parameters:")
                 print("-" * 60)
-                for field_name, field_data in info['fields'].items():
-                    required = "Required" if field_data['required'] else "Optional"
+                for field_name, field_data in info["fields"].items():
+                    required = "Required" if field_data["required"] else "Optional"
                     print(f"  {field_name}")
                     print(f"    Type:        {field_data['type']}")
                     print(f"    Required:    {required}")
-                    if field_data['description']:
+                    if field_data["description"]:
                         print(f"    Description: {field_data['description']}")
                     print()
 

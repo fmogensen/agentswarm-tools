@@ -40,24 +40,16 @@ class TextFormatter(BaseTool):
     tool_category: str = "utils"
 
     # Parameters
-    text: str = Field(
-        ...,
-        description="Text to format",
-        min_length=1
-    )
+    text: str = Field(..., description="Text to format", min_length=1)
     operations: List[str] = Field(
         ...,
         description="List of operations: trim, lowercase, uppercase, title, remove_whitespace, remove_punctuation, normalize_spaces, remove_numbers, remove_special_chars",
-        min_items=1
+        min_items=1,
     )
     custom_replacements: Optional[Dict[str, str]] = Field(
-        None,
-        description="Optional custom find/replace pairs"
+        None, description="Optional custom find/replace pairs"
     )
-    strip_html: bool = Field(
-        False,
-        description="Whether to strip HTML tags"
-    )
+    strip_html: bool = Field(False, description="Whether to strip HTML tags")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute text formatting."""
@@ -79,8 +71,8 @@ class TextFormatter(BaseTool):
                     "tool_name": self.tool_name,
                     "operations_count": len(self.operations),
                     "operations_applied": self.operations,
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"Text formatting failed: {e}", tool_name=self.tool_name)
@@ -96,7 +88,7 @@ class TextFormatter(BaseTool):
             "remove_punctuation",
             "normalize_spaces",
             "remove_numbers",
-            "remove_special_chars"
+            "remove_special_chars",
         ]
 
         for operation in self.operations:
@@ -104,14 +96,12 @@ class TextFormatter(BaseTool):
                 raise ValidationError(
                     f"Invalid operation '{operation}'. Must be one of {valid_operations}",
                     tool_name=self.tool_name,
-                    field="operations"
+                    field="operations",
                 )
 
         if not self.text or not isinstance(self.text, str):
             raise ValidationError(
-                "text must be a non-empty string",
-                tool_name=self.tool_name,
-                field="text"
+                "text must be a non-empty string", tool_name=self.tool_name, field="text"
             )
 
     def _should_use_mock(self) -> bool:
@@ -128,13 +118,13 @@ class TextFormatter(BaseTool):
                 "operations_applied": self.operations,
                 "changes_made": len(self.operations),
                 "original_length": len(self.text),
-                "formatted_length": 25
+                "formatted_length": 25,
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
-                "operations_count": len(self.operations)
-            }
+                "operations_count": len(self.operations),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -170,18 +160,18 @@ class TextFormatter(BaseTool):
                 formatted_text = formatted_text.replace(" ", "").replace("\t", "").replace("\n", "")
 
             elif operation == "remove_punctuation":
-                formatted_text = re.sub(r'[^\w\s]', '', formatted_text)
+                formatted_text = re.sub(r"[^\w\s]", "", formatted_text)
 
             elif operation == "normalize_spaces":
                 # Replace multiple spaces with single space
-                formatted_text = re.sub(r'\s+', ' ', formatted_text)
+                formatted_text = re.sub(r"\s+", " ", formatted_text)
 
             elif operation == "remove_numbers":
-                formatted_text = re.sub(r'\d+', '', formatted_text)
+                formatted_text = re.sub(r"\d+", "", formatted_text)
 
             elif operation == "remove_special_chars":
                 # Keep only alphanumeric and spaces
-                formatted_text = re.sub(r'[^a-zA-Z0-9\s]', '', formatted_text)
+                formatted_text = re.sub(r"[^a-zA-Z0-9\s]", "", formatted_text)
 
             if before != formatted_text:
                 changes_log.append(f"Applied {operation}")
@@ -202,13 +192,13 @@ class TextFormatter(BaseTool):
             "changes_log": changes_log,
             "original_length": len(original_text),
             "formatted_length": len(formatted_text),
-            "length_change": len(formatted_text) - len(original_text)
+            "length_change": len(formatted_text) - len(original_text),
         }
 
     def _strip_html_tags(self, text: str) -> str:
         """Remove HTML tags from text."""
         # Simple HTML tag removal
-        clean_text = re.sub(r'<[^>]+>', '', text)
+        clean_text = re.sub(r"<[^>]+>", "", text)
         return clean_text
 
 
@@ -218,12 +208,9 @@ if __name__ == "__main__":
     # Test with mock mode
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = TextFormatter(
-        text="  Hello World!  ",
-        operations=["trim", "lowercase"]
-    )
+    tool = TextFormatter(text="  Hello World!  ", operations=["trim", "lowercase"])
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True
+    assert result.get("success") == True
     print("TextFormatter test passed!")

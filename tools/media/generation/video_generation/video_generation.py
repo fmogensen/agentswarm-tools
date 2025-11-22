@@ -32,9 +32,7 @@ class VideoGeneration(BaseTool):
 
     tool_name: str = "video_generation"
     tool_category: str = "media"
-    tool_description: str = (
-        "Generate 5-10 second video clips from text or reference images"
-    )
+    tool_description: str = "Generate 5-10 second video clips from text or reference images"
 
     prompt: str = Field(
         ...,
@@ -140,9 +138,7 @@ class VideoGeneration(BaseTool):
 
             # This is where a real API call would go
             # For example: response = external_video_api.generate(...)
-            video_uri = (
-                f"https://api.example.com/generated_video/{hash(self.prompt) % 999999}"
-            )
+            video_uri = f"https://api.example.com/generated_video/{hash(self.prompt) % 999999}"
 
             duration = self.params.get("duration", 6)
 
@@ -153,9 +149,7 @@ class VideoGeneration(BaseTool):
             }
 
         except Exception as e:
-            raise APIError(
-                f"Video generation API failed: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Video generation API failed: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":
@@ -164,12 +158,10 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = VideoGeneration(
-        prompt="a drone flying over mountains",
-        params={"duration": 7}
-    )
+    tool = VideoGeneration(prompt="a drone flying over mountains", params={"duration": 7})
     result = tool.run()
 
     print(f"Success: {result.get('success')}")

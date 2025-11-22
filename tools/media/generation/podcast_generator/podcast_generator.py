@@ -75,66 +75,44 @@ class PodcastGenerator(BaseTool):
         ...,
         description="Main topic or subject of the podcast episode",
         min_length=1,
-        max_length=500
+        max_length=500,
     )
 
     duration_minutes: int = Field(
-        10,
-        description="Target duration of the podcast in minutes",
-        ge=1,
-        le=60
+        10, description="Target duration of the podcast in minutes", ge=1, le=60
     )
 
-    num_speakers: int = Field(
-        2,
-        description="Number of speakers in the podcast",
-        ge=1,
-        le=4
-    )
+    num_speakers: int = Field(2, description="Number of speakers in the podcast", ge=1, le=4)
 
     speaker_personalities: List[str] = Field(
         ...,
-        description="List of personality descriptions for each speaker (e.g., ['enthusiastic host', 'expert guest'])"
+        description="List of personality descriptions for each speaker (e.g., ['enthusiastic host', 'expert guest'])",
     )
 
     script_content: Optional[str] = Field(
         None,
-        description="Optional pre-written script. If not provided, script will be auto-generated"
+        description="Optional pre-written script. If not provided, script will be auto-generated",
     )
 
     # Audio mixing parameters
-    background_music: bool = Field(
-        True,
-        description="Whether to include background music"
-    )
+    background_music: bool = Field(True, description="Whether to include background music")
 
     music_style: Literal["upbeat", "calm", "corporate", "none"] = Field(
-        "upbeat",
-        description="Style of background music to use"
+        "upbeat", description="Style of background music to use"
     )
 
-    output_format: Literal["mp3", "wav"] = Field(
-        "mp3",
-        description="Output audio format"
-    )
+    output_format: Literal["mp3", "wav"] = Field("mp3", description="Output audio format")
 
     # Segment parameters
-    add_intro: bool = Field(
-        True,
-        description="Whether to add an intro segment to the podcast"
-    )
+    add_intro: bool = Field(True, description="Whether to add an intro segment to the podcast")
 
-    add_outro: bool = Field(
-        True,
-        description="Whether to add an outro segment to the podcast"
-    )
+    add_outro: bool = Field(True, description="Whether to add an outro segment to the podcast")
 
     voice_consistency: bool = Field(
-        True,
-        description="Ensure consistent voice characteristics throughout the episode"
+        True, description="Ensure consistent voice characteristics throughout the episode"
     )
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def validate_speaker_personalities(self):
         """Validate that speaker_personalities matches num_speakers."""
         if len(self.speaker_personalities) != self.num_speakers:
@@ -146,9 +124,7 @@ class PodcastGenerator(BaseTool):
         # Validate each personality description
         for i, personality in enumerate(self.speaker_personalities):
             if not personality or not isinstance(personality, str):
-                raise ValueError(
-                    f"Speaker personality at index {i} must be a non-empty string"
-                )
+                raise ValueError(f"Speaker personality at index {i} must be a non-empty string")
             if len(personality) > 200:
                 raise ValueError(
                     f"Speaker personality at index {i} is too long (max 200 characters)"
@@ -156,7 +132,7 @@ class PodcastGenerator(BaseTool):
 
         return self
 
-    @field_validator('script_content')
+    @field_validator("script_content")
     @classmethod
     def validate_script_content(cls, v):
         """Validate script content if provided."""
@@ -164,9 +140,7 @@ class PodcastGenerator(BaseTool):
             if not isinstance(v, str):
                 raise ValueError("script_content must be a string")
             if len(v) > 50000:
-                raise ValueError(
-                    "script_content is too long (max 50000 characters)"
-                )
+                raise ValueError("script_content is too long (max 50000 characters)")
         return v
 
     def _execute(self) -> Dict[str, Any]:
@@ -193,13 +167,10 @@ class PodcastGenerator(BaseTool):
                 "duration_seconds": result["duration_seconds"],
                 "speakers_used": result["speakers_used"],
                 "transcript": result["transcript"],
-                "metadata": result["metadata"]
+                "metadata": result["metadata"],
             }
         except Exception as e:
-            raise APIError(
-                f"Podcast generation failed: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Podcast generation failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """
@@ -212,9 +183,7 @@ class PodcastGenerator(BaseTool):
         # Validate topic
         if not self.topic or not self.topic.strip():
             raise ValidationError(
-                "Topic must be a non-empty string",
-                tool_name=self.tool_name,
-                field="topic"
+                "Topic must be a non-empty string", tool_name=self.tool_name, field="topic"
             )
 
         # Validate duration
@@ -223,7 +192,7 @@ class PodcastGenerator(BaseTool):
                 "duration_minutes must be between 1 and 60",
                 tool_name=self.tool_name,
                 field="duration_minutes",
-                details={"duration_minutes": self.duration_minutes}
+                details={"duration_minutes": self.duration_minutes},
             )
 
         # Validate num_speakers
@@ -232,7 +201,7 @@ class PodcastGenerator(BaseTool):
                 "num_speakers must be between 1 and 4",
                 tool_name=self.tool_name,
                 field="num_speakers",
-                details={"num_speakers": self.num_speakers}
+                details={"num_speakers": self.num_speakers},
             )
 
         # Validate speaker_personalities count
@@ -241,10 +210,7 @@ class PodcastGenerator(BaseTool):
                 f"speaker_personalities must contain exactly {self.num_speakers} entries",
                 tool_name=self.tool_name,
                 field="speaker_personalities",
-                details={
-                    "expected": self.num_speakers,
-                    "got": len(self.speaker_personalities)
-                }
+                details={"expected": self.num_speakers, "got": len(self.speaker_personalities)},
             )
 
         # Check for API keys in production mode
@@ -254,7 +220,7 @@ class PodcastGenerator(BaseTool):
                 raise ConfigurationError(
                     "OPENAI_API_KEY environment variable is required for podcast generation",
                     tool_name=self.tool_name,
-                    config_key="OPENAI_API_KEY"
+                    config_key="OPENAI_API_KEY",
                 )
 
     def _should_use_mock(self) -> bool:
@@ -281,16 +247,14 @@ class PodcastGenerator(BaseTool):
         voice_models = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
         for i, personality in enumerate(self.speaker_personalities):
-            speakers_used.append({
-                "speaker_id": f"speaker_{i+1}",
-                "personality": personality,
-                "voice_model": voice_models[i % len(voice_models)],
-                "voice_settings": {
-                    "stability": 0.75,
-                    "similarity_boost": 0.8,
-                    "speed": 1.0
+            speakers_used.append(
+                {
+                    "speaker_id": f"speaker_{i+1}",
+                    "personality": personality,
+                    "voice_model": voice_models[i % len(voice_models)],
+                    "voice_settings": {"stability": 0.75, "similarity_boost": 0.8, "speed": 1.0},
                 }
-            })
+            )
 
         return {
             "success": True,
@@ -311,8 +275,8 @@ class PodcastGenerator(BaseTool):
                 "has_intro": self.add_intro,
                 "has_outro": self.add_outro,
                 "generated_at": datetime.now(timezone.utc).isoformat(),
-                "mock_mode": True
-            }
+                "mock_mode": True,
+            },
         }
 
     def _generate_mock_transcript(self) -> str:
@@ -326,7 +290,11 @@ class PodcastGenerator(BaseTool):
         # Generate conversation based on script or topic
         if self.script_content:
             lines.append("[PODCAST CONTENT - Using provided script]")
-            lines.append(self.script_content[:500] + "..." if len(self.script_content) > 500 else self.script_content)
+            lines.append(
+                self.script_content[:500] + "..."
+                if len(self.script_content) > 500
+                else self.script_content
+            )
         else:
             lines.append(f"[PODCAST CONTENT - Generated conversation about: {self.topic}]")
             lines.append("")
@@ -334,17 +302,25 @@ class PodcastGenerator(BaseTool):
             for i, personality in enumerate(self.speaker_personalities):
                 speaker_name = f"Speaker {i+1} ({personality})"
                 if i == 0:
-                    lines.append(f"{speaker_name}: Welcome to today's episode about {self.topic}. "
-                               f"I'm excited to dive into this fascinating topic.")
+                    lines.append(
+                        f"{speaker_name}: Welcome to today's episode about {self.topic}. "
+                        f"I'm excited to dive into this fascinating topic."
+                    )
                 elif i == 1:
-                    lines.append(f"{speaker_name}: Thanks for having me! I'm looking forward to "
-                               f"discussing {self.topic} and sharing some insights.")
+                    lines.append(
+                        f"{speaker_name}: Thanks for having me! I'm looking forward to "
+                        f"discussing {self.topic} and sharing some insights."
+                    )
                 else:
-                    lines.append(f"{speaker_name}: Great to be here and contribute to this "
-                               f"important conversation.")
+                    lines.append(
+                        f"{speaker_name}: Great to be here and contribute to this "
+                        f"important conversation."
+                    )
 
             lines.append("")
-            lines.append(f"[...conversation continues for approximately {self.duration_minutes} minutes...]")
+            lines.append(
+                f"[...conversation continues for approximately {self.duration_minutes} minutes...]"
+            )
 
         if self.add_outro:
             lines.append("")
@@ -378,7 +354,7 @@ class PodcastGenerator(BaseTool):
                 raise ConfigurationError(
                     "OPENAI_API_KEY environment variable is required",
                     tool_name=self.tool_name,
-                    config_key="OPENAI_API_KEY"
+                    config_key="OPENAI_API_KEY",
                 )
 
             # Generate unique podcast ID
@@ -403,10 +379,7 @@ class PodcastGenerator(BaseTool):
                 audio_segments.append(outro_segment)
 
             # Step 5: Mix audio with background music
-            final_audio_url = self._mix_audio_segments(
-                audio_segments,
-                podcast_id
-            )
+            final_audio_url = self._mix_audio_segments(audio_segments, podcast_id)
 
             # Step 6: Calculate final duration
             total_duration = sum(seg.get("duration", 0) for seg in audio_segments)
@@ -428,7 +401,7 @@ class PodcastGenerator(BaseTool):
                 "has_intro": self.add_intro,
                 "has_outro": self.add_outro,
                 "generated_at": datetime.now(timezone.utc).isoformat(),
-                "processing_time_seconds": 0  # Would be calculated in real implementation
+                "processing_time_seconds": 0,  # Would be calculated in real implementation
             }
 
             return {
@@ -436,7 +409,7 @@ class PodcastGenerator(BaseTool):
                 "duration_seconds": int(total_duration),
                 "speakers_used": speakers_config,
                 "transcript": transcript,
-                "metadata": metadata
+                "metadata": metadata,
             }
 
         except ConfigurationError:
@@ -445,7 +418,7 @@ class PodcastGenerator(BaseTool):
             raise APIError(
                 f"Podcast generation failed: {str(e)}",
                 tool_name=self.tool_name,
-                api_name="OpenAI TTS"
+                api_name="OpenAI TTS",
             )
 
     def _generate_or_validate_script(self) -> Dict[str, Any]:
@@ -478,16 +451,16 @@ class PodcastGenerator(BaseTool):
                 {
                     "speaker_index": 0,
                     "text": f"Welcome to today's episode about {self.topic}.",
-                    "duration_estimate": 5
+                    "duration_estimate": 5,
                 },
                 {
                     "speaker_index": 1,
                     "text": f"Thanks for having me! Let's explore {self.topic}.",
-                    "duration_estimate": 4
-                }
+                    "duration_estimate": 4,
+                },
             ],
             "total_segments": 2,
-            "estimated_duration": 9
+            "estimated_duration": 9,
         }
 
         return script
@@ -504,32 +477,36 @@ class PodcastGenerator(BaseTool):
         """
         # Simple parsing logic - in production this would be more sophisticated
         segments = []
-        lines = script_content.split('\n')
+        lines = script_content.split("\n")
 
         for line in lines:
             if line.strip():
                 # Simple format: "Speaker 1: text"
-                if ':' in line:
-                    speaker_part, text = line.split(':', 1)
+                if ":" in line:
+                    speaker_part, text = line.split(":", 1)
                     speaker_index = 0  # Default to first speaker
 
                     # Extract speaker number if present
-                    if 'speaker' in speaker_part.lower():
+                    if "speaker" in speaker_part.lower():
                         try:
-                            speaker_index = int(speaker_part.lower().replace('speaker', '').strip()) - 1
+                            speaker_index = (
+                                int(speaker_part.lower().replace("speaker", "").strip()) - 1
+                            )
                         except ValueError:
                             pass
 
-                    segments.append({
-                        "speaker_index": speaker_index,
-                        "text": text.strip(),
-                        "duration_estimate": len(text.split()) * 0.5  # ~0.5 seconds per word
-                    })
+                    segments.append(
+                        {
+                            "speaker_index": speaker_index,
+                            "text": text.strip(),
+                            "duration_estimate": len(text.split()) * 0.5,  # ~0.5 seconds per word
+                        }
+                    )
 
         return {
             "segments": segments,
             "total_segments": len(segments),
-            "estimated_duration": sum(s["duration_estimate"] for s in segments)
+            "estimated_duration": sum(s["duration_estimate"] for s in segments),
         }
 
     def _assign_speaker_voices(self) -> List[Dict[str, Any]]:
@@ -548,23 +525,23 @@ class PodcastGenerator(BaseTool):
             # In production, this could be more sophisticated
             voice_model = voice_options[i % len(voice_options)]
 
-            speakers_config.append({
-                "speaker_id": f"speaker_{i+1}",
-                "personality": personality,
-                "voice_model": voice_model,
-                "voice_settings": {
-                    "model": "tts-1-hd" if self.voice_consistency else "tts-1",
-                    "voice": voice_model,
-                    "speed": 1.0
+            speakers_config.append(
+                {
+                    "speaker_id": f"speaker_{i+1}",
+                    "personality": personality,
+                    "voice_model": voice_model,
+                    "voice_settings": {
+                        "model": "tts-1-hd" if self.voice_consistency else "tts-1",
+                        "voice": voice_model,
+                        "speed": 1.0,
+                    },
                 }
-            })
+            )
 
         return speakers_config
 
     def _generate_audio_segments(
-        self,
-        script: Dict[str, Any],
-        speakers_config: List[Dict[str, Any]]
+        self, script: Dict[str, Any], speakers_config: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
         Generate audio for each script segment using OpenAI TTS.
@@ -586,13 +563,15 @@ class PodcastGenerator(BaseTool):
             speaker_idx = segment["speaker_index"]
             speaker_config = speakers_config[speaker_idx]
 
-            segments.append({
-                "speaker_id": speaker_config["speaker_id"],
-                "text": segment["text"],
-                "audio_file": f"/tmp/segment_{uuid.uuid4()}.{self.output_format}",
-                "duration": segment["duration_estimate"],
-                "voice_model": speaker_config["voice_model"]
-            })
+            segments.append(
+                {
+                    "speaker_id": speaker_config["speaker_id"],
+                    "text": segment["text"],
+                    "audio_file": f"/tmp/segment_{uuid.uuid4()}.{self.output_format}",
+                    "duration": segment["duration_estimate"],
+                    "voice_model": speaker_config["voice_model"],
+                }
+            )
 
         return segments
 
@@ -608,7 +587,7 @@ class PodcastGenerator(BaseTool):
             "type": "intro",
             "audio_file": f"/tmp/intro_{uuid.uuid4()}.{self.output_format}",
             "duration": 15,
-            "has_music": True
+            "has_music": True,
         }
 
     def _generate_outro_segment(self) -> Dict[str, Any]:
@@ -623,14 +602,10 @@ class PodcastGenerator(BaseTool):
             "type": "outro",
             "audio_file": f"/tmp/outro_{uuid.uuid4()}.{self.output_format}",
             "duration": 10,
-            "has_music": True
+            "has_music": True,
         }
 
-    def _mix_audio_segments(
-        self,
-        segments: List[Dict[str, Any]],
-        podcast_id: str
-    ) -> str:
+    def _mix_audio_segments(self, segments: List[Dict[str, Any]], podcast_id: str) -> str:
         """
         Mix all audio segments with background music.
 
@@ -687,6 +662,7 @@ if __name__ == "__main__":
 
     # Enable mock mode for testing
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test Case 1: Basic 2-speaker podcast
@@ -698,7 +674,7 @@ if __name__ == "__main__":
         num_speakers=2,
         speaker_personalities=["enthusiastic tech host", "AI researcher expert"],
         background_music=True,
-        music_style="upbeat"
+        music_style="upbeat",
     )
     result1 = tool1.run()
 
@@ -709,7 +685,7 @@ if __name__ == "__main__":
     print(f"Format: {result1.get('metadata', {}).get('format')}")
     print(f"File Size: {result1.get('metadata', {}).get('file_size_mb')} MB")
     print("\nTranscript Preview:")
-    transcript1 = result1.get('transcript', '')
+    transcript1 = result1.get("transcript", "")
     print(transcript1[:300] + "..." if len(transcript1) > 300 else transcript1)
 
     # Test Case 2: 3-speaker panel with custom script
@@ -727,13 +703,13 @@ Speaker 1: Let's dive right in. What are the most pressing challenges we face?""
         speaker_personalities=[
             "professional moderator",
             "environmental scientist",
-            "policy expert"
+            "policy expert",
         ],
         script_content=custom_script,
         background_music=True,
         music_style="calm",
         add_intro=True,
-        add_outro=True
+        add_outro=True,
     )
     result2 = tool2.run()
 
@@ -754,7 +730,7 @@ Speaker 1: Let's dive right in. What are the most pressing challenges we face?""
         music_style="calm",
         output_format="wav",
         add_intro=False,
-        add_outro=False
+        add_outro=False,
     )
     result3 = tool3.run()
 
@@ -774,11 +750,11 @@ Speaker 1: Let's dive right in. What are the most pressing challenges we face?""
             "startup founder",
             "venture capitalist",
             "angel investor",
-            "business advisor"
+            "business advisor",
         ],
         background_music=False,
         music_style="none",
-        voice_consistency=True
+        voice_consistency=True,
     )
     result4 = tool4.run()
 
@@ -795,7 +771,7 @@ Speaker 1: Let's dive right in. What are the most pressing challenges we face?""
             topic="Test Topic",
             duration_minutes=10,
             num_speakers=3,
-            speaker_personalities=["host", "guest"]  # Only 2 personalities for 3 speakers
+            speaker_personalities=["host", "guest"],  # Only 2 personalities for 3 speakers
         )
         result5 = tool5.run()
     except Exception as e:

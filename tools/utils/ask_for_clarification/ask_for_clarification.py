@@ -114,6 +114,7 @@ if __name__ == "__main__":
     print("Testing AskForClarification...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic clarification request
@@ -121,8 +122,8 @@ if __name__ == "__main__":
     tool = AskForClarification(question="What file format would you like for the output?")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'question' in result.get('result', {})
+    assert result.get("success") == True
+    assert "question" in result.get("result", {})
     print(f"✅ Test 1 passed: {result.get('result', {}).get('message')}")
     print(f"   Question: {result.get('result', {}).get('question')}")
 
@@ -133,7 +134,7 @@ if __name__ == "__main__":
     )
     result = tool.run()
 
-    assert result.get('success') == True
+    assert result.get("success") == True
     print(f"✅ Test 2 passed: Multi-option question created")
 
     # Test 3: Validation - empty question
@@ -152,8 +153,8 @@ if __name__ == "__main__":
     )
     result = tool.run()
 
-    assert result.get('success') == True
-    assert result.get('result', {}).get('awaiting_user_response') == True
+    assert result.get("success") == True
+    assert result.get("result", {}).get("awaiting_user_response") == True
     print(f"✅ Test 4 passed: Parameter clarification created")
 
     print("\n✅ All tests passed!")

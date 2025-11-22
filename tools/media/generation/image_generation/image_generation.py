@@ -36,14 +36,10 @@ class ImageGeneration(BaseTool):
 
     tool_name: str = "image_generation"
     tool_category: str = "media"
-    tool_description: str = (
-        "Generate new images from text descriptions or reference images"
-    )
+    tool_description: str = "Generate new images from text descriptions or reference images"
 
     # Parameters
-    prompt: str = Field(
-        ..., description="Description of what to generate", min_length=1
-    )
+    prompt: str = Field(..., description="Description of what to generate", min_length=1)
     params: Dict[str, Any] = Field(
         default_factory=dict, description="Additional generation parameters"
     )
@@ -86,11 +82,7 @@ class ImageGeneration(BaseTool):
         Raises:
             ValidationError: If parameters are invalid
         """
-        if (
-            not self.prompt
-            or not isinstance(self.prompt, str)
-            or not self.prompt.strip()
-        ):
+        if not self.prompt or not isinstance(self.prompt, str) or not self.prompt.strip():
             raise ValidationError(
                 "Prompt cannot be empty",
                 tool_name=self.tool_name,
@@ -175,11 +167,11 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = ImageGeneration(
-        prompt="a futuristic city at sunset",
-        params={"size": "1024x1024", "steps": 50}
+        prompt="a futuristic city at sunset", params={"size": "1024x1024", "steps": 50}
     )
     result = tool.run()
 

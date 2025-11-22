@@ -23,19 +23,19 @@ def prompt_for_params(tool_class: Type) -> Dict[str, Any]:
     print(f"\nEnter parameters for {tool_class.__name__}:")
     print("=" * 60)
 
-    if not hasattr(tool_class, 'model_fields'):
+    if not hasattr(tool_class, "model_fields"):
         return params
 
     for field_name, field_info in tool_class.model_fields.items():
         # Skip tool metadata fields
-        if field_name in ['tool_name', 'tool_category']:
+        if field_name in ["tool_name", "tool_category"]:
             continue
 
         # Get field information
         field_type = field_info.annotation
         is_required = field_info.is_required()
         description = field_info.description or ""
-        default = field_info.default if hasattr(field_info, 'default') else None
+        default = field_info.default if hasattr(field_info, "default") else None
 
         # Build prompt
         prompt_parts = [f"\n{field_name}"]
@@ -44,7 +44,7 @@ def prompt_for_params(tool_class: Type) -> Dict[str, Any]:
             prompt_parts.append(f"  ({description})")
 
         # Add type hint
-        type_str = str(field_type).replace('typing.', '')
+        type_str = str(field_type).replace("typing.", "")
         prompt_parts.append(f"  Type: {type_str}")
 
         if is_required:
@@ -55,7 +55,7 @@ def prompt_for_params(tool_class: Type) -> Dict[str, Any]:
         prompt_parts.append("\n  > ")
 
         # Show prompt
-        print("\n".join(prompt_parts), end='')
+        print("\n".join(prompt_parts), end="")
 
         # Get input
         value = input().strip()
@@ -101,14 +101,16 @@ def convert_input_value(value: str, field_type: Type) -> Any:
         elif field_type == float:
             return float(value)
         elif field_type == bool:
-            return value.lower() in ('true', 'yes', '1', 't', 'y')
+            return value.lower() in ("true", "yes", "1", "t", "y")
         else:
             # Try to parse as JSON for complex types
             import json
+
             return json.loads(value)
     else:
         # Complex type (Optional, List, Dict, etc.)
         import json
+
         return json.loads(value)
 
 
@@ -129,7 +131,7 @@ def confirm(prompt: str, default: bool = False) -> bool:
     if not response:
         return default
 
-    return response in ('y', 'yes')
+    return response in ("y", "yes")
 
 
 def select_from_list(items: list, prompt: str = "Select an option") -> Any:

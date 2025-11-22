@@ -15,9 +15,7 @@ class TestGoogleCalendarDeleteEvent:
 
     def test_delete_event_default(self):
         """Test deleting event with default settings."""
-        tool = GoogleCalendarDeleteEvent(
-            event_id="test-123"
-        )
+        tool = GoogleCalendarDeleteEvent(event_id="test-123")
         result = tool.run()
 
         assert result["success"] == True
@@ -27,10 +25,7 @@ class TestGoogleCalendarDeleteEvent:
 
     def test_delete_event_no_notifications(self):
         """Test deleting event without sending notifications."""
-        tool = GoogleCalendarDeleteEvent(
-            event_id="test-123",
-            send_updates="none"
-        )
+        tool = GoogleCalendarDeleteEvent(event_id="test-123", send_updates="none")
         result = tool.run()
 
         assert result["success"] == True
@@ -38,10 +33,7 @@ class TestGoogleCalendarDeleteEvent:
 
     def test_delete_event_external_only(self):
         """Test deleting event with external notifications only."""
-        tool = GoogleCalendarDeleteEvent(
-            event_id="test-123",
-            send_updates="externalOnly"
-        )
+        tool = GoogleCalendarDeleteEvent(event_id="test-123", send_updates="externalOnly")
         result = tool.run()
 
         assert result["success"] == True
@@ -50,25 +42,18 @@ class TestGoogleCalendarDeleteEvent:
     def test_validation_empty_event_id(self):
         """Test validation for empty event ID."""
         with pytest.raises(ValidationError):
-            tool = GoogleCalendarDeleteEvent(
-                event_id=""
-            )
+            tool = GoogleCalendarDeleteEvent(event_id="")
             tool.run()
 
     def test_validation_invalid_send_updates(self):
         """Test validation for invalid send_updates value."""
         with pytest.raises(ValidationError):
-            tool = GoogleCalendarDeleteEvent(
-                event_id="test-123",
-                send_updates="invalid"
-            )
+            tool = GoogleCalendarDeleteEvent(event_id="test-123", send_updates="invalid")
             tool.run()
 
     def test_mock_mode(self):
         """Test mock mode returns expected structure."""
-        tool = GoogleCalendarDeleteEvent(
-            event_id="test-123"
-        )
+        tool = GoogleCalendarDeleteEvent(event_id="test-123")
         result = tool.run()
 
         assert result["metadata"]["mock_mode"] == True

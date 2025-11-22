@@ -21,8 +21,8 @@ def load_params_from_file(file_path: str) -> Dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Parameter file not found: {file_path}")
 
-    with open(path, 'r') as f:
-        if path.suffix in ['.yaml', '.yml']:
+    with open(path, "r") as f:
+        if path.suffix in [".yaml", ".yml"]:
             return yaml.safe_load(f)
         else:
             return json.load(f)
@@ -30,14 +30,14 @@ def load_params_from_file(file_path: str) -> Dict[str, Any]:
 
 def get_tool_class(tool_name: str):
     """Import and return the tool class."""
-    tools_dir = Path(__file__).parent.parent.parent / 'tools'
+    tools_dir = Path(__file__).parent.parent.parent / "tools"
 
     # Find the tool file
     tool_file = None
     category = None
 
     for category_dir in tools_dir.iterdir():
-        if not category_dir.is_dir() or category_dir.name.startswith('_'):
+        if not category_dir.is_dir() or category_dir.name.startswith("_"):
             continue
 
         potential_file = category_dir / f"{tool_name}.py"
@@ -55,7 +55,7 @@ def get_tool_class(tool_name: str):
 
     # Find the tool class
     for name, obj in inspect.getmembers(module, inspect.isclass):
-        if hasattr(obj, 'tool_name') and not name.startswith('_'):
+        if hasattr(obj, "tool_name") and not name.startswith("_"):
             return obj
 
     raise ValueError(f"No valid tool class found in {tool_name}")
@@ -74,7 +74,7 @@ def execute(args) -> int:
             params = prompt_for_params(tool_class)
         elif args.params:
             # Load from file or parse JSON
-            if args.params.startswith('@'):
+            if args.params.startswith("@"):
                 file_path = args.params[1:]
                 params = load_params_from_file(file_path)
             else:
@@ -93,9 +93,9 @@ def execute(args) -> int:
         result = tool_instance.run()
 
         # Format output
-        if args.format == 'json':
+        if args.format == "json":
             output = json.dumps(result, indent=2)
-        elif args.format == 'yaml':
+        elif args.format == "yaml":
             output = yaml.dump(result, default_flow_style=False)
         else:
             output = str(result)
@@ -119,5 +119,6 @@ def execute(args) -> int:
     except Exception as e:
         print(f"Error running tool: {e}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
         return 1

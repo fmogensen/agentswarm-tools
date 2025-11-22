@@ -36,16 +36,10 @@ class TestJsonValidator:
         schema = {
             "type": "object",
             "required": ["name", "age"],
-            "properties": {
-                "name": {"type": "string"},
-                "age": {"type": "number"}
-            }
+            "properties": {"name": {"type": "string"}, "age": {"type": "number"}},
         }
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = JsonValidator(
-            json_data='{"name": "John", "age": 30}',
-            schema=schema
-        )
+        tool = JsonValidator(json_data='{"name": "John", "age": 30}', schema=schema)
         result = tool.run()
 
         assert result["success"] == True
@@ -56,16 +50,10 @@ class TestJsonValidator:
         schema = {
             "type": "object",
             "required": ["name", "age", "email"],  # email is required but missing
-            "properties": {
-                "name": {"type": "string"},
-                "age": {"type": "number"}
-            }
+            "properties": {"name": {"type": "string"}, "age": {"type": "number"}},
         }
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = JsonValidator(
-            json_data='{"name": "John", "age": 30}',
-            schema=schema
-        )
+        tool = JsonValidator(json_data='{"name": "John", "age": 30}', schema=schema)
         result = tool.run()
 
         assert result["success"] == True
@@ -76,7 +64,7 @@ class TestJsonValidator:
         os.environ["USE_MOCK_APIS"] = "false"
         tool = JsonValidator(
             json_data='{"count": "123", "active": "true"}',  # Numbers and booleans as strings
-            validate_types=True
+            validate_types=True,
         )
         result = tool.run()
 
@@ -87,10 +75,7 @@ class TestJsonValidator:
     def test_strict_validation(self):
         """Test strict validation."""
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = JsonValidator(
-            json_data='{"name": "", "value": null}',
-            strict=True
-        )
+        tool = JsonValidator(json_data='{"name": "", "value": null}', strict=True)
         result = tool.run()
 
         assert result["success"] == True
@@ -99,7 +84,7 @@ class TestJsonValidator:
     def test_array_json(self):
         """Test array JSON."""
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = JsonValidator(json_data='[1, 2, 3, 4, 5]')
+        tool = JsonValidator(json_data="[1, 2, 3, 4, 5]")
         result = tool.run()
 
         assert result["success"] == True
@@ -108,9 +93,7 @@ class TestJsonValidator:
     def test_nested_json(self):
         """Test nested JSON."""
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = JsonValidator(
-            json_data='{"user": {"name": "John", "address": {"city": "NYC"}}}'
-        )
+        tool = JsonValidator(json_data='{"user": {"name": "John", "address": {"city": "NYC"}}}')
         result = tool.run()
 
         assert result["success"] == True

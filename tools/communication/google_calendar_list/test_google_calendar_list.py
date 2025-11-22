@@ -61,9 +61,7 @@ class TestGoogleCalendarList:
     def test_execute_success(self, mock_build, mock_creds, tool, mock_google_events):
         mock_service = MagicMock()
         mock_events = MagicMock()
-        mock_events.list.return_value.execute.return_value = {
-            "items": mock_google_events
-        }
+        mock_events.list.return_value.execute.return_value = {"items": mock_google_events}
         mock_service.events.return_value = mock_events
         mock_build.return_value = mock_service
 

@@ -32,18 +32,14 @@ class AnalyzeMediaContent(BaseTool):
     # Tool metadata
     tool_name: str = "analyze_media_content"
     tool_category: str = "media"
-    tool_description: str = (
-        "Deep analysis of images, audio, and video with custom requirements"
-    )
+    tool_description: str = "Deep analysis of images, audio, and video with custom requirements"
 
     # Parameters
     media_url: str = Field(
         ..., description="URL of media to analyze", min_length=5, max_length=2000
     )
 
-    instruction: Optional[str] = Field(
-        default=None, description="What to analyze or extract"
-    )
+    instruction: Optional[str] = Field(default=None, description="What to analyze or extract")
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -95,10 +91,7 @@ class AnalyzeMediaContent(BaseTool):
                 details={"media_url": self.media_url},
             )
 
-        if not (
-            self.media_url.startswith("http://")
-            or self.media_url.startswith("https://")
-        ):
+        if not (self.media_url.startswith("http://") or self.media_url.startswith("https://")):
             raise ValidationError(
                 "media_url must begin with http:// or https://",
                 tool_name=self.tool_name,

@@ -18,11 +18,7 @@ class TestTranslation:
 
     def test_basic_translation(self):
         """Test basic translation."""
-        tool = Translation(
-            text="Hello, world!",
-            target_lang="es",
-            preserve_formatting=False
-        )
+        tool = Translation(text="Hello, world!", target_lang="es", preserve_formatting=False)
         result = tool.run()
 
         assert result["success"] is True
@@ -33,9 +29,7 @@ class TestTranslation:
     def test_auto_detect_language(self):
         """Test automatic language detection."""
         tool = Translation(
-            text="Bonjour, comment allez-vous?",
-            target_lang="en",
-            preserve_formatting=False
+            text="Bonjour, comment allez-vous?", target_lang="en", preserve_formatting=False
         )
         result = tool.run()
 
@@ -47,9 +41,7 @@ class TestTranslation:
     def test_with_formatting_preservation(self):
         """Test translation with formatting preservation."""
         tool = Translation(
-            text="**Hello**, this is a *test* message",
-            target_lang="fr",
-            preserve_formatting=True
+            text="**Hello**, this is a *test* message", target_lang="fr", preserve_formatting=True
         )
         result = tool.run()
 
@@ -59,10 +51,7 @@ class TestTranslation:
     def test_google_provider(self):
         """Test using Google Translate provider."""
         tool = Translation(
-            text="Good morning!",
-            target_lang="de",
-            api_provider="google",
-            preserve_formatting=False
+            text="Good morning!", target_lang="de", api_provider="google", preserve_formatting=False
         )
         result = tool.run()
 
@@ -72,10 +61,7 @@ class TestTranslation:
     def test_deepl_provider(self):
         """Test using DeepL provider."""
         tool = Translation(
-            text="Good morning!",
-            target_lang="de",
-            api_provider="deepl",
-            preserve_formatting=False
+            text="Good morning!", target_lang="de", api_provider="deepl", preserve_formatting=False
         )
         result = tool.run()
 
@@ -87,11 +73,7 @@ class TestTranslation:
         languages = ["es", "fr", "de", "ja", "zh", "ru"]
 
         for lang in languages:
-            tool = Translation(
-                text="Hello",
-                target_lang=lang,
-                preserve_formatting=False
-            )
+            tool = Translation(text="Hello", target_lang=lang, preserve_formatting=False)
             result = tool.run()
 
             assert result["success"] is True
@@ -100,11 +82,7 @@ class TestTranslation:
     def test_character_count(self):
         """Test that character count is tracked."""
         text = "This is a test message"
-        tool = Translation(
-            text=text,
-            target_lang="es",
-            preserve_formatting=False
-        )
+        tool = Translation(text=text, target_lang="es", preserve_formatting=False)
         result = tool.run()
 
         assert result["success"] is True
@@ -113,47 +91,31 @@ class TestTranslation:
     def test_empty_text_validation(self):
         """Test validation of empty text."""
         with pytest.raises(ValidationError):
-            tool = Translation(
-                text="",
-                target_lang="es"
-            )
+            tool = Translation(text="", target_lang="es")
             tool.run()
 
     def test_missing_target_lang_validation(self):
         """Test validation of missing target language."""
         with pytest.raises(ValidationError):
-            tool = Translation(
-                text="Hello",
-                target_lang=""
-            )
+            tool = Translation(text="Hello", target_lang="")
             tool.run()
 
     def test_invalid_api_provider(self):
         """Test validation of invalid API provider."""
         with pytest.raises(ValidationError):
-            tool = Translation(
-                text="Hello",
-                target_lang="es",
-                api_provider="invalid_provider"
-            )
+            tool = Translation(text="Hello", target_lang="es", api_provider="invalid_provider")
             tool.run()
 
     def test_invalid_language_code(self):
         """Test validation of invalid language codes."""
         with pytest.raises(ValidationError):
-            tool = Translation(
-                text="Hello",
-                target_lang="xyz123"  # Invalid language code
-            )
+            tool = Translation(text="Hello", target_lang="xyz123")  # Invalid language code
             tool.run()
 
     def test_source_and_target_specified(self):
         """Test with both source and target languages specified."""
         tool = Translation(
-            text="Hello",
-            source_lang="en",
-            target_lang="es",
-            preserve_formatting=False
+            text="Hello", source_lang="en", target_lang="es", preserve_formatting=False
         )
         result = tool.run()
 
@@ -164,11 +126,7 @@ class TestTranslation:
     def test_long_text_translation(self):
         """Test translation of longer text."""
         long_text = "This is a longer text message. " * 20
-        tool = Translation(
-            text=long_text,
-            target_lang="fr",
-            preserve_formatting=False
-        )
+        tool = Translation(text=long_text, target_lang="fr", preserve_formatting=False)
         result = tool.run()
 
         assert result["success"] is True
@@ -178,11 +136,7 @@ class TestTranslation:
         """Test that mock mode works correctly."""
         os.environ["USE_MOCK_APIS"] = "true"
 
-        tool = Translation(
-            text="Test message",
-            target_lang="es",
-            preserve_formatting=False
-        )
+        tool = Translation(text="Test message", target_lang="es", preserve_formatting=False)
         result = tool.run()
 
         assert result["success"] is True
@@ -200,9 +154,7 @@ if __name__ == "__main__":
     print("\n--- Test 1: Basic translation (English to Spanish) ---")
     try:
         tool = Translation(
-            text="Hello, world! How are you?",
-            target_lang="es",
-            preserve_formatting=False
+            text="Hello, world! How are you?", target_lang="es", preserve_formatting=False
         )
         result = tool.run()
         print(f"✓ Success: {result['success']}")
@@ -216,9 +168,7 @@ if __name__ == "__main__":
     print("\n--- Test 2: Auto-detect source language ---")
     try:
         tool = Translation(
-            text="Bonjour, comment allez-vous?",
-            target_lang="en",
-            preserve_formatting=False
+            text="Bonjour, comment allez-vous?", target_lang="en", preserve_formatting=False
         )
         result = tool.run()
         print(f"✓ Success: {result['success']}")
@@ -233,7 +183,7 @@ if __name__ == "__main__":
         tool = Translation(
             text="**Hello**, this is a *test* with [a link](https://example.com)",
             target_lang="fr",
-            preserve_formatting=True
+            preserve_formatting=True,
         )
         result = tool.run()
         print(f"✓ Success: {result['success']}")
@@ -247,11 +197,7 @@ if __name__ == "__main__":
     languages = ["es", "fr", "de", "ja", "zh"]
     for lang in languages:
         try:
-            tool = Translation(
-                text="Welcome",
-                target_lang=lang,
-                preserve_formatting=False
-            )
+            tool = Translation(text="Welcome", target_lang=lang, preserve_formatting=False)
             result = tool.run()
             print(f"✓ {lang}: {result['result']['translated_text']}")
         except Exception as e:
@@ -261,10 +207,7 @@ if __name__ == "__main__":
     print("\n--- Test 5: Using DeepL provider ---")
     try:
         tool = Translation(
-            text="Good morning!",
-            target_lang="de",
-            api_provider="deepl",
-            preserve_formatting=False
+            text="Good morning!", target_lang="de", api_provider="deepl", preserve_formatting=False
         )
         result = tool.run()
         print(f"✓ Success: {result['success']}")
@@ -287,11 +230,7 @@ if __name__ == "__main__":
     # Test 7: Invalid API provider
     print("\n--- Test 7: Invalid API provider validation ---")
     try:
-        tool = Translation(
-            text="Hello",
-            target_lang="es",
-            api_provider="invalid"
-        )
+        tool = Translation(text="Hello", target_lang="es", api_provider="invalid")
         result = tool.run()
         print(f"✗ Should have raised ValidationError")
     except ValidationError as e:
@@ -303,10 +242,7 @@ if __name__ == "__main__":
     print("\n--- Test 8: Both source and target languages specified ---")
     try:
         tool = Translation(
-            text="Hello, world!",
-            source_lang="en",
-            target_lang="es",
-            preserve_formatting=False
+            text="Hello, world!", source_lang="en", target_lang="es", preserve_formatting=False
         )
         result = tool.run()
         print(f"✓ Success: {result['success']}")

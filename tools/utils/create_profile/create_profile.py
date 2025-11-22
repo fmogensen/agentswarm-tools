@@ -49,12 +49,7 @@ class CreateProfile(BaseTool):
     tool_category: str = "utils"
 
     # Required parameters
-    name: str = Field(
-        ...,
-        description="Profile name or identifier",
-        min_length=1,
-        max_length=200
-    )
+    name: str = Field(..., description="Profile name or identifier", min_length=1, max_length=200)
 
     # Optional parameters
     profile_type: str = Field(
@@ -62,31 +57,22 @@ class CreateProfile(BaseTool):
         description="Type of profile: user, agent, system, custom",
     )
 
-    role: Optional[str] = Field(
-        None,
-        description="Role or function description",
-        max_length=500
-    )
+    role: Optional[str] = Field(None, description="Role or function description", max_length=500)
 
     attributes: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Additional custom attributes as key-value pairs"
+        None, description="Additional custom attributes as key-value pairs"
     )
 
     description: Optional[str] = Field(
-        None,
-        description="Detailed profile description",
-        max_length=2000
+        None, description="Detailed profile description", max_length=2000
     )
 
     tags: Optional[List[str]] = Field(
-        None,
-        description="List of tags for categorization and search"
+        None, description="List of tags for categorization and search"
     )
 
     metadata: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Additional metadata (creation context, source, etc.)"
+        None, description="Additional metadata (creation context, source, etc.)"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -110,10 +96,7 @@ class CreateProfile(BaseTool):
             return {
                 "success": True,
                 "result": result,
-                "metadata": {
-                    "tool_name": self.tool_name,
-                    "tool_version": "1.0.0"
-                },
+                "metadata": {"tool_name": self.tool_name, "tool_version": "1.0.0"},
             }
         except Exception as e:
             raise APIError(f"Failed to create profile: {e}", tool_name=self.tool_name)
@@ -128,16 +111,12 @@ class CreateProfile(BaseTool):
         # Validate name
         if not self.name or not isinstance(self.name, str):
             raise ValidationError(
-                "Name must be a non-empty string",
-                tool_name=self.tool_name,
-                field="name"
+                "Name must be a non-empty string", tool_name=self.tool_name, field="name"
             )
 
         if not self.name.strip():
             raise ValidationError(
-                "Name cannot be empty or whitespace",
-                tool_name=self.tool_name,
-                field="name"
+                "Name cannot be empty or whitespace", tool_name=self.tool_name, field="name"
             )
 
         # Validate profile_type
@@ -147,32 +126,24 @@ class CreateProfile(BaseTool):
                 f"Profile type must be one of: {', '.join(valid_types)}",
                 tool_name=self.tool_name,
                 field="profile_type",
-                details={"provided": self.profile_type, "valid_types": valid_types}
+                details={"provided": self.profile_type, "valid_types": valid_types},
             )
 
         # Validate attributes if provided
         if self.attributes is not None and not isinstance(self.attributes, dict):
             raise ValidationError(
-                "Attributes must be a dictionary",
-                tool_name=self.tool_name,
-                field="attributes"
+                "Attributes must be a dictionary", tool_name=self.tool_name, field="attributes"
             )
 
         # Validate tags if provided
         if self.tags is not None:
             if not isinstance(self.tags, list):
-                raise ValidationError(
-                    "Tags must be a list",
-                    tool_name=self.tool_name,
-                    field="tags"
-                )
+                raise ValidationError("Tags must be a list", tool_name=self.tool_name, field="tags")
 
             for tag in self.tags:
                 if not isinstance(tag, str):
                     raise ValidationError(
-                        "All tags must be strings",
-                        tool_name=self.tool_name,
-                        field="tags"
+                        "All tags must be strings", tool_name=self.tool_name, field="tags"
                     )
 
     def _should_use_mock(self) -> bool:
@@ -193,20 +164,14 @@ class CreateProfile(BaseTool):
                 "description": self.description,
                 "attributes": self.attributes or {},
                 "tags": self.tags or [],
-                "metadata": {
-                    **(self.metadata or {}),
-                    "mock_mode": True
-                },
+                "metadata": {**(self.metadata or {}), "mock_mode": True},
                 "created_at": datetime.utcnow().isoformat(),
                 "updated_at": datetime.utcnow().isoformat(),
                 "status": "active",
                 "version": "1.0",
-                "message": "[MOCK] Profile created successfully"
+                "message": "[MOCK] Profile created successfully",
             },
-            "metadata": {
-                "mock_mode": True,
-                "tool_name": self.tool_name
-            },
+            "metadata": {"mock_mode": True, "tool_name": self.tool_name},
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -218,6 +183,7 @@ class CreateProfile(BaseTool):
         """
         # Generate unique profile ID
         import uuid
+
         profile_id = f"profile_{uuid.uuid4().hex[:12]}"
 
         # Build profile structure
@@ -233,7 +199,7 @@ class CreateProfile(BaseTool):
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat(),
             "status": "active",
-            "version": "1.0"
+            "version": "1.0",
         }
 
         # In a real implementation, this would:
@@ -249,8 +215,8 @@ class CreateProfile(BaseTool):
             "storage": {
                 "stored": True,
                 "storage_type": "memory",
-                "path": f"/profiles/{profile_id}.json"
-            }
+                "path": f"/profiles/{profile_id}.json",
+            },
         }
 
 
@@ -259,14 +225,12 @@ if __name__ == "__main__":
     print("Testing CreateProfile...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic profile
     print("\n=== Test 1: Basic User Profile ===")
-    tool1 = CreateProfile(
-        name="John Doe",
-        profile_type="user"
-    )
+    tool1 = CreateProfile(name="John Doe", profile_type="user")
     result1 = tool1.run()
     print(f"Success: {result1.get('success')}")
     print(f"Profile ID: {result1.get('result', {}).get('profile_id')}")
@@ -283,9 +247,9 @@ if __name__ == "__main__":
             "specialty": "Machine Learning",
             "experience_level": "expert",
             "languages": ["Python", "R", "SQL"],
-            "tools": ["pandas", "scikit-learn", "matplotlib"]
+            "tools": ["pandas", "scikit-learn", "matplotlib"],
         },
-        tags=["AI", "ML", "data-science", "analytics"]
+        tags=["AI", "ML", "data-science", "analytics"],
     )
     result2 = tool2.run()
     print(f"Success: {result2.get('success')}")

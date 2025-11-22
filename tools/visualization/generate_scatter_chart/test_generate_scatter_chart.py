@@ -139,7 +139,9 @@ class TestGenerateScatterChart:
         tool = GenerateScatterChart(prompt="test", params={"x": [], "y": []})
         result = tool.run()
         # Empty lists may be valid for some chart types
-        assert result["success"] is True or (result["success"] is False and result["error"]["code"] == "VALIDATION_ERROR")
+        assert result["success"] is True or (
+            result["success"] is False and result["error"]["code"] == "VALIDATION_ERROR"
+        )
 
     def test_zero_values(self):
         tool = GenerateScatterChart(prompt="test", params={"x": [0, 0], "y": [0, 0]})

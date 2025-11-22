@@ -41,7 +41,11 @@ class TestGenerateBarChart:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_execute_success(self, tool: GenerateBarChart):
-        with patch.object(tool, "_process", return_value={"image_base64": "mock_image", "data": tool.params["data"]}):
+        with patch.object(
+            tool,
+            "_process",
+            return_value={"image_base64": "mock_image", "data": tool.params["data"]},
+        ):
             result = tool.run()
             assert result["success"] is True
             assert "image_base64" in result["result"]
@@ -110,9 +114,7 @@ class TestGenerateBarChart:
 
     def test_invalid_data_values(self):
         """Invalid data values fail custom validation and return error dict."""
-        tool = GenerateBarChart(
-            prompt="Test", params={"data": {"A": "not numeric"}}
-        )
+        tool = GenerateBarChart(prompt="Test", params={"data": {"A": "not numeric"}})
         result = tool.run()
         assert result["success"] is False
         assert result["error"]["code"] == "VALIDATION_ERROR"
@@ -171,7 +173,11 @@ class TestGenerateBarChart:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_integration_flow(self, tool):
-        with patch.object(tool, "_process", return_value={"image_base64": "mock_image", "data": tool.params["data"]}):
+        with patch.object(
+            tool,
+            "_process",
+            return_value={"image_base64": "mock_image", "data": tool.params["data"]},
+        ):
             result = tool.run()
             assert result["success"] is True
             assert "image_base64" in result["result"]

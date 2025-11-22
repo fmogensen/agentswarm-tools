@@ -108,9 +108,7 @@ class GenerateDualAxesChart(BaseTool):
                     tool_name=self.tool_name,
                 )
 
-        if not (
-            len(data["x"]) == len(data["column_values"]) == len(data["line_values"])
-        ):
+        if not (len(data["x"]) == len(data["column_values"]) == len(data["line_values"])):
             raise ValidationError(
                 "Data lists must have equal lengths",
                 field="data",
@@ -168,18 +166,21 @@ class GenerateDualAxesChart(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateDualAxesChart(
         prompt="Sales and Customer Count Analysis",
-        params={"data": {
-            "x": ["Jan", "Feb", "Mar", "Apr"],
-            "column_values": [100, 120, 90, 150],
-            "line_values": [50, 60, 55, 70]
-        }}
+        params={
+            "data": {
+                "x": ["Jan", "Feb", "Mar", "Apr"],
+                "column_values": [100, 120, 90, 150],
+                "line_values": [50, 60, 55, 70],
+            }
+        },
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

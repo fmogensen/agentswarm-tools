@@ -54,9 +54,7 @@ def test_basic_operations():
 
     assert result["success"] == True, "Result should be successful"
     assert "edited_image_url" in result["result"], "Should have edited_image_url"
-    assert (
-        result["result"]["operations_applied"] == 3
-    ), "Should have applied 3 operations"
+    assert result["result"]["operations_applied"] == 3, "Should have applied 3 operations"
     assert result["result"]["format"] == "jpg", "Format should be jpg"
 
     print("✅ Basic operations test passed")

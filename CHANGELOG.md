@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2025-11-22
+
+### Changed
+
+#### Code Quality and Cleanup (Breaking Change)
+- **Formatted entire codebase** with Black formatter (239 files reformatted)
+- **Removed 278 __pycache__ directories** and 2,699 .pyc files
+- **Removed orphaned test files**:
+  - Deleted 2 example_usage.py files
+  - Deleted 3 verify_tool.py files
+  - Deleted 1 run_tests.py file
+- **Standardized test execution** to use pytest exclusively
+- **Updated version** to 2.0.0 across all configuration files
+
+#### Project Structure
+- All Python code now follows consistent Black formatting (100 char line length)
+- Cleaner repository with removed cache and temporary files
+- Standardized testing approach with pytest
+
+### Removed
+- example_usage.py files (replaced by test files)
+- verify_tool.py files (replaced by pytest)
+- run_tests.py files (use pytest directly)
+- All __pycache__ directories and .pyc files
+
+### Migration Notes
+This is a **major version release** focusing on code quality and consistency:
+- No functional changes to any tools
+- All tools maintain backward compatibility
+- Tests now exclusively use pytest
+- Codebase follows Black formatting standards
+
+### Benefits
+- **Consistent code style** across entire codebase
+- **Cleaner repository** without cache files
+- **Standardized testing** with pytest only
+- **Better maintainability** with formatted code
+- **Professional code quality** ready for production
+
 ## [1.2.0] - 2025-11-22
 
 ### Changed
@@ -284,7 +323,8 @@ Only tool metadata changed:
 
 ---
 
-[Unreleased]: https://github.com/genspark/agentswarm-tools/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/genspark/agentswarm-tools/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/genspark/agentswarm-tools/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/genspark/agentswarm-tools/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/genspark/agentswarm-tools/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/genspark/agentswarm-tools/releases/tag/v1.0.0

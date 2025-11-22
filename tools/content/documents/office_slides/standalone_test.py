@@ -37,6 +37,7 @@ class BaseTool(BaseModel):
 
 # Replace the shared.base import
 import shared.base
+
 shared.base.BaseTool = BaseTool
 
 # Now import our tool
@@ -51,10 +52,10 @@ def test_mock_mode_basic():
     tool = OfficeSlidesTool(
         slides=[
             {"title": "Slide 1", "content": ["Point A", "Point B"], "layout": "title_content"},
-            {"title": "Slide 2", "content": ["Data"], "layout": "content"}
+            {"title": "Slide 2", "content": ["Data"], "layout": "content"},
         ],
         theme="modern",
-        title_slide={"title": "Test Presentation", "subtitle": "2025"}
+        title_slide={"title": "Test Presentation", "subtitle": "2025"},
     )
     result = tool.run()
 
@@ -72,8 +73,7 @@ def test_mock_mode_pdf():
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = OfficeSlidesTool(
-        slides=[{"title": "Test", "content": ["Content"], "layout": "content"}],
-        output_format="pdf"
+        slides=[{"title": "Test", "content": ["Content"], "layout": "content"}], output_format="pdf"
     )
     result = tool.run()
 
@@ -110,7 +110,7 @@ def test_validation_invalid_theme():
     try:
         tool = OfficeSlidesTool(
             slides=[{"title": "Test", "content": ["Content"], "layout": "content"}],
-            theme="invalid_theme"
+            theme="invalid_theme",
         )
         result = tool.run()
         print("❌ FAIL: Should have raised ValidationError")
@@ -133,8 +133,7 @@ def test_all_themes():
 
     for theme in themes:
         tool = OfficeSlidesTool(
-            slides=[{"title": "Test", "content": ["Content"], "layout": "content"}],
-            theme=theme
+            slides=[{"title": "Test", "content": ["Content"], "layout": "content"}], theme=theme
         )
         result = tool.run()
         assert result["success"] is True
@@ -169,11 +168,15 @@ def test_real_mode():
     try:
         tool = OfficeSlidesTool(
             slides=[
-                {"title": "Introduction", "content": ["Point 1", "Point 2"], "layout": "title_content"},
-                {"title": "Details", "content": ["Detail A"], "layout": "content"}
+                {
+                    "title": "Introduction",
+                    "content": ["Point 1", "Point 2"],
+                    "layout": "title_content",
+                },
+                {"title": "Details", "content": ["Detail A"], "layout": "content"},
             ],
             theme="modern",
-            title_slide={"title": "Test Report", "subtitle": "Q4 2025", "author": "Test User"}
+            title_slide={"title": "Test Report", "subtitle": "Q4 2025", "author": "Test User"},
         )
 
         result = tool.run()
@@ -201,6 +204,7 @@ def test_real_mode():
         else:
             print(f"❌ FAIL: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -228,6 +232,7 @@ def main():
         except Exception as e:
             print(f"❌ FAIL: {test.__name__} - {e}")
             import traceback
+
             traceback.print_exc()
             results.append(False)
 

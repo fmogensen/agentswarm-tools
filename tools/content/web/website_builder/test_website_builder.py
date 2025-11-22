@@ -16,9 +16,7 @@ class TestWebsiteBuilder:
 
     def test_basic_website_creation(self):
         """Test creating a basic website with default settings."""
-        tool = WebsiteBuilder(
-            website_purpose="A portfolio website for a software developer"
-        )
+        tool = WebsiteBuilder(website_purpose="A portfolio website for a software developer")
         result = tool.run()
 
         assert result["success"] == True
@@ -32,8 +30,7 @@ class TestWebsiteBuilder:
     def test_multi_page_website(self):
         """Test creating a multi-page website."""
         tool = WebsiteBuilder(
-            website_purpose="A business website for a consulting company",
-            num_pages=5
+            website_purpose="A business website for a consulting company", num_pages=5
         )
         result = tool.run()
 
@@ -47,7 +44,7 @@ class TestWebsiteBuilder:
             website_purpose="A professional website for a law firm",
             num_pages=3,
             style="professional",
-            framework="bootstrap"
+            framework="bootstrap",
         )
         result = tool.run()
 
@@ -60,7 +57,7 @@ class TestWebsiteBuilder:
         tool = WebsiteBuilder(
             website_purpose="A business website needing customer contact",
             num_pages=3,
-            include_contact_form=True
+            include_contact_form=True,
         )
         result = tool.run()
 
@@ -71,9 +68,7 @@ class TestWebsiteBuilder:
     def test_with_blog(self):
         """Test creating website with blog section."""
         tool = WebsiteBuilder(
-            website_purpose="A personal website with blog",
-            num_pages=4,
-            include_blog=True
+            website_purpose="A personal website with blog", num_pages=4, include_blog=True
         )
         result = tool.run()
 
@@ -84,18 +79,12 @@ class TestWebsiteBuilder:
     def test_color_scheme_validation(self):
         """Test color scheme validation."""
         # Valid 6-digit hex
-        tool = WebsiteBuilder(
-            website_purpose="Testing color validation",
-            color_scheme="#FF5733"
-        )
+        tool = WebsiteBuilder(website_purpose="Testing color validation", color_scheme="#FF5733")
         result = tool.run()
         assert result["success"] == True
 
         # Valid 3-digit hex
-        tool = WebsiteBuilder(
-            website_purpose="Testing color validation",
-            color_scheme="#F73"
-        )
+        tool = WebsiteBuilder(website_purpose="Testing color validation", color_scheme="#F73")
         result = tool.run()
         assert result["success"] == True
 
@@ -112,7 +101,7 @@ class TestWebsiteBuilder:
             framework="tailwind",
             include_animations=True,
             seo_optimized=True,
-            accessibility=True
+            accessibility=True,
         )
         result = tool.run()
 
@@ -133,7 +122,7 @@ class TestWebsiteBuilder:
             style="minimal",
             framework="vanilla",
             include_animations=False,
-            responsive=True
+            responsive=True,
         )
         result = tool.run()
 
@@ -145,9 +134,7 @@ class TestWebsiteBuilder:
     def test_html_sample_generation(self):
         """Test that mock mode generates HTML sample."""
         tool = WebsiteBuilder(
-            website_purpose="Testing HTML sample generation",
-            seo_optimized=True,
-            accessibility=True
+            website_purpose="Testing HTML sample generation", seo_optimized=True, accessibility=True
         )
         result = tool.run()
 
@@ -177,45 +164,32 @@ class TestWebsiteBuilder:
     def test_validation_num_pages_too_low(self):
         """Test validation fails for num_pages < 1."""
         with pytest.raises(Exception):
-            tool = WebsiteBuilder(
-                website_purpose="Testing page count validation",
-                num_pages=0
-            )
+            tool = WebsiteBuilder(website_purpose="Testing page count validation", num_pages=0)
             tool.run()
 
     def test_validation_num_pages_too_high(self):
         """Test validation fails for num_pages > 10."""
         with pytest.raises(Exception):
-            tool = WebsiteBuilder(
-                website_purpose="Testing page count validation",
-                num_pages=15
-            )
+            tool = WebsiteBuilder(website_purpose="Testing page count validation", num_pages=15)
             tool.run()
 
     def test_validation_invalid_color_no_hash(self):
         """Test validation fails for color without #."""
         with pytest.raises(Exception):
-            tool = WebsiteBuilder(
-                website_purpose="Testing color validation",
-                color_scheme="FF5733"
-            )
+            tool = WebsiteBuilder(website_purpose="Testing color validation", color_scheme="FF5733")
             tool.run()
 
     def test_validation_invalid_color_wrong_length(self):
         """Test validation fails for color with wrong length."""
         with pytest.raises(Exception):
-            tool = WebsiteBuilder(
-                website_purpose="Testing color validation",
-                color_scheme="#FF57"
-            )
+            tool = WebsiteBuilder(website_purpose="Testing color validation", color_scheme="#FF57")
             tool.run()
 
     def test_validation_invalid_color_not_hex(self):
         """Test validation fails for color with non-hex characters."""
         with pytest.raises(Exception):
             tool = WebsiteBuilder(
-                website_purpose="Testing color validation",
-                color_scheme="#GGGGGG"
+                website_purpose="Testing color validation", color_scheme="#GGGGGG"
             )
             tool.run()
 
@@ -223,30 +197,21 @@ class TestWebsiteBuilder:
 
     def test_modern_style(self):
         """Test modern style website."""
-        tool = WebsiteBuilder(
-            website_purpose="A modern tech startup website",
-            style="modern"
-        )
+        tool = WebsiteBuilder(website_purpose="A modern tech startup website", style="modern")
         result = tool.run()
         assert result["success"] == True
         assert result["metadata"]["style"] == "modern"
 
     def test_creative_style(self):
         """Test creative style website."""
-        tool = WebsiteBuilder(
-            website_purpose="A creative agency portfolio",
-            style="creative"
-        )
+        tool = WebsiteBuilder(website_purpose="A creative agency portfolio", style="creative")
         result = tool.run()
         assert result["success"] == True
         assert result["metadata"]["style"] == "creative"
 
     def test_corporate_style(self):
         """Test corporate style website."""
-        tool = WebsiteBuilder(
-            website_purpose="A corporate enterprise website",
-            style="corporate"
-        )
+        tool = WebsiteBuilder(website_purpose="A corporate enterprise website", style="corporate")
         result = tool.run()
         assert result["success"] == True
         assert result["metadata"]["style"] == "corporate"
@@ -255,30 +220,21 @@ class TestWebsiteBuilder:
 
     def test_tailwind_framework(self):
         """Test website with Tailwind CSS."""
-        tool = WebsiteBuilder(
-            website_purpose="Testing Tailwind framework",
-            framework="tailwind"
-        )
+        tool = WebsiteBuilder(website_purpose="Testing Tailwind framework", framework="tailwind")
         result = tool.run()
         assert result["success"] == True
         assert result["framework_used"] == "tailwind"
 
     def test_bootstrap_framework(self):
         """Test website with Bootstrap."""
-        tool = WebsiteBuilder(
-            website_purpose="Testing Bootstrap framework",
-            framework="bootstrap"
-        )
+        tool = WebsiteBuilder(website_purpose="Testing Bootstrap framework", framework="bootstrap")
         result = tool.run()
         assert result["success"] == True
         assert result["framework_used"] == "bootstrap"
 
     def test_vanilla_framework(self):
         """Test website with vanilla CSS."""
-        tool = WebsiteBuilder(
-            website_purpose="Testing vanilla CSS",
-            framework="vanilla"
-        )
+        tool = WebsiteBuilder(website_purpose="Testing vanilla CSS", framework="vanilla")
         result = tool.run()
         assert result["success"] == True
         assert result["framework_used"] == "vanilla"
@@ -288,8 +244,7 @@ class TestWebsiteBuilder:
     def test_portfolio_page_names(self):
         """Test page names for portfolio websites."""
         tool = WebsiteBuilder(
-            website_purpose="A portfolio website for a software developer",
-            num_pages=4
+            website_purpose="A portfolio website for a software developer", num_pages=4
         )
         result = tool.run()
         pages = result["pages_created"]
@@ -299,8 +254,7 @@ class TestWebsiteBuilder:
     def test_business_page_names(self):
         """Test page names for business websites."""
         tool = WebsiteBuilder(
-            website_purpose="A business website for a consulting company",
-            num_pages=4
+            website_purpose="A business website for a consulting company", num_pages=4
         )
         result = tool.run()
         pages = result["pages_created"]
@@ -309,9 +263,7 @@ class TestWebsiteBuilder:
 
     def test_metadata_completeness(self):
         """Test that all metadata fields are present."""
-        tool = WebsiteBuilder(
-            website_purpose="Testing metadata completeness"
-        )
+        tool = WebsiteBuilder(website_purpose="Testing metadata completeness")
         result = tool.run()
 
         assert result["success"] == True

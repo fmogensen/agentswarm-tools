@@ -68,50 +68,30 @@ class VideoClipperTool(BaseTool):
     tool_category: str = "media"
 
     # Parameters
-    video_url: str = Field(
-        ...,
-        description="URL to source video (http/https)"
-    )
-    clip_duration: int = Field(
-        30,
-        description="Duration of each clip in seconds",
-        ge=10,
-        le=300
-    )
-    num_clips: int = Field(
-        3,
-        description="Number of clips to extract",
-        ge=1,
-        le=10
-    )
+    video_url: str = Field(..., description="URL to source video (http/https)")
+    clip_duration: int = Field(30, description="Duration of each clip in seconds", ge=10, le=300)
+    num_clips: int = Field(3, description="Number of clips to extract", ge=1, le=10)
     detection_mode: Literal["auto", "action", "dialogue", "highlights", "topics"] = Field(
         "auto",
-        description="Algorithm for selecting clips: auto (balanced), action (motion-based), dialogue (speech-based), highlights (peak moments), topics (theme-based)"
+        description="Algorithm for selecting clips: auto (balanced), action (motion-based), dialogue (speech-based), highlights (peak moments), topics (theme-based)",
     )
     aspect_ratio: Literal["16:9", "9:16", "1:1", "4:5"] = Field(
         "9:16",
-        description="Output aspect ratio (16:9=landscape, 9:16=vertical, 1:1=square, 4:5=portrait)"
+        description="Output aspect ratio (16:9=landscape, 9:16=vertical, 1:1=square, 4:5=portrait)",
     )
     add_captions: bool = Field(
-        True,
-        description="Whether to add auto-generated captions from speech"
+        True, description="Whether to add auto-generated captions from speech"
     )
     add_transitions: bool = Field(
-        True,
-        description="Whether to add smooth transitions between scenes"
+        True, description="Whether to add smooth transitions between scenes"
     )
     optimize_for: Literal["instagram", "tiktok", "youtube_shorts", "general"] = Field(
-        "general",
-        description="Platform optimization preset (affects encoding, bitrate, format)"
+        "general", description="Platform optimization preset (affects encoding, bitrate, format)"
     )
     include_branding: bool = Field(
-        False,
-        description="Whether to include branding watermark or logo overlay"
+        False, description="Whether to include branding watermark or logo overlay"
     )
-    output_format: Literal["mp4", "mov", "webm"] = Field(
-        "mp4",
-        description="Output video format"
-    )
+    output_format: Literal["mp4", "mov", "webm"] = Field("mp4", description="Output video format")
 
     # Aspect ratio mappings
     ASPECT_RATIOS: ClassVar[Dict[str, tuple]] = {
@@ -123,39 +103,24 @@ class VideoClipperTool(BaseTool):
 
     # Platform optimization settings
     PLATFORM_SETTINGS: ClassVar[Dict[str, Dict[str, Any]]] = {
-        "instagram": {
-            "max_duration": 60,
-            "bitrate": "3000k",
-            "fps": 30,
-            "audio_bitrate": "128k"
-        },
-        "tiktok": {
-            "max_duration": 60,
-            "bitrate": "2500k",
-            "fps": 30,
-            "audio_bitrate": "128k"
-        },
+        "instagram": {"max_duration": 60, "bitrate": "3000k", "fps": 30, "audio_bitrate": "128k"},
+        "tiktok": {"max_duration": 60, "bitrate": "2500k", "fps": 30, "audio_bitrate": "128k"},
         "youtube_shorts": {
             "max_duration": 60,
             "bitrate": "4000k",
             "fps": 30,
-            "audio_bitrate": "192k"
+            "audio_bitrate": "192k",
         },
-        "general": {
-            "max_duration": 300,
-            "bitrate": "3500k",
-            "fps": 30,
-            "audio_bitrate": "192k"
-        }
+        "general": {"max_duration": 300, "bitrate": "3500k", "fps": 30, "audio_bitrate": "192k"},
     }
 
-    @field_validator('video_url')
+    @field_validator("video_url")
     @classmethod
     def validate_url(cls, v: str) -> str:
         """Validate video URL format."""
         try:
             parsed = urlparse(v)
-            if not parsed.scheme in ['http', 'https']:
+            if not parsed.scheme in ["http", "https"]:
                 raise ValueError("URL must use http or https protocol")
             if not parsed.netloc:
                 raise ValueError("Invalid URL format")
@@ -232,18 +197,20 @@ class VideoClipperTool(BaseTool):
             end_time = start_time + self.clip_duration
             total_duration += self.clip_duration
 
-            clips.append({
-                "clip_id": f"clip_{i+1}_{clip_id}",
-                "url": f"https://mock.example.com/clips/clip_{clip_id}.{self.output_format}",
-                "start_time": self._format_timestamp(start_time),
-                "end_time": self._format_timestamp(end_time),
-                "duration": self.clip_duration,
-                "score": round(0.95 - (i * 0.05), 2),  # Decreasing scores
-                "highlight_type": self._get_mock_highlight_type(i),
-                "caption_preview": f"Mock caption for clip {i+1}...",
-                "resolution": f"{self.ASPECT_RATIOS[self.aspect_ratio][0]}x{self.ASPECT_RATIOS[self.aspect_ratio][1]}",
-                "format": self.output_format,
-            })
+            clips.append(
+                {
+                    "clip_id": f"clip_{i+1}_{clip_id}",
+                    "url": f"https://mock.example.com/clips/clip_{clip_id}.{self.output_format}",
+                    "start_time": self._format_timestamp(start_time),
+                    "end_time": self._format_timestamp(end_time),
+                    "duration": self.clip_duration,
+                    "score": round(0.95 - (i * 0.05), 2),  # Decreasing scores
+                    "highlight_type": self._get_mock_highlight_type(i),
+                    "caption_preview": f"Mock caption for clip {i+1}...",
+                    "resolution": f"{self.ASPECT_RATIOS[self.aspect_ratio][0]}x{self.ASPECT_RATIOS[self.aspect_ratio][1]}",
+                    "format": self.output_format,
+                }
+            )
 
         return {
             "success": True,
@@ -306,12 +273,7 @@ class VideoClipperTool(BaseTool):
             self._logger.info("Extracting and processing clips...")
             clips = []
             for i, clip_data in enumerate(selected_clips):
-                clip = self._create_clip(
-                    video_file,
-                    clip_data,
-                    i,
-                    transcription
-                )
+                clip = self._create_clip(video_file, clip_data, i, transcription)
                 clips.append(clip)
 
             # Calculate total duration
@@ -342,10 +304,7 @@ class VideoClipperTool(BaseTool):
                 tool_name=self.tool_name,
             )
         except requests.RequestException as e:
-            raise APIError(
-                f"Failed to download video: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to download video: {e}", tool_name=self.tool_name)
         except Exception as e:
             raise MediaError(
                 f"Video clipping failed: {e}",
@@ -413,8 +372,10 @@ class VideoClipperTool(BaseTool):
         try:
             cmd = [
                 "ffprobe",
-                "-v", "quiet",
-                "-print_format", "json",
+                "-v",
+                "quiet",
+                "-print_format",
+                "json",
                 "-show_format",
                 "-show_streams",
                 video_file,
@@ -431,8 +392,7 @@ class VideoClipperTool(BaseTool):
 
             # Extract video stream info
             video_stream = next(
-                (s for s in info.get("streams", []) if s.get("codec_type") == "video"),
-                {}
+                (s for s in info.get("streams", []) if s.get("codec_type") == "video"), {}
             )
 
             duration = float(info.get("format", {}).get("duration", 0))
@@ -479,11 +439,15 @@ class VideoClipperTool(BaseTool):
             # Extract audio using FFmpeg
             cmd = [
                 "ffmpeg",
-                "-i", video_file,
+                "-i",
+                video_file,
                 "-vn",  # No video
-                "-acodec", "libmp3lame",
-                "-ab", "128k",
-                "-ar", "16000",  # Whisper works best with 16kHz
+                "-acodec",
+                "libmp3lame",
+                "-ab",
+                "128k",
+                "-ar",
+                "16000",  # Whisper works best with 16kHz
                 audio_file,
                 "-y",
             ]
@@ -501,7 +465,7 @@ class VideoClipperTool(BaseTool):
                     data={
                         "model": "whisper-1",
                         "response_format": "verbose_json",
-                        "timestamp_granularities": ["segment"]
+                        "timestamp_granularities": ["segment"],
                     },
                     timeout=300,
                 )
@@ -517,10 +481,7 @@ class VideoClipperTool(BaseTool):
                 os.unlink(audio_file)
 
     def _analyze_scenes(
-        self,
-        video_file: str,
-        video_info: Dict[str, Any],
-        transcription: Optional[Dict[str, Any]]
+        self, video_file: str, video_info: Dict[str, Any], transcription: Optional[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
         Analyze video for scene detection using GPT-4 Vision.
@@ -553,19 +514,16 @@ class VideoClipperTool(BaseTool):
                 timestamp = frame_data["timestamp"]
 
                 # Calculate scene score based on detection mode
-                score = self._calculate_scene_score(
-                    timestamp,
-                    duration,
-                    transcription,
-                    i
-                )
+                score = self._calculate_scene_score(timestamp, duration, transcription, i)
 
-                scenes.append({
-                    "timestamp": timestamp,
-                    "score": score,
-                    "frame_path": frame_data["path"],
-                    "highlight_type": self._determine_highlight_type(i),
-                })
+                scenes.append(
+                    {
+                        "timestamp": timestamp,
+                        "score": score,
+                        "frame_path": frame_data["path"],
+                        "highlight_type": self._determine_highlight_type(i),
+                    }
+                )
 
         finally:
             # Clean up frame files
@@ -579,10 +537,7 @@ class VideoClipperTool(BaseTool):
         return scenes
 
     def _extract_frames(
-        self,
-        video_file: str,
-        duration: float,
-        interval: int
+        self, video_file: str, duration: float, interval: int
     ) -> List[Dict[str, Any]]:
         """Extract frames from video at regular intervals."""
         frames = []
@@ -597,21 +552,27 @@ class VideoClipperTool(BaseTool):
 
             cmd = [
                 "ffmpeg",
-                "-ss", str(timestamp),
-                "-i", video_file,
-                "-vframes", "1",
-                "-q:v", "2",
+                "-ss",
+                str(timestamp),
+                "-i",
+                video_file,
+                "-vframes",
+                "1",
+                "-q:v",
+                "2",
                 frame_file,
                 "-y",
             ]
 
             try:
                 subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                frames.append({
-                    "timestamp": timestamp,
-                    "path": frame_file,
-                    "index": i,
-                })
+                frames.append(
+                    {
+                        "timestamp": timestamp,
+                        "path": frame_file,
+                        "index": i,
+                    }
+                )
             except subprocess.CalledProcessError:
                 self._logger.warning(f"Failed to extract frame at {timestamp}s")
 
@@ -629,11 +590,7 @@ class VideoClipperTool(BaseTool):
         return prompts.get(self.detection_mode, prompts["auto"])
 
     def _calculate_scene_score(
-        self,
-        timestamp: float,
-        duration: float,
-        transcription: Optional[Dict[str, Any]],
-        index: int
+        self, timestamp: float, duration: float, transcription: Optional[Dict[str, Any]], index: int
     ) -> float:
         """Calculate engagement score for a scene."""
         # Base score (higher in middle third of video)
@@ -671,9 +628,7 @@ class VideoClipperTool(BaseTool):
         return types[index % len(types)]
 
     def _select_clips(
-        self,
-        scenes: List[Dict[str, Any]],
-        transcription: Optional[Dict[str, Any]]
+        self, scenes: List[Dict[str, Any]], transcription: Optional[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """Select best clips ensuring no overlap and good distribution."""
         selected = []
@@ -693,11 +648,13 @@ class VideoClipperTool(BaseTool):
                     break
 
             if not overlaps:
-                selected.append({
-                    "timestamp": timestamp,
-                    "score": scene["score"],
-                    "highlight_type": scene["highlight_type"],
-                })
+                selected.append(
+                    {
+                        "timestamp": timestamp,
+                        "score": scene["score"],
+                        "highlight_type": scene["highlight_type"],
+                    }
+                )
 
         return selected
 
@@ -706,7 +663,7 @@ class VideoClipperTool(BaseTool):
         video_file: str,
         clip_data: Dict[str, Any],
         index: int,
-        transcription: Optional[Dict[str, Any]]
+        transcription: Optional[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """Create a single clip with all processing."""
         start_time = max(0, clip_data["timestamp"] - self.clip_duration // 2)
@@ -742,16 +699,26 @@ class VideoClipperTool(BaseTool):
         # Build FFmpeg command
         cmd = [
             "ffmpeg",
-            "-ss", str(start_time),
-            "-i", video_file,
-            "-t", str(self.clip_duration),
-            "-vf", filter_str,
-            "-c:v", "libx264",
-            "-preset", "medium",
-            "-b:v", platform["bitrate"],
-            "-r", str(platform["fps"]),
-            "-c:a", "aac",
-            "-b:a", platform["audio_bitrate"],
+            "-ss",
+            str(start_time),
+            "-i",
+            video_file,
+            "-t",
+            str(self.clip_duration),
+            "-vf",
+            filter_str,
+            "-c:v",
+            "libx264",
+            "-preset",
+            "medium",
+            "-b:v",
+            platform["bitrate"],
+            "-r",
+            str(platform["fps"]),
+            "-c:a",
+            "aac",
+            "-b:a",
+            platform["audio_bitrate"],
             output_file,
             "-y",
         ]
@@ -761,10 +728,7 @@ class VideoClipperTool(BaseTool):
         # Add captions if requested
         if self.add_captions and transcription:
             output_file = self._add_captions_to_clip(
-                output_file,
-                start_time,
-                end_time,
-                transcription
+                output_file, start_time, end_time, transcription
             )
 
         # Get file size
@@ -788,27 +752,19 @@ class VideoClipperTool(BaseTool):
         }
 
     def _add_captions_to_clip(
-        self,
-        clip_file: str,
-        start_time: float,
-        end_time: float,
-        transcription: Dict[str, Any]
+        self, clip_file: str, start_time: float, end_time: float, transcription: Dict[str, Any]
     ) -> str:
         """Add captions to clip using transcription data."""
         # Create SRT subtitle file
         srt_file = tempfile.NamedTemporaryFile(
-            mode="w",
-            suffix=".srt",
-            delete=False,
-            encoding="utf-8"
+            mode="w", suffix=".srt", delete=False, encoding="utf-8"
         ).name
 
         try:
             # Extract relevant segments
             segments = transcription.get("segments", [])
             clip_segments = [
-                seg for seg in segments
-                if seg["start"] >= start_time and seg["end"] <= end_time
+                seg for seg in segments if seg["start"] >= start_time and seg["end"] <= end_time
             ]
 
             # Write SRT file
@@ -819,7 +775,9 @@ class VideoClipperTool(BaseTool):
                     seg_end = seg["end"] - start_time
 
                     f.write(f"{i}\n")
-                    f.write(f"{self._format_srt_timestamp(seg_start)} --> {self._format_srt_timestamp(seg_end)}\n")
+                    f.write(
+                        f"{self._format_srt_timestamp(seg_start)} --> {self._format_srt_timestamp(seg_end)}\n"
+                    )
                     f.write(f"{seg['text'].strip()}\n\n")
 
             # Create new output with captions burned in
@@ -832,9 +790,12 @@ class VideoClipperTool(BaseTool):
             # Use FFmpeg to burn in subtitles
             cmd = [
                 "ffmpeg",
-                "-i", clip_file,
-                "-vf", f"subtitles={srt_file}:force_style='FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3'",
-                "-c:a", "copy",
+                "-i",
+                clip_file,
+                "-vf",
+                f"subtitles={srt_file}:force_style='FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3'",
+                "-c:a",
+                "copy",
                 output_with_captions,
                 "-y",
             ]
@@ -852,21 +813,20 @@ class VideoClipperTool(BaseTool):
                 os.unlink(srt_file)
 
     def _get_caption_preview(
-        self,
-        transcription: Optional[Dict[str, Any]],
-        start_time: float,
-        end_time: float
+        self, transcription: Optional[Dict[str, Any]], start_time: float, end_time: float
     ) -> str:
         """Get preview of caption text for this clip."""
         if not transcription:
             return ""
 
         segments = transcription.get("segments", [])
-        clip_text = " ".join([
-            seg["text"].strip()
-            for seg in segments
-            if seg["start"] >= start_time and seg["end"] <= end_time
-        ])
+        clip_text = " ".join(
+            [
+                seg["text"].strip()
+                for seg in segments
+                if seg["start"] >= start_time and seg["end"] <= end_time
+            ]
+        )
 
         # Truncate to preview length
         if len(clip_text) > 100:
@@ -905,6 +865,7 @@ if __name__ == "__main__":
     print("Testing VideoClipperTool...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic clipping with auto detection
@@ -938,7 +899,11 @@ if __name__ == "__main__":
     result2 = tool2.run()
     assert result2.get("success") == True
     assert len(result2["clips"]) == 5
-    assert result2["clips"][0]["highlight_type"] in ["fast_motion", "scene_change", "intense_moment"]
+    assert result2["clips"][0]["highlight_type"] in [
+        "fast_motion",
+        "scene_change",
+        "intense_moment",
+    ]
     print("   Action detection test passed")
 
     # Test 3: Dialogue detection with captions

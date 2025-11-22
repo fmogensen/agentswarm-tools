@@ -30,6 +30,7 @@ from shared.errors import ValidationError, APIError, AuthenticationError, RateLi
 
 # ========== WebSearch Tests ==========
 
+
 class TestWebSearch:
     """Comprehensive tests for WebSearch tool"""
 
@@ -83,7 +84,7 @@ class TestWebSearch:
         mock_response.json.return_value = {
             "items": [
                 {"title": "Result 1", "link": "https://example.com/1", "snippet": "Snippet 1"},
-                {"title": "Result 2", "link": "https://example.com/2", "snippet": "Snippet 2"}
+                {"title": "Result 2", "link": "https://example.com/2", "snippet": "Snippet 2"},
             ]
         }
         mock_get.return_value = mock_response
@@ -152,6 +153,7 @@ class TestWebSearch:
 
 # ========== ScholarSearch Tests ==========
 
+
 class TestScholarSearch:
     """Comprehensive tests for ScholarSearch tool"""
 
@@ -186,6 +188,7 @@ class TestScholarSearch:
 
 # ========== ImageSearch Tests ==========
 
+
 class TestImageSearch:
     """Comprehensive tests for ImageSearch tool"""
 
@@ -216,8 +219,16 @@ class TestImageSearch:
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "items": [
-                {"title": "Image 1", "link": "https://example.com/1.jpg", "image": {"contextLink": "https://example.com"}},
-                {"title": "Image 2", "link": "https://example.com/2.jpg", "image": {"contextLink": "https://example.com"}}
+                {
+                    "title": "Image 1",
+                    "link": "https://example.com/1.jpg",
+                    "image": {"contextLink": "https://example.com"},
+                },
+                {
+                    "title": "Image 2",
+                    "link": "https://example.com/2.jpg",
+                    "image": {"contextLink": "https://example.com"},
+                },
             ]
         }
         mock_get.return_value = mock_response
@@ -230,6 +241,7 @@ class TestImageSearch:
 
 
 # ========== VideoSearch Tests ==========
+
 
 class TestVideoSearch:
     """Comprehensive tests for VideoSearch tool"""
@@ -259,6 +271,7 @@ class TestVideoSearch:
 
 # ========== ProductSearch Tests ==========
 
+
 class TestProductSearch:
     """Comprehensive tests for ProductSearch tool"""
 
@@ -287,6 +300,7 @@ class TestProductSearch:
 
 
 # ========== GoogleProductSearch Tests ==========
+
 
 class TestGoogleProductSearch:
     """Comprehensive tests for GoogleProductSearch tool"""
@@ -319,7 +333,7 @@ class TestGoogleProductSearch:
         mock_response.json.return_value = {
             "items": [
                 {"title": "Product 1", "link": "https://example.com/1", "snippet": "Description 1"},
-                {"title": "Product 2", "link": "https://example.com/2", "snippet": "Description 2"}
+                {"title": "Product 2", "link": "https://example.com/2", "snippet": "Description 2"},
             ]
         }
         mock_get.return_value = mock_response
@@ -332,6 +346,7 @@ class TestGoogleProductSearch:
 
 
 # ========== FinancialReport Tests ==========
+
 
 class TestFinancialReport:
     """Comprehensive tests for FinancialReport tool"""
@@ -371,6 +386,7 @@ class TestFinancialReport:
 
 # ========== StockPrice Tests ==========
 
+
 class TestStockPrice:
     """Comprehensive tests for StockPrice tool"""
 
@@ -401,7 +417,7 @@ class TestStockPrice:
             "Global Quote": {
                 "01. symbol": "AAPL",
                 "05. price": "150.00",
-                "10. change percent": "1.5%"
+                "10. change percent": "1.5%",
             }
         }
         mock_get.return_value = mock_response

@@ -86,7 +86,14 @@ class VideoEditorTool(BaseTool):
     SUPPORTED_FORMATS: ClassVar[set] = {"mp4", "avi", "mov", "webm"}
 
     # Supported transition effects
-    SUPPORTED_TRANSITIONS: ClassVar[set] = {"fade", "wipeleft", "wiperight", "wipeup", "wipedown", "dissolve"}
+    SUPPORTED_TRANSITIONS: ClassVar[set] = {
+        "fade",
+        "wipeleft",
+        "wiperight",
+        "wipeup",
+        "wipedown",
+        "dissolve",
+    }
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -121,17 +128,14 @@ class VideoEditorTool(BaseTool):
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
         # Check if video_url is required for this operation set
-        requires_video = any(
-            op.get("type") != "merge" for op in self.operations
-        )
+        requires_video = any(op.get("type") != "merge" for op in self.operations)
 
         if requires_video and not self.video_url:
             # Check if it's a merge operation with videos in the operation itself
             merge_ops = [op for op in self.operations if op.get("type") == "merge"]
             if not merge_ops or not merge_ops[0].get("videos"):
                 raise ValidationError(
-                    "video_url is required for non-merge operations",
-                    tool_name=self.tool_name
+                    "video_url is required for non-merge operations", tool_name=self.tool_name
                 )
 
         # Validate output format
@@ -276,8 +280,8 @@ class VideoEditorTool(BaseTool):
         import re
 
         # Allow numeric seconds or HH:MM:SS format
-        time_pattern = r'^(\d+:)?(\d{1,2}:)?\d{1,2}(\.\d+)?$'
-        numeric_pattern = r'^\d+(\.\d+)?$'
+        time_pattern = r"^(\d+:)?(\d{1,2}:)?\d{1,2}(\.\d+)?$"
+        numeric_pattern = r"^\d+(\.\d+)?$"
 
         if not (re.match(time_pattern, str(time_str)) or re.match(numeric_pattern, str(time_str))):
             raise ValidationError(
@@ -346,12 +350,16 @@ class VideoEditorTool(BaseTool):
                 temp_files = [current_input]
 
             for i, operation in enumerate(operations_to_apply):
-                is_last = (i == len(operations_to_apply) - 1)
-                output = output_file if is_last else tempfile.NamedTemporaryFile(
-                    mode="wb",
-                    suffix=f".{self.output_format}",
-                    delete=False,
-                ).name
+                is_last = i == len(operations_to_apply) - 1
+                output = (
+                    output_file
+                    if is_last
+                    else tempfile.NamedTemporaryFile(
+                        mode="wb",
+                        suffix=f".{self.output_format}",
+                        delete=False,
+                    ).name
+                )
 
                 current_input = self._apply_operation(current_input, operation, output)
 
@@ -392,9 +400,7 @@ class VideoEditorTool(BaseTool):
                 tool_name=self.tool_name,
             )
         except requests.RequestException as e:
-            raise APIError(
-                f"Failed to download video: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to download video: {e}", tool_name=self.tool_name)
         except Exception as e:
             raise MediaError(
                 f"Video processing failed: {e}",
@@ -447,9 +453,7 @@ class VideoEditorTool(BaseTool):
         temp_file.close()
         return temp_file.name
 
-    def _apply_operation(
-        self, input_file: str, operation: Dict[str, Any], output_file: str
-    ) -> str:
+    def _apply_operation(self, input_file: str, operation: Dict[str, Any], output_file: str) -> str:
         """
         Apply a single operation to the video.
 
@@ -491,19 +495,21 @@ class VideoEditorTool(BaseTool):
 
         return output_file
 
-    def _apply_trim(
-        self, input_file: str, operation: Dict[str, Any], output_file: str
-    ) -> None:
+    def _apply_trim(self, input_file: str, operation: Dict[str, Any], output_file: str) -> None:
         """Trim video to specified time range."""
         start = operation["start"]
         end = operation["end"]
 
         cmd = [
             "ffmpeg",
-            "-i", input_file,
-            "-ss", str(start),
-            "-to", str(end),
-            "-c", "copy",
+            "-i",
+            input_file,
+            "-ss",
+            str(start),
+            "-to",
+            str(end),
+            "-c",
+            "copy",
             output_file,
             "-y",
         ]
@@ -526,10 +532,14 @@ class VideoEditorTool(BaseTool):
 
         cmd = [
             "ffmpeg",
-            "-f", "concat",
-            "-safe", "0",
-            "-i", concat_file.name,
-            "-c", "copy",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            concat_file.name,
+            "-c",
+            "copy",
             output_file,
             "-y",
         ]
@@ -552,12 +562,18 @@ class VideoEditorTool(BaseTool):
             # Replace audio track
             cmd = [
                 "ffmpeg",
-                "-i", input_file,
-                "-i", audio_file,
-                "-c:v", "copy",
-                "-c:a", "aac",
-                "-map", "0:v:0",
-                "-map", "1:a:0",
+                "-i",
+                input_file,
+                "-i",
+                audio_file,
+                "-c:v",
+                "copy",
+                "-c:a",
+                "aac",
+                "-map",
+                "0:v:0",
+                "-map",
+                "1:a:0",
                 "-shortest",
                 output_file,
                 "-y",
@@ -578,9 +594,12 @@ class VideoEditorTool(BaseTool):
         try:
             cmd = [
                 "ffmpeg",
-                "-i", input_file,
-                "-vf", f"subtitles={subtitle_file}",
-                "-c:a", "copy",
+                "-i",
+                input_file,
+                "-vf",
+                f"subtitles={subtitle_file}",
+                "-c:a",
+                "copy",
                 output_file,
                 "-y",
             ]
@@ -590,27 +609,26 @@ class VideoEditorTool(BaseTool):
             if os.path.exists(subtitle_file):
                 os.unlink(subtitle_file)
 
-    def _apply_resize(
-        self, input_file: str, operation: Dict[str, Any], output_file: str
-    ) -> None:
+    def _apply_resize(self, input_file: str, operation: Dict[str, Any], output_file: str) -> None:
         """Resize video to specified dimensions."""
         width = operation["width"]
         height = operation["height"]
 
         cmd = [
             "ffmpeg",
-            "-i", input_file,
-            "-vf", f"scale={width}:{height}",
-            "-c:a", "copy",
+            "-i",
+            input_file,
+            "-vf",
+            f"scale={width}:{height}",
+            "-c:a",
+            "copy",
             output_file,
             "-y",
         ]
 
         subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    def _apply_rotate(
-        self, input_file: str, operation: Dict[str, Any], output_file: str
-    ) -> None:
+    def _apply_rotate(self, input_file: str, operation: Dict[str, Any], output_file: str) -> None:
         """Rotate video by specified degrees."""
         degrees = operation["degrees"]
 
@@ -634,18 +652,19 @@ class VideoEditorTool(BaseTool):
 
         cmd = [
             "ffmpeg",
-            "-i", input_file,
-            "-vf", f"transpose={transpose}",
-            "-c:a", "copy",
+            "-i",
+            input_file,
+            "-vf",
+            f"transpose={transpose}",
+            "-c:a",
+            "copy",
             output_file,
             "-y",
         ]
 
         subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    def _apply_speed(
-        self, input_file: str, operation: Dict[str, Any], output_file: str
-    ) -> None:
+    def _apply_speed(self, input_file: str, operation: Dict[str, Any], output_file: str) -> None:
         """Adjust video playback speed."""
         factor = operation["factor"]
 
@@ -671,10 +690,14 @@ class VideoEditorTool(BaseTool):
 
         cmd = [
             "ffmpeg",
-            "-i", input_file,
-            "-filter_complex", f"[0:v]{video_filter}[v];[0:a]{audio_filter_str}[a]",
-            "-map", "[v]",
-            "-map", "[a]",
+            "-i",
+            input_file,
+            "-filter_complex",
+            f"[0:v]{video_filter}[v];[0:a]{audio_filter_str}[a]",
+            "-map",
+            "[v]",
+            "-map",
+            "[a]",
             output_file,
             "-y",
         ]
@@ -686,8 +709,10 @@ class VideoEditorTool(BaseTool):
         try:
             cmd = [
                 "ffprobe",
-                "-v", "quiet",
-                "-print_format", "json",
+                "-v",
+                "quiet",
+                "-print_format",
+                "json",
                 "-show_format",
                 "-show_streams",
                 video_file,
@@ -704,8 +729,7 @@ class VideoEditorTool(BaseTool):
 
             # Extract relevant information
             video_stream = next(
-                (s for s in info.get("streams", []) if s.get("codec_type") == "video"),
-                {}
+                (s for s in info.get("streams", []) if s.get("codec_type") == "video"), {}
             )
 
             duration = float(info.get("format", {}).get("duration", 0))
@@ -749,15 +773,14 @@ if __name__ == "__main__":
     print("Testing VideoEditorTool...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Trim operation
     print("\n1. Testing trim operation...")
     tool1 = VideoEditorTool(
         video_url="https://example.com/video.mp4",
-        operations=[
-            {"type": "trim", "start": "00:00:10", "end": "00:00:30"}
-        ],
+        operations=[{"type": "trim", "start": "00:00:10", "end": "00:00:30"}],
         output_format="mp4",
     )
     result1 = tool1.run()
@@ -772,7 +795,7 @@ if __name__ == "__main__":
         video_url="https://example.com/video.mp4",
         operations=[
             {"type": "resize", "width": 1920, "height": 1080},
-            {"type": "rotate", "degrees": 90}
+            {"type": "rotate", "degrees": 90},
         ],
         output_format="mp4",
     )
@@ -785,9 +808,7 @@ if __name__ == "__main__":
     print("\n3. Testing speed adjustment...")
     tool3 = VideoEditorTool(
         video_url="https://example.com/video.mp4",
-        operations=[
-            {"type": "speed", "factor": 2.0}
-        ],
+        operations=[{"type": "speed", "factor": 2.0}],
         output_format="mp4",
     )
     result3 = tool3.run()
@@ -798,9 +819,7 @@ if __name__ == "__main__":
     print("\n4. Testing add audio operation...")
     tool4 = VideoEditorTool(
         video_url="https://example.com/video.mp4",
-        operations=[
-            {"type": "add_audio", "audio_url": "https://example.com/audio.mp3"}
-        ],
+        operations=[{"type": "add_audio", "audio_url": "https://example.com/audio.mp3"}],
         output_format="mp4",
     )
     result4 = tool4.run()
@@ -816,8 +835,8 @@ if __name__ == "__main__":
                 "videos": [
                     "https://example.com/video1.mp4",
                     "https://example.com/video2.mp4",
-                    "https://example.com/video3.mp4"
-                ]
+                    "https://example.com/video3.mp4",
+                ],
             }
         ],
         output_format="mp4",
@@ -830,9 +849,7 @@ if __name__ == "__main__":
     print("\n6. Testing add subtitles operation...")
     tool6 = VideoEditorTool(
         video_url="https://example.com/video.mp4",
-        operations=[
-            {"type": "add_subtitles", "subtitle_url": "https://example.com/subtitles.srt"}
-        ],
+        operations=[{"type": "add_subtitles", "subtitle_url": "https://example.com/subtitles.srt"}],
         output_format="mp4",
     )
     result6 = tool6.run()
@@ -847,7 +864,7 @@ if __name__ == "__main__":
             {"type": "trim", "start": "00:00:05", "end": "00:00:25"},
             {"type": "resize", "width": 1280, "height": 720},
             {"type": "speed", "factor": 1.5},
-            {"type": "rotate", "degrees": 180}
+            {"type": "rotate", "degrees": 180},
         ],
         output_format="webm",
     )
@@ -862,9 +879,7 @@ if __name__ == "__main__":
     try:
         tool8 = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "trim", "start": "00:00:10"}  # Missing 'end'
-            ],
+            operations=[{"type": "trim", "start": "00:00:10"}],  # Missing 'end'
         )
         result8 = tool8.run()
         assert False, "Should have raised ValidationError"
@@ -876,9 +891,7 @@ if __name__ == "__main__":
     try:
         tool9 = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "invalid_operation"}
-            ],
+            operations=[{"type": "invalid_operation"}],
         )
         result9 = tool9.run()
         assert False, "Should have raised ValidationError"
@@ -890,9 +903,7 @@ if __name__ == "__main__":
     try:
         tool10 = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "speed", "factor": -1.0}  # Negative factor
-            ],
+            operations=[{"type": "speed", "factor": -1.0}],  # Negative factor
         )
         result10 = tool10.run()
         assert False, "Should have raised ValidationError"

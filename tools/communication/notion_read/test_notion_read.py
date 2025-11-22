@@ -69,9 +69,7 @@ class TestNotionRead:
 
     @patch.dict("os.environ", {"NOTION_API_KEY": "test_key", "USE_MOCK_APIS": "false"})
     @patch("requests.get")
-    def test_execute_success(
-        self, mock_get: Mock, mock_blocks: Dict[str, Any], valid_input: str
-    ):
+    def test_execute_success(self, mock_get: Mock, mock_blocks: Dict[str, Any], valid_input: str):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = mock_blocks
@@ -173,9 +171,7 @@ class TestNotionRead:
         long_text = [{"plain_text": "x" * 500}]
         mock_response = Mock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "results": [{"paragraph": {"rich_text": long_text}}]
-        }
+        mock_response.json.return_value = {"results": [{"paragraph": {"rich_text": long_text}}]}
         mock_get.return_value = mock_response
 
         tool = NotionRead(input=valid_input)

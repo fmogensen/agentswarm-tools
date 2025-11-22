@@ -41,9 +41,7 @@ class GenerateWordCloudChart(BaseTool):
     tool_category: str = "visualization"
 
     # Parameters
-    prompt: str = Field(
-        ..., description="Description of what to generate", min_length=1
-    )
+    prompt: str = Field(..., description="Description of what to generate", min_length=1)
     params: Dict[str, Any] = Field(
         default_factory=dict, description="Additional generation parameters"
     )
@@ -115,9 +113,9 @@ class GenerateWordCloudChart(BaseTool):
             height = int(self.params.get("height", 400))
             background_color = self.params.get("background_color", "white")
 
-            wc = WordCloud(
-                width=width, height=height, background_color=background_color
-            ).generate(self.prompt)
+            wc = WordCloud(width=width, height=height, background_color=background_color).generate(
+                self.prompt
+            )
 
             buffer = io.BytesIO()
             wc.to_image().save(buffer, format="PNG")
@@ -126,21 +124,20 @@ class GenerateWordCloudChart(BaseTool):
             return {"image_base64": encoded_image, "width": width, "height": height}
 
         except Exception as e:
-            raise APIError(
-                f"Word cloud generation failed: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Word cloud generation failed: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateWordCloudChart(
         prompt="cloud computing data analytics machine learning artificial intelligence big data python programming",
-        params={"width": 800, "height": 400, "background_color": "white"}
+        params={"width": 800, "height": 400, "background_color": "white"},
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

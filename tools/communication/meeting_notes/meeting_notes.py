@@ -82,18 +82,14 @@ class MeetingNotesAgent(BaseTool):
                 },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to process meeting notes: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to process meeting notes: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
         # Validate audio_url
         if not self.audio_url or not self.audio_url.strip():
             raise ValidationError(
-                "audio_url cannot be empty",
-                tool_name=self.tool_name,
-                field="audio_url"
+                "audio_url cannot be empty", tool_name=self.tool_name, field="audio_url"
             )
 
         # Basic URL validation
@@ -101,16 +97,14 @@ class MeetingNotesAgent(BaseTool):
             raise ValidationError(
                 "audio_url must be a valid HTTP/HTTPS URL",
                 tool_name=self.tool_name,
-                field="audio_url"
+                field="audio_url",
             )
 
         # Validate export_formats
         valid_formats = {"notion", "pdf", "markdown"}
         if not self.export_formats:
             raise ValidationError(
-                "export_formats cannot be empty",
-                tool_name=self.tool_name,
-                field="export_formats"
+                "export_formats cannot be empty", tool_name=self.tool_name, field="export_formats"
             )
 
         for fmt in self.export_formats:
@@ -118,7 +112,7 @@ class MeetingNotesAgent(BaseTool):
                 raise ValidationError(
                     f"Invalid export format: {fmt}. Must be one of {valid_formats}",
                     tool_name=self.tool_name,
-                    field="export_formats"
+                    field="export_formats",
                 )
 
     def _should_use_mock(self) -> bool:
@@ -156,7 +150,7 @@ class MeetingNotesAgent(BaseTool):
         if not api_key:
             raise APIError(
                 "Missing API credentials. Set GENSPARK_API_KEY or OPENAI_API_KEY",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         # Step 1: Download/validate audio file
@@ -197,8 +191,7 @@ class MeetingNotesAgent(BaseTool):
             }
         except requests.RequestException as e:
             raise APIError(
-                f"Cannot access audio file at {self.audio_url}: {e}",
-                tool_name=self.tool_name
+                f"Cannot access audio file at {self.audio_url}: {e}", tool_name=self.tool_name
             )
 
     def _transcribe_audio(self, api_key: str) -> Dict[str, Any]:
@@ -282,9 +275,7 @@ class MeetingNotesAgent(BaseTool):
 
         return notes
 
-    def _create_exports(
-        self, notes: Dict[str, Any], transcript: Dict[str, Any]
-    ) -> Dict[str, str]:
+    def _create_exports(self, notes: Dict[str, Any], transcript: Dict[str, Any]) -> Dict[str, str]:
         """Create exports in requested formats."""
         exports = {}
 
@@ -306,37 +297,37 @@ class MeetingNotesAgent(BaseTool):
         md += f"**Date:** {notes['meeting_overview']['date']}\n"
         md += f"**Duration:** {notes['meeting_overview']['duration']}\n\n"
 
-        if notes['meeting_overview'].get('participants'):
+        if notes["meeting_overview"].get("participants"):
             md += "**Participants:**\n"
-            for p in notes['meeting_overview']['participants']:
+            for p in notes["meeting_overview"]["participants"]:
                 md += f"- {p}\n"
             md += "\n"
 
         md += "## Key Discussion Points\n\n"
-        for point in notes['key_discussion_points']:
+        for point in notes["key_discussion_points"]:
             md += f"- {point}\n"
         md += "\n"
 
         md += "## Decisions Made\n\n"
-        for decision in notes['decisions_made']:
+        for decision in notes["decisions_made"]:
             md += f"- {decision}\n"
         md += "\n"
 
-        if self.extract_action_items and notes.get('action_items'):
+        if self.extract_action_items and notes.get("action_items"):
             md += "## Action Items\n\n"
-            for item in notes['action_items']:
+            for item in notes["action_items"]:
                 md += f"- [ ] **{item['task']}** "
                 md += f"(Assignee: {item['assignee']}, Due: {item['deadline']})\n"
             md += "\n"
 
         md += "## Next Steps\n\n"
-        for step in notes['next_steps']:
+        for step in notes["next_steps"]:
             md += f"- {step}\n"
         md += "\n"
 
-        if self.include_transcript and notes.get('full_transcript'):
+        if self.include_transcript and notes.get("full_transcript"):
             md += "## Full Transcript\n\n"
-            md += notes['full_transcript'].get('text', '')
+            md += notes["full_transcript"].get("text", "")
             md += "\n"
 
         return md
@@ -366,6 +357,7 @@ if __name__ == "__main__":
     print("Testing MeetingNotesAgent...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test basic meeting notes
@@ -373,31 +365,28 @@ if __name__ == "__main__":
         audio_url="https://example.com/meeting.mp3",
         export_formats=["markdown", "pdf"],
         extract_action_items=True,
-        meeting_title="Test Meeting"
+        meeting_title="Test Meeting",
     )
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'notes_url' in result['result']
-    assert len(result['result']['exports']) == 2
+    assert result.get("success") == True
+    assert "notes_url" in result["result"]
+    assert len(result["result"]["exports"]) == 2
     print(f"✅ Basic meeting notes test passed")
 
     # Test Notion export
     tool2 = MeetingNotesAgent(
         audio_url="https://example.com/meeting2.mp3",
         export_formats=["notion"],
-        identify_speakers=True
+        identify_speakers=True,
     )
     result2 = tool2.run()
-    assert 'notion' in result2['result']['exports']
+    assert "notion" in result2["result"]["exports"]
     print(f"✅ Notion export test passed")
 
     # Test validation
     try:
-        tool3 = MeetingNotesAgent(
-            audio_url="",
-            export_formats=["markdown"]
-        )
+        tool3 = MeetingNotesAgent(audio_url="", export_formats=["markdown"])
         tool3.run()
         assert False, "Should have raised ValidationError"
     except Exception as e:

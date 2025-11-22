@@ -79,7 +79,9 @@ class TestGmailRead:
 
     # ========== ERROR HANDLING TESTS ==========
 
-    @patch.dict("os.environ", {"GOOGLE_SERVICE_ACCOUNT_JSON": "/tmp/fake.json", "USE_MOCK_APIS": "false"})
+    @patch.dict(
+        "os.environ", {"GOOGLE_SERVICE_ACCOUNT_JSON": "/tmp/fake.json", "USE_MOCK_APIS": "false"}
+    )
     @patch("google.oauth2.service_account.Credentials.from_service_account_file")
     @patch("googleapiclient.discovery.build")
     def test_process_api_error(self, mock_build, mock_creds, tool: GmailRead):

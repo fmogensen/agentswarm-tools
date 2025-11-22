@@ -33,9 +33,7 @@ class Think(BaseTool):
     tool_category: str = "utils"
 
     # Parameters
-    thought: str = Field(
-        ..., description="Internal reasoning or thought to record", min_length=1
-    )
+    thought: str = Field(..., description="Internal reasoning or thought to record", min_length=1)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -117,6 +115,7 @@ if __name__ == "__main__":
     print("Testing Think...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic thought recording
@@ -124,8 +123,8 @@ if __name__ == "__main__":
     tool = Think(thought="I need to analyze the user's requirements before proceeding")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'stored' in result.get('result', {})
+    assert result.get("success") == True
+    assert "stored" in result.get("result", {})
     print(f"✅ Test 1 passed: {result.get('result', {}).get('message')}")
     print(f"   Thought stored: {result.get('result', {}).get('stored')[:50]}...")
 
@@ -135,7 +134,7 @@ if __name__ == "__main__":
     tool = Think(thought=long_thought)
     result = tool.run()
 
-    assert result.get('success') == True
+    assert result.get("success") == True
     print(f"✅ Test 2 passed: Long thought stored ({len(long_thought)} chars)")
 
     # Test 3: Validation - empty thought

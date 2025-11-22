@@ -15,11 +15,7 @@ class TestEmailSend:
 
     def test_basic_email(self):
         """Test sending basic email."""
-        tool = EmailSend(
-            to="test@example.com",
-            subject="Test Subject",
-            body="Test body content"
-        )
+        tool = EmailSend(to="test@example.com", subject="Test Subject", body="Test body content")
         result = tool.run()
 
         assert result["success"] == True
@@ -34,7 +30,7 @@ class TestEmailSend:
             to="test@example.com",
             subject="HTML Email",
             body="<html><body><h1>Hello</h1></body></html>",
-            is_html=True
+            is_html=True,
         )
         result = tool.run()
 
@@ -48,7 +44,7 @@ class TestEmailSend:
             subject="Test",
             body="Test",
             cc="cc@example.com",
-            bcc="bcc@example.com"
+            bcc="bcc@example.com",
         )
         result = tool.run()
 
@@ -61,7 +57,7 @@ class TestEmailSend:
         tool = EmailSend(
             to="user1@example.com,user2@example.com,user3@example.com",
             subject="Multiple Recipients",
-            body="Test body"
+            body="Test body",
         )
         result = tool.run()
 
@@ -70,48 +66,28 @@ class TestEmailSend:
     def test_validation_empty_to(self):
         """Test validation for empty TO field."""
         with pytest.raises((ValidationError, ValueError)):
-            tool = EmailSend(
-                to="",
-                subject="Test",
-                body="Test"
-            )
+            tool = EmailSend(to="", subject="Test", body="Test")
 
     def test_validation_invalid_email(self):
         """Test validation for invalid email format."""
         with pytest.raises((ValidationError, ValueError)):
-            tool = EmailSend(
-                to="not-an-email",
-                subject="Test",
-                body="Test"
-            )
+            tool = EmailSend(to="not-an-email", subject="Test", body="Test")
 
     def test_validation_empty_subject(self):
         """Test validation for empty subject."""
         with pytest.raises(ValidationError):
-            tool = EmailSend(
-                to="test@example.com",
-                subject="",
-                body="Test"
-            )
+            tool = EmailSend(to="test@example.com", subject="", body="Test")
             tool.run()
 
     def test_validation_empty_body(self):
         """Test validation for empty body."""
         with pytest.raises(ValidationError):
-            tool = EmailSend(
-                to="test@example.com",
-                subject="Test",
-                body=""
-            )
+            tool = EmailSend(to="test@example.com", subject="Test", body="")
             tool.run()
 
     def test_mock_mode(self):
         """Test mock mode returns expected structure."""
-        tool = EmailSend(
-            to="test@example.com",
-            subject="Test",
-            body="Test body"
-        )
+        tool = EmailSend(to="test@example.com", subject="Test", body="Test body")
         result = tool.run()
 
         assert result["metadata"]["mock_mode"] == True

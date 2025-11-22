@@ -170,7 +170,7 @@ class TestQueryCallLogs:
 
     @pytest.mark.skipif(
         not os.getenv("TWILIO_ACCOUNT_SID") or not os.getenv("TWILIO_AUTH_TOKEN"),
-        reason="Twilio credentials not set - optional dependency test"
+        reason="Twilio credentials not set - optional dependency test",
     )
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})  # Use mock mode for testing
     def test_real_api_success_simulation(self, basic_tool):
@@ -190,7 +190,7 @@ class TestQueryCallLogs:
 
     @pytest.mark.skipif(
         True,  # Always skip this test - requires actual Twilio setup
-        reason="Requires real Twilio credentials and API quota - skip in CI/CD"
+        reason="Requires real Twilio credentials and API quota - skip in CI/CD",
     )
     def test_twilio_authentication_error(self):
         # Skip if twilio not installed (it's an optional dependency)
@@ -215,9 +215,7 @@ class TestQueryCallLogs:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_valid_date_range(self):
-        tool = QueryCallLogs(
-            start_date="2024-01-01", end_date="2024-01-01", limit=5
-        )  # Same day
+        tool = QueryCallLogs(start_date="2024-01-01", end_date="2024-01-01", limit=5)  # Same day
         result = tool.run()
         assert result["success"] is True
 

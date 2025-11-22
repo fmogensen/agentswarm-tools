@@ -16,9 +16,7 @@ class TestTeamsSendMessage:
     def test_basic_message(self):
         """Test sending basic message."""
         tool = TeamsSendMessage(
-            team_id="test-team-123",
-            channel_id="test-channel-456",
-            message="Hello Teams!"
+            team_id="test-team-123", channel_id="test-channel-456", message="Hello Teams!"
         )
         result = tool.run()
 
@@ -32,7 +30,7 @@ class TestTeamsSendMessage:
             team_id="test-team-123",
             channel_id="test-channel-456",
             message="Message content",
-            subject="Important Update"
+            subject="Important Update",
         )
         result = tool.run()
 
@@ -46,7 +44,7 @@ class TestTeamsSendMessage:
             team_id="test-team-123",
             channel_id="test-channel-456",
             message="<h1>Title</h1><p>Content</p>",
-            content_type="html"
+            content_type="html",
         )
         result = tool.run()
 
@@ -59,7 +57,7 @@ class TestTeamsSendMessage:
             team_id="test-team-123",
             channel_id="test-channel-456",
             message="Urgent message",
-            importance="high"
+            importance="high",
         )
         result = tool.run()
 
@@ -69,10 +67,7 @@ class TestTeamsSendMessage:
     def test_low_importance(self):
         """Test low importance message."""
         tool = TeamsSendMessage(
-            team_id="test-team-123",
-            channel_id="test-channel-456",
-            message="FYI",
-            importance="low"
+            team_id="test-team-123", channel_id="test-channel-456", message="FYI", importance="low"
         )
         result = tool.run()
 
@@ -82,30 +77,20 @@ class TestTeamsSendMessage:
     def test_validation_empty_team_id(self):
         """Test validation for empty team ID."""
         with pytest.raises(ValidationError):
-            tool = TeamsSendMessage(
-                team_id="",
-                channel_id="test-channel-456",
-                message="Test"
-            )
+            tool = TeamsSendMessage(team_id="", channel_id="test-channel-456", message="Test")
             tool.run()
 
     def test_validation_empty_channel_id(self):
         """Test validation for empty channel ID."""
         with pytest.raises(ValidationError):
-            tool = TeamsSendMessage(
-                team_id="test-team-123",
-                channel_id="",
-                message="Test"
-            )
+            tool = TeamsSendMessage(team_id="test-team-123", channel_id="", message="Test")
             tool.run()
 
     def test_validation_empty_message(self):
         """Test validation for empty message."""
         with pytest.raises(ValidationError):
             tool = TeamsSendMessage(
-                team_id="test-team-123",
-                channel_id="test-channel-456",
-                message=""
+                team_id="test-team-123", channel_id="test-channel-456", message=""
             )
             tool.run()
 
@@ -116,7 +101,7 @@ class TestTeamsSendMessage:
                 team_id="test-team-123",
                 channel_id="test-channel-456",
                 message="Test",
-                content_type="invalid"
+                content_type="invalid",
             )
             tool.run()
 
@@ -127,16 +112,14 @@ class TestTeamsSendMessage:
                 team_id="test-team-123",
                 channel_id="test-channel-456",
                 message="Test",
-                importance="invalid"
+                importance="invalid",
             )
             tool.run()
 
     def test_mock_mode(self):
         """Test mock mode returns expected structure."""
         tool = TeamsSendMessage(
-            team_id="test-team-123",
-            channel_id="test-channel-456",
-            message="Test"
+            team_id="test-team-123", channel_id="test-channel-456", message="Test"
         )
         result = tool.run()
 

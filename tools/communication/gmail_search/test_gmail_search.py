@@ -64,9 +64,7 @@ class TestGmailSearch:
         users.messages.return_value.list.return_value.execute.return_value = {
             "messages": mock_messages
         }
-        users.messages.return_value.get.return_value.execute.return_value = (
-            mock_message_detail
-        )
+        users.messages.return_value.get.return_value.execute.return_value = mock_message_detail
         mock_build.return_value = service
 
         result = tool.run()
@@ -89,14 +87,22 @@ class TestGmailSearch:
         tool = GmailSearch(query="   ", max_results=5)
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "Query cannot be empty" in error_msg
 
     def test_invalid_max_results_raises_validation_error(self):
         tool = GmailSearch(query="test", max_results=0)
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "max_results must be a positive integer" in error_msg
 
     # ========== ERROR HANDLING TESTS ==========
@@ -108,7 +114,11 @@ class TestGmailSearch:
 
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "GOOGLE_SERVICE_ACCOUNT_FILE" in error_msg
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
@@ -116,7 +126,11 @@ class TestGmailSearch:
     def test_api_error_propagates(self, mock_process, tool: GmailSearch):
         result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert "API failed" in error_msg
 
     # ========== EDGE CASE TESTS ==========

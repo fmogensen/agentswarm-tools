@@ -16,6 +16,7 @@ from collections import defaultdict
 
 class EventType(Enum):
     """Types of analytics events."""
+
     TOOL_START = "tool_start"
     TOOL_SUCCESS = "tool_success"
     TOOL_ERROR = "tool_error"
@@ -27,6 +28,7 @@ class EventType(Enum):
 @dataclass
 class AnalyticsEvent:
     """Single analytics event."""
+
     event_type: EventType
     tool_name: str
     timestamp: datetime = field(default_factory=datetime.utcnow)
@@ -41,14 +43,15 @@ class AnalyticsEvent:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         data = asdict(self)
-        data['event_type'] = self.event_type.value
-        data['timestamp'] = self.timestamp.isoformat()
+        data["event_type"] = self.event_type.value
+        data["timestamp"] = self.timestamp.isoformat()
         return data
 
 
 @dataclass
 class ToolMetrics:
     """Aggregated metrics for a tool."""
+
     tool_name: str
     total_requests: int = 0
     successful_requests: int = 0
@@ -93,7 +96,7 @@ class ToolMetrics:
             "error_rate": round(self.error_rate, 2),
             "error_count_by_code": dict(self.error_count_by_code),
             "last_success": self.last_success.isoformat() if self.last_success else None,
-            "last_error": self.last_error.isoformat() if self.last_error else None
+            "last_error": self.last_error.isoformat() if self.last_error else None,
         }
 
 
@@ -129,8 +132,7 @@ class InMemoryBackend(AnalyticsBackend):
         """Calculate metrics from in-memory events."""
         cutoff = datetime.utcnow() - timedelta(days=days)
         relevant_events = [
-            e for e in self.events
-            if e.tool_name == tool_name and e.timestamp >= cutoff
+            e for e in self.events if e.tool_name == tool_name and e.timestamp >= cutoff
         ]
 
         metrics = ToolMetrics(tool_name=tool_name)
@@ -143,9 +145,15 @@ class InMemoryBackend(AnalyticsBackend):
 
                 if event.duration_ms:
                     metrics.total_duration_ms += event.duration_ms
-                    if metrics.min_duration_ms is None or event.duration_ms < metrics.min_duration_ms:
+                    if (
+                        metrics.min_duration_ms is None
+                        or event.duration_ms < metrics.min_duration_ms
+                    ):
                         metrics.min_duration_ms = event.duration_ms
-                    if metrics.max_duration_ms is None or event.duration_ms > metrics.max_duration_ms:
+                    if (
+                        metrics.max_duration_ms is None
+                        or event.duration_ms > metrics.max_duration_ms
+                    ):
                         metrics.max_duration_ms = event.duration_ms
 
             elif event.event_type == EventType.TOOL_ERROR:
@@ -160,10 +168,7 @@ class InMemoryBackend(AnalyticsBackend):
     def get_all_metrics(self, days: int = 7) -> Dict[str, ToolMetrics]:
         """Get metrics for all tools."""
         tool_names = set(e.tool_name for e in self.events)
-        return {
-            name: self.get_metrics(name, days)
-            for name in tool_names
-        }
+        return {name: self.get_metrics(name, days) for name in tool_names}
 
 
 class FileBackend(AnalyticsBackend):
@@ -182,8 +187,8 @@ class FileBackend(AnalyticsBackend):
         """Record event to daily log file."""
         with self._lock:
             log_file = self._get_log_file(event.timestamp)
-            with open(log_file, 'a') as f:
-                f.write(json.dumps(event.to_dict()) + '\n')
+            with open(log_file, "a") as f:
+                f.write(json.dumps(event.to_dict()) + "\n")
 
     def get_metrics(self, tool_name: str, days: int = 7) -> ToolMetrics:
         """Calculate metrics from log files."""
@@ -198,38 +203,44 @@ class FileBackend(AnalyticsBackend):
             if not log_file.exists():
                 continue
 
-            with open(log_file, 'r') as f:
+            with open(log_file, "r") as f:
                 for line in f:
                     try:
                         data = json.loads(line)
-                        if data['tool_name'] != tool_name:
+                        if data["tool_name"] != tool_name:
                             continue
 
-                        event_time = datetime.fromisoformat(data['timestamp'])
+                        event_time = datetime.fromisoformat(data["timestamp"])
                         if event_time < cutoff:
                             continue
 
-                        event_type = EventType(data['event_type'])
+                        event_type = EventType(data["event_type"])
 
                         if event_type == EventType.TOOL_SUCCESS:
                             metrics.successful_requests += 1
                             metrics.total_requests += 1
                             metrics.last_success = event_time
 
-                            if data.get('duration_ms'):
-                                duration = data['duration_ms']
+                            if data.get("duration_ms"):
+                                duration = data["duration_ms"]
                                 metrics.total_duration_ms += duration
-                                if metrics.min_duration_ms is None or duration < metrics.min_duration_ms:
+                                if (
+                                    metrics.min_duration_ms is None
+                                    or duration < metrics.min_duration_ms
+                                ):
                                     metrics.min_duration_ms = duration
-                                if metrics.max_duration_ms is None or duration > metrics.max_duration_ms:
+                                if (
+                                    metrics.max_duration_ms is None
+                                    or duration > metrics.max_duration_ms
+                                ):
                                     metrics.max_duration_ms = duration
 
                         elif event_type == EventType.TOOL_ERROR:
                             metrics.failed_requests += 1
                             metrics.total_requests += 1
                             metrics.last_error = event_time
-                            if data.get('error_code'):
-                                metrics.error_count_by_code[data['error_code']] += 1
+                            if data.get("error_code"):
+                                metrics.error_count_by_code[data["error_code"]] += 1
 
                     except (json.JSONDecodeError, KeyError):
                         continue
@@ -248,18 +259,15 @@ class FileBackend(AnalyticsBackend):
             if not log_file.exists():
                 continue
 
-            with open(log_file, 'r') as f:
+            with open(log_file, "r") as f:
                 for line in f:
                     try:
                         data = json.loads(line)
-                        tool_names.add(data['tool_name'])
+                        tool_names.add(data["tool_name"])
                     except (json.JSONDecodeError, KeyError):
                         continue
 
-        return {
-            name: self.get_metrics(name, days)
-            for name in tool_names
-        }
+        return {name: self.get_metrics(name, days) for name in tool_names}
 
 
 # Global analytics instance
@@ -316,12 +324,16 @@ def print_metrics(tool_name: Optional[str] = None, days: int = 7) -> None:
         print(f"Avg Duration: {metrics.avg_duration_ms:.2f}ms")
         if metrics.error_count_by_code:
             print("\nErrors by Code:")
-            for code, count in sorted(metrics.error_count_by_code.items(), key=lambda x: x[1], reverse=True):
+            for code, count in sorted(
+                metrics.error_count_by_code.items(), key=lambda x: x[1], reverse=True
+            ):
                 print(f"  {code}: {count}")
     else:
         all_metrics = get_all_metrics(days)
         print(f"\n=== Metrics for All Tools (last {days} days) ===")
         for name, metrics in sorted(all_metrics.items()):
             print(f"\n{name}:")
-            print(f"  Requests: {metrics.total_requests}, Success Rate: {metrics.success_rate:.2f}%")
+            print(
+                f"  Requests: {metrics.total_requests}, Success Rate: {metrics.success_rate:.2f}%"
+            )
             print(f"  Avg Duration: {metrics.avg_duration_ms:.2f}ms")

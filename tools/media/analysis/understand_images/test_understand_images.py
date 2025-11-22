@@ -42,9 +42,7 @@ class TestUnderstandImages:
 
     # ========== HAPPY PATH TESTS ==========
 
-    def test_execute_success_http(
-        self, tool: UnderstandImages, fake_image_bytes: bytes
-    ):
+    def test_execute_success_http(self, tool: UnderstandImages, fake_image_bytes: bytes):
         with patch("requests.get") as mock_get:
             mock_resp = MagicMock()
             mock_resp.status_code = 200
@@ -59,9 +57,7 @@ class TestUnderstandImages:
         assert result["metadata"]["tool_name"] == "understand_images"
 
     def test_execute_success_aidrive(self, valid_instruction: str):
-        tool = UnderstandImages(
-            media_url="aidrive://my_image", instruction=valid_instruction
-        )
+        tool = UnderstandImages(media_url="aidrive://my_image", instruction=valid_instruction)
         result = tool.run()
 
         assert result["success"] is True

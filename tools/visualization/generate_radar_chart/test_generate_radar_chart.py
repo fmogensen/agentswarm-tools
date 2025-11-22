@@ -71,9 +71,7 @@ class TestGenerateRadarChart:
 
     def test_missing_prompt_raises_error(self):
         """Empty prompt fails custom validation and returns error dict."""
-        tool = GenerateRadarChart(
-            prompt="", params={"data": {"a": 1, "b": 2, "c": 3, "d": 4}}
-        )
+        tool = GenerateRadarChart(prompt="", params={"data": {"a": 1, "b": 2, "c": 3, "d": 4}})
         result = tool.run()
         assert result["success"] is False
 
@@ -96,9 +94,7 @@ class TestGenerateRadarChart:
 
     def test_non_numeric_values_raises_error(self):
         """Non-numeric values fail custom validation and returns error dict."""
-        tool = GenerateRadarChart(
-            prompt="x", params={"data": {"a": 1, "b": "bad", "c": 3, "d": 4}}
-        )
+        tool = GenerateRadarChart(prompt="x", params={"data": {"a": 1, "b": "bad", "c": 3, "d": 4}})
         result = tool.run()
         assert result["success"] is False
 

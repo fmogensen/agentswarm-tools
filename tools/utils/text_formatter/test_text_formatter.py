@@ -100,8 +100,7 @@ class TestTextFormatter:
         """Test multiple operations."""
         os.environ["USE_MOCK_APIS"] = "false"
         tool = TextFormatter(
-            text="  HELLO WORLD!  ",
-            operations=["trim", "lowercase", "remove_punctuation"]
+            text="  HELLO WORLD!  ", operations=["trim", "lowercase", "remove_punctuation"]
         )
         result = tool.run()
 
@@ -116,7 +115,7 @@ class TestTextFormatter:
         tool = TextFormatter(
             text="hello world",
             operations=["trim"],
-            custom_replacements={"hello": "hi", "world": "there"}
+            custom_replacements={"hello": "hi", "world": "there"},
         )
         result = tool.run()
 
@@ -126,11 +125,7 @@ class TestTextFormatter:
     def test_strip_html(self):
         """Test HTML stripping."""
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = TextFormatter(
-            text="<p>hello <b>world</b></p>",
-            operations=["trim"],
-            strip_html=True
-        )
+        tool = TextFormatter(text="<p>hello <b>world</b></p>", operations=["trim"], strip_html=True)
         result = tool.run()
 
         assert result["success"] == True
@@ -151,10 +146,7 @@ class TestTextFormatter:
     def test_changes_log(self):
         """Test changes log is recorded."""
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = TextFormatter(
-            text="  HELLO  ",
-            operations=["trim", "lowercase"]
-        )
+        tool = TextFormatter(text="  HELLO  ", operations=["trim", "lowercase"])
         result = tool.run()
 
         assert result["success"] == True

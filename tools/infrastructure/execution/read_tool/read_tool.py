@@ -136,6 +136,7 @@ if __name__ == "__main__":
     print("Testing ReadTool...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Read file with mock mode
@@ -143,9 +144,9 @@ if __name__ == "__main__":
     tool = ReadTool(file_path="/tmp/test.txt")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert isinstance(result.get('result'), list)
-    assert len(result.get('result')) > 0
+    assert result.get("success") == True
+    assert isinstance(result.get("result"), list)
+    assert len(result.get("result")) > 0
     print(f"✅ Test 1 passed: File read successfully")
     print(f"   Lines: {len(result.get('result'))}")
     print(f"   First line: {result.get('result')[0]}")
@@ -155,8 +156,8 @@ if __name__ == "__main__":
     tool = ReadTool(file_path="/home/user/document.txt")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert result.get('metadata', {}).get('path') == "/home/user/document.txt"
+    assert result.get("success") == True
+    assert result.get("metadata", {}).get("path") == "/home/user/document.txt"
     print(f"✅ Test 2 passed: Different file read successfully")
 
     # Test 3: Validation - directory traversal attempt
@@ -173,8 +174,8 @@ if __name__ == "__main__":
     tool = ReadTool(file_path="/test/file.py")
     result = tool.run()
 
-    first_line = result.get('result', [])[0]
-    assert ':' in first_line  # Line numbers format
+    first_line = result.get("result", [])[0]
+    assert ":" in first_line  # Line numbers format
     print(f"✅ Test 4 passed: Line number format correct")
 
     print("\n✅ All tests passed!")

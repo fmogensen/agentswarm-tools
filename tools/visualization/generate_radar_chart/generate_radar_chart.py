@@ -102,9 +102,7 @@ class GenerateRadarChart(BaseTool):
 
     def _generate_mock_results(self) -> Dict[str, Any]:
         """Generate mock results for testing."""
-        mock_points = [
-            {"axis": f"dim{i}", "angle": i * 0.5, "radius": 0.8} for i in range(1, 6)
-        ]
+        mock_points = [{"axis": f"dim{i}", "angle": i * 0.5, "radius": 0.8} for i in range(1, 6)]
         return {
             "success": True,
             "result": {"mock": True, "points": mock_points},
@@ -138,20 +136,17 @@ class GenerateRadarChart(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = GenerateRadarChart(
         prompt="Performance Metrics Analysis",
-        params={"data": {
-            "Speed": 85,
-            "Quality": 90,
-            "Cost": 70,
-            "Reliability": 95,
-            "Innovation": 80
-        }}
+        params={
+            "data": {"Speed": 85, "Quality": 90, "Cost": 70, "Reliability": 95, "Innovation": 80}
+        },
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True, "Tool execution failed"
+    assert result.get("success") == True, "Tool execution failed"
     print(f"Result: {result.get('result')}")

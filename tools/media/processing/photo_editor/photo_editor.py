@@ -57,9 +57,7 @@ class PhotoEditorTool(BaseTool):
         ..., description="List of editing operations", min_length=1
     )
     output_format: str = Field("png", description="Output format: png, jpg, webp")
-    quality: int = Field(
-        90, description="Output quality 1-100 (jpg only)", ge=1, le=100
-    )
+    quality: int = Field(90, description="Output quality 1-100 (jpg only)", ge=1, le=100)
 
     # Supported operation types and filters
     SUPPORTED_OPERATIONS = {
@@ -204,9 +202,7 @@ class PhotoEditorTool(BaseTool):
             }
 
         except requests.RequestException as e:
-            raise APIError(
-                f"Failed to download image: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to download image: {e}", tool_name=self.tool_name)
         except Exception as e:
             raise MediaError(
                 f"Image processing failed: {e}",

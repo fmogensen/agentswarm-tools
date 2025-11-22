@@ -65,27 +65,19 @@ class FactChecker(BaseTool):
 
     # Parameters
     claim: str = Field(
-        ...,
-        description="The claim or statement to verify",
-        min_length=5,
-        max_length=500
+        ..., description="The claim or statement to verify", min_length=5, max_length=500
     )
 
     sources: Optional[List[str]] = Field(
-        default=None,
-        description="Optional list of specific source URLs to check"
+        default=None, description="Optional list of specific source URLs to check"
     )
 
     use_scholar: bool = Field(
-        default=False,
-        description="Whether to include academic sources via scholar search"
+        default=False, description="Whether to include academic sources via scholar search"
     )
 
     max_sources: int = Field(
-        default=10,
-        description="Maximum number of sources to analyze",
-        ge=1,
-        le=50
+        default=10, description="Maximum number of sources to analyze", ge=1, le=50
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -112,10 +104,10 @@ class FactChecker(BaseTool):
                 "metadata": {
                     "tool_name": self.tool_name,
                     "claim": self.claim,
-                    "sources_analyzed": len(result.get("supporting_sources", [])) +
-                                       len(result.get("contradicting_sources", [])) +
-                                       len(result.get("neutral_sources", []))
-                }
+                    "sources_analyzed": len(result.get("supporting_sources", []))
+                    + len(result.get("contradicting_sources", []))
+                    + len(result.get("neutral_sources", [])),
+                },
             }
         except Exception as e:
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
@@ -124,9 +116,7 @@ class FactChecker(BaseTool):
         """Validate input parameters."""
         if not self.claim.strip():
             raise ValidationError(
-                "Claim cannot be empty",
-                tool_name=self.tool_name,
-                details={"claim": self.claim}
+                "Claim cannot be empty", tool_name=self.tool_name, details={"claim": self.claim}
             )
 
         # Validate source URLs if provided
@@ -136,7 +126,7 @@ class FactChecker(BaseTool):
                     raise ValidationError(
                         f"Invalid source URL: {source}",
                         tool_name=self.tool_name,
-                        details={"source": source}
+                        details={"source": source},
                     )
 
     def _should_use_mock(self) -> bool:
@@ -151,15 +141,15 @@ class FactChecker(BaseTool):
                 "title": "Mock Supporting Source 1",
                 "snippet": f"This source supports the claim: {self.claim}",
                 "credibility_score": 85,
-                "domain": "example.com"
+                "domain": "example.com",
             },
             {
                 "url": "https://scholar.example.edu/paper1",
                 "title": "Academic Study Supporting Claim",
                 "snippet": "Research confirms this statement.",
                 "credibility_score": 95,
-                "domain": "scholar.example.edu"
-            }
+                "domain": "scholar.example.edu",
+            },
         ]
 
         mock_contradicting = [
@@ -168,7 +158,7 @@ class FactChecker(BaseTool):
                 "title": "Critical Analysis",
                 "snippet": "This analysis questions the validity of the claim.",
                 "credibility_score": 75,
-                "domain": "skeptic.example.org"
+                "domain": "skeptic.example.org",
             }
         ]
 
@@ -178,7 +168,7 @@ class FactChecker(BaseTool):
                 "title": "General Information",
                 "snippet": "Background information on the topic.",
                 "credibility_score": 70,
-                "domain": "wiki.example.com"
+                "domain": "wiki.example.com",
             }
         ]
 
@@ -193,12 +183,9 @@ class FactChecker(BaseTool):
                 "supporting_sources": mock_supporting,
                 "contradicting_sources": mock_contradicting,
                 "neutral_sources": mock_neutral,
-                "analysis_summary": f"Found {len(mock_supporting)} supporting sources and {len(mock_contradicting)} contradicting sources. The claim appears to be supported by available evidence."
+                "analysis_summary": f"Found {len(mock_supporting)} supporting sources and {len(mock_contradicting)} contradicting sources. The claim appears to be supported by available evidence.",
             },
-            "metadata": {
-                "mock_mode": True,
-                "sources_analyzed": 4
-            }
+            "metadata": {"mock_mode": True, "sources_analyzed": 4},
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -217,7 +204,7 @@ class FactChecker(BaseTool):
                 all_sources.extend(self._search_scholar_sources())
 
         # Limit to max_sources
-        all_sources = all_sources[:self.max_sources]
+        all_sources = all_sources[: self.max_sources]
 
         # Step 2: Categorize sources
         supporting_sources = []
@@ -235,9 +222,7 @@ class FactChecker(BaseTool):
 
         # Step 3: Calculate confidence score
         confidence_score = self._calculate_confidence_score(
-            supporting_sources,
-            contradicting_sources,
-            neutral_sources
+            supporting_sources, contradicting_sources, neutral_sources
         )
 
         # Step 4: Determine verdict
@@ -248,7 +233,7 @@ class FactChecker(BaseTool):
             confidence_score,
             len(supporting_sources),
             len(contradicting_sources),
-            len(neutral_sources)
+            len(neutral_sources),
         )
 
         return {
@@ -257,19 +242,21 @@ class FactChecker(BaseTool):
             "supporting_sources": supporting_sources,
             "contradicting_sources": contradicting_sources,
             "neutral_sources": neutral_sources,
-            "analysis_summary": analysis_summary
+            "analysis_summary": analysis_summary,
         }
 
     def _search_web_sources(self) -> List[Dict[str, Any]]:
         """Search for sources using web search API."""
         try:
             api_key = os.getenv("GOOGLE_SEARCH_API_KEY") or os.getenv("GOOGLE_SHOPPING_API_KEY")
-            engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") or os.getenv("GOOGLE_SHOPPING_ENGINE_ID")
+            engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") or os.getenv(
+                "GOOGLE_SHOPPING_ENGINE_ID"
+            )
 
             if not api_key or not engine_id:
                 raise APIError(
                     "Missing API credentials. Set GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_ENGINE_ID",
-                    tool_name=self.tool_name
+                    tool_name=self.tool_name,
                 )
 
             # Construct fact-checking query
@@ -292,13 +279,15 @@ class FactChecker(BaseTool):
             for item in search_results:
                 url = item.get("link", "")
                 domain = urlparse(url).netloc
-                sources.append({
-                    "url": url,
-                    "title": item.get("title", ""),
-                    "snippet": item.get("snippet", ""),
-                    "credibility_score": self._assess_credibility(domain),
-                    "domain": domain
-                })
+                sources.append(
+                    {
+                        "url": url,
+                        "title": item.get("title", ""),
+                        "snippet": item.get("snippet", ""),
+                        "credibility_score": self._assess_credibility(domain),
+                        "domain": domain,
+                    }
+                )
 
             return sources
 
@@ -311,12 +300,14 @@ class FactChecker(BaseTool):
         # For now, we'll simulate by searching with 'scholar' or 'research' keywords
         try:
             api_key = os.getenv("GOOGLE_SEARCH_API_KEY") or os.getenv("GOOGLE_SHOPPING_API_KEY")
-            engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") or os.getenv("GOOGLE_SHOPPING_ENGINE_ID")
+            engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") or os.getenv(
+                "GOOGLE_SHOPPING_ENGINE_ID"
+            )
 
             if not api_key or not engine_id:
                 return []  # Gracefully skip if no credentials
 
-            query = f'{self.claim} site:edu OR site:gov research study'
+            query = f"{self.claim} site:edu OR site:gov research study"
 
             response = requests.get(
                 "https://www.googleapis.com/customsearch/v1",
@@ -337,15 +328,17 @@ class FactChecker(BaseTool):
                 domain = urlparse(url).netloc
                 # Boost credibility for academic sources
                 base_credibility = self._assess_credibility(domain)
-                academic_bonus = 20 if any(ext in domain for ext in ['.edu', '.gov']) else 0
+                academic_bonus = 20 if any(ext in domain for ext in [".edu", ".gov"]) else 0
 
-                sources.append({
-                    "url": url,
-                    "title": item.get("title", ""),
-                    "snippet": item.get("snippet", ""),
-                    "credibility_score": min(100, base_credibility + academic_bonus),
-                    "domain": domain
-                })
+                sources.append(
+                    {
+                        "url": url,
+                        "title": item.get("title", ""),
+                        "snippet": item.get("snippet", ""),
+                        "credibility_score": min(100, base_credibility + academic_bonus),
+                        "domain": domain,
+                    }
+                )
 
             return sources
 
@@ -357,13 +350,15 @@ class FactChecker(BaseTool):
         sources = []
         for url in source_urls:
             domain = urlparse(url).netloc
-            sources.append({
-                "url": url,
-                "title": "User-provided source",
-                "snippet": "",
-                "credibility_score": self._assess_credibility(domain),
-                "domain": domain
-            })
+            sources.append(
+                {
+                    "url": url,
+                    "title": "User-provided source",
+                    "snippet": "",
+                    "credibility_score": self._assess_credibility(domain),
+                    "domain": domain,
+                }
+            )
         return sources
 
     def _categorize_source(self, source: Dict[str, Any]) -> str:
@@ -378,8 +373,24 @@ class FactChecker(BaseTool):
         text = f"{title} {snippet}"
 
         # Keywords indicating support
-        support_keywords = ["confirmed", "true", "verified", "correct", "supports", "validates", "proves"]
-        contradict_keywords = ["false", "debunked", "myth", "incorrect", "wrong", "contradicts", "refutes"]
+        support_keywords = [
+            "confirmed",
+            "true",
+            "verified",
+            "correct",
+            "supports",
+            "validates",
+            "proves",
+        ]
+        contradict_keywords = [
+            "false",
+            "debunked",
+            "myth",
+            "incorrect",
+            "wrong",
+            "contradicts",
+            "refutes",
+        ]
 
         support_count = sum(1 for word in support_keywords if word in text)
         contradict_count = sum(1 for word in contradict_keywords if word in text)
@@ -401,7 +412,13 @@ class FactChecker(BaseTool):
         # Moderate credibility
         moderate_credibility = [".com", ".net"]
         # Known fact-checking sites
-        fact_checkers = ["snopes.com", "factcheck.org", "politifact.com", "reuters.com", "apnews.com"]
+        fact_checkers = [
+            "snopes.com",
+            "factcheck.org",
+            "politifact.com",
+            "reuters.com",
+            "apnews.com",
+        ]
 
         domain_lower = domain.lower()
 
@@ -421,10 +438,7 @@ class FactChecker(BaseTool):
         return 60
 
     def _calculate_confidence_score(
-        self,
-        supporting: List[Dict],
-        contradicting: List[Dict],
-        neutral: List[Dict]
+        self, supporting: List[Dict], contradicting: List[Dict], neutral: List[Dict]
     ) -> int:
         """
         Calculate confidence score (0-100) based on evidence.
@@ -461,11 +475,7 @@ class FactChecker(BaseTool):
             return "INSUFFICIENT_EVIDENCE"
 
     def _generate_analysis_summary(
-        self,
-        confidence_score: int,
-        num_supporting: int,
-        num_contradicting: int,
-        num_neutral: int
+        self, confidence_score: int, num_supporting: int, num_contradicting: int, num_neutral: int
     ) -> str:
         """Generate human-readable analysis summary."""
         verdict = self._determine_verdict(confidence_score)
@@ -502,15 +512,12 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic usage
     print("\n--- Test 1: Basic fact check ---")
-    tool = FactChecker(
-        claim="The Earth is round",
-        use_scholar=True,
-        max_sources=10
-    )
+    tool = FactChecker(claim="The Earth is round", use_scholar=True, max_sources=10)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -525,7 +532,7 @@ if __name__ == "__main__":
     tool2 = FactChecker(
         claim="Climate change is real",
         sources=["https://www.nasa.gov", "https://www.noaa.gov"],
-        max_sources=5
+        max_sources=5,
     )
     result2 = tool2.run()
 
@@ -535,11 +542,7 @@ if __name__ == "__main__":
 
     # Test 3: No scholar sources
     print("\n--- Test 3: Web sources only ---")
-    tool3 = FactChecker(
-        claim="Python is a programming language",
-        use_scholar=False,
-        max_sources=5
-    )
+    tool3 = FactChecker(claim="Python is a programming language", use_scholar=False, max_sources=5)
     result3 = tool3.run()
 
     print(f"Success: {result3.get('success')}")

@@ -18,6 +18,7 @@ from shared.errors import ValidationError, APIError, AuthenticationError
 
 # ========== NotionSearch Tests ==========
 
+
 class TestNotionSearch:
     """Comprehensive tests for NotionSearch tool"""
 
@@ -78,16 +79,12 @@ class TestNotionSearch:
             "results": [
                 {
                     "id": "page1",
-                    "properties": {
-                        "title": {"title": [{"text": {"content": "Page 1"}}]}
-                    }
+                    "properties": {"title": {"title": [{"text": {"content": "Page 1"}}]}},
                 },
                 {
                     "id": "page2",
-                    "properties": {
-                        "title": {"title": [{"text": {"content": "Page 2"}}]}
-                    }
-                }
+                    "properties": {"title": {"title": [{"text": {"content": "Page 2"}}]}},
+                },
             ]
         }
         mock_post.return_value = mock_response
@@ -145,7 +142,7 @@ class TestNotionSearch:
             "query with @mention",
             "query with #hashtag",
             "query/with/slashes",
-            "query & ampersand"
+            "query & ampersand",
         ]
 
         for query in special_queries:
@@ -170,6 +167,7 @@ class TestNotionSearch:
 
 
 # ========== NotionRead Tests ==========
+
 
 class TestNotionRead:
     """Comprehensive tests for NotionRead tool"""
@@ -219,10 +217,8 @@ class TestNotionRead:
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "id": "page123",
-            "properties": {
-                "title": {"title": [{"text": {"content": "Test Page"}}]}
-            },
-            "content": "This is the page content"
+            "properties": {"title": {"title": [{"text": {"content": "Test Page"}}]}},
+            "content": "This is the page content",
         }
         mock_get.return_value = mock_response
 
@@ -284,7 +280,7 @@ class TestNotionRead:
         mock_response.json.return_value = {
             "id": "page123",
             "properties": {},
-            "content": large_content
+            "content": large_content,
         }
         mock_get.return_value = mock_response
 
@@ -300,7 +296,7 @@ class TestNotionRead:
         valid_uuids = [
             "123e4567-e89b-12d3-a456-426614174000",
             "123e4567e89b12d3a456426614174000",  # Without dashes
-            "123E4567-E89B-12D3-A456-426614174000"  # Uppercase
+            "123E4567-E89B-12D3-A456-426614174000",  # Uppercase
         ]
 
         for uuid in valid_uuids:

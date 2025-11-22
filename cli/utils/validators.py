@@ -40,45 +40,45 @@ def validate_tool_structure(tool_class: Type) -> Dict[str, Any]:
         Dictionary with validation results
     """
     result = {
-        'valid': True,
-        'errors': [],
-        'warnings': [],
+        "valid": True,
+        "errors": [],
+        "warnings": [],
     }
 
     # Check for required attributes
-    if not hasattr(tool_class, 'tool_name'):
-        result['errors'].append("Missing 'tool_name' attribute")
-        result['valid'] = False
+    if not hasattr(tool_class, "tool_name"):
+        result["errors"].append("Missing 'tool_name' attribute")
+        result["valid"] = False
 
-    if not hasattr(tool_class, 'tool_category'):
-        result['warnings'].append("Missing 'tool_category' attribute")
+    if not hasattr(tool_class, "tool_category"):
+        result["warnings"].append("Missing 'tool_category' attribute")
 
     # Check for _execute method
-    if not hasattr(tool_class, '_execute'):
-        result['errors'].append("Missing '_execute' method")
-        result['valid'] = False
+    if not hasattr(tool_class, "_execute"):
+        result["errors"].append("Missing '_execute' method")
+        result["valid"] = False
     else:
         # Validate _execute signature
         sig = inspect.signature(tool_class._execute)
         if len(sig.parameters) != 1:  # Should only have 'self'
-            result['errors'].append("_execute should only accept 'self' parameter")
-            result['valid'] = False
+            result["errors"].append("_execute should only accept 'self' parameter")
+            result["valid"] = False
 
     # Check for proper inheritance
     base_classes = [c.__name__ for c in inspect.getmro(tool_class)]
-    if 'BaseTool' not in base_classes:
-        result['errors'].append("Tool must inherit from BaseTool")
-        result['valid'] = False
+    if "BaseTool" not in base_classes:
+        result["errors"].append("Tool must inherit from BaseTool")
+        result["valid"] = False
 
     # Check for Pydantic fields
-    if hasattr(tool_class, 'model_fields'):
+    if hasattr(tool_class, "model_fields"):
         for field_name, field_info in tool_class.model_fields.items():
-            if field_name in ['tool_name', 'tool_category']:
+            if field_name in ["tool_name", "tool_category"]:
                 continue
 
             # Check if field has description
             if not field_info.description:
-                result['warnings'].append(f"Field '{field_name}' missing description")
+                result["warnings"].append(f"Field '{field_name}' missing description")
 
     return result
 

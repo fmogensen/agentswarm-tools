@@ -8,7 +8,7 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../.."))
 
 from tools.media_processing.video_clipper.video_clipper import VideoClipperTool
 
@@ -55,7 +55,11 @@ class TestVideoClipperTool:
 
         assert result.get("success") == True
         assert len(result["clips"]) == 5
-        assert result["clips"][0]["highlight_type"] in ["fast_motion", "scene_change", "intense_moment"]
+        assert result["clips"][0]["highlight_type"] in [
+            "fast_motion",
+            "scene_change",
+            "intense_moment",
+        ]
 
     def test_dialogue_detection_with_captions(self):
         """Test dialogue detection with captions enabled"""

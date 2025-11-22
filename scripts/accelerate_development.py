@@ -31,9 +31,10 @@ PRIORITY_TOOLS = [
     ("onedrive_file_read", "team4", "storage"),
 ]
 
+
 def main():
     """Push priority tools to Redis queue."""
-    redis_host = os.getenv('REDIS_HOST', 'redis')
+    redis_host = os.getenv("REDIS_HOST", "redis")
     r = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
 
     print("🚀 Accelerating Tool Development")
@@ -73,6 +74,7 @@ def main():
         team = f"team{i}"
         queue_size = r.llen(f"queue:{team}")
         print(f"   {team}: {queue_size} tasks")
+
 
 if __name__ == "__main__":
     main()

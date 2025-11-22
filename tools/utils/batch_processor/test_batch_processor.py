@@ -19,7 +19,7 @@ class TestBatchProcessor:
         tool = BatchProcessor(
             items=["hello", "world"],
             operation="transform",
-            operation_config={"method": "uppercase"}
+            operation_config={"method": "uppercase"},
         )
         result = tool.run()
 
@@ -31,9 +31,7 @@ class TestBatchProcessor:
         """Test transform operation with numbers."""
         os.environ["USE_MOCK_APIS"] = "false"
         tool = BatchProcessor(
-            items=[1, 2, 3],
-            operation="transform",
-            operation_config={"method": "double"}
+            items=[1, 2, 3], operation="transform", operation_config={"method": "double"}
         )
         result = tool.run()
 
@@ -48,7 +46,7 @@ class TestBatchProcessor:
         tool = BatchProcessor(
             items=["hello", "", "world"],
             operation="filter",
-            operation_config={"condition": "non_empty"}
+            operation_config={"condition": "non_empty"},
         )
         result = tool.run()
 
@@ -65,9 +63,9 @@ class TestBatchProcessor:
             operation_config={
                 "rules": [
                     {"type": "type_check", "expected_type": "string"},
-                    {"type": "min_length", "value": 2}
+                    {"type": "min_length", "value": 2},
                 ]
-            }
+            },
         )
         result = tool.run()
 
@@ -77,10 +75,7 @@ class TestBatchProcessor:
     def test_count_operation(self):
         """Test count operation."""
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = BatchProcessor(
-            items=["a", "b", "c"],
-            operation="count"
-        )
+        tool = BatchProcessor(items=["a", "b", "c"], operation="count")
         result = tool.run()
 
         assert result["success"] == True
@@ -89,11 +84,7 @@ class TestBatchProcessor:
     def test_batch_size(self):
         """Test batch size processing."""
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = BatchProcessor(
-            items=["1", "2", "3", "4", "5"],
-            operation="count",
-            batch_size=2
-        )
+        tool = BatchProcessor(items=["1", "2", "3", "4", "5"], operation="count", batch_size=2)
         result = tool.run()
 
         assert result["success"] == True
@@ -106,7 +97,7 @@ class TestBatchProcessor:
             items=["hello", "", "world"],
             operation="filter",
             operation_config={"condition": "non_empty"},
-            continue_on_error=True
+            continue_on_error=True,
         )
         result = tool.run()
 
@@ -122,7 +113,7 @@ class TestBatchProcessor:
             items=["hello", "", "world"],
             operation="filter",
             operation_config={"condition": "non_empty"},
-            continue_on_error=False
+            continue_on_error=False,
         )
         result = tool.run()
 
@@ -132,27 +123,18 @@ class TestBatchProcessor:
     def test_invalid_operation(self):
         """Test invalid operation."""
         with pytest.raises(ValidationError):
-            tool = BatchProcessor(
-                items=["test"],
-                operation="invalid_op"
-            )
+            tool = BatchProcessor(items=["test"], operation="invalid_op")
             tool._validate_parameters()
 
     def test_empty_items(self):
         """Test empty items list."""
         with pytest.raises(Exception):  # Pydantic will catch min_items=1
-            tool = BatchProcessor(
-                items=[],
-                operation="count"
-            )
+            tool = BatchProcessor(items=[], operation="count")
 
     def test_processing_time_recorded(self):
         """Test that processing time is recorded."""
         os.environ["USE_MOCK_APIS"] = "false"
-        tool = BatchProcessor(
-            items=["a", "b", "c"],
-            operation="count"
-        )
+        tool = BatchProcessor(items=["a", "b", "c"], operation="count")
         result = tool.run()
 
         assert result["success"] == True
@@ -166,7 +148,7 @@ class TestBatchProcessor:
             items=["hello", "", "world"],
             operation="filter",
             operation_config={"condition": "non_empty"},
-            continue_on_error=True
+            continue_on_error=True,
         )
         result = tool.run()
 
@@ -178,10 +160,7 @@ class TestBatchProcessor:
     def test_mock_mode(self):
         """Test mock mode."""
         os.environ["USE_MOCK_APIS"] = "true"
-        tool = BatchProcessor(
-            items=["a", "b", "c"],
-            operation="transform"
-        )
+        tool = BatchProcessor(items=["a", "b", "c"], operation="transform")
         result = tool.run()
 
         assert result["success"] == True

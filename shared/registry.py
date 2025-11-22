@@ -73,8 +73,8 @@ class ToolRegistry:
             raise ValueError(f"Expected a class, got {type(tool_class)}")
 
         # Get tool name from class attribute or class name
-        name = getattr(tool_class, 'tool_name', None)
-        if name is None or name == 'base_tool':
+        name = getattr(tool_class, "tool_name", None)
+        if name is None or name == "base_tool":
             # Use class name converted to snake_case
             name = self._to_snake_case(tool_class.__name__)
 
@@ -140,15 +140,17 @@ class ToolRegistry:
         """
         tools = []
         for name, tool_class in sorted(self._tools.items()):
-            tool_category = getattr(tool_class, 'tool_category', 'unknown')
+            tool_category = getattr(tool_class, "tool_category", "unknown")
 
             if category is None or tool_category == category:
-                tools.append({
-                    'name': name,
-                    'category': tool_category,
-                    'description': self._get_description(tool_class),
-                    'class': tool_class
-                })
+                tools.append(
+                    {
+                        "name": name,
+                        "category": tool_category,
+                        "description": self._get_description(tool_class),
+                        "class": tool_class,
+                    }
+                )
         return tools
 
     def list_categories(self) -> List[str]:
@@ -160,7 +162,7 @@ class ToolRegistry:
         """
         categories = set()
         for tool_class in self._tools.values():
-            category = getattr(tool_class, 'tool_category', 'unknown')
+            category = getattr(tool_class, "tool_category", "unknown")
             categories.add(category)
         return sorted(categories)
 
@@ -179,13 +181,13 @@ class ToolRegistry:
             return None
 
         return {
-            'name': name,
-            'category': getattr(tool_class, 'tool_category', 'unknown'),
-            'description': self._get_description(tool_class),
-            'rate_limit_type': getattr(tool_class, 'rate_limit_type', 'default'),
-            'class': tool_class,
-            'module': tool_class.__module__,
-            'fields': self._get_fields(tool_class)
+            "name": name,
+            "category": getattr(tool_class, "tool_category", "unknown"),
+            "description": self._get_description(tool_class),
+            "rate_limit_type": getattr(tool_class, "rate_limit_type", "default"),
+            "class": tool_class,
+            "module": tool_class.__module__,
+            "fields": self._get_fields(tool_class),
         }
 
     def discover_tools(self, tools_path: Optional[str] = None) -> int:
@@ -204,7 +206,7 @@ class ToolRegistry:
         if tools_path is None:
             # Default to tools/ directory relative to this file
             base_dir = Path(__file__).parent.parent
-            tools_path = str(base_dir / 'tools')
+            tools_path = str(base_dir / "tools")
 
         tools_path = Path(tools_path)
         if not tools_path.exists():
@@ -217,14 +219,14 @@ class ToolRegistry:
         for category_dir in tools_path.iterdir():
             if not category_dir.is_dir():
                 continue
-            if category_dir.name.startswith('_'):
+            if category_dir.name.startswith("_"):
                 continue
 
             # Process each Python file in the category
-            for py_file in category_dir.glob('*.py'):
-                if py_file.name.startswith('_'):
+            for py_file in category_dir.glob("*.py"):
+                if py_file.name.startswith("_"):
                     continue
-                if py_file.name.startswith('test_'):
+                if py_file.name.startswith("test_"):
                     continue
 
                 self._import_tools_from_file(py_file, tools_path)
@@ -239,7 +241,7 @@ class ToolRegistry:
         try:
             # Calculate module path
             relative_path = file_path.relative_to(tools_root.parent)
-            module_name = str(relative_path.with_suffix('')).replace(os.sep, '.')
+            module_name = str(relative_path.with_suffix("")).replace(os.sep, ".")
 
             # Import the module
             spec = importlib.util.spec_from_file_location(module_name, file_path)
@@ -274,44 +276,56 @@ class ToolRegistry:
         doc = tool_class.__doc__
         if doc:
             # Return first paragraph of docstring
-            paragraphs = doc.strip().split('\n\n')
-            return paragraphs[0].strip().replace('\n', ' ')
-        return ''
+            paragraphs = doc.strip().split("\n\n")
+            return paragraphs[0].strip().replace("\n", " ")
+        return ""
 
     def _get_fields(self, tool_class: Type[BaseTool]) -> Dict[str, Dict[str, Any]]:
         """Extract Pydantic field information from tool class."""
         fields = {}
 
-        if hasattr(tool_class, 'model_fields'):
+        if hasattr(tool_class, "model_fields"):
             # Pydantic v2
             for name, field_info in tool_class.model_fields.items():
-                if name.startswith('_'):
+                if name.startswith("_"):
                     continue
                 # Skip base class fields
-                if name in ('tool_name', 'tool_category', 'rate_limit_type',
-                           'rate_limit_cost', 'max_retries', 'retry_delay'):
+                if name in (
+                    "tool_name",
+                    "tool_category",
+                    "rate_limit_type",
+                    "rate_limit_cost",
+                    "max_retries",
+                    "retry_delay",
+                ):
                     continue
 
                 fields[name] = {
-                    'type': str(field_info.annotation) if field_info.annotation else 'Any',
-                    'description': field_info.description or '',
-                    'required': field_info.is_required(),
-                    'default': field_info.default if not field_info.is_required() else None
+                    "type": str(field_info.annotation) if field_info.annotation else "Any",
+                    "description": field_info.description or "",
+                    "required": field_info.is_required(),
+                    "default": field_info.default if not field_info.is_required() else None,
                 }
-        elif hasattr(tool_class, '__fields__'):
+        elif hasattr(tool_class, "__fields__"):
             # Pydantic v1
             for name, field in tool_class.__fields__.items():
-                if name.startswith('_'):
+                if name.startswith("_"):
                     continue
-                if name in ('tool_name', 'tool_category', 'rate_limit_type',
-                           'rate_limit_cost', 'max_retries', 'retry_delay'):
+                if name in (
+                    "tool_name",
+                    "tool_category",
+                    "rate_limit_type",
+                    "rate_limit_cost",
+                    "max_retries",
+                    "retry_delay",
+                ):
                     continue
 
                 fields[name] = {
-                    'type': str(field.outer_type_),
-                    'description': field.field_info.description or '',
-                    'required': field.required,
-                    'default': field.default if not field.required else None
+                    "type": str(field.outer_type_),
+                    "description": field.field_info.description or "",
+                    "required": field.required,
+                    "default": field.default if not field.required else None,
                 }
 
         return fields
@@ -321,9 +335,9 @@ class ToolRegistry:
         result = []
         for i, char in enumerate(name):
             if char.isupper() and i > 0:
-                result.append('_')
+                result.append("_")
             result.append(char.lower())
-        return ''.join(result)
+        return "".join(result)
 
     def clear(self) -> None:
         """Clear all registered tools."""
@@ -404,6 +418,7 @@ if __name__ == "__main__":
     # Create a test tool class
     class TestSearchTool(BaseTool):
         """A test search tool for demonstration."""
+
         tool_name: str = "test_search"
         tool_category: str = "search"
 
@@ -433,12 +448,12 @@ if __name__ == "__main__":
     # Test get_tool_metadata
     metadata = registry.get_tool_metadata("test_search")
     assert metadata is not None, "Should return metadata"
-    assert metadata['category'] == 'search', "Category should be search"
+    assert metadata["category"] == "search", "Category should be search"
     print(f"Metadata: {metadata}")
 
     # Test list_categories
     categories = registry.list_categories()
-    assert 'search' in categories, "Should include search category"
+    assert "search" in categories, "Should include search category"
     print(f"Categories: {categories}")
 
     # Test unregister

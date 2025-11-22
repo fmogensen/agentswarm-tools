@@ -19,8 +19,7 @@ except ImportError:
     asyncpg = None
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,9 @@ class DatabaseInitializer:
 
     def __init__(self):
         self.connection = None
-        self.db_url = os.getenv('DATABASE_URL', 'postgresql://agentswarm:agentswarm@postgres:5432/agentswarm')
+        self.db_url = os.getenv(
+            "DATABASE_URL", "postgresql://agentswarm:agentswarm@postgres:5432/agentswarm"
+        )
 
     async def connect(self):
         """Connect to PostgreSQL database."""
@@ -161,10 +162,10 @@ class DatabaseInitializer:
         try:
             await self.connection.execute(
                 query,
-                'system',
-                'initialization',
-                'completed',
-                '{"message": "Database initialized successfully"}'
+                "system",
+                "initialization",
+                "completed",
+                '{"message": "Database initialized successfully"}',
             )
             logger.info("✅ Inserted initial data")
         except Exception as e:
@@ -181,15 +182,15 @@ class DatabaseInitializer:
 
         try:
             rows = await self.connection.fetch(query)
-            tables = [row['table_name'] for row in rows]
+            tables = [row["table_name"] for row in rows]
 
             logger.info(f"📊 Tables in database: {', '.join(tables)}")
 
             required_tables = [
-                'analytics_events',
-                'tool_metrics',
-                'development_log',
-                'test_results'
+                "analytics_events",
+                "tool_metrics",
+                "development_log",
+                "test_results",
             ]
 
             for table in required_tables:

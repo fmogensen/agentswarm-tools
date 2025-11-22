@@ -104,9 +104,7 @@ class TestGenerateLineChart:
 
     def test_labels_wrong_length(self):
         """Mismatched labels length fails custom validation and returns error dict."""
-        tool = GenerateLineChart(
-            prompt="X", params={"data": [1, 2], "labels": ["one"]}
-        )
+        tool = GenerateLineChart(prompt="X", params={"data": [1, 2], "labels": ["one"]})
         result = tool.run()
         assert result["success"] is False
         assert result["error"]["code"] == "VALIDATION_ERROR"

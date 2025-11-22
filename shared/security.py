@@ -12,15 +12,11 @@ from functools import wraps
 from collections import defaultdict
 import threading
 
-from .errors import (
-    AuthenticationError,
-    RateLimitError,
-    SecurityError,
-    ValidationError
-)
+from .errors import AuthenticationError, RateLimitError, SecurityError, ValidationError
 
 
 # API Key Management
+
 
 class APIKeyManager:
     """Secure API key management."""
@@ -103,17 +99,20 @@ class APIKeyManager:
 
 # Input Validation
 
+
 class InputValidator:
     """Input validation and sanitization."""
 
     # Patterns for common input types
     PATTERNS = {
-        "email": re.compile(r'^[\w\.-]+@[\w\.-]+\.\w+$'),
-        "url": re.compile(r'^https?://[\w\.-]+(?::\d+)?(?:/[\w\.-]*)*$'),
-        "domain": re.compile(r'^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$'),
-        "phone": re.compile(r'^\+?1?\d{9,15}$'),
-        "alpha": re.compile(r'^[a-zA-Z]+$'),
-        "alphanumeric": re.compile(r'^[a-zA-Z0-9]+$'),
+        "email": re.compile(r"^[\w\.-]+@[\w\.-]+\.\w+$"),
+        "url": re.compile(r"^https?://[\w\.-]+(?::\d+)?(?:/[\w\.-]*)*$"),
+        "domain": re.compile(
+            r"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$"
+        ),
+        "phone": re.compile(r"^\+?1?\d{9,15}$"),
+        "alpha": re.compile(r"^[a-zA-Z]+$"),
+        "alphanumeric": re.compile(r"^[a-zA-Z0-9]+$"),
     }
 
     @staticmethod
@@ -152,7 +151,7 @@ class InputValidator:
             raise ValidationError("Input must be a string")
 
         # Remove null bytes
-        value = value.replace('\x00', '')
+        value = value.replace("\x00", "")
 
         # Trim whitespace
         value = value.strip()
@@ -160,8 +159,7 @@ class InputValidator:
         # Check length
         if max_length and len(value) > max_length:
             raise ValidationError(
-                f"Input too long: {len(value)} > {max_length}",
-                field="input_string"
+                f"Input too long: {len(value)} > {max_length}", field="input_string"
             )
 
         return value
@@ -185,11 +183,10 @@ class InputValidator:
             raise ValidationError("URL cannot be empty", field="url")
 
         # Check scheme
-        allowed_schemes = allowed_schemes or ['http', 'https']
+        allowed_schemes = allowed_schemes or ["http", "https"]
         if not any(url.startswith(f"{scheme}://") for scheme in allowed_schemes):
             raise ValidationError(
-                f"URL must start with one of: {', '.join(allowed_schemes)}",
-                field="url"
+                f"URL must start with one of: {', '.join(allowed_schemes)}", field="url"
             )
 
         # Basic URL validation
@@ -216,24 +213,22 @@ class InputValidator:
         """
         # Check for path traversal
         if ".." in path or path.startswith("/"):
-            raise SecurityError(
-                "Path traversal detected",
-                violation_type="path_traversal"
-            )
+            raise SecurityError("Path traversal detected", violation_type="path_traversal")
 
         # Check extension
         if allowed_extensions:
-            ext = path.split('.')[-1].lower()
+            ext = path.split(".")[-1].lower()
             if ext not in allowed_extensions:
                 raise ValidationError(
                     f"File extension .{ext} not allowed. Allowed: {', '.join(allowed_extensions)}",
-                    field="file_path"
+                    field="file_path",
                 )
 
         return path
 
 
 # Rate Limiting
+
 
 class RateLimiter:
     """Token bucket rate limiter."""
@@ -257,12 +252,7 @@ class RateLimiter:
         """Set rate limit for a key."""
         self._limits[key] = limit
 
-    def check_rate_limit(
-        self,
-        key: str,
-        limit_type: str = "default",
-        cost: int = 1
-    ) -> None:
+    def check_rate_limit(self, key: str, limit_type: str = "default", cost: int = 1) -> None:
         """
         Check if request is within rate limit.
 
@@ -290,9 +280,7 @@ class RateLimiter:
             if bucket["tokens"] < cost:
                 retry_after = int((cost - bucket["tokens"]) / (limit / 60.0))
                 raise RateLimitError(
-                    f"Rate limit exceeded for {key}",
-                    retry_after=retry_after,
-                    limit=limit
+                    f"Rate limit exceeded for {key}", retry_after=retry_after, limit=limit
                 )
 
             # Consume tokens
@@ -325,32 +313,40 @@ def get_rate_limiter() -> RateLimiter:
 
 # Decorators
 
+
 def require_api_key(key_name: str):
     """Decorator to require an API key."""
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             APIKeyManager.get_key(key_name, required=True)
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 def rate_limit(limit_type: str = "default", cost: int = 1):
     """Decorator to apply rate limiting."""
+
     def decorator(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             # Use tool name as rate limit key
-            key = getattr(self, 'tool_name', self.__class__.__name__)
+            key = getattr(self, "tool_name", self.__class__.__name__)
             limiter = get_rate_limiter()
             limiter.check_rate_limit(key, limit_type, cost)
             return func(self, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 # Utility functions
+
 
 def hash_user_id(user_id: str) -> str:
     """

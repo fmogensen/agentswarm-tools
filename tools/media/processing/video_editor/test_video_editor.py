@@ -22,9 +22,7 @@ class TestVideoEditorTool:
         """Test trim operation."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "trim", "start": "00:00:10", "end": "00:00:30"}
-            ],
+            operations=[{"type": "trim", "start": "00:00:10", "end": "00:00:30"}],
             output_format="mp4",
         )
         result = tool.run()
@@ -38,9 +36,7 @@ class TestVideoEditorTool:
         """Test resize operation."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "resize", "width": 1920, "height": 1080}
-            ],
+            operations=[{"type": "resize", "width": 1920, "height": 1080}],
             output_format="mp4",
         )
         result = tool.run()
@@ -52,9 +48,7 @@ class TestVideoEditorTool:
         """Test rotate operation."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "rotate", "degrees": 90}
-            ],
+            operations=[{"type": "rotate", "degrees": 90}],
             output_format="mp4",
         )
         result = tool.run()
@@ -66,9 +60,7 @@ class TestVideoEditorTool:
         """Test speed adjustment operation."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "speed", "factor": 2.0}
-            ],
+            operations=[{"type": "speed", "factor": 2.0}],
             output_format="mp4",
         )
         result = tool.run()
@@ -80,9 +72,7 @@ class TestVideoEditorTool:
         """Test add audio operation."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "add_audio", "audio_url": "https://example.com/audio.mp3"}
-            ],
+            operations=[{"type": "add_audio", "audio_url": "https://example.com/audio.mp3"}],
             output_format="mp4",
         )
         result = tool.run()
@@ -113,8 +103,8 @@ class TestVideoEditorTool:
                     "videos": [
                         "https://example.com/video1.mp4",
                         "https://example.com/video2.mp4",
-                        "https://example.com/video3.mp4"
-                    ]
+                        "https://example.com/video3.mp4",
+                    ],
                 }
             ],
             output_format="mp4",
@@ -128,9 +118,7 @@ class TestVideoEditorTool:
         """Test transition operation."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "transition", "effect": "fade"}
-            ],
+            operations=[{"type": "transition", "effect": "fade"}],
             output_format="mp4",
         )
         result = tool.run()
@@ -145,7 +133,7 @@ class TestVideoEditorTool:
                 {"type": "trim", "start": "00:00:05", "end": "00:00:25"},
                 {"type": "resize", "width": 1280, "height": 720},
                 {"type": "rotate", "degrees": 90},
-                {"type": "speed", "factor": 1.5}
+                {"type": "speed", "factor": 1.5},
             ],
             output_format="mp4",
         )
@@ -161,9 +149,7 @@ class TestVideoEditorTool:
         for fmt in formats:
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "trim", "start": "00:00:00", "end": "00:00:10"}
-                ],
+                operations=[{"type": "trim", "start": "00:00:00", "end": "00:00:10"}],
                 output_format=fmt,
             )
             result = tool.run()
@@ -176,9 +162,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"start": "00:00:10", "end": "00:00:30"}  # Missing 'type'
-                ],
+                operations=[{"start": "00:00:10", "end": "00:00:30"}],  # Missing 'type'
             )
             tool.run()
 
@@ -187,9 +171,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "invalid_operation"}
-                ],
+                operations=[{"type": "invalid_operation"}],
             )
             tool.run()
 
@@ -198,9 +180,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "trim", "start": "00:00:00", "end": "00:00:10"}
-                ],
+                operations=[{"type": "trim", "start": "00:00:00", "end": "00:00:10"}],
                 output_format="invalid_format",
             )
             tool.run()
@@ -210,9 +190,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "trim", "start": "00:00:10"}  # Missing 'end'
-                ],
+                operations=[{"type": "trim", "start": "00:00:10"}],  # Missing 'end'
             )
             tool.run()
 
@@ -221,9 +199,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "resize", "width": 1920}  # Missing 'height'
-                ],
+                operations=[{"type": "resize", "width": 1920}],  # Missing 'height'
             )
             tool.run()
 
@@ -232,9 +208,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "resize", "width": -1920, "height": 1080}
-                ],
+                operations=[{"type": "resize", "width": -1920, "height": 1080}],
             )
             tool.run()
 
@@ -243,9 +217,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "rotate", "degrees": 45}  # Only 90, 180, 270 allowed
-                ],
+                operations=[{"type": "rotate", "degrees": 45}],  # Only 90, 180, 270 allowed
             )
             tool.run()
 
@@ -254,9 +226,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "speed", "factor": -1.0}
-                ],
+                operations=[{"type": "speed", "factor": -1.0}],
             )
             tool.run()
 
@@ -265,10 +235,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 operations=[
-                    {
-                        "type": "merge",
-                        "videos": ["https://example.com/video1.mp4"]  # Only 1 video
-                    }
+                    {"type": "merge", "videos": ["https://example.com/video1.mp4"]}  # Only 1 video
                 ],
             )
             tool.run()
@@ -278,9 +245,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "add_audio"}  # Missing 'audio_url'
-                ],
+                operations=[{"type": "add_audio"}],  # Missing 'audio_url'
             )
             tool.run()
 
@@ -289,9 +254,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "add_subtitles"}  # Missing 'subtitle_url'
-                ],
+                operations=[{"type": "add_subtitles"}],  # Missing 'subtitle_url'
             )
             tool.run()
 
@@ -300,9 +263,7 @@ class TestVideoEditorTool:
         with pytest.raises(Exception):
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "transition", "effect": "invalid_effect"}
-                ],
+                operations=[{"type": "transition", "effect": "invalid_effect"}],
             )
             tool.run()
 
@@ -310,9 +271,7 @@ class TestVideoEditorTool:
         """Test time format validation with HH:MM:SS."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "trim", "start": "00:01:30", "end": "00:02:45"}
-            ],
+            operations=[{"type": "trim", "start": "00:01:30", "end": "00:02:45"}],
         )
         result = tool.run()
         assert result["success"] is True
@@ -321,9 +280,7 @@ class TestVideoEditorTool:
         """Test time format validation with numeric seconds."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "trim", "start": "10", "end": "30"}
-            ],
+            operations=[{"type": "trim", "start": "10", "end": "30"}],
         )
         result = tool.run()
         assert result["success"] is True
@@ -332,9 +289,7 @@ class TestVideoEditorTool:
         """Test time format validation with decimal seconds."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "trim", "start": "10.5", "end": "30.75"}
-            ],
+            operations=[{"type": "trim", "start": "10.5", "end": "30.75"}],
         )
         result = tool.run()
         assert result["success"] is True
@@ -346,9 +301,7 @@ class TestVideoEditorTool:
         for degrees in valid_degrees:
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "rotate", "degrees": degrees}
-                ],
+                operations=[{"type": "rotate", "degrees": degrees}],
             )
             result = tool.run()
             assert result["success"] is True
@@ -360,9 +313,7 @@ class TestVideoEditorTool:
         for factor in speed_factors:
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "speed", "factor": factor}
-                ],
+                operations=[{"type": "speed", "factor": factor}],
             )
             result = tool.run()
             assert result["success"] is True
@@ -374,9 +325,7 @@ class TestVideoEditorTool:
         for effect in effects:
             tool = VideoEditorTool(
                 video_url="https://example.com/video.mp4",
-                operations=[
-                    {"type": "transition", "effect": effect}
-                ],
+                operations=[{"type": "transition", "effect": effect}],
             )
             result = tool.run()
             assert result["success"] is True
@@ -385,9 +334,7 @@ class TestVideoEditorTool:
         """Test that mock mode returns proper result structure."""
         tool = VideoEditorTool(
             video_url="https://example.com/video.mp4",
-            operations=[
-                {"type": "trim", "start": "00:00:00", "end": "00:00:10"}
-            ],
+            operations=[{"type": "trim", "start": "00:00:00", "end": "00:00:10"}],
         )
         result = tool.run()
 

@@ -36,9 +36,7 @@ class MapsSearch(BaseTool):
 
     # Parameters
     query: str = Field(..., description="Search query string", min_length=1)
-    max_results: int = Field(
-        10, description="Maximum number of results to return", ge=1, le=50
-    )
+    max_results: int = Field(10, description="Maximum number of results to return", ge=1, le=50)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -129,6 +127,7 @@ class MapsSearch(BaseTool):
 
 if __name__ == "__main__":
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = MapsSearch(query="coffee shops near me")

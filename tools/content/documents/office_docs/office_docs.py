@@ -75,19 +75,30 @@ class OfficeDocsTool(BaseTool):
     # Parameters
     mode: str = Field("create", description="Operation mode: create or modify")
     content: str = Field(..., description="Document content (supports markdown)", min_length=1)
-    template: str = Field("blank", description="Template type: report, proposal, memo, letter, blank (create mode only)")
+    template: str = Field(
+        "blank",
+        description="Template type: report, proposal, memo, letter, blank (create mode only)",
+    )
     title: str = Field("Untitled Document", description="Document title")
     include_toc: bool = Field(False, description="Include table of contents")
     font_name: str = Field("Calibri", description="Font family")
     font_size: int = Field(11, description="Base font size in points", ge=8, le=24)
     output_format: str = Field("docx", description="Output format: docx, pdf, both")
-    existing_file_url: Optional[str] = Field(None, description="URL to existing file (required for modify mode)")
+    existing_file_url: Optional[str] = Field(
+        None, description="URL to existing file (required for modify mode)"
+    )
 
     # Allowed values
     ALLOWED_MODES: ClassVar[List[str]] = ["create", "modify"]
     ALLOWED_TEMPLATES: ClassVar[List[str]] = ["report", "proposal", "memo", "letter", "blank"]
     ALLOWED_FORMATS: ClassVar[List[str]] = ["docx", "pdf", "both"]
-    ALLOWED_FONTS: ClassVar[List[str]] = ["Calibri", "Arial", "Times New Roman", "Georgia", "Verdana"]
+    ALLOWED_FONTS: ClassVar[List[str]] = [
+        "Calibri",
+        "Arial",
+        "Times New Roman",
+        "Georgia",
+        "Verdana",
+    ]
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -124,7 +135,7 @@ class OfficeDocsTool(BaseTool):
             raise ValidationError(
                 f"Invalid mode '{self.mode}'. Must be one of: {', '.join(self.ALLOWED_MODES)}",
                 tool_name=self.tool_name,
-                field="mode"
+                field="mode",
             )
 
         # Validate mode-specific requirements
@@ -133,14 +144,14 @@ class OfficeDocsTool(BaseTool):
                 raise ValidationError(
                     "existing_file_url is required when mode='modify'",
                     tool_name=self.tool_name,
-                    field="existing_file_url"
+                    field="existing_file_url",
                 )
         elif self.mode == "create":
             if self.existing_file_url:
                 raise ValidationError(
                     "existing_file_url should not be provided when mode='create'",
                     tool_name=self.tool_name,
-                    field="existing_file_url"
+                    field="existing_file_url",
                 )
 
         # Validate content
@@ -152,7 +163,7 @@ class OfficeDocsTool(BaseTool):
             raise ValidationError(
                 f"Invalid template '{self.template}'. Must be one of: {', '.join(self.ALLOWED_TEMPLATES)}",
                 tool_name=self.tool_name,
-                field="template"
+                field="template",
             )
 
         # Validate output format
@@ -160,7 +171,7 @@ class OfficeDocsTool(BaseTool):
             raise ValidationError(
                 f"Invalid output_format '{self.output_format}'. Must be one of: {', '.join(self.ALLOWED_FORMATS)}",
                 tool_name=self.tool_name,
-                field="output_format"
+                field="output_format",
             )
 
         # Validate font
@@ -168,7 +179,7 @@ class OfficeDocsTool(BaseTool):
             raise ValidationError(
                 f"Invalid font_name '{self.font_name}'. Must be one of: {', '.join(self.ALLOWED_FONTS)}",
                 tool_name=self.tool_name,
-                field="font_name"
+                field="font_name",
             )
 
     def _validate_parameters(self) -> None:
@@ -180,7 +191,7 @@ class OfficeDocsTool(BaseTool):
         if Document is None:
             raise ConfigurationError(
                 "python-docx library not installed. Run: pip install python-docx",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
     def _should_use_mock(self) -> bool:
@@ -198,7 +209,7 @@ class OfficeDocsTool(BaseTool):
                 "file_size": "245 KB",
                 "title": self.title,
                 "template": self.template if self.mode == "create" else "N/A",
-                "mode": self.mode
+                "mode": self.mode,
             },
             "metadata": {"mock_mode": True},
         }
@@ -245,14 +256,16 @@ class OfficeDocsTool(BaseTool):
                 # Find and update first heading or add new title
                 title_updated = False
                 for para in doc.paragraphs:
-                    if para.style.name == 'Heading 1':
+                    if para.style.name == "Heading 1":
                         para.text = self.title
                         title_updated = True
                         break
 
                 if not title_updated:
                     # Add title at beginning
-                    new_para = doc.paragraphs[0].insert_paragraph_before(self.title, style='Heading 1')
+                    new_para = doc.paragraphs[0].insert_paragraph_before(
+                        self.title, style="Heading 1"
+                    )
 
             # Apply font changes to existing content if specified
             if self.font_name != "Calibri" or self.font_size != 11:
@@ -290,7 +303,7 @@ class OfficeDocsTool(BaseTool):
 
         # Handle http/https URLs
         elif url.startswith("http://") or url.startswith("https://"):
-            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.docx')
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".docx")
             temp_file.close()
 
             try:
@@ -306,8 +319,8 @@ class OfficeDocsTool(BaseTool):
         """Update fonts throughout existing document."""
         # Update Normal style
         styles = doc.styles
-        if 'Normal' in styles:
-            normal_style = styles['Normal']
+        if "Normal" in styles:
+            normal_style = styles["Normal"]
             normal_font = normal_style.font
             normal_font.name = self.font_name
             normal_font.size = Pt(self.font_size)
@@ -317,13 +330,13 @@ class OfficeDocsTool(BaseTool):
             for run in para.runs:
                 run.font.name = self.font_name
                 # Only update size if not a heading
-                if para.style.name not in ['Heading 1', 'Heading 2', 'Heading 3']:
+                if para.style.name not in ["Heading 1", "Heading 2", "Heading 3"]:
                     run.font.size = Pt(self.font_size)
 
     def _save_and_return(self, doc: Any) -> Dict[str, Any]:
         """Save document and return result metadata."""
         # Save to temporary file
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.docx')
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".docx")
         doc.save(temp_file.name)
         temp_file.close()
 
@@ -350,7 +363,7 @@ class OfficeDocsTool(BaseTool):
             "file_size": file_size,
             "title": self.title,
             "template": self.template if self.mode == "create" else "N/A",
-            "mode": self.mode
+            "mode": self.mode,
         }
 
     def _apply_template_styles(self, doc: Any) -> None:
@@ -359,22 +372,22 @@ class OfficeDocsTool(BaseTool):
         styles = doc.styles
 
         # Configure Normal style
-        normal_style = styles['Normal']
+        normal_style = styles["Normal"]
         normal_font = normal_style.font
         normal_font.name = self.font_name
         normal_font.size = Pt(self.font_size)
 
         # Configure Heading 1
-        if 'Heading 1' in styles:
-            h1_style = styles['Heading 1']
+        if "Heading 1" in styles:
+            h1_style = styles["Heading 1"]
             h1_font = h1_style.font
             h1_font.name = self.font_name
             h1_font.size = Pt(self.font_size + 6)
             h1_font.bold = True
 
         # Configure Heading 2
-        if 'Heading 2' in styles:
-            h2_style = styles['Heading 2']
+        if "Heading 2" in styles:
+            h2_style = styles["Heading 2"]
             h2_font = h2_style.font
             h2_font.name = self.font_name
             h2_font.size = Pt(self.font_size + 4)
@@ -395,26 +408,26 @@ class OfficeDocsTool(BaseTool):
         """Add title to the document."""
         if self.template == "memo":
             # Memo header format
-            doc.add_paragraph("MEMORANDUM", style='Heading 1')
+            doc.add_paragraph("MEMORANDUM", style="Heading 1")
             doc.add_paragraph(f"Subject: {self.title}")
             doc.add_paragraph(f"Date: {datetime.now().strftime('%B %d, %Y')}")
             doc.add_paragraph()
         elif self.template == "letter":
             # Letter header format
-            doc.add_paragraph(datetime.now().strftime('%B %d, %Y'))
+            doc.add_paragraph(datetime.now().strftime("%B %d, %Y"))
             doc.add_paragraph()
-            doc.add_paragraph(self.title, style='Heading 1')
+            doc.add_paragraph(self.title, style="Heading 1")
             doc.add_paragraph()
         else:
             # Standard title
-            title_para = doc.add_paragraph(self.title, style='Heading 1')
+            title_para = doc.add_paragraph(self.title, style="Heading 1")
             title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
             doc.add_paragraph()
 
     def _add_toc_placeholder(self, doc: Any) -> None:
         """Add a placeholder for table of contents."""
         # Add TOC header
-        toc_para = doc.add_paragraph("Table of Contents", style='Heading 2')
+        toc_para = doc.add_paragraph("Table of Contents", style="Heading 2")
         doc.add_paragraph()
 
         # Add note about TOC
@@ -428,7 +441,7 @@ class OfficeDocsTool(BaseTool):
 
     def _parse_and_add_content(self, doc: Any) -> None:
         """Parse content (supports basic markdown) and add to document."""
-        lines = self.content.split('\n')
+        lines = self.content.split("\n")
 
         i = 0
         while i < len(lines):
@@ -441,21 +454,21 @@ class OfficeDocsTool(BaseTool):
                 continue
 
             # Heading 1 (# Heading)
-            if line.startswith('# '):
+            if line.startswith("# "):
                 heading_text = line[2:].strip()
-                doc.add_paragraph(heading_text, style='Heading 1')
+                doc.add_paragraph(heading_text, style="Heading 1")
                 i += 1
                 continue
 
             # Heading 2 (## Heading)
-            if line.startswith('## '):
+            if line.startswith("## "):
                 heading_text = line[3:].strip()
-                doc.add_paragraph(heading_text, style='Heading 2')
+                doc.add_paragraph(heading_text, style="Heading 2")
                 i += 1
                 continue
 
             # Heading 3 (### Heading)
-            if line.startswith('### '):
+            if line.startswith("### "):
                 heading_text = line[4:].strip()
                 para = doc.add_paragraph(heading_text)
                 para.runs[0].bold = True
@@ -464,25 +477,25 @@ class OfficeDocsTool(BaseTool):
                 continue
 
             # Bullet point (- item or * item)
-            if line.strip().startswith('- ') or line.strip().startswith('* '):
+            if line.strip().startswith("- ") or line.strip().startswith("* "):
                 bullet_text = line.strip()[2:].strip()
-                doc.add_paragraph(bullet_text, style='List Bullet')
+                doc.add_paragraph(bullet_text, style="List Bullet")
                 i += 1
                 continue
 
             # Numbered list (1. item)
-            if re.match(r'^\d+\.\s', line.strip()):
-                list_text = re.sub(r'^\d+\.\s', '', line.strip())
-                doc.add_paragraph(list_text, style='List Number')
+            if re.match(r"^\d+\.\s", line.strip()):
+                list_text = re.sub(r"^\d+\.\s", "", line.strip())
+                doc.add_paragraph(list_text, style="List Number")
                 i += 1
                 continue
 
             # Table detection (basic pipe tables)
-            if '|' in line and i + 1 < len(lines) and '|' in lines[i + 1]:
+            if "|" in line and i + 1 < len(lines) and "|" in lines[i + 1]:
                 # Try to parse as table
                 table_lines = [line]
                 j = i + 1
-                while j < len(lines) and '|' in lines[j]:
+                while j < len(lines) and "|" in lines[j]:
                     table_lines.append(lines[j])
                     j += 1
 
@@ -501,11 +514,11 @@ class OfficeDocsTool(BaseTool):
         rows = []
         for line in table_lines:
             # Skip separator lines (|---|---|)
-            if re.match(r'^[\s\|:\-]+$', line):
+            if re.match(r"^[\s\|:\-]+$", line):
                 continue
 
             # Split by pipe and clean
-            cells = [cell.strip() for cell in line.split('|')]
+            cells = [cell.strip() for cell in line.split("|")]
             # Remove empty first/last cells if present
             if cells and not cells[0]:
                 cells = cells[1:]
@@ -521,7 +534,7 @@ class OfficeDocsTool(BaseTool):
         # Create table
         num_cols = len(rows[0])
         table = doc.add_table(rows=len(rows), cols=num_cols)
-        table.style = 'Light Grid Accent 1'
+        table.style = "Light Grid Accent 1"
 
         # Fill table
         for i, row_data in enumerate(rows):
@@ -557,7 +570,7 @@ class OfficeDocsTool(BaseTool):
 
     def _format_file_size(self, size_bytes: int) -> str:
         """Format file size in human-readable format."""
-        for unit in ['B', 'KB', 'MB', 'GB']:
+        for unit in ["B", "KB", "MB", "GB"]:
             if size_bytes < 1024.0:
                 return f"{size_bytes:.1f} {unit}"
             size_bytes /= 1024.0
@@ -570,38 +583,37 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test basic document
     tool = OfficeDocsTool(
         content="# Test Report\n\nThis is a test document.",
         template="report",
-        title="Test Document"
+        title="Test Document",
     )
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'document_url' in result['result']
+    assert result.get("success") == True
+    assert "document_url" in result["result"]
     print(f"✅ Basic test passed")
 
     # Test with table of contents
     tool2 = OfficeDocsTool(
         content="# Chapter 1\n\nContent...\n\n# Chapter 2\n\nMore content...",
         include_toc=True,
-        output_format="pdf"
+        output_format="pdf",
     )
     result2 = tool2.run()
-    assert result2.get('success') == True
+    assert result2.get("success") == True
     print(f"✅ TOC test passed")
 
     # Test memo template
     tool3 = OfficeDocsTool(
-        content="This is important information.",
-        template="memo",
-        title="Important Update"
+        content="This is important information.", template="memo", title="Important Update"
     )
     result3 = tool3.run()
-    assert result3.get('success') == True
+    assert result3.get("success") == True
     print(f"✅ Memo template test passed")
 
     # Test with markdown formatting
@@ -626,10 +638,10 @@ Regular paragraph text here.""",
         template="report",
         title="Formatted Report",
         font_name="Arial",
-        font_size=12
+        font_size=12,
     )
     result4 = tool4.run()
-    assert result4.get('success') == True
+    assert result4.get("success") == True
     print(f"✅ Markdown formatting test passed")
 
     # Test modify mode validation
@@ -639,19 +651,19 @@ Regular paragraph text here.""",
         # Missing existing_file_url - should fail
     )
     result5 = tool5.run()
-    assert result5.get('success') == False  # Should fail validation
-    assert 'existing_file_url is required' in str(result5.get('error', ''))
+    assert result5.get("success") == False  # Should fail validation
+    assert "existing_file_url is required" in str(result5.get("error", ""))
     print(f"✅ Modify mode validation test passed")
 
     # Test create mode with existing_file_url (should fail)
     tool6 = OfficeDocsTool(
         mode="create",
         content="New content",
-        existing_file_url="computer:///some/file.docx"  # Should not be provided for create
+        existing_file_url="computer:///some/file.docx",  # Should not be provided for create
     )
     result6 = tool6.run()
-    assert result6.get('success') == False  # Should fail validation
-    assert 'should not be provided' in str(result6.get('error', ''))
+    assert result6.get("success") == False  # Should fail validation
+    assert "should not be provided" in str(result6.get("error", ""))
     print(f"✅ Create mode validation test passed")
 
     # Test modify mode with mock
@@ -659,11 +671,11 @@ Regular paragraph text here.""",
         mode="modify",
         content="# New Section\n\nAdditional content",
         existing_file_url="https://mock.example.com/doc.docx",
-        title="Updated Document"
+        title="Updated Document",
     )
     result7 = tool7.run()
-    assert result7.get('success') == True
-    assert result7['result']['mode'] == "modify"
+    assert result7.get("success") == True
+    assert result7["result"]["mode"] == "modify"
     print(f"✅ Modify mode mock test passed")
 
     print("\n🎉 All tests passed!")

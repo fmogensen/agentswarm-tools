@@ -51,44 +51,26 @@ class GenerateOrganizationChart(BaseTool):
 
     # Required parameters
     data: List[Dict[str, Any]] = Field(
-        ...,
-        description="List of organization nodes with id, name, title, and optional parent"
+        ..., description="List of organization nodes with id, name, title, and optional parent"
     )
 
     # Optional parameters
-    title: Optional[str] = Field(
-        None,
-        description="Chart title",
-        max_length=200
-    )
+    title: Optional[str] = Field(None, description="Chart title", max_length=200)
 
-    width: Optional[int] = Field(
-        1200,
-        description="Chart width in pixels",
-        ge=400,
-        le=4000
-    )
+    width: Optional[int] = Field(1200, description="Chart width in pixels", ge=400, le=4000)
 
-    height: Optional[int] = Field(
-        800,
-        description="Chart height in pixels",
-        ge=300,
-        le=3000
-    )
+    height: Optional[int] = Field(800, description="Chart height in pixels", ge=300, le=3000)
 
     orientation: str = Field(
-        "vertical",
-        description="Chart orientation: vertical (top-down) or horizontal (left-right)"
+        "vertical", description="Chart orientation: vertical (top-down) or horizontal (left-right)"
     )
 
     node_template: Optional[str] = Field(
-        "standard",
-        description="Node display template: standard, compact, detailed, custom"
+        "standard", description="Node display template: standard, compact, detailed, custom"
     )
 
     params: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Additional chart parameters (colors, spacing, styles, etc.)"
+        None, description="Additional chart parameters (colors, spacing, styles, etc.)"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -116,7 +98,7 @@ class GenerateOrganizationChart(BaseTool):
                     "tool_name": self.tool_name,
                     "tool_version": "1.0.0",
                     "chart_type": "organization",
-                    "node_count": len(self.data)
+                    "node_count": len(self.data),
                 },
             }
         except Exception as e:
@@ -131,18 +113,14 @@ class GenerateOrganizationChart(BaseTool):
         """
         # Validate data
         if not self.data:
-            raise ValidationError(
-                "Data cannot be empty",
-                tool_name=self.tool_name,
-                field="data"
-            )
+            raise ValidationError("Data cannot be empty", tool_name=self.tool_name, field="data")
 
         if not isinstance(self.data, list):
             raise ValidationError(
                 "Data must be a list of node objects",
                 tool_name=self.tool_name,
                 field="data",
-                details={"data_type": str(type(self.data))}
+                details={"data_type": str(type(self.data))},
             )
 
         # Validate each node
@@ -153,7 +131,7 @@ class GenerateOrganizationChart(BaseTool):
                     f"Node at index {i} must be a dictionary",
                     tool_name=self.tool_name,
                     field="data",
-                    details={"node_index": i, "node_type": str(type(node))}
+                    details={"node_index": i, "node_type": str(type(node))},
                 )
 
             for field in required_fields:
@@ -162,7 +140,7 @@ class GenerateOrganizationChart(BaseTool):
                         f"Node at index {i} missing required field: {field}",
                         tool_name=self.tool_name,
                         field="data",
-                        details={"node_index": i, "missing_field": field, "node": node}
+                        details={"node_index": i, "missing_field": field, "node": node},
                     )
 
         # Validate orientation
@@ -172,7 +150,7 @@ class GenerateOrganizationChart(BaseTool):
                 f"Orientation must be one of: {', '.join(valid_orientations)}",
                 tool_name=self.tool_name,
                 field="orientation",
-                details={"provided": self.orientation, "valid": valid_orientations}
+                details={"provided": self.orientation, "valid": valid_orientations},
             )
 
         # Validate node_template
@@ -182,7 +160,7 @@ class GenerateOrganizationChart(BaseTool):
                 f"Node template must be one of: {', '.join(valid_templates)}",
                 tool_name=self.tool_name,
                 field="node_template",
-                details={"provided": self.node_template, "valid": valid_templates}
+                details={"provided": self.node_template, "valid": valid_templates},
             )
 
         # Validate hierarchy consistency
@@ -200,9 +178,7 @@ class GenerateOrganizationChart(BaseTool):
         # Check for duplicate IDs
         if len(node_ids) != len(self.data):
             raise ValidationError(
-                "Duplicate node IDs found in data",
-                tool_name=self.tool_name,
-                field="data"
+                "Duplicate node IDs found in data", tool_name=self.tool_name, field="data"
             )
 
         # Validate parent references
@@ -213,7 +189,7 @@ class GenerateOrganizationChart(BaseTool):
                         f"Node '{node['id']}' references non-existent parent '{node['parent']}'",
                         tool_name=self.tool_name,
                         field="data",
-                        details={"node_id": node["id"], "parent_id": node["parent"]}
+                        details={"node_id": node["id"], "parent_id": node["parent"]},
                     )
 
         # Check for circular references
@@ -226,6 +202,7 @@ class GenerateOrganizationChart(BaseTool):
         Raises:
             ValidationError: If circular reference detected
         """
+
         def has_cycle(node_id: str, visited: set, parent_map: dict) -> bool:
             if node_id in visited:
                 return True
@@ -250,7 +227,7 @@ class GenerateOrganizationChart(BaseTool):
                 raise ValidationError(
                     f"Circular reference detected involving node '{node['id']}'",
                     tool_name=self.tool_name,
-                    field="data"
+                    field="data",
                 )
 
     def _should_use_mock(self) -> bool:
@@ -272,19 +249,18 @@ class GenerateOrganizationChart(BaseTool):
                     "title": self.title or "Organization Chart",
                     "template": self.node_template,
                     "url": f"mock://org-chart-{hash(str(self.data)) % 10000}.svg",
-                    "format": "svg"
+                    "format": "svg",
                 },
                 "statistics": {
                     "total_nodes": len(self.data),
                     "depth": self._calculate_hierarchy_depth(),
-                    "root_nodes": len([n for n in self.data if "parent" not in n or n["parent"] is None])
+                    "root_nodes": len(
+                        [n for n in self.data if "parent" not in n or n["parent"] is None]
+                    ),
                 },
-                "message": "[MOCK] Organization chart generated successfully"
+                "message": "[MOCK] Organization chart generated successfully",
             },
-            "metadata": {
-                "mock_mode": True,
-                "tool_name": self.tool_name
-            },
+            "metadata": {"mock_mode": True, "tool_name": self.tool_name},
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -302,7 +278,13 @@ class GenerateOrganizationChart(BaseTool):
             "total_nodes": len(self.data),
             "depth": self._calculate_hierarchy_depth(),
             "root_nodes": len([n for n in self.data if "parent" not in n or n["parent"] is None]),
-            "leaf_nodes": len([n for n in self.data if n["id"] not in {node.get("parent") for node in self.data if "parent" in node}])
+            "leaf_nodes": len(
+                [
+                    n
+                    for n in self.data
+                    if n["id"] not in {node.get("parent") for node in self.data if "parent" in node}
+                ]
+            ),
         }
 
         # In a real implementation, this would:
@@ -323,10 +305,10 @@ class GenerateOrganizationChart(BaseTool):
                 "template": self.node_template,
                 "params": self.params or {},
                 "format": "svg",
-                "status": "generated"
+                "status": "generated",
             },
             "statistics": stats,
-            "message": f"Organization chart generated successfully with {stats['total_nodes']} nodes"
+            "message": f"Organization chart generated successfully with {stats['total_nodes']} nodes",
         }
 
     def _build_hierarchy_tree(self) -> Dict[str, Any]:
@@ -350,10 +332,7 @@ class GenerateOrganizationChart(BaseTool):
             elif parent_id in nodes_by_id:
                 nodes_by_id[parent_id]["children"].append(nodes_by_id[node_id])
 
-        return {
-            "roots": roots,
-            "node_count": len(self.data)
-        }
+        return {"roots": roots, "node_count": len(self.data)}
 
     def _calculate_hierarchy_depth(self) -> int:
         """
@@ -362,6 +341,7 @@ class GenerateOrganizationChart(BaseTool):
         Returns:
             Maximum depth (root = 0)
         """
+
         def get_depth(node_id: str, parent_map: dict, memo: dict) -> int:
             if node_id in memo:
                 return memo[node_id]
@@ -396,6 +376,7 @@ if __name__ == "__main__":
     print("Testing GenerateOrganizationChart...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Simple 3-level hierarchy
@@ -408,7 +389,7 @@ if __name__ == "__main__":
             {"id": "dev1", "name": "Bob Wilson", "title": "Dev Lead", "parent": "cto"},
             {"id": "dev2", "name": "Carol Brown", "title": "Senior Dev", "parent": "cto"},
         ],
-        title="Tech Company Org Chart"
+        title="Tech Company Org Chart",
     )
     result1 = tool1.run()
     print(f"Success: {result1.get('success')}")
@@ -419,15 +400,32 @@ if __name__ == "__main__":
     print("\n=== Test 2: Horizontal Layout ===")
     tool2 = GenerateOrganizationChart(
         data=[
-            {"id": "head", "name": "Department Head", "title": "Head of Engineering", "department": "Engineering"},
-            {"id": "team1", "name": "Team Lead 1", "title": "Backend Lead", "parent": "head", "department": "Backend"},
-            {"id": "team2", "name": "Team Lead 2", "title": "Frontend Lead", "parent": "head", "department": "Frontend"},
+            {
+                "id": "head",
+                "name": "Department Head",
+                "title": "Head of Engineering",
+                "department": "Engineering",
+            },
+            {
+                "id": "team1",
+                "name": "Team Lead 1",
+                "title": "Backend Lead",
+                "parent": "head",
+                "department": "Backend",
+            },
+            {
+                "id": "team2",
+                "name": "Team Lead 2",
+                "title": "Frontend Lead",
+                "parent": "head",
+                "department": "Frontend",
+            },
         ],
         title="Engineering Department",
         orientation="horizontal",
         node_template="detailed",
         width=1600,
-        height=600
+        height=600,
     )
     result2 = tool2.run()
     print(f"Success: {result2.get('success')}")
@@ -471,16 +469,31 @@ if __name__ == "__main__":
             {"id": "coo", "name": "COO", "title": "Chief Operating Officer", "parent": "ceo"},
             {"id": "eng_vp", "name": "VP Eng", "title": "VP Engineering", "parent": "cto"},
             {"id": "prod_vp", "name": "VP Prod", "title": "VP Product", "parent": "cto"},
-            {"id": "backend", "name": "Backend Lead", "title": "Backend Team Lead", "parent": "eng_vp"},
-            {"id": "frontend", "name": "Frontend Lead", "title": "Frontend Team Lead", "parent": "eng_vp"},
-            {"id": "mobile", "name": "Mobile Lead", "title": "Mobile Team Lead", "parent": "eng_vp"},
+            {
+                "id": "backend",
+                "name": "Backend Lead",
+                "title": "Backend Team Lead",
+                "parent": "eng_vp",
+            },
+            {
+                "id": "frontend",
+                "name": "Frontend Lead",
+                "title": "Frontend Team Lead",
+                "parent": "eng_vp",
+            },
+            {
+                "id": "mobile",
+                "name": "Mobile Lead",
+                "title": "Mobile Team Lead",
+                "parent": "eng_vp",
+            },
         ],
         title="Full Company Structure",
-        params={"show_photos": True, "color_by_department": True}
+        params={"show_photos": True, "color_by_department": True},
     )
     result5 = tool5.run()
     print(f"Success: {result5.get('success')}")
-    stats = result5.get('result', {}).get('statistics', {})
+    stats = result5.get("result", {}).get("statistics", {})
     print(f"Total Nodes: {stats.get('total_nodes')}")
     print(f"Hierarchy Depth: {stats.get('depth')}")
     print(f"Root Nodes: {stats.get('root_nodes')}")

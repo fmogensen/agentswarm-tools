@@ -63,60 +63,34 @@ class WebsiteBuilder(BaseTool):
         ...,
         description="Detailed description of the website's purpose and content",
         min_length=10,
-        max_length=1000
+        max_length=1000,
     )
 
-    num_pages: int = Field(
-        1,
-        description="Number of pages to generate",
-        ge=1,
-        le=10
-    )
+    num_pages: int = Field(1, description="Number of pages to generate", ge=1, le=10)
 
     style: Literal["modern", "minimal", "professional", "creative", "corporate"] = Field(
-        "modern",
-        description="Visual style/theme of the website"
+        "modern", description="Visual style/theme of the website"
     )
 
     color_scheme: Optional[str] = Field(
-        None,
-        description="Primary theme color in hex format (e.g., '#FF5733')"
+        None, description="Primary theme color in hex format (e.g., '#FF5733')"
     )
 
-    include_contact_form: bool = Field(
-        False,
-        description="Whether to include a contact form"
-    )
+    include_contact_form: bool = Field(False, description="Whether to include a contact form")
 
-    include_blog: bool = Field(
-        False,
-        description="Whether to include a blog section"
-    )
+    include_blog: bool = Field(False, description="Whether to include a blog section")
 
-    responsive: bool = Field(
-        True,
-        description="Make the website mobile-responsive"
-    )
+    responsive: bool = Field(True, description="Make the website mobile-responsive")
 
     framework: Literal["vanilla", "tailwind", "bootstrap"] = Field(
-        "tailwind",
-        description="CSS framework to use for styling"
+        "tailwind", description="CSS framework to use for styling"
     )
 
-    include_animations: bool = Field(
-        True,
-        description="Add CSS animations and transitions"
-    )
+    include_animations: bool = Field(True, description="Add CSS animations and transitions")
 
-    seo_optimized: bool = Field(
-        True,
-        description="Include SEO meta tags and structured data"
-    )
+    seo_optimized: bool = Field(True, description="Include SEO meta tags and structured data")
 
-    accessibility: bool = Field(
-        True,
-        description="Ensure WCAG 2.1 AA accessibility compliance"
-    )
+    accessibility: bool = Field(True, description="Ensure WCAG 2.1 AA accessibility compliance")
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -172,20 +146,17 @@ class WebsiteBuilder(BaseTool):
             raise ValidationError(
                 "website_purpose must be a string",
                 tool_name=self.tool_name,
-                details={"type": type(self.website_purpose).__name__}
+                details={"type": type(self.website_purpose).__name__},
             )
 
         if not self.website_purpose.strip():
-            raise ValidationError(
-                "website_purpose cannot be empty",
-                tool_name=self.tool_name
-            )
+            raise ValidationError("website_purpose cannot be empty", tool_name=self.tool_name)
 
         if len(self.website_purpose) < 10:
             raise ValidationError(
                 "website_purpose must be at least 10 characters",
                 tool_name=self.tool_name,
-                details={"length": len(self.website_purpose)}
+                details={"length": len(self.website_purpose)},
             )
 
         # Validate num_pages
@@ -193,14 +164,14 @@ class WebsiteBuilder(BaseTool):
             raise ValidationError(
                 "num_pages must be an integer",
                 tool_name=self.tool_name,
-                details={"type": type(self.num_pages).__name__}
+                details={"type": type(self.num_pages).__name__},
             )
 
         if self.num_pages < 1 or self.num_pages > 10:
             raise ValidationError(
                 "num_pages must be between 1 and 10",
                 tool_name=self.tool_name,
-                details={"num_pages": self.num_pages}
+                details={"num_pages": self.num_pages},
             )
 
         # Validate color_scheme if provided
@@ -209,7 +180,7 @@ class WebsiteBuilder(BaseTool):
                 raise ValidationError(
                     "color_scheme must be a string",
                     tool_name=self.tool_name,
-                    details={"type": type(self.color_scheme).__name__}
+                    details={"type": type(self.color_scheme).__name__},
                 )
 
             # Check hex color format
@@ -218,7 +189,7 @@ class WebsiteBuilder(BaseTool):
                 raise ValidationError(
                     "color_scheme must start with '#'",
                     tool_name=self.tool_name,
-                    details={"color_scheme": self.color_scheme}
+                    details={"color_scheme": self.color_scheme},
                 )
 
             # Remove # and check if valid hex
@@ -227,7 +198,7 @@ class WebsiteBuilder(BaseTool):
                 raise ValidationError(
                     "color_scheme must be 3 or 6 hex digits after '#'",
                     tool_name=self.tool_name,
-                    details={"color_scheme": self.color_scheme}
+                    details={"color_scheme": self.color_scheme},
                 )
 
             try:
@@ -236,7 +207,7 @@ class WebsiteBuilder(BaseTool):
                 raise ValidationError(
                     "color_scheme must contain valid hex digits",
                     tool_name=self.tool_name,
-                    details={"color_scheme": self.color_scheme}
+                    details={"color_scheme": self.color_scheme},
                 )
 
     def _should_use_mock(self) -> bool:
@@ -307,7 +278,7 @@ class WebsiteBuilder(BaseTool):
             raise ConfigurationError(
                 "Missing OPENAI_API_KEY environment variable",
                 tool_name=self.tool_name,
-                config_key="OPENAI_API_KEY"
+                config_key="OPENAI_API_KEY",
             )
 
         try:
@@ -333,15 +304,12 @@ class WebsiteBuilder(BaseTool):
                     messages=[
                         {
                             "role": "system",
-                            "content": "You are an expert web developer. Generate clean, production-ready HTML/CSS/JS code."
+                            "content": "You are an expert web developer. Generate clean, production-ready HTML/CSS/JS code.",
                         },
-                        {
-                            "role": "user",
-                            "content": prompt
-                        }
+                        {"role": "user", "content": prompt},
                     ],
                     temperature=0.7,
-                    max_tokens=4000
+                    max_tokens=4000,
                 )
 
                 generated_files[page] = response.choices[0].message.content
@@ -374,9 +342,7 @@ class WebsiteBuilder(BaseTool):
 
         except Exception as e:
             raise APIError(
-                f"OpenAI API error: {str(e)}",
-                tool_name=self.tool_name,
-                api_name="OpenAI"
+                f"OpenAI API error: {str(e)}", tool_name=self.tool_name, api_name="OpenAI"
             )
 
     def _generate_page_names(self, num_pages: int) -> list:
@@ -453,7 +419,9 @@ Accessibility: {self.accessibility}
             prompt += f"Primary Color: {self.color_scheme}\n"
 
         if page_name == "contact" and self.include_contact_form:
-            prompt += "\nInclude a functional contact form with fields for name, email, and message.\n"
+            prompt += (
+                "\nInclude a functional contact form with fields for name, email, and message.\n"
+            )
 
         if page_name == "blog" and self.include_blog:
             prompt += "\nInclude a blog layout with sample posts, dates, and categories.\n"
@@ -487,7 +455,7 @@ Return only the HTML code, no explanations.
         framework_cdn = {
             "tailwind": '<script src="https://cdn.tailwindcss.com"></script>',
             "bootstrap": '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">',
-            "vanilla": ""
+            "vanilla": "",
         }
 
         html = f"""<!DOCTYPE html>
@@ -539,6 +507,7 @@ if __name__ == "__main__":
     print("=" * 60)
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic website
@@ -549,9 +518,9 @@ if __name__ == "__main__":
     )
     result = tool.run()
 
-    assert result.get('success') == True, "Test 1 failed: success should be True"
-    assert 'website_url' in result, "Test 1 failed: missing website_url"
-    assert len(result.get('pages_created', [])) == 1, "Test 1 failed: should have 1 page"
+    assert result.get("success") == True, "Test 1 failed: success should be True"
+    assert "website_url" in result, "Test 1 failed: missing website_url"
+    assert len(result.get("pages_created", [])) == 1, "Test 1 failed: should have 1 page"
     print(f"✅ Test 1 passed")
     print(f"   Website URL: {result.get('website_url')}")
     print(f"   Pages: {result.get('pages_created')}")
@@ -568,14 +537,16 @@ if __name__ == "__main__":
         include_contact_form=True,
         framework="bootstrap",
         seo_optimized=True,
-        accessibility=True
+        accessibility=True,
     )
     result = tool.run()
 
-    assert result.get('success') == True, "Test 2 failed: success should be True"
-    assert len(result.get('pages_created', [])) == 5, "Test 2 failed: should have 5 pages"
-    assert result.get('framework_used') == 'bootstrap', "Test 2 failed: wrong framework"
-    assert 'contact_form' in result.get('metadata', {}).get('features', []), "Test 2 failed: missing contact form"
+    assert result.get("success") == True, "Test 2 failed: success should be True"
+    assert len(result.get("pages_created", [])) == 5, "Test 2 failed: should have 5 pages"
+    assert result.get("framework_used") == "bootstrap", "Test 2 failed: wrong framework"
+    assert "contact_form" in result.get("metadata", {}).get(
+        "features", []
+    ), "Test 2 failed: missing contact form"
     print(f"✅ Test 2 passed")
     print(f"   Pages: {', '.join(result.get('pages_created', []))}")
     print(f"   Features: {', '.join(result.get('metadata', {}).get('features', []))}")
@@ -593,15 +564,15 @@ if __name__ == "__main__":
         include_contact_form=True,
         framework="tailwind",
         include_animations=True,
-        responsive=True
+        responsive=True,
     )
     result = tool.run()
 
-    assert result.get('success') == True, "Test 3 failed: success should be True"
-    assert 'blog' in result.get('pages_created', []), "Test 3 failed: missing blog page"
-    features = result.get('metadata', {}).get('features', [])
-    assert 'animations' in features, "Test 3 failed: missing animations"
-    assert 'responsive' in features, "Test 3 failed: missing responsive"
+    assert result.get("success") == True, "Test 3 failed: success should be True"
+    assert "blog" in result.get("pages_created", []), "Test 3 failed: missing blog page"
+    features = result.get("metadata", {}).get("features", [])
+    assert "animations" in features, "Test 3 failed: missing animations"
+    assert "responsive" in features, "Test 3 failed: missing responsive"
     print(f"✅ Test 3 passed")
     print(f"   Style: {result.get('metadata', {}).get('style')}")
     print(f"   Features: {', '.join(features)}")
@@ -616,13 +587,13 @@ if __name__ == "__main__":
         style="minimal",
         framework="vanilla",
         include_animations=False,
-        responsive=True
+        responsive=True,
     )
     result = tool.run()
 
-    assert result.get('success') == True, "Test 4 failed: success should be True"
-    assert result.get('framework_used') == 'vanilla', "Test 4 failed: wrong framework"
-    assert len(result.get('pages_created', [])) == 1, "Test 4 failed: should have 1 page"
+    assert result.get("success") == True, "Test 4 failed: success should be True"
+    assert result.get("framework_used") == "vanilla", "Test 4 failed: wrong framework"
+    assert len(result.get("pages_created", [])) == 1, "Test 4 failed: should have 1 page"
     print(f"✅ Test 4 passed")
     print(f"   Pages: {result.get('pages_created')}")
     print(f"   Framework: {result.get('framework_used')}")
@@ -651,10 +622,7 @@ if __name__ == "__main__":
     print("\n[Test 7] Validation - invalid num_pages (too high)")
     print("-" * 60)
     try:
-        bad_tool = WebsiteBuilder(
-            website_purpose="A website with too many pages",
-            num_pages=15
-        )
+        bad_tool = WebsiteBuilder(website_purpose="A website with too many pages", num_pages=15)
         bad_tool.run()
         assert False, "Test 7 failed: should have raised ValidationError"
     except Exception as e:
@@ -665,8 +633,7 @@ if __name__ == "__main__":
     print("-" * 60)
     try:
         bad_tool = WebsiteBuilder(
-            website_purpose="A website with invalid color",
-            color_scheme="not-a-hex-color"
+            website_purpose="A website with invalid color", color_scheme="not-a-hex-color"
         )
         bad_tool.run()
         assert False, "Test 8 failed: should have raised ValidationError"
@@ -677,11 +644,10 @@ if __name__ == "__main__":
     print("\n[Test 9] Valid hex color formats")
     print("-" * 60)
     tool = WebsiteBuilder(
-        website_purpose="Testing color scheme validation with 6-digit hex",
-        color_scheme="#FF5733"
+        website_purpose="Testing color scheme validation with 6-digit hex", color_scheme="#FF5733"
     )
     result = tool.run()
-    assert result.get('success') == True, "Test 9 failed: 6-digit hex should be valid"
+    assert result.get("success") == True, "Test 9 failed: 6-digit hex should be valid"
     print(f"✅ Test 9 passed: 6-digit hex color accepted")
 
     # Test 10: Corporate website with SEO
@@ -695,16 +661,16 @@ if __name__ == "__main__":
         framework="bootstrap",
         seo_optimized=True,
         accessibility=True,
-        responsive=True
+        responsive=True,
     )
     result = tool.run()
 
-    assert result.get('success') == True, "Test 10 failed: success should be True"
-    metadata = result.get('metadata', {})
-    assert 'html_sample' in metadata, "Test 10 failed: missing HTML sample in mock mode"
-    html_sample = metadata.get('html_sample', '')
-    assert 'meta' in html_sample.lower(), "Test 10 failed: SEO meta tags not in HTML"
-    assert metadata.get('style') == 'corporate', "Test 10 failed: wrong style"
+    assert result.get("success") == True, "Test 10 failed: success should be True"
+    metadata = result.get("metadata", {})
+    assert "html_sample" in metadata, "Test 10 failed: missing HTML sample in mock mode"
+    html_sample = metadata.get("html_sample", "")
+    assert "meta" in html_sample.lower(), "Test 10 failed: SEO meta tags not in HTML"
+    assert metadata.get("style") == "corporate", "Test 10 failed: wrong style"
     print(f"✅ Test 10 passed")
     print(f"   HTML sample length: {len(html_sample)} characters")
     print(f"   Contains SEO meta tags: {'og:title' in html_sample}")

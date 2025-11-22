@@ -13,6 +13,7 @@ from shared.errors import ValidationError, APIError, AuthenticationError
 try:
     from twilio.rest import Client
     from twilio.base.exceptions import TwilioRestException
+
     TWILIO_AVAILABLE = True
 except ImportError:
     TWILIO_AVAILABLE = False
@@ -58,24 +59,14 @@ class TwilioCallLogs(BaseTool):
 
     # Parameters
     time_range_hours: int = Field(
-        24,
-        description="Hours to look back from current time",
-        ge=1,
-        le=720  # Max 30 days
+        24, description="Hours to look back from current time", ge=1, le=720  # Max 30 days
     )
-    limit: int = Field(
-        10,
-        description="Maximum number of calls to return",
-        ge=1,
-        le=100
-    )
+    limit: int = Field(10, description="Maximum number of calls to return", ge=1, le=100)
     include_transcript: bool = Field(
-        False,
-        description="Whether to include call transcripts in results"
+        False, description="Whether to include call transcripts in results"
     )
     filter_status: Optional[Literal["completed", "failed", "busy"]] = Field(
-        None,
-        description="Filter calls by status (completed, failed, busy, or None for all)"
+        None, description="Filter calls by status (completed, failed, busy, or None for all)"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -91,7 +82,7 @@ class TwilioCallLogs(BaseTool):
         if not TWILIO_AVAILABLE:
             raise APIError(
                 "twilio package not installed. Install with: pip install twilio",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         try:
@@ -110,34 +101,31 @@ class TwilioCallLogs(BaseTool):
                     "total_cost": result["total_cost"],
                     "query_start_time": result["query_start_time"],
                     "query_end_time": result["query_end_time"],
-                    "mock_mode": False
-                }
+                    "mock_mode": False,
+                },
             }
         except TwilioRestException as e:
             if e.status == 401:
                 raise AuthenticationError(
                     "Invalid Twilio credentials. Check TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN",
                     tool_name=self.tool_name,
-                    api_name="Twilio API"
+                    api_name="Twilio API",
                 )
             elif e.status == 403:
                 raise AuthenticationError(
                     "Twilio account does not have permission to access this resource",
                     tool_name=self.tool_name,
-                    api_name="Twilio API"
+                    api_name="Twilio API",
                 )
             else:
                 raise APIError(
                     f"Twilio API error: {e.msg}",
                     tool_name=self.tool_name,
                     api_name="Twilio API",
-                    status_code=e.status
+                    status_code=e.status,
                 )
         except Exception as e:
-            raise APIError(
-                f"Failed to retrieve call logs: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to retrieve call logs: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -146,29 +134,25 @@ class TwilioCallLogs(BaseTool):
             raise ValidationError(
                 "time_range_hours must be a positive integer",
                 tool_name=self.tool_name,
-                field="time_range_hours"
+                field="time_range_hours",
             )
 
         if self.time_range_hours > 720:  # 30 days max
             raise ValidationError(
                 "time_range_hours cannot exceed 720 (30 days)",
                 tool_name=self.tool_name,
-                field="time_range_hours"
+                field="time_range_hours",
             )
 
         # limit validation
         if not isinstance(self.limit, int) or self.limit <= 0:
             raise ValidationError(
-                "limit must be a positive integer",
-                tool_name=self.tool_name,
-                field="limit"
+                "limit must be a positive integer", tool_name=self.tool_name, field="limit"
             )
 
         if self.limit > 100:
             raise ValidationError(
-                "limit cannot exceed 100",
-                tool_name=self.tool_name,
-                field="limit"
+                "limit cannot exceed 100", tool_name=self.tool_name, field="limit"
             )
 
         # filter_status validation (already handled by Literal type, but add runtime check)
@@ -176,7 +160,7 @@ class TwilioCallLogs(BaseTool):
             raise ValidationError(
                 "filter_status must be one of: completed, failed, busy",
                 tool_name=self.tool_name,
-                field="filter_status"
+                field="filter_status",
             )
 
     def _should_use_mock(self) -> bool:
@@ -209,8 +193,7 @@ class TwilioCallLogs(BaseTool):
 
             # Generate call details
             call_start = base_time + timedelta(
-                hours=random.randint(0, self.time_range_hours),
-                minutes=random.randint(0, 59)
+                hours=random.randint(0, self.time_range_hours), minutes=random.randint(0, 59)
             )
 
             duration = random.randint(30, 600) if status == "completed" else 0
@@ -227,9 +210,11 @@ class TwilioCallLogs(BaseTool):
                 "cost": f"-{cost:.4f}" if cost > 0 else "0.0000",
                 "cost_unit": "USD",
                 "start_time": call_start.isoformat(),
-                "end_time": (call_start + timedelta(seconds=duration)).isoformat() if duration > 0 else None,
+                "end_time": (
+                    (call_start + timedelta(seconds=duration)).isoformat() if duration > 0 else None
+                ),
                 "direction": random.choice(["outbound-api", "inbound"]),
-                "price_unit": "USD"
+                "price_unit": "USD",
             }
 
             # Add transcript if requested
@@ -261,8 +246,8 @@ class TwilioCallLogs(BaseTool):
                 "total_duration": total_duration,
                 "total_cost": f"{total_cost:.4f}",
                 "query_start_time": base_time.isoformat(),
-                "query_end_time": datetime.now().isoformat()
-            }
+                "query_end_time": datetime.now().isoformat(),
+            },
         }
 
     def _generate_mock_transcript(self, index: int) -> str:
@@ -272,7 +257,7 @@ class TwilioCallLogs(BaseTool):
             "Hi, we're calling to follow up on your recent inquiry. We have some exciting updates to share. Please return our call at your earliest convenience.",
             "This is an automated reminder that your payment is due in 3 days. Please visit our website or call our billing department to make your payment.",
             "Good afternoon, we noticed you haven't completed your registration. We'd love to help you finish the process. Please call us back.",
-            "Hello, your order has been shipped and will arrive within 3-5 business days. Thank you for your purchase!"
+            "Hello, your order has been shipped and will arrive within 3-5 business days. Thank you for your purchase!",
         ]
         return transcripts[index % len(transcripts)]
 
@@ -286,7 +271,7 @@ class TwilioCallLogs(BaseTool):
             raise AuthenticationError(
                 "Missing TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN environment variables",
                 tool_name=self.tool_name,
-                api_name="Twilio API"
+                api_name="Twilio API",
             )
 
         # Create Twilio client
@@ -300,7 +285,7 @@ class TwilioCallLogs(BaseTool):
         query_params = {
             "start_time_after": start_time,
             "start_time_before": end_time,
-            "limit": self.limit
+            "limit": self.limit,
         }
 
         # Add status filter if specified
@@ -334,7 +319,7 @@ class TwilioCallLogs(BaseTool):
                 "start_time": call.start_time.isoformat() if call.start_time else None,
                 "end_time": call.end_time.isoformat() if call.end_time else None,
                 "direction": call.direction,
-                "price_unit": call.price_unit or "USD"
+                "price_unit": call.price_unit or "USD",
             }
 
             # Add transcript if requested and available
@@ -351,7 +336,7 @@ class TwilioCallLogs(BaseTool):
             "total_duration": total_duration,
             "total_cost": f"{total_cost:.4f}",
             "query_start_time": start_time.isoformat(),
-            "query_end_time": end_time.isoformat()
+            "query_end_time": end_time.isoformat(),
         }
 
     def _fetch_transcript(self, client: Any, call_sid: str) -> Optional[str]:
@@ -376,10 +361,7 @@ class TwilioCallLogs(BaseTool):
             recording = recordings[0]
 
             # Fetch transcriptions for the recording
-            transcriptions = client.transcriptions.list(
-                recording_sid=recording.sid,
-                limit=1
-            )
+            transcriptions = client.transcriptions.list(recording_sid=recording.sid, limit=1)
 
             if transcriptions and len(transcriptions) > 0:
                 return transcriptions[0].transcription_text
@@ -388,9 +370,7 @@ class TwilioCallLogs(BaseTool):
 
         except Exception as e:
             # If transcript fetch fails, log but don't fail the entire request
-            self._logger.warning(
-                f"Failed to fetch transcript for call {call_sid}: {e}"
-            )
+            self._logger.warning(f"Failed to fetch transcript for call {call_sid}: {e}")
             return None
 
 
@@ -398,6 +378,7 @@ if __name__ == "__main__":
     print("Testing TwilioCallLogs...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic query with default parameters
@@ -409,59 +390,45 @@ if __name__ == "__main__":
     print(f"Total calls: {result.get('metadata', {}).get('total_calls')}")
     print(f"Total duration: {result.get('metadata', {}).get('total_duration')}s")
     print(f"Total cost: ${result.get('metadata', {}).get('total_cost')}")
-    assert result.get('success') == True
-    assert len(result.get('result', [])) <= 10
+    assert result.get("success") == True
+    assert len(result.get("result", [])) <= 10
 
     # Test 2: Extended time range with status filter
     print("\nTest 2: 48 hours, completed calls only, limit 20")
-    tool2 = TwilioCallLogs(
-        time_range_hours=48,
-        limit=20,
-        filter_status="completed"
-    )
+    tool2 = TwilioCallLogs(time_range_hours=48, limit=20, filter_status="completed")
     result2 = tool2.run()
 
     print(f"Success: {result2.get('success')}")
     print(f"Total calls: {result2.get('metadata', {}).get('total_calls')}")
     # Verify all calls have completed status
-    for call in result2.get('result', []):
-        assert call.get('status') == 'completed'
+    for call in result2.get("result", []):
+        assert call.get("status") == "completed"
     print("All calls have 'completed' status")
 
     # Test 3: With transcripts
     print("\nTest 3: With transcripts included")
     tool3 = TwilioCallLogs(
-        time_range_hours=24,
-        limit=5,
-        include_transcript=True,
-        filter_status="completed"
+        time_range_hours=24, limit=5, include_transcript=True, filter_status="completed"
     )
     result3 = tool3.run()
 
     print(f"Success: {result3.get('success')}")
     print(f"Total calls: {result3.get('metadata', {}).get('total_calls')}")
     # Check if transcripts are included
-    has_transcript = any(
-        call.get('transcript') is not None
-        for call in result3.get('result', [])
-    )
+    has_transcript = any(call.get("transcript") is not None for call in result3.get("result", []))
     print(f"Has transcripts: {has_transcript}")
-    assert result3.get('success') == True
+    assert result3.get("success") == True
 
     # Test 4: Failed calls only
     print("\nTest 4: Failed calls only")
-    tool4 = TwilioCallLogs(
-        time_range_hours=72,
-        limit=15,
-        filter_status="failed"
-    )
+    tool4 = TwilioCallLogs(time_range_hours=72, limit=15, filter_status="failed")
     result4 = tool4.run()
 
     print(f"Success: {result4.get('success')}")
     print(f"Total calls: {result4.get('metadata', {}).get('total_calls')}")
     # Verify all calls have failed status
-    for call in result4.get('result', []):
-        assert call.get('status') == 'failed'
+    for call in result4.get("result", []):
+        assert call.get("status") == "failed"
     print("All calls have 'failed' status")
 
     # Test 5: Validation - invalid time_range_hours
@@ -469,7 +436,7 @@ if __name__ == "__main__":
     try:
         tool5 = TwilioCallLogs(time_range_hours=1000)  # Exceeds 720 max
         result5 = tool5.run()
-        assert result5.get('success') == False
+        assert result5.get("success") == False
         print("Validation test passed (invalid time_range rejected)")
     except Exception as e:
         print(f"Validation test passed (exception raised): {type(e).__name__}")
@@ -479,7 +446,7 @@ if __name__ == "__main__":
     try:
         tool6 = TwilioCallLogs(limit=150)  # Exceeds 100 max
         result6 = tool6.run()
-        assert result6.get('success') == False
+        assert result6.get("success") == False
         print("Validation test passed (invalid limit rejected)")
     except Exception as e:
         print(f"Validation test passed (exception raised): {type(e).__name__}")
@@ -489,9 +456,9 @@ if __name__ == "__main__":
     tool7 = TwilioCallLogs(limit=3)
     result7 = tool7.run()
 
-    if result7.get('result') and len(result7.get('result', [])) > 0:
-        call = result7['result'][0]
-        required_fields = ['call_sid', 'to', 'from', 'status', 'duration', 'cost', 'start_time']
+    if result7.get("result") and len(result7.get("result", [])) > 0:
+        call = result7["result"][0]
+        required_fields = ["call_sid", "to", "from", "status", "duration", "cost", "start_time"]
         for field in required_fields:
             assert field in call, f"Missing required field: {field}"
         print(f"All required fields present in call record")
@@ -499,6 +466,6 @@ if __name__ == "__main__":
         print(f"Sample call status: {call.get('status')}")
         print(f"Sample call duration: {call.get('duration')}s")
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("All TwilioCallLogs tests passed!")
-    print("="*50)
+    print("=" * 50)

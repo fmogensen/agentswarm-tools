@@ -63,9 +63,7 @@ class TestWriteTool:
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_real_mode_runs_process(self, valid_file_path: str, valid_content: str):
         tool = WriteTool(file_path=valid_file_path, content=valid_content)
-        with patch.object(
-            tool, "_process", return_value={"written": True}
-        ) as mock_proc:
+        with patch.object(tool, "_process", return_value={"written": True}) as mock_proc:
             result = tool.run()
 
         assert mock_proc.called

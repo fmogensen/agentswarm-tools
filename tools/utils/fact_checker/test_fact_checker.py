@@ -18,11 +18,7 @@ class TestFactChecker:
 
     def test_basic_fact_check(self):
         """Test basic fact checking."""
-        tool = FactChecker(
-            claim="The Earth is round",
-            use_scholar=False,
-            max_sources=5
-        )
+        tool = FactChecker(claim="The Earth is round", use_scholar=False, max_sources=5)
         result = tool.run()
 
         assert result["success"] is True
@@ -34,11 +30,7 @@ class TestFactChecker:
 
     def test_with_scholar_sources(self):
         """Test fact checking with academic sources."""
-        tool = FactChecker(
-            claim="Climate change is real",
-            use_scholar=True,
-            max_sources=10
-        )
+        tool = FactChecker(claim="Climate change is real", use_scholar=True, max_sources=10)
         result = tool.run()
 
         assert result["success"] is True
@@ -51,7 +43,7 @@ class TestFactChecker:
         tool = FactChecker(
             claim="Water boils at 100°C",
             sources=["https://www.nasa.gov", "https://www.noaa.gov"],
-            max_sources=5
+            max_sources=5,
         )
         result = tool.run()
 
@@ -61,9 +53,7 @@ class TestFactChecker:
     def test_analysis_summary(self):
         """Test that analysis summary is generated."""
         tool = FactChecker(
-            claim="Python is a programming language",
-            use_scholar=False,
-            max_sources=5
+            claim="Python is a programming language", use_scholar=False, max_sources=5
         )
         result = tool.run()
 
@@ -74,45 +64,31 @@ class TestFactChecker:
     def test_empty_claim_validation(self):
         """Test validation of empty claim."""
         with pytest.raises(ValidationError):
-            tool = FactChecker(
-                claim="",
-                max_sources=5
-            )
+            tool = FactChecker(claim="", max_sources=5)
             tool.run()
 
     def test_invalid_source_url(self):
         """Test validation of invalid source URLs."""
         with pytest.raises(ValidationError):
-            tool = FactChecker(
-                claim="Test claim",
-                sources=["not-a-valid-url"],
-                max_sources=5
-            )
+            tool = FactChecker(claim="Test claim", sources=["not-a-valid-url"], max_sources=5)
             tool.run()
 
     def test_max_sources_limit(self):
         """Test that max_sources parameter is respected."""
-        tool = FactChecker(
-            claim="Test claim",
-            use_scholar=True,
-            max_sources=3
-        )
+        tool = FactChecker(claim="Test claim", use_scholar=True, max_sources=3)
         result = tool.run()
 
         assert result["success"] is True
         total_sources = (
-            len(result["result"]["supporting_sources"]) +
-            len(result["result"]["contradicting_sources"]) +
-            len(result["result"]["neutral_sources"])
+            len(result["result"]["supporting_sources"])
+            + len(result["result"]["contradicting_sources"])
+            + len(result["result"]["neutral_sources"])
         )
         assert total_sources <= 3
 
     def test_confidence_score_range(self):
         """Test that confidence score is within valid range."""
-        tool = FactChecker(
-            claim="2 + 2 = 4",
-            max_sources=5
-        )
+        tool = FactChecker(claim="2 + 2 = 4", max_sources=5)
         result = tool.run()
 
         assert result["success"] is True
@@ -124,11 +100,7 @@ class TestFactChecker:
         """Test that mock mode works correctly."""
         os.environ["USE_MOCK_APIS"] = "true"
 
-        tool = FactChecker(
-            claim="Test claim in mock mode",
-            use_scholar=True,
-            max_sources=10
-        )
+        tool = FactChecker(claim="Test claim in mock mode", use_scholar=True, max_sources=10)
         result = tool.run()
 
         assert result["success"] is True
@@ -147,11 +119,7 @@ if __name__ == "__main__":
     # Test 1: Basic fact check
     print("\n--- Test 1: Basic fact check ---")
     try:
-        tool = FactChecker(
-            claim="The Earth is round",
-            use_scholar=False,
-            max_sources=5
-        )
+        tool = FactChecker(claim="The Earth is round", use_scholar=False, max_sources=5)
         result = tool.run()
         print(f"✓ Success: {result['success']}")
         print(f"✓ Verdict: {result['result']['verdict']}")
@@ -162,11 +130,7 @@ if __name__ == "__main__":
     # Test 2: With scholar sources
     print("\n--- Test 2: With scholar sources ---")
     try:
-        tool = FactChecker(
-            claim="Climate change is real",
-            use_scholar=True,
-            max_sources=10
-        )
+        tool = FactChecker(claim="Climate change is real", use_scholar=True, max_sources=10)
         result = tool.run()
         print(f"✓ Success: {result['success']}")
         print(f"✓ Supporting sources: {len(result['result']['supporting_sources'])}")
@@ -180,7 +144,7 @@ if __name__ == "__main__":
         tool = FactChecker(
             claim="Water boils at 100°C",
             sources=["https://www.nasa.gov", "https://www.noaa.gov"],
-            max_sources=5
+            max_sources=5,
         )
         result = tool.run()
         print(f"✓ Success: {result['success']}")
@@ -202,11 +166,7 @@ if __name__ == "__main__":
     # Test 5: Invalid URL validation
     print("\n--- Test 5: Invalid URL validation ---")
     try:
-        tool = FactChecker(
-            claim="Test",
-            sources=["invalid-url"],
-            max_sources=5
-        )
+        tool = FactChecker(claim="Test", sources=["invalid-url"], max_sources=5)
         result = tool.run()
         print(f"✗ Should have raised ValidationError")
     except ValidationError as e:

@@ -89,9 +89,7 @@ class MergeAudio(BaseTool):
         try:
             parsed = json.loads(self.input)
         except Exception:
-            raise ValidationError(
-                "Parameter 'input' must be valid JSON", tool_name=self.tool_name
-            )
+            raise ValidationError("Parameter 'input' must be valid JSON", tool_name=self.tool_name)
 
         if "clips" not in parsed or not isinstance(parsed["clips"], list):
             raise ValidationError(

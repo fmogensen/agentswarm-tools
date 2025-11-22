@@ -117,21 +117,15 @@ class ExtractAudioFromVideo(BaseTool):
                 output_file,
             ]
 
-            process = subprocess.run(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-            )
+            process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
             if process.returncode != 0:
-                raise APIError(
-                    f"FFmpeg failed: {process.stderr}", tool_name=self.tool_name
-                )
+                raise APIError(f"FFmpeg failed: {process.stderr}", tool_name=self.tool_name)
 
             return {"output_file": output_file}
 
         except FileNotFoundError:
-            raise APIError(
-                "FFmpeg is not installed or not found in PATH", tool_name=self.tool_name
-            )
+            raise APIError("FFmpeg is not installed or not found in PATH", tool_name=self.tool_name)
         except Exception as e:
             raise APIError(f"Unexpected error: {e}", tool_name=self.tool_name)
 
@@ -160,5 +154,6 @@ if __name__ == "__main__":
     finally:
         # Cleanup
         import os as os_mod
+
         if os_mod.path.exists(tmp_path):
             os_mod.remove(tmp_path)

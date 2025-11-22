@@ -15,10 +15,7 @@ class TestSlackReadMessages:
 
     def test_basic_read(self):
         """Test reading basic messages."""
-        tool = SlackReadMessages(
-            channel="#general",
-            limit=5
-        )
+        tool = SlackReadMessages(channel="#general", limit=5)
         result = tool.run()
 
         assert result["success"] == True
@@ -28,10 +25,7 @@ class TestSlackReadMessages:
 
     def test_read_with_limit(self):
         """Test reading with custom limit."""
-        tool = SlackReadMessages(
-            channel="#general",
-            limit=20
-        )
+        tool = SlackReadMessages(channel="#general", limit=20)
         result = tool.run()
 
         assert result["success"] == True
@@ -39,21 +33,14 @@ class TestSlackReadMessages:
 
     def test_read_with_threads(self):
         """Test reading with thread replies."""
-        tool = SlackReadMessages(
-            channel="#general",
-            limit=10,
-            include_threads=True
-        )
+        tool = SlackReadMessages(channel="#general", limit=10, include_threads=True)
         result = tool.run()
 
         assert result["success"] == True
 
     def test_channel_id_format(self):
         """Test channel ID format."""
-        tool = SlackReadMessages(
-            channel="C1234567890",
-            limit=5
-        )
+        tool = SlackReadMessages(channel="C1234567890", limit=5)
         result = tool.run()
 
         assert result["success"] == True
@@ -61,10 +48,7 @@ class TestSlackReadMessages:
     def test_time_range(self):
         """Test reading with time range."""
         tool = SlackReadMessages(
-            channel="#general",
-            limit=10,
-            oldest="1234567890.123456",
-            latest="1234567999.999999"
+            channel="#general", limit=10, oldest="1234567890.123456", latest="1234567999.999999"
         )
         result = tool.run()
 
@@ -73,43 +57,28 @@ class TestSlackReadMessages:
     def test_validation_empty_channel(self):
         """Test validation for empty channel."""
         with pytest.raises(ValidationError):
-            tool = SlackReadMessages(
-                channel="",
-                limit=5
-            )
+            tool = SlackReadMessages(channel="", limit=5)
             tool.run()
 
     def test_validation_invalid_channel_format(self):
         """Test validation for invalid channel format."""
         with pytest.raises(ValidationError):
-            tool = SlackReadMessages(
-                channel="invalid-channel",
-                limit=5
-            )
+            tool = SlackReadMessages(channel="invalid-channel", limit=5)
             tool.run()
 
     def test_validation_invalid_limit(self):
         """Test validation for invalid limit."""
         with pytest.raises(ValidationError):
-            tool = SlackReadMessages(
-                channel="#general",
-                limit=0
-            )
+            tool = SlackReadMessages(channel="#general", limit=0)
 
     def test_validation_limit_too_high(self):
         """Test validation for limit exceeding max."""
         with pytest.raises(ValidationError):
-            tool = SlackReadMessages(
-                channel="#general",
-                limit=200
-            )
+            tool = SlackReadMessages(channel="#general", limit=200)
 
     def test_mock_mode(self):
         """Test mock mode returns expected structure."""
-        tool = SlackReadMessages(
-            channel="#general",
-            limit=5
-        )
+        tool = SlackReadMessages(channel="#general", limit=5)
         result = tool.run()
 
         assert result["metadata"]["mock_mode"] == True

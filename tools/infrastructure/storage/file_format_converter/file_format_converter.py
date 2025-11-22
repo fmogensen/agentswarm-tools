@@ -115,9 +115,7 @@ class FileFormatConverter(BaseTool):
         try:
             base64.b64decode(data)
         except Exception:
-            raise ValidationError(
-                "File data must be valid Base64.", tool_name=self.tool_name
-            )
+            raise ValidationError("File data must be valid Base64.", tool_name=self.tool_name)
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode enabled."""
@@ -151,9 +149,7 @@ class FileFormatConverter(BaseTool):
         try:
             file_bytes = base64.b64decode(data)
         except Exception:
-            raise ValidationError(
-                "Invalid Base64 in file data.", tool_name=self.tool_name
-            )
+            raise ValidationError("Invalid Base64 in file data.", tool_name=self.tool_name)
 
         converted_bytes = file_bytes  # Placeholder for real conversion logic
         converted_base64 = base64.b64encode(converted_bytes).decode()
@@ -170,6 +166,7 @@ if __name__ == "__main__":
     print("Testing FileFormatConverter...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test with mock input
@@ -178,6 +175,6 @@ if __name__ == "__main__":
 
     print(f"Success: {result.get('success')}")
     print(f"Result: {result.get('result')}")
-    assert result.get('success') == True
-    assert result.get('result', {}).get('mock') == True
+    assert result.get("success") == True
+    assert result.get("result", {}).get("mock") == True
     print("All tests passed!")

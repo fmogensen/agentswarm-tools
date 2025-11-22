@@ -33,9 +33,7 @@ class CreateAgent(BaseTool):
     tool_category: str = "content"
 
     # Parameters
-    input: str = Field(
-        ..., description="Primary input parameter", min_length=1, max_length=10000
-    )
+    input: str = Field(..., description="Primary input parameter", min_length=1, max_length=10000)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -153,6 +151,7 @@ if __name__ == "__main__":
     print("Testing CreateAgent...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Create podcast agent
@@ -160,8 +159,8 @@ if __name__ == "__main__":
     tool = CreateAgent(input="Create a podcast about AI and technology")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'podcast' in result.get('result', {}).get('agent_type', '')
+    assert result.get("success") == True
+    assert "podcast" in result.get("result", {}).get("agent_type", "")
     print(f"✅ Test 1 passed: Created {result.get('result', {}).get('agent_type')}")
     print(f"   Agent ID: {result.get('result', {}).get('agent_id')}")
 
@@ -170,8 +169,8 @@ if __name__ == "__main__":
     tool = CreateAgent(input="Generate a comprehensive document about machine learning")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'document' in result.get('result', {}).get('agent_type', '')
+    assert result.get("success") == True
+    assert "document" in result.get("result", {}).get("agent_type", "")
     print(f"✅ Test 2 passed: Created {result.get('result', {}).get('agent_type')}")
 
     # Test 3: Validation test - empty input
@@ -188,8 +187,8 @@ if __name__ == "__main__":
     tool = CreateAgent(input="Conduct deep research on quantum computing")
     result = tool.run()
 
-    assert result.get('success') == True
-    assert 'research' in result.get('result', {}).get('agent_type', '')
+    assert result.get("success") == True
+    assert "research" in result.get("result", {}).get("agent_type", "")
     print(f"✅ Test 4 passed: Created {result.get('result', {}).get('agent_type')}")
 
     print("\n✅ All tests passed!")

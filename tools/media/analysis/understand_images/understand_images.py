@@ -38,9 +38,7 @@ class UnderstandImages(BaseTool):
     tool_category: str = "media"
 
     media_url: str = Field(..., description="URL of media to analyze")
-    instruction: Optional[str] = Field(
-        default=None, description="What to analyze or extract"
-    )
+    instruction: Optional[str] = Field(default=None, description="What to analyze or extract")
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -160,9 +158,7 @@ class UnderstandImages(BaseTool):
             return analysis
 
         except Exception as e:
-            raise APIError(
-                f"Error retrieving or analyzing image: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Error retrieving or analyzing image: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":
@@ -171,11 +167,12 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = UnderstandImages(
         media_url="https://example.com/image.jpg",
-        instruction="Describe the main objects in this image"
+        instruction="Describe the main objects in this image",
     )
     result = tool.run()
 

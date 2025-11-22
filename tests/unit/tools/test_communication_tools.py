@@ -20,9 +20,15 @@ from tools.communication.read_email_attachments.read_email_attachments import Re
 from tools.communication.email_draft.email_draft import EmailDraft
 from tools.communication.email_send.email_send import EmailSend
 from tools.communication.google_calendar_list.google_calendar_list import GoogleCalendarList
-from tools.communication.google_calendar_create_event_draft.google_calendar_create_event_draft import GoogleCalendarCreateEventDraft
-from tools.communication.google_calendar_update_event.google_calendar_update_event import GoogleCalendarUpdateEvent
-from tools.communication.google_calendar_delete_event.google_calendar_delete_event import GoogleCalendarDeleteEvent
+from tools.communication.google_calendar_create_event_draft.google_calendar_create_event_draft import (
+    GoogleCalendarCreateEventDraft,
+)
+from tools.communication.google_calendar_update_event.google_calendar_update_event import (
+    GoogleCalendarUpdateEvent,
+)
+from tools.communication.google_calendar_delete_event.google_calendar_delete_event import (
+    GoogleCalendarDeleteEvent,
+)
 from tools.communication.phone_call.phone_call import PhoneCall
 from tools.communication.query_call_logs.query_call_logs import QueryCallLogs
 from tools.communication.twilio_phone_call.twilio_phone_call import TwilioPhoneCall
@@ -36,6 +42,7 @@ from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 # ========== GmailSearch Tests ==========
+
 
 class TestGmailSearch:
     """Comprehensive tests for GmailSearch tool"""
@@ -74,7 +81,7 @@ class TestGmailSearch:
         mock_service.users().messages().list().execute.return_value = {
             "messages": [
                 {"id": "msg1", "threadId": "thread1"},
-                {"id": "msg2", "threadId": "thread2"}
+                {"id": "msg2", "threadId": "thread2"},
             ]
         }
         mock_build.return_value = mock_service
@@ -86,6 +93,7 @@ class TestGmailSearch:
 
 
 # ========== GmailRead Tests ==========
+
 
 class TestGmailRead:
     """Comprehensive tests for GmailRead tool"""
@@ -115,6 +123,7 @@ class TestGmailRead:
 
 # ========== ReadEmailAttachments Tests ==========
 
+
 class TestReadEmailAttachments:
     """Comprehensive tests for ReadEmailAttachments tool"""
 
@@ -137,15 +146,14 @@ class TestReadEmailAttachments:
 
 # ========== EmailDraft Tests ==========
 
+
 class TestEmailDraft:
     """Comprehensive tests for EmailDraft tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = EmailDraft(
-            to="recipient@example.com",
-            subject="Test Email",
-            body="This is a test email."
+            to="recipient@example.com", subject="Test Email", body="This is a test email."
         )
         assert tool.to == "recipient@example.com"
         assert tool.subject == "Test Email"
@@ -155,11 +163,7 @@ class TestEmailDraft:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = EmailDraft(
-            to="test@example.com",
-            subject="Meeting",
-            body="Let's meet tomorrow."
-        )
+        tool = EmailDraft(to="test@example.com", subject="Meeting", body="Let's meet tomorrow.")
         result = tool.run()
 
         assert result["success"] is True
@@ -168,26 +172,19 @@ class TestEmailDraft:
 
     def test_validate_parameters_invalid_email(self):
         """Test validation with invalid email address"""
-        tool = EmailDraft(
-            to="invalid-email",
-            subject="Test",
-            body="Body"
-        )
+        tool = EmailDraft(to="invalid-email", subject="Test", body="Body")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
     def test_validate_parameters_empty_subject(self):
         """Test validation with empty subject"""
-        tool = EmailDraft(
-            to="test@example.com",
-            subject="",
-            body="Body"
-        )
+        tool = EmailDraft(to="test@example.com", subject="", body="Body")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
 
 # ========== EmailSend Tests ==========
+
 
 class TestEmailSend:
     """Comprehensive tests for EmailSend tool"""
@@ -198,7 +195,7 @@ class TestEmailSend:
             to="recipient@example.com",
             subject="Test Email",
             body="This is a test email.",
-            from_email="sender@example.com"
+            from_email="sender@example.com",
         )
         assert tool.to == "recipient@example.com"
         assert tool.subject == "Test Email"
@@ -207,11 +204,7 @@ class TestEmailSend:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = EmailSend(
-            to="test@example.com",
-            subject="Test",
-            body="Test body"
-        )
+        tool = EmailSend(to="test@example.com", subject="Test", body="Test body")
         result = tool.run()
 
         assert result["success"] is True
@@ -219,6 +212,7 @@ class TestEmailSend:
 
 
 # ========== GoogleCalendarList Tests ==========
+
 
 class TestGoogleCalendarList:
     """Comprehensive tests for GoogleCalendarList tool"""
@@ -250,7 +244,7 @@ class TestGoogleCalendarList:
         mock_service.events().list().execute.return_value = {
             "items": [
                 {"id": "event1", "summary": "Meeting 1"},
-                {"id": "event2", "summary": "Meeting 2"}
+                {"id": "event2", "summary": "Meeting 2"},
             ]
         }
         mock_build.return_value = mock_service
@@ -263,6 +257,7 @@ class TestGoogleCalendarList:
 
 # ========== GoogleCalendarCreateEventDraft Tests ==========
 
+
 class TestGoogleCalendarCreateEventDraft:
     """Comprehensive tests for GoogleCalendarCreateEventDraft tool"""
 
@@ -272,7 +267,7 @@ class TestGoogleCalendarCreateEventDraft:
             summary="Team Meeting",
             start_time="2025-01-15T10:00:00Z",
             end_time="2025-01-15T11:00:00Z",
-            description="Weekly team sync"
+            description="Weekly team sync",
         )
         assert tool.summary == "Team Meeting"
         assert tool.start_time == "2025-01-15T10:00:00Z"
@@ -282,9 +277,7 @@ class TestGoogleCalendarCreateEventDraft:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = GoogleCalendarCreateEventDraft(
-            summary="Meeting",
-            start_time="2025-01-15T10:00:00Z",
-            end_time="2025-01-15T11:00:00Z"
+            summary="Meeting", start_time="2025-01-15T10:00:00Z", end_time="2025-01-15T11:00:00Z"
         )
         result = tool.run()
 
@@ -294,9 +287,7 @@ class TestGoogleCalendarCreateEventDraft:
     def test_validate_parameters_empty_summary(self):
         """Test validation with empty summary"""
         tool = GoogleCalendarCreateEventDraft(
-            summary="",
-            start_time="2025-01-15T10:00:00Z",
-            end_time="2025-01-15T11:00:00Z"
+            summary="", start_time="2025-01-15T10:00:00Z", end_time="2025-01-15T11:00:00Z"
         )
         with pytest.raises(ValidationError):
             tool._validate_parameters()
@@ -304,15 +295,13 @@ class TestGoogleCalendarCreateEventDraft:
 
 # ========== GoogleCalendarUpdateEvent Tests ==========
 
+
 class TestGoogleCalendarUpdateEvent:
     """Comprehensive tests for GoogleCalendarUpdateEvent tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = GoogleCalendarUpdateEvent(
-            event_id="12345",
-            summary="Updated Meeting"
-        )
+        tool = GoogleCalendarUpdateEvent(event_id="12345", summary="Updated Meeting")
         assert tool.event_id == "12345"
         assert tool.summary == "Updated Meeting"
         assert tool.tool_name == "google_calendar_update_event"
@@ -320,10 +309,7 @@ class TestGoogleCalendarUpdateEvent:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = GoogleCalendarUpdateEvent(
-            event_id="test123",
-            summary="Updated"
-        )
+        tool = GoogleCalendarUpdateEvent(event_id="test123", summary="Updated")
         result = tool.run()
 
         assert result["success"] is True
@@ -331,6 +317,7 @@ class TestGoogleCalendarUpdateEvent:
 
 
 # ========== GoogleCalendarDeleteEvent Tests ==========
+
 
 class TestGoogleCalendarDeleteEvent:
     """Comprehensive tests for GoogleCalendarDeleteEvent tool"""
@@ -353,15 +340,13 @@ class TestGoogleCalendarDeleteEvent:
 
 # ========== PhoneCall Tests ==========
 
+
 class TestPhoneCall:
     """Comprehensive tests for PhoneCall tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = PhoneCall(
-            to_number="+1234567890",
-            message="This is a test call"
-        )
+        tool = PhoneCall(to_number="+1234567890", message="This is a test call")
         assert tool.to_number == "+1234567890"
         assert tool.message == "This is a test call"
         assert tool.tool_name == "phone_call"
@@ -369,10 +354,7 @@ class TestPhoneCall:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = PhoneCall(
-            to_number="+1234567890",
-            message="Test"
-        )
+        tool = PhoneCall(to_number="+1234567890", message="Test")
         result = tool.run()
 
         assert result["success"] is True
@@ -380,15 +362,13 @@ class TestPhoneCall:
 
     def test_validate_parameters_invalid_number(self):
         """Test validation with invalid phone number"""
-        tool = PhoneCall(
-            to_number="invalid",
-            message="Test"
-        )
+        tool = PhoneCall(to_number="invalid", message="Test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
 
 # ========== QueryCallLogs Tests ==========
+
 
 class TestQueryCallLogs:
     """Comprehensive tests for QueryCallLogs tool"""
@@ -412,15 +392,14 @@ class TestQueryCallLogs:
 
 # ========== TwilioPhoneCall Tests ==========
 
+
 class TestTwilioPhoneCall:
     """Comprehensive tests for TwilioPhoneCall tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = TwilioPhoneCall(
-            to_number="+1234567890",
-            from_number="+0987654321",
-            message="Test call"
+            to_number="+1234567890", from_number="+0987654321", message="Test call"
         )
         assert tool.to_number == "+1234567890"
         assert tool.from_number == "+0987654321"
@@ -429,11 +408,7 @@ class TestTwilioPhoneCall:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = TwilioPhoneCall(
-            to_number="+1234567890",
-            from_number="+0987654321",
-            message="Test"
-        )
+        tool = TwilioPhoneCall(to_number="+1234567890", from_number="+0987654321", message="Test")
         result = tool.run()
 
         assert result["success"] is True
@@ -441,6 +416,7 @@ class TestTwilioPhoneCall:
 
 
 # ========== TwilioCallLogs Tests ==========
+
 
 class TestTwilioCallLogs:
     """Comprehensive tests for TwilioCallLogs tool"""
@@ -464,15 +440,13 @@ class TestTwilioCallLogs:
 
 # ========== SlackSendMessage Tests ==========
 
+
 class TestSlackSendMessage:
     """Comprehensive tests for SlackSendMessage tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = SlackSendMessage(
-            channel="#general",
-            message="Hello Slack!"
-        )
+        tool = SlackSendMessage(channel="#general", message="Hello Slack!")
         assert tool.channel == "#general"
         assert tool.message == "Hello Slack!"
         assert tool.tool_name == "slack_send_message"
@@ -480,10 +454,7 @@ class TestSlackSendMessage:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = SlackSendMessage(
-            channel="#test",
-            message="Test message"
-        )
+        tool = SlackSendMessage(channel="#test", message="Test message")
         result = tool.run()
 
         assert result["success"] is True
@@ -491,15 +462,13 @@ class TestSlackSendMessage:
 
     def test_validate_parameters_empty_message(self):
         """Test validation with empty message"""
-        tool = SlackSendMessage(
-            channel="#general",
-            message=""
-        )
+        tool = SlackSendMessage(channel="#general", message="")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
 
 # ========== SlackReadMessages Tests ==========
+
 
 class TestSlackReadMessages:
     """Comprehensive tests for SlackReadMessages tool"""
@@ -523,15 +492,13 @@ class TestSlackReadMessages:
 
 # ========== TeamsSendMessage Tests ==========
 
+
 class TestTeamsSendMessage:
     """Comprehensive tests for TeamsSendMessage tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = TeamsSendMessage(
-            channel="General",
-            message="Hello Teams!"
-        )
+        tool = TeamsSendMessage(channel="General", message="Hello Teams!")
         assert tool.channel == "General"
         assert tool.message == "Hello Teams!"
         assert tool.tool_name == "teams_send_message"
@@ -539,10 +506,7 @@ class TestTeamsSendMessage:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = TeamsSendMessage(
-            channel="Test",
-            message="Test message"
-        )
+        tool = TeamsSendMessage(channel="Test", message="Test message")
         result = tool.run()
 
         assert result["success"] is True
@@ -551,15 +515,14 @@ class TestTeamsSendMessage:
 
 # ========== MeetingNotes Tests ==========
 
+
 class TestMeetingNotes:
     """Comprehensive tests for MeetingNotes tool"""
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = MeetingNotes(
-            meeting_id="12345",
-            participants=["Alice", "Bob"],
-            summary="Discussed project timeline"
+            meeting_id="12345", participants=["Alice", "Bob"], summary="Discussed project timeline"
         )
         assert tool.meeting_id == "12345"
         assert len(tool.participants) == 2
@@ -568,10 +531,7 @@ class TestMeetingNotes:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = MeetingNotes(
-            meeting_id="test123",
-            summary="Test meeting"
-        )
+        tool = MeetingNotes(meeting_id="test123", summary="Test meeting")
         result = tool.run()
 
         assert result["success"] is True

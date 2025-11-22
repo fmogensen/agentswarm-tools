@@ -49,8 +49,7 @@ class TestCrawler:
         assert tool.tool_name == "crawler"
         assert tool.tool_category == "web"
         assert (
-            tool.tool_description
-            == "Retrieve and convert content from URLs into readable format"
+            tool.tool_description == "Retrieve and convert content from URLs into readable format"
         )
 
     # ========== ERROR CASES ==========
@@ -92,9 +91,7 @@ class TestCrawler:
     def test_unicode_content(self, tool: Crawler):
         """Test handling of Unicode content."""
         unicode_content = "<html><body><p>こんにちは世界</p></body></html>"
-        with patch(
-            "requests.get", return_value=Mock(content=unicode_content.encode("utf-8"))
-        ):
+        with patch("requests.get", return_value=Mock(content=unicode_content.encode("utf-8"))):
             result = tool.run()
             assert result["success"] is True
             assert "こんにちは世界" in result["result"]["content"]

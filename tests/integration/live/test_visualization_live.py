@@ -27,18 +27,20 @@ def reset_rate_limiter_for_test():
     """Reset rate limiter before each test by giving buckets full tokens."""
     from shared.security import get_rate_limiter
     from datetime import datetime
+
     limiter = get_rate_limiter()
     limiter._buckets.clear()
     # Pre-populate visualization tool buckets with full tokens
     viz_tools = [
-        "generate_line_chart", "generate_bar_chart", "generate_pie_chart",
-        "generate_scatter_chart", "generate_histogram_chart", "generate_word_cloud_chart"
+        "generate_line_chart",
+        "generate_bar_chart",
+        "generate_pie_chart",
+        "generate_scatter_chart",
+        "generate_histogram_chart",
+        "generate_word_cloud_chart",
     ]
     for tool in viz_tools:
-        limiter._buckets[f"{tool}:anonymous"] = {
-            "tokens": 60,
-            "last_update": datetime.utcnow()
-        }
+        limiter._buckets[f"{tool}:anonymous"] = {"tokens": 60, "last_update": datetime.utcnow()}
     yield
 
 
@@ -59,8 +61,8 @@ class TestLineChartLive:
                     {"x": 4, "y": 30},
                     {"x": 5, "y": 20},
                 ],
-                "title": "Test Line Chart"
-            }
+                "title": "Test Line Chart",
+            },
         )
         result = tool.run()
 
@@ -75,7 +77,7 @@ class TestLineChartLive:
             params={
                 "data": [{"x": i, "y": i * 10} for i in range(10)],
                 "title": "Performance Over Time",
-            }
+            },
         )
         result = tool.run()
 
@@ -98,8 +100,8 @@ class TestBarChartLive:
                     {"label": "Q3", "value": 120},
                     {"label": "Q4", "value": 180},
                 ],
-                "title": "Quarterly Sales"
-            }
+                "title": "Quarterly Sales",
+            },
         )
         result = tool.run()
 
@@ -121,8 +123,8 @@ class TestPieChartLive:
                     {"label": "Mobile", "value": 35},
                     {"label": "Tablet", "value": 20},
                 ],
-                "title": "Traffic by Device"
-            }
+                "title": "Traffic by Device",
+            },
         )
         result = tool.run()
 
@@ -146,8 +148,8 @@ class TestScatterChartLive:
                     {"x": 4, "y": 5},
                     {"x": 5, "y": 4},
                 ],
-                "title": "Correlation Analysis"
-            }
+                "title": "Correlation Analysis",
+            },
         )
         result = tool.run()
 
@@ -163,10 +165,7 @@ class TestHistogramLive:
 
         tool = GenerateHistogramChart(
             prompt="Generate histogram for value distribution",
-            params={
-                "data": [10, 20, 20, 30, 30, 30, 40, 40, 50],
-                "title": "Value Distribution"
-            }
+            params={"data": [10, 20, 20, 30, 30, 30, 40, 40, 50], "title": "Value Distribution"},
         )
         result = tool.run()
 
@@ -190,8 +189,8 @@ class TestWordCloudLive:
                     {"word": "Go", "weight": 50},
                     {"word": "Rust", "weight": 40},
                 ],
-                "title": "Programming Languages"
-            }
+                "title": "Programming Languages",
+            },
         )
         result = tool.run()
 

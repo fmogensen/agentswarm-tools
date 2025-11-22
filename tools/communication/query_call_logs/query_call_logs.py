@@ -48,18 +48,12 @@ class QueryCallLogs(BaseTool):
     phone_number: Optional[str] = Field(
         None, description="Filter by specific phone number (E.164 format recommended)"
     )
-    start_date: Optional[str] = Field(
-        None, description="Start date in ISO format (YYYY-MM-DD)"
-    )
-    end_date: Optional[str] = Field(
-        None, description="End date in ISO format (YYYY-MM-DD)"
-    )
+    start_date: Optional[str] = Field(None, description="Start date in ISO format (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(None, description="End date in ISO format (YYYY-MM-DD)")
     status: Optional[str] = Field(
         None, description="Call status filter (completed, busy, failed, no-answer)"
     )
-    limit: int = Field(
-        50, description="Maximum number of records to return", ge=1, le=1000
-    )
+    limit: int = Field(50, description="Maximum number of records to return", ge=1, le=1000)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -94,9 +88,7 @@ class QueryCallLogs(BaseTool):
             }
 
         except Exception as e:
-            raise APIError(
-                f"Failed to query call logs: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to query call logs: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -177,18 +169,14 @@ class QueryCallLogs(BaseTool):
             # Apply filters if specified
             call_status = self.status if self.status else statuses[i % len(statuses)]
             from_num = (
-                self.phone_number
-                if self.phone_number
-                else from_numbers[i % len(from_numbers)]
+                self.phone_number if self.phone_number else from_numbers[i % len(from_numbers)]
             )
 
             # Calculate times
             start_time = base_time.replace(hour=10 + i)
             duration = 120 if call_status == "completed" else 0
             end_time = (
-                (start_time + timedelta(seconds=duration)).isoformat()
-                if duration > 0
-                else None
+                (start_time + timedelta(seconds=duration)).isoformat() if duration > 0 else None
             )
 
             mock_calls.append(
@@ -293,12 +281,8 @@ class QueryCallLogs(BaseTool):
                         "to": call.to,
                         "status": call.status,
                         "duration": call.duration,
-                        "start_time": call.start_time.isoformat()
-                        if call.start_time
-                        else None,
-                        "end_time": call.end_time.isoformat()
-                        if call.end_time
-                        else None,
+                        "start_time": call.start_time.isoformat() if call.start_time else None,
+                        "end_time": call.end_time.isoformat() if call.end_time else None,
                         "direction": call.direction,
                         "price": str(call.price) if call.price else None,
                         "price_unit": call.price_unit,

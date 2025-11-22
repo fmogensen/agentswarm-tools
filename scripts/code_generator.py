@@ -79,12 +79,7 @@ class ToolCodeGenerator:
                 model=self.model,
                 max_completion_tokens=4000,  # GPT-5.1 uses max_completion_tokens
                 # Note: GPT-5.1 only supports temperature=1 (default)
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             # Extract code from response
@@ -104,11 +99,7 @@ class ToolCodeGenerator:
             raise RuntimeError(f"Failed to generate code for {tool_name}: {e}")
 
     def _create_code_prompt(
-        self,
-        tool_name: str,
-        category: str,
-        description: str,
-        parameters: Dict[str, Any]
+        self, tool_name: str, category: str, description: str, parameters: Dict[str, Any]
     ) -> str:
         """Create prompt for Claude to generate tool code."""
 
@@ -121,14 +112,20 @@ class ToolCodeGenerator:
             required = param_def.get("required", True)
 
             if required:
-                field_def = f'    {param_name}: {param_type} = Field(..., description="{param_desc}")'
+                field_def = (
+                    f'    {param_name}: {param_type} = Field(..., description="{param_desc}")'
+                )
             else:
-                default = param_def.get("default", "None" if param_type == "Optional[str]" else "10")
-                field_def = f'    {param_name}: {param_type} = Field({default}, description="{param_desc}")'
+                default = param_def.get(
+                    "default", "None" if param_type == "Optional[str]" else "10"
+                )
+                field_def = (
+                    f'    {param_name}: {param_type} = Field({default}, description="{param_desc}")'
+                )
 
             param_fields.append(field_def)
 
-        params_str = "\n".join(param_fields) if param_fields else '    pass  # No parameters'
+        params_str = "\n".join(param_fields) if param_fields else "    pass  # No parameters"
 
         prompt = f"""You are an expert Python developer creating a tool for the AgentSwarm framework.
 
@@ -268,7 +265,7 @@ OUTPUT: Only return the complete Python code, no explanations."""
             "number": "float",
             "boolean": "bool",
             "object": "Dict[str, Any]",
-            "array": "List[Any]"
+            "array": "List[Any]",
         }
         return type_map.get(json_type, "str")
 

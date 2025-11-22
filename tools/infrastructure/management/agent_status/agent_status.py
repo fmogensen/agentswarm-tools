@@ -39,18 +39,9 @@ class AgentStatus(BaseTool):
     tool_category: str = "infrastructure"
 
     # Parameters
-    agent_id: Optional[str] = Field(
-        None,
-        description="ID of the agent to check (None for self)"
-    )
-    include_metrics: bool = Field(
-        True,
-        description="Whether to include performance metrics"
-    )
-    include_tasks: bool = Field(
-        True,
-        description="Whether to include current tasks"
-    )
+    agent_id: Optional[str] = Field(None, description="ID of the agent to check (None for self)")
+    include_metrics: bool = Field(True, description="Whether to include performance metrics")
+    include_tasks: bool = Field(True, description="Whether to include current tasks")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute agent status check."""
@@ -72,8 +63,8 @@ class AgentStatus(BaseTool):
                     "tool_name": self.tool_name,
                     "agent_id": self.agent_id or "self",
                     "checked_at": datetime.utcnow().isoformat(),
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"Agent status check failed: {e}", tool_name=self.tool_name)
@@ -94,7 +85,7 @@ class AgentStatus(BaseTool):
             "status": "active",
             "health": "healthy",
             "uptime_seconds": 3600,
-            "last_activity": datetime.utcnow().isoformat()
+            "last_activity": datetime.utcnow().isoformat(),
         }
 
         if self.include_metrics:
@@ -104,7 +95,7 @@ class AgentStatus(BaseTool):
                 "average_response_time_ms": 150.5,
                 "cpu_usage_percent": 25.0,
                 "memory_usage_mb": 512.0,
-                "success_rate": 95.5
+                "success_rate": 95.5,
             }
 
         if self.include_tasks:
@@ -112,13 +103,13 @@ class AgentStatus(BaseTool):
                 {
                     "task_id": "task_001",
                     "status": "in_progress",
-                    "started_at": datetime.utcnow().isoformat()
+                    "started_at": datetime.utcnow().isoformat(),
                 },
                 {
                     "task_id": "task_002",
                     "status": "queued",
-                    "queued_at": datetime.utcnow().isoformat()
-                }
+                    "queued_at": datetime.utcnow().isoformat(),
+                },
             ]
 
         return {
@@ -127,8 +118,8 @@ class AgentStatus(BaseTool):
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
-                "agent_id": self.agent_id or "mock"
-            }
+                "agent_id": self.agent_id or "mock",
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -144,7 +135,7 @@ class AgentStatus(BaseTool):
             "health": self._get_agent_health(agent_id),
             "uptime_seconds": self._get_uptime(agent_id),
             "last_activity": datetime.utcnow().isoformat(),
-            "version": "1.0.0"
+            "version": "1.0.0",
         }
 
         # Include metrics if requested
@@ -190,7 +181,7 @@ class AgentStatus(BaseTool):
             "cpu_usage_percent": 0.0,
             "memory_usage_mb": 0.0,
             "success_rate": 0.0,
-            "last_error": None
+            "last_error": None,
         }
 
     def _get_current_tasks(self, agent_id: str) -> list:
@@ -205,13 +196,9 @@ if __name__ == "__main__":
     # Test with mock mode
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = AgentStatus(
-        agent_id="agent_001",
-        include_metrics=True,
-        include_tasks=True
-    )
+    tool = AgentStatus(agent_id="agent_001", include_metrics=True, include_tasks=True)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True
+    assert result.get("success") == True
     print("AgentStatus test passed!")
