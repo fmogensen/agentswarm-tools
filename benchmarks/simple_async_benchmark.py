@@ -6,11 +6,11 @@ without requiring external dependencies.
 """
 
 import asyncio
-import time
 import os
 import sys
-from typing import Dict, Any, List
+import time
 from dataclasses import dataclass
+from typing import Any, Dict, List
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -18,10 +18,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Set mock mode for benchmarking
 os.environ["USE_MOCK_APIS"] = "true"
 
-from shared.base import BaseTool
+from pydantic import Field
+
 from shared.async_base import AsyncBaseTool
 from shared.async_batch import AsyncBatchProcessor
-from pydantic import Field
+from shared.base import BaseTool
 
 
 # Create simple test tools

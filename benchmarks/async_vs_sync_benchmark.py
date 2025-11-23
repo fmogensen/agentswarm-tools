@@ -5,11 +5,11 @@ This benchmark demonstrates the performance benefits of async tools for I/O-boun
 """
 
 import asyncio
-import time
 import os
 import sys
-from typing import List, Dict, Any
+import time
 from dataclasses import dataclass
+from typing import Any, Dict, List
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -17,10 +17,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Set mock mode for benchmarking
 os.environ["USE_MOCK_APIS"] = "true"
 
-from tools.data.search.web_search.web_search import WebSearch
 from tools.data.search.web_search.async_web_search import AsyncWebSearch
-from tools.media.analysis.understand_images.understand_images import UnderstandImages
+from tools.data.search.web_search.web_search import WebSearch
 from tools.media.analysis.understand_images.async_understand_images import AsyncUnderstandImages
+from tools.media.analysis.understand_images.understand_images import UnderstandImages
 
 
 @dataclass

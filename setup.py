@@ -20,7 +20,7 @@ setup(
     author_email="bot@agentswarm.ai",
     url="https://github.com/fmogensen/agentswarm-tools",
     packages=find_packages(exclude=["tests", "tests.*", "docs"]),
-    python_requires=">=3.10",
+    python_requires=">=3.9",
     install_requires=[
         "agency-swarm>=1.0.0",
         "pydantic>=2.5.0",
