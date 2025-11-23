@@ -106,3 +106,22 @@ opentelemetry-sdk>=1.22.0
 # Async
 uvloop>=0.19.0
 aiofiles>=23.0.0  # Async file I/O
+
+# ============================================================================
+# INTEGRATIONS
+# ============================================================================
+# Stripe - Payment processing
+stripe>=7.0.0
+
+# Supabase - Vector database and backend
+supabase>=2.0.0
+postgrest>=0.13.0
+
+# GitHub - Developer productivity
+PyGithub>=2.1.0
+
+# Linear - Project management
+gql>=3.4.0  # GraphQL client for Linear and GitHub
+
+# HubSpot - CRM and marketing
+hubspot-api-client>=8.0.0
