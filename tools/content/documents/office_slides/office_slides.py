@@ -77,7 +77,7 @@ class OfficeSlidesTool(BaseTool):
     # Parameters
     mode: str = Field("create", description="Operation mode: create or modify")
     slides: List[Dict[str, Any]] = Field(
-        ..., description="List of slide definitions with title, content, and layout", min_items=1
+        ..., description="List of slide definitions with title, content, and layout", min_length=1
     )
     theme: str = Field(
         "modern", description="Theme: modern, classic, minimal, corporate (create mode only)"

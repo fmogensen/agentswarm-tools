@@ -5,7 +5,7 @@ Perform advanced photo editing operations on existing images.
 import io
 import os
 import tempfile
-from typing import Any, Dict, List
+from typing import Any, ClassVar, Dict, List
 
 import requests
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
@@ -61,7 +61,7 @@ class PhotoEditorTool(BaseTool):
     quality: int = Field(90, description="Output quality 1-100 (jpg only)", ge=1, le=100)
 
     # Supported operation types and filters
-    SUPPORTED_OPERATIONS = {
+    SUPPORTED_OPERATIONS: ClassVar[set] = {
         "resize",
         "crop",
         "rotate",
@@ -69,14 +69,14 @@ class PhotoEditorTool(BaseTool):
         "filter",
         "background_remove",
     }
-    SUPPORTED_FILTERS = {
+    SUPPORTED_FILTERS: ClassVar[set] = {
         "brightness",
         "contrast",
         "saturation",
         "blur",
         "sharpen",
     }
-    SUPPORTED_FORMATS = {"png", "jpg", "jpeg", "webp"}
+    SUPPORTED_FORMATS: ClassVar[set] = {"png", "jpg", "jpeg", "webp"}
 
     def _execute(self) -> Dict[str, Any]:
         """

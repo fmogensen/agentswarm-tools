@@ -42,7 +42,7 @@ class TrendAnalyzer(BaseTool):
 
     # Parameters
     data_points: List[float] = Field(
-        ..., description="List of numeric data points in chronological order", min_items=2
+        ..., description="List of numeric data points in chronological order", min_length=2
     )
     time_labels: Optional[List[str]] = Field(
         None, description="Optional time labels (e.g., dates) for each data point"

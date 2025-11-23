@@ -41,7 +41,7 @@ class DataAggregator(BaseTool):
 
     # Parameters
     sources: List[str] = Field(
-        ..., description="Data source identifiers or numeric values as strings", min_items=1
+        ..., description="Data source identifiers or numeric values as strings", min_length=1
     )
     aggregation_method: str = Field(
         ..., description="Aggregation method: sum, avg, max, min, count, median"
