@@ -5,14 +5,15 @@ Upload, download, and manage files in Supabase Storage buckets.
 Supports public/private buckets, file transformations, and CDN URLs.
 """
 
-from typing import Any, Dict, List, Optional, Literal
-from pydantic import Field
-import os
-import json
 import base64
+import json
+import os
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError, ResourceNotFoundError
+from shared.errors import APIError, AuthenticationError, ResourceNotFoundError, ValidationError
 
 
 class SupabaseStorage(BaseTool):
@@ -236,7 +237,9 @@ class SupabaseStorage(BaseTool):
 
         if self.action == "upload":
             result["file_path"] = self.file_path
-            result["url"] = f"https://mock-supabase.co/storage/v1/object/{self.bucket_name}/{self.file_path}"
+            result["url"] = (
+                f"https://mock-supabase.co/storage/v1/object/{self.bucket_name}/{self.file_path}"
+            )
             result["size"] = 1024
 
         elif self.action == "download":
@@ -251,9 +254,13 @@ class SupabaseStorage(BaseTool):
 
         elif self.action == "get_url":
             if self.public:
-                result["url"] = f"https://mock-supabase.co/storage/v1/object/public/{self.bucket_name}/{self.file_path}"
+                result["url"] = (
+                    f"https://mock-supabase.co/storage/v1/object/public/{self.bucket_name}/{self.file_path}"
+                )
             else:
-                result["url"] = f"https://mock-supabase.co/storage/v1/object/sign/{self.bucket_name}/{self.file_path}?token=mock_token_12345"
+                result["url"] = (
+                    f"https://mock-supabase.co/storage/v1/object/sign/{self.bucket_name}/{self.file_path}?token=mock_token_12345"
+                )
             result["expires_in"] = self.expires_in if not self.public else None
 
         elif self.action == "list":
@@ -298,7 +305,7 @@ class SupabaseStorage(BaseTool):
 
         # Import Supabase client
         try:
-            from supabase import create_client, Client
+            from supabase import Client, create_client
         except ImportError:
             raise APIError(
                 "Supabase SDK not installed. Run: pip install supabase",
@@ -590,9 +597,7 @@ if __name__ == "__main__":
 
     # Test 5: Delete file
     print("\n5. Testing delete file...")
-    tool = SupabaseStorage(
-        action="delete", bucket_name="temp", file_path="uploads/old_file.txt"
-    )
+    tool = SupabaseStorage(action="delete", bucket_name="temp", file_path="uploads/old_file.txt")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -601,9 +606,7 @@ if __name__ == "__main__":
 
     # Test 6: Create bucket
     print("\n6. Testing create bucket...")
-    tool = SupabaseStorage(
-        action="create_bucket", bucket_name="new-bucket", public=False
-    )
+    tool = SupabaseStorage(action="create_bucket", bucket_name="new-bucket", public=False)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -653,9 +656,7 @@ if __name__ == "__main__":
     # Test 10: Error handling - upload without content
     print("\n10. Testing error handling (upload without content)...")
     try:
-        tool = SupabaseStorage(
-            action="upload", bucket_name="test", file_path="file.txt"
-        )
+        tool = SupabaseStorage(action="upload", bucket_name="test", file_path="file.txt")
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except ValidationError as e:

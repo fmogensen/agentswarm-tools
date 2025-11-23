@@ -5,6 +5,7 @@ This script demonstrates various use cases and features.
 """
 
 import os
+
 from tools.media_generation.podcast_generator import PodcastGenerator
 
 

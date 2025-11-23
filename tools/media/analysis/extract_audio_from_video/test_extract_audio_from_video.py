@@ -1,12 +1,13 @@
 """Tests for extract_audio_from_video tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.media_analysis.extract_audio_from_video import ExtractAudioFromVideo
-from shared.errors import ValidationError, APIError
 
 
 class TestExtractAudioFromVideo:

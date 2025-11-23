@@ -6,7 +6,9 @@ import os
 import sys
 
 # Add parent directories to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+)
 
 from tools.data.search.batch_web_search.batch_web_search import BatchWebSearch
 

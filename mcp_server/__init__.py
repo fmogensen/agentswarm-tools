@@ -12,8 +12,8 @@ Or programmatically:
     server.run()
 """
 
-from .server import MCPServer, main
 from .config import MCPConfig
+from .server import MCPServer, main
 from .tools import ToolRegistry
 
 __version__ = "1.0.0"

@@ -10,9 +10,10 @@ Test coverage:
 - Validation and error handling
 """
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from tools.integrations.linear.linear_assign_team import LinearAssignTeam
 
@@ -33,10 +34,7 @@ class TestLinearAssignTeam:
 
     def test_basic_team_assignment(self):
         """Test assigning single issue to team."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc123"],
-            team_id="team_xyz"
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc123"], team_id="team_xyz")
         result = tool.run()
 
         assert result["success"] is True
@@ -45,10 +43,7 @@ class TestLinearAssignTeam:
 
     def test_assign_to_user(self):
         """Test assigning issue to specific user."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc123"],
-            assignee_id="user_xyz789"
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc123"], assignee_id="user_xyz789")
         result = tool.run()
 
         assert result["success"] is True
@@ -57,9 +52,7 @@ class TestLinearAssignTeam:
     def test_assign_to_cycle(self):
         """Test assigning issue to cycle/sprint."""
         tool = LinearAssignTeam(
-            issue_ids=["issue_abc123"],
-            team_id="team_xyz",
-            cycle_id="cycle_123"
+            issue_ids=["issue_abc123"], team_id="team_xyz", cycle_id="cycle_123"
         )
         result = tool.run()
 
@@ -68,11 +61,7 @@ class TestLinearAssignTeam:
 
     def test_assign_with_estimate(self):
         """Test assigning issue with estimate."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc123"],
-            team_id="team_xyz",
-            estimate=5.0
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc123"], team_id="team_xyz", estimate=5.0)
         result = tool.run()
 
         assert result["success"] is True
@@ -83,9 +72,7 @@ class TestLinearAssignTeam:
     def test_assign_multiple_issues(self):
         """Test assigning multiple issues at once."""
         tool = LinearAssignTeam(
-            issue_ids=["issue_1", "issue_2", "issue_3"],
-            team_id="team_xyz",
-            assignee_id="user_abc"
+            issue_ids=["issue_1", "issue_2", "issue_3"], team_id="team_xyz", assignee_id="user_abc"
         )
         result = tool.run()
 
@@ -96,9 +83,7 @@ class TestLinearAssignTeam:
     def test_bulk_assignment(self):
         """Test bulk assignment to team."""
         tool = LinearAssignTeam(
-            issue_ids=[f"issue_{i}" for i in range(10)],
-            team_id="team_xyz",
-            cycle_id="cycle_123"
+            issue_ids=[f"issue_{i}" for i in range(10)], team_id="team_xyz", cycle_id="cycle_123"
         )
         result = tool.run()
 
@@ -110,10 +95,7 @@ class TestLinearAssignTeam:
     def test_auto_assign_lowest_workload(self):
         """Test auto-assigning to member with lowest workload."""
         tool = LinearAssignTeam(
-            issue_ids=["issue_abc123"],
-            team_id="team_xyz",
-            auto_assign=True,
-            estimate=3.0
+            issue_ids=["issue_abc123"], team_id="team_xyz", auto_assign=True, estimate=3.0
         )
         result = tool.run()
 
@@ -127,7 +109,7 @@ class TestLinearAssignTeam:
             issue_ids=[f"issue_{i}" for i in range(6)],
             team_id="team_xyz",
             distribute_evenly=True,
-            estimate=2.0
+            estimate=2.0,
         )
         result = tool.run()
 
@@ -140,10 +122,7 @@ class TestLinearAssignTeam:
     def test_capacity_summary(self):
         """Test capacity summary is generated."""
         tool = LinearAssignTeam(
-            issue_ids=["issue_1", "issue_2"],
-            team_id="team_xyz",
-            auto_assign=True,
-            estimate=5.0
+            issue_ids=["issue_1", "issue_2"], team_id="team_xyz", auto_assign=True, estimate=5.0
         )
         result = tool.run()
 
@@ -156,11 +135,7 @@ class TestLinearAssignTeam:
 
     def test_capacity_utilization(self):
         """Test capacity utilization calculation."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc"],
-            team_id="team_xyz",
-            estimate=5.0
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc"], team_id="team_xyz", estimate=5.0)
         result = tool.run()
 
         capacity = result["capacity_summary"]
@@ -174,7 +149,7 @@ class TestLinearAssignTeam:
             issue_ids=["issue_abc123"],
             team_id="team_xyz",
             start_date="2025-12-01",
-            due_date="2025-12-14"
+            due_date="2025-12-14",
         )
         result = tool.run()
 
@@ -182,10 +157,7 @@ class TestLinearAssignTeam:
 
     def test_cycle_with_dates(self):
         """Test cycle assignment includes date info."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc123"],
-            cycle_id="cycle_123"
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc123"], cycle_id="cycle_123")
         result = tool.run()
 
         assert result["success"] is True
@@ -197,10 +169,7 @@ class TestLinearAssignTeam:
 
     def test_team_info_included(self):
         """Test team information is included in result."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc123"],
-            team_id="team_xyz"
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc123"], team_id="team_xyz")
         result = tool.run()
 
         assert result["success"] is True
@@ -214,10 +183,7 @@ class TestLinearAssignTeam:
     def test_validation_empty_issue_ids(self):
         """Test validation fails for empty issue list."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearAssignTeam(
-                issue_ids=[],
-                team_id="team_xyz"
-            )
+            tool = LinearAssignTeam(issue_ids=[], team_id="team_xyz")
             tool.run()
 
         assert "issue" in str(exc_info.value).lower()
@@ -225,10 +191,7 @@ class TestLinearAssignTeam:
     def test_validation_negative_estimate(self):
         """Test validation fails for negative estimate."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearAssignTeam(
-                issue_ids=["issue_abc"],
-                estimate=-5.0
-            )
+            tool = LinearAssignTeam(issue_ids=["issue_abc"], estimate=-5.0)
             tool.run()
 
         assert "estimate" in str(exc_info.value).lower()
@@ -237,9 +200,7 @@ class TestLinearAssignTeam:
         """Test validation fails when assignee_id conflicts with auto_assign."""
         with pytest.raises(Exception) as exc_info:
             tool = LinearAssignTeam(
-                issue_ids=["issue_abc"],
-                assignee_id="user_123",
-                auto_assign=True
+                issue_ids=["issue_abc"], assignee_id="user_123", auto_assign=True
             )
             tool.run()
 
@@ -249,9 +210,7 @@ class TestLinearAssignTeam:
         """Test validation fails when both auto_assign and distribute_evenly are True."""
         with pytest.raises(Exception) as exc_info:
             tool = LinearAssignTeam(
-                issue_ids=["issue_abc"],
-                auto_assign=True,
-                distribute_evenly=True
+                issue_ids=["issue_abc"], auto_assign=True, distribute_evenly=True
             )
             tool.run()
 
@@ -260,10 +219,7 @@ class TestLinearAssignTeam:
     def test_validation_invalid_date_format(self):
         """Test validation fails for invalid date format."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearAssignTeam(
-                issue_ids=["issue_abc"],
-                start_date="invalid-date"
-            )
+            tool = LinearAssignTeam(issue_ids=["issue_abc"], start_date="invalid-date")
             tool.run()
 
         assert "date" in str(exc_info.value).lower()
@@ -274,11 +230,7 @@ class TestLinearAssignTeam:
         """Test various estimate values."""
         estimates = [0.5, 1.0, 2.0, 5.0, 8.0, 13.0]
         for estimate in estimates:
-            tool = LinearAssignTeam(
-                issue_ids=["issue_abc"],
-                team_id="team_xyz",
-                estimate=estimate
-            )
+            tool = LinearAssignTeam(issue_ids=["issue_abc"], team_id="team_xyz", estimate=estimate)
             result = tool.run()
             assert result["success"] is True
 
@@ -286,10 +238,7 @@ class TestLinearAssignTeam:
 
     def test_cycle_progress(self):
         """Test cycle includes progress information."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc"],
-            cycle_id="cycle_123"
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc"], cycle_id="cycle_123")
         result = tool.run()
 
         if result["cycle_info"]:
@@ -300,21 +249,14 @@ class TestLinearAssignTeam:
 
     def test_tool_metadata(self):
         """Test that tool metadata is correctly set."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc"],
-            team_id="team_xyz"
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc"], team_id="team_xyz")
 
         assert tool.tool_name == "linear_assign_team"
         assert tool.tool_category == "integrations"
 
     def test_result_metadata(self):
         """Test that result includes proper metadata."""
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc"],
-            team_id="team_xyz",
-            cycle_id="cycle_123"
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc"], team_id="team_xyz", cycle_id="cycle_123")
         result = tool.run()
 
         metadata = result["metadata"]
@@ -327,9 +269,7 @@ class TestLinearAssignTeam:
     def test_assignment_details_structure(self):
         """Test that assignment details have correct structure."""
         tool = LinearAssignTeam(
-            issue_ids=["issue_1", "issue_2"],
-            team_id="team_xyz",
-            assignee_id="user_abc"
+            issue_ids=["issue_1", "issue_2"], team_id="team_xyz", assignee_id="user_abc"
         )
         result = tool.run()
 
@@ -342,7 +282,7 @@ class TestLinearAssignTeam:
     # Integration tests
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "LINEAR_API_KEY": "test_key"})
-    @patch('requests.post')
+    @patch("requests.post")
     def test_real_api_call_structure(self, mock_post):
         """Test that real API calls are structured correctly."""
         # Mock team info
@@ -353,7 +293,7 @@ class TestLinearAssignTeam:
                     "id": "team_xyz",
                     "name": "Engineering",
                     "key": "ENG",
-                    "members": {"nodes": []}
+                    "members": {"nodes": []},
                 }
             }
         }
@@ -368,19 +308,15 @@ class TestLinearAssignTeam:
                         "id": "issue_abc",
                         "identifier": "ENG-123",
                         "assignee": {"id": "user_123", "name": "Alice"},
-                        "estimate": 5.0
-                    }
+                        "estimate": 5.0,
+                    },
                 }
             }
         }
 
         mock_post.side_effect = [mock_team_response, mock_update_response]
 
-        tool = LinearAssignTeam(
-            issue_ids=["issue_abc"],
-            team_id="team_xyz",
-            assignee_id="user_123"
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_abc"], team_id="team_xyz", assignee_id="user_123")
         result = tool.run()
 
         assert mock_post.call_count >= 1

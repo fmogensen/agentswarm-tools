@@ -5,13 +5,14 @@ Creates a one-time payment using Stripe's Payment Intent API.
 Supports multiple currencies, payment methods, and automatic confirmation.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class StripeCreatePayment(BaseTool):
@@ -82,9 +83,7 @@ class StripeCreatePayment(BaseTool):
         default=["card"],
         description="Payment method types (card, us_bank_account, etc.)",
     )
-    confirm: bool = Field(
-        False, description="Whether to automatically confirm the payment"
-    )
+    confirm: bool = Field(False, description="Whether to automatically confirm the payment")
     metadata: Optional[Dict[str, str]] = Field(
         None, description="Additional metadata as key-value pairs"
     )
@@ -114,9 +113,7 @@ class StripeCreatePayment(BaseTool):
                 },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to create payment: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to create payment: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -157,9 +154,7 @@ class StripeCreatePayment(BaseTool):
 
         # Validate email format
         if not self.customer_email or "@" not in self.customer_email:
-            raise ValidationError(
-                "Invalid customer email format", tool_name=self.tool_name
-            )
+            raise ValidationError("Invalid customer email format", tool_name=self.tool_name)
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""
@@ -227,17 +222,11 @@ class StripeCreatePayment(BaseTool):
         except stripe.error.CardError as e:
             raise APIError(f"Card error: {e.user_message}", tool_name=self.tool_name)
         except stripe.error.InvalidRequestError as e:
-            raise ValidationError(
-                f"Invalid request: {str(e)}", tool_name=self.tool_name
-            )
+            raise ValidationError(f"Invalid request: {str(e)}", tool_name=self.tool_name)
         except stripe.error.AuthenticationError as e:
-            raise AuthenticationError(
-                f"Authentication failed: {str(e)}", tool_name=self.tool_name
-            )
+            raise AuthenticationError(f"Authentication failed: {str(e)}", tool_name=self.tool_name)
         except stripe.error.APIConnectionError as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
         except stripe.error.StripeError as e:
             raise APIError(f"Stripe error: {str(e)}", tool_name=self.tool_name)
 
@@ -303,9 +292,7 @@ if __name__ == "__main__":
     # Test 4: Error handling - invalid currency
     print("\n4. Testing error handling (invalid currency)...")
     try:
-        tool = StripeCreatePayment(
-            amount=1000, currency="xyz", customer_email="test@example.com"
-        )
+        tool = StripeCreatePayment(amount=1000, currency="xyz", customer_email="test@example.com")
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except ValidationError as e:

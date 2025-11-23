@@ -8,14 +8,15 @@ This atomic tool handles:
 4. Executive summary and outline generation
 """
 
-from typing import Any, Dict, List, Literal, Optional
-from pydantic import Field
-import os
 import hashlib
+import os
 from datetime import datetime
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class ResearchSynthesizer(BaseTool):
@@ -63,42 +64,28 @@ class ResearchSynthesizer(BaseTool):
 
     # Required parameters
     sources: List[Dict[str, Any]] = Field(
-        ...,
-        description="List of source dictionaries with content and metadata",
-        min_length=1
+        ..., description="List of source dictionaries with content and metadata", min_length=1
     )
 
     research_topic: str = Field(
-        ...,
-        description="Main research topic or question",
-        min_length=10,
-        max_length=500
+        ..., description="Main research topic or question", min_length=10, max_length=500
     )
 
     # Optional parameters
     citation_style: Literal["apa", "mla", "chicago", "ieee"] = Field(
-        "apa",
-        description="Citation format"
+        "apa", description="Citation format"
     )
 
     output_format: Literal["markdown", "html", "pdf"] = Field(
-        "markdown",
-        description="Output document format"
+        "markdown", description="Output document format"
     )
 
-    include_summary: bool = Field(
-        True,
-        description="Generate executive summary"
-    )
+    include_summary: bool = Field(True, description="Generate executive summary")
 
-    include_outline: bool = Field(
-        True,
-        description="Generate research outline"
-    )
+    include_outline: bool = Field(True, description="Generate research outline")
 
     synthesis_depth: Literal["quick", "standard", "comprehensive"] = Field(
-        "standard",
-        description="Synthesis depth affecting length and detail"
+        "standard", description="Synthesis depth affecting length and detail"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -125,8 +112,8 @@ class ResearchSynthesizer(BaseTool):
                     "sources_used": len(self.sources),
                     "citation_style": self.citation_style,
                     "output_format": self.output_format,
-                    "timestamp": datetime.utcnow().isoformat()
-                }
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
             }
         except Exception as e:
             raise APIError(f"Research synthesis failed: {e}", tool_name=self.tool_name)
@@ -135,16 +122,12 @@ class ResearchSynthesizer(BaseTool):
         """Validate input parameters."""
         if not self.sources:
             raise ValidationError(
-                "At least one source must be provided",
-                field="sources",
-                tool_name=self.tool_name
+                "At least one source must be provided", field="sources", tool_name=self.tool_name
             )
 
         if not self.research_topic.strip():
             raise ValidationError(
-                "Research topic cannot be empty",
-                field="research_topic",
-                tool_name=self.tool_name
+                "Research topic cannot be empty", field="research_topic", tool_name=self.tool_name
             )
 
     def _should_use_mock(self) -> bool:
@@ -183,7 +166,7 @@ aggregation with {self.citation_style.upper()} citations.
             "   4.1. Implications",
             "   4.2. Limitations",
             "5. Conclusion",
-            "6. References"
+            "6. References",
         ]
 
         return {
@@ -198,8 +181,8 @@ aggregation with {self.citation_style.upper()} citations.
                 "sources_used": len(self.sources),
                 "citation_style": self.citation_style,
                 "output_format": self.output_format,
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -224,11 +207,7 @@ aggregation with {self.citation_style.upper()} citations.
         self._logger.info(f"Formatting report as {self.output_format}")
         report_url = self._format_and_save_report(report_content, summary, outline)
 
-        return {
-            "report_url": report_url,
-            "executive_summary": summary,
-            "outline": outline
-        }
+        return {"report_url": report_url, "executive_summary": summary, "outline": outline}
 
     def _generate_outline(self) -> List[str]:
         """Generate research outline from sources."""
@@ -239,7 +218,7 @@ aggregation with {self.citation_style.upper()} citations.
             "3. Main Findings",
             "4. Discussion",
             "5. Conclusion",
-            "6. References"
+            "6. References",
         ]
 
     def _synthesize_content(self, outline: Optional[List[str]]) -> str:
@@ -253,13 +232,12 @@ aggregation with {self.citation_style.upper()} citations.
         return f"Executive summary of research on {self.research_topic}"
 
     def _format_and_save_report(
-        self,
-        content: str,
-        summary: Optional[str],
-        outline: Optional[List[str]]
+        self, content: str, summary: Optional[str], outline: Optional[List[str]]
     ) -> str:
         """Format report and return URL."""
-        report_id = hashlib.md5(f"{self.research_topic}{datetime.utcnow()}".encode()).hexdigest()[:12]
+        report_id = hashlib.md5(f"{self.research_topic}{datetime.utcnow()}".encode()).hexdigest()[
+            :12
+        ]
         return f"https://reports.example.com/{report_id}.{self.output_format}"
 
 
@@ -267,6 +245,7 @@ if __name__ == "__main__":
     print("Testing ResearchSynthesizer tool...\n")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic synthesis
@@ -274,12 +253,9 @@ if __name__ == "__main__":
     print("-" * 50)
     sources = [
         {"title": "Paper 1", "content": "Content 1", "url": "http://example.com/1"},
-        {"title": "Paper 2", "content": "Content 2", "url": "http://example.com/2"}
+        {"title": "Paper 2", "content": "Content 2", "url": "http://example.com/2"},
     ]
-    tool = ResearchSynthesizer(
-        sources=sources,
-        research_topic="AI in healthcare delivery"
-    )
+    tool = ResearchSynthesizer(sources=sources, research_topic="AI in healthcare delivery")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -295,7 +271,7 @@ if __name__ == "__main__":
         research_topic="Quantum computing applications",
         citation_style="ieee",
         output_format="pdf",
-        synthesis_depth="comprehensive"
+        synthesis_depth="comprehensive",
     )
     result2 = tool2.run()
 

@@ -1,13 +1,13 @@
 """Tests for audio_transcribe tool."""
 
-import pytest
-from unittest.mock import patch
-from unittest.mock import Mock, patch, MagicMock
 import os
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.media_analysis.audio_transcribe import AudioTranscribe
-from shared.errors import ValidationError, APIError
 
 
 class TestAudioTranscribe:

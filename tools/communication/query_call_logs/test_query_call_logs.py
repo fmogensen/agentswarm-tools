@@ -1,12 +1,13 @@
 """Tests for query_call_logs tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
 from datetime import datetime
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.communication.query_call_logs import QueryCallLogs
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 class TestQueryCallLogs:

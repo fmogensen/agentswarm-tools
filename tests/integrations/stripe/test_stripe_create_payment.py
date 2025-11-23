@@ -2,12 +2,13 @@
 Tests for Stripe Create Payment Tool
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.stripe.stripe_create_payment import StripeCreatePayment
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 @pytest.fixture
@@ -108,9 +109,7 @@ class TestStripeCreatePayment:
     def test_validation_invalid_email(self):
         """Test validation for invalid email"""
         with pytest.raises(ValidationError) as exc_info:
-            tool = StripeCreatePayment(
-                amount=1000, currency="usd", customer_email="invalid-email"
-            )
+            tool = StripeCreatePayment(amount=1000, currency="usd", customer_email="invalid-email")
             tool.run()
 
         assert "email" in str(exc_info.value).lower()
@@ -118,9 +117,7 @@ class TestStripeCreatePayment:
     def test_validation_invalid_amount_negative(self):
         """Test validation for negative amount"""
         with pytest.raises(ValueError):
-            StripeCreatePayment(
-                amount=-100, currency="usd", customer_email="test@example.com"
-            )
+            StripeCreatePayment(amount=-100, currency="usd", customer_email="test@example.com")
 
     def test_validation_invalid_amount_too_large(self):
         """Test validation for amount exceeding maximum"""
@@ -238,9 +235,7 @@ class TestStripeCreatePayment:
 
     def test_edge_case_minimum_amount(self, mock_env):
         """Test minimum valid amount"""
-        tool = StripeCreatePayment(
-            amount=1, currency="usd", customer_email="test@example.com"
-        )
+        tool = StripeCreatePayment(amount=1, currency="usd", customer_email="test@example.com")
         result = tool.run()
 
         assert result["success"] is True

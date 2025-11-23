@@ -10,12 +10,14 @@ Tests cover:
 - Mock mode operation
 """
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from shared.errors import ConfigurationError, ValidationError
 
 from .podcast_generator import PodcastGenerator
-from shared.errors import ValidationError, ConfigurationError
 
 
 class TestPodcastGeneratorValidation:

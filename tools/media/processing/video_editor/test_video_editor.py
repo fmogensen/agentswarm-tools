@@ -2,8 +2,9 @@
 Tests for VideoEditorTool.
 """
 
-import pytest
 import os
+
+import pytest
 from video_editor import VideoEditorTool
 
 

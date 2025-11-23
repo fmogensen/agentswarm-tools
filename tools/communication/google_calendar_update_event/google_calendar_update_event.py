@@ -5,9 +5,10 @@ DEPRECATED: This tool is deprecated. Use UnifiedGoogleCalendar with action="upda
 This wrapper maintains backward compatibility and will be removed in a future version.
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import warnings
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
 

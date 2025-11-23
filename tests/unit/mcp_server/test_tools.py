@@ -2,19 +2,21 @@
 Unit tests for MCP Tool Registry
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import sys
 import os
+import sys
 from pathlib import Path
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
-from mcp_server.tools import ToolRegistry
-from mcp_server.config import MCPConfig
-from shared.base import BaseTool
 from pydantic import Field
+
+from mcp_server.config import MCPConfig
+from mcp_server.tools import ToolRegistry
+from shared.base import BaseTool
 
 
 # Mock tool for testing
@@ -37,10 +39,7 @@ class TestToolRegistry:
     @pytest.fixture
     def config(self):
         """Create test configuration."""
-        return MCPConfig(
-            enabled_categories=["data", "utils"],
-            enable_analytics=False
-        )
+        return MCPConfig(enabled_categories=["data", "utils"], enable_analytics=False)
 
     @pytest.fixture
     def registry(self, config):
@@ -159,7 +158,7 @@ class TestToolRegistry:
             "query": "test",
             "max_results": 5,
             "_internal": "should be filtered",
-            "tool_name": "should be filtered"
+            "tool_name": "should be filtered",
         }
 
         # Should not raise error from extra fields

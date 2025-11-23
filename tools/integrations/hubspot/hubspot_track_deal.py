@@ -5,14 +5,15 @@ Creates and updates deals in HubSpot CRM with pipeline management,
 stage tracking, deal values, and forecasting support.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class HubSpotTrackDeal(BaseTool):
@@ -103,9 +104,7 @@ class HubSpotTrackDeal(BaseTool):
 
     # Deal properties
     dealname: Optional[str] = Field(None, description="Name of the deal", max_length=200)
-    amount: Optional[float] = Field(
-        None, description="Deal value/amount", ge=0, le=999999999
-    )
+    amount: Optional[float] = Field(None, description="Deal value/amount", ge=0, le=999999999)
     dealstage: Optional[str] = Field(None, description="Deal stage ID or name")
     pipeline: Optional[str] = Field(None, description="Pipeline ID")
     closedate: Optional[str] = Field(
@@ -115,17 +114,11 @@ class HubSpotTrackDeal(BaseTool):
         None, description="Deal type (newbusiness, existingbusiness, renewal)"
     )
     description: Optional[str] = Field(None, description="Deal description", max_length=2000)
-    priority: Optional[str] = Field(
-        None, description="Deal priority (low, medium, high)"
-    )
+    priority: Optional[str] = Field(None, description="Deal priority (low, medium, high)")
 
     # Associations
-    contact_ids: Optional[List[str]] = Field(
-        None, description="Contact IDs to associate with deal"
-    )
-    company_ids: Optional[List[str]] = Field(
-        None, description="Company IDs to associate with deal"
-    )
+    contact_ids: Optional[List[str]] = Field(None, description="Contact IDs to associate with deal")
+    company_ids: Optional[List[str]] = Field(None, description="Company IDs to associate with deal")
 
     # Custom properties
     custom_properties: Optional[Dict[str, Any]] = Field(
@@ -164,9 +157,7 @@ class HubSpotTrackDeal(BaseTool):
 
             return result
         except Exception as e:
-            raise APIError(
-                f"Failed to track deal: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to track deal: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -196,8 +187,13 @@ class HubSpotTrackDeal(BaseTool):
 
         # Update mode validation
         if self.deal_id:
-            if not (self.move_to_stage or self.win_deal or self.lose_deal or
-                   self.amount is not None or self.custom_properties):
+            if not (
+                self.move_to_stage
+                or self.win_deal
+                or self.lose_deal
+                or self.amount is not None
+                or self.custom_properties
+            ):
                 raise ValidationError(
                     "When updating a deal, specify at least one field to update",
                     tool_name=self.tool_name,
@@ -256,8 +252,10 @@ class HubSpotTrackDeal(BaseTool):
         """Generate mock results for testing."""
         if self.batch_deals:
             # Mock batch results
-            deal_ids = [f"deal_mock_{i}_{hash(deal.get('dealname', ''))}"[:20]
-                       for i, deal in enumerate(self.batch_deals)]
+            deal_ids = [
+                f"deal_mock_{i}_{hash(deal.get('dealname', ''))}"[:20]
+                for i, deal in enumerate(self.batch_deals)
+            ]
             return {
                 "success": True,
                 "status": "batch_processed",
@@ -335,8 +333,14 @@ class HubSpotTrackDeal(BaseTool):
             # Build from provided deal data (for batch)
             properties = {}
             standard_props = [
-                "dealname", "amount", "dealstage", "pipeline", "closedate",
-                "dealtype", "description", "priority"
+                "dealname",
+                "amount",
+                "dealstage",
+                "pipeline",
+                "closedate",
+                "dealtype",
+                "description",
+                "priority",
             ]
             for prop in standard_props:
                 if deal_data.get(prop) is not None:
@@ -424,17 +428,25 @@ class HubSpotTrackDeal(BaseTool):
 
             if self.contact_ids:
                 for contact_id in self.contact_ids:
-                    payload["associations"].append({
-                        "to": {"id": contact_id},
-                        "types": [{"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 3}]
-                    })
+                    payload["associations"].append(
+                        {
+                            "to": {"id": contact_id},
+                            "types": [
+                                {"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 3}
+                            ],
+                        }
+                    )
 
             if self.company_ids:
                 for company_id in self.company_ids:
-                    payload["associations"].append({
-                        "to": {"id": company_id},
-                        "types": [{"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 5}]
-                    })
+                    payload["associations"].append(
+                        {
+                            "to": {"id": company_id},
+                            "types": [
+                                {"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 5}
+                            ],
+                        }
+                    )
 
         # Create deal
         try:
@@ -470,13 +482,9 @@ class HubSpotTrackDeal(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                raise AuthenticationError(
-                    "Invalid HubSpot API key", tool_name=self.tool_name
-                )
+                raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
-                raise APIError(
-                    "Rate limit exceeded. Try again later.", tool_name=self.tool_name
-                )
+                raise APIError("Rate limit exceeded. Try again later.", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -484,9 +492,7 @@ class HubSpotTrackDeal(BaseTool):
                     tool_name=self.tool_name,
                 )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_update(self) -> Dict[str, Any]:
         """Process deal update with HubSpot API."""
@@ -555,17 +561,11 @@ class HubSpotTrackDeal(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                raise AuthenticationError(
-                    "Invalid HubSpot API key", tool_name=self.tool_name
-                )
+                raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 404:
-                raise APIError(
-                    f"Deal not found: {self.deal_id}", tool_name=self.tool_name
-                )
+                raise APIError(f"Deal not found: {self.deal_id}", tool_name=self.tool_name)
             elif e.response.status_code == 429:
-                raise APIError(
-                    "Rate limit exceeded. Try again later.", tool_name=self.tool_name
-                )
+                raise APIError("Rate limit exceeded. Try again later.", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -573,9 +573,7 @@ class HubSpotTrackDeal(BaseTool):
                     tool_name=self.tool_name,
                 )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_batch(self) -> Dict[str, Any]:
         """Process batch deal creation with HubSpot API."""
@@ -630,13 +628,9 @@ class HubSpotTrackDeal(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                raise AuthenticationError(
-                    "Invalid HubSpot API key", tool_name=self.tool_name
-                )
+                raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
-                raise APIError(
-                    "Rate limit exceeded. Try again later.", tool_name=self.tool_name
-                )
+                raise APIError("Rate limit exceeded. Try again later.", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -644,9 +638,7 @@ class HubSpotTrackDeal(BaseTool):
                     tool_name=self.tool_name,
                 )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":

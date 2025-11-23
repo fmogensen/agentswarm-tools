@@ -1,12 +1,13 @@
 """Tests for crawler tool."""
 
+from typing import Any, Dict
+from unittest.mock import Mock, patch
+
 import pytest
-from unittest.mock import patch, Mock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.web_content.crawler import Crawler
-from shared.errors import ValidationError, APIError
 
 
 class TestCrawler:

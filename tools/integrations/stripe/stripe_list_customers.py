@@ -5,13 +5,14 @@ Lists and searches Stripe customers with support for filtering by email,
 metadata, creation date, and pagination.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class StripeListCustomers(BaseTool):
@@ -60,15 +61,9 @@ class StripeListCustomers(BaseTool):
         description="Filter by customer email address",
         pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$",
     )
-    limit: int = Field(
-        10, description="Maximum number of customers to return", ge=1, le=100
-    )
-    starting_after: Optional[str] = Field(
-        None, description="Customer ID to start pagination after"
-    )
-    ending_before: Optional[str] = Field(
-        None, description="Customer ID to end pagination before"
-    )
+    limit: int = Field(10, description="Maximum number of customers to return", ge=1, le=100)
+    starting_after: Optional[str] = Field(None, description="Customer ID to start pagination after")
+    ending_before: Optional[str] = Field(None, description="Customer ID to end pagination before")
     created_after: Optional[int] = Field(
         None, description="Unix timestamp - customers created after this date", ge=0
     )
@@ -78,9 +73,7 @@ class StripeListCustomers(BaseTool):
     metadata_filters: Optional[Dict[str, str]] = Field(
         None, description="Metadata key-value pairs to filter by"
     )
-    include_deleted: bool = Field(
-        False, description="Include deleted customers in results"
-    )
+    include_deleted: bool = Field(False, description="Include deleted customers in results")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the customer listing."""
@@ -107,9 +100,7 @@ class StripeListCustomers(BaseTool):
                 },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to list customers: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to list customers: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -121,11 +112,7 @@ class StripeListCustomers(BaseTool):
             )
 
         # Validate date range
-        if (
-            self.created_after
-            and self.created_before
-            and self.created_after >= self.created_before
-        ):
+        if self.created_after and self.created_before and self.created_after >= self.created_before:
             raise ValidationError(
                 "created_after must be before created_before",
                 tool_name=self.tool_name,
@@ -247,13 +234,9 @@ class StripeListCustomers(BaseTool):
             return customers
 
         except stripe.error.InvalidRequestError as e:
-            raise ValidationError(
-                f"Invalid request: {str(e)}", tool_name=self.tool_name
-            )
+            raise ValidationError(f"Invalid request: {str(e)}", tool_name=self.tool_name)
         except stripe.error.AuthenticationError as e:
-            raise AuthenticationError(
-                f"Authentication failed: {str(e)}", tool_name=self.tool_name
-            )
+            raise AuthenticationError(f"Authentication failed: {str(e)}", tool_name=self.tool_name)
         except stripe.error.StripeError as e:
             raise APIError(f"Stripe error: {str(e)}", tool_name=self.tool_name)
 
@@ -276,9 +259,7 @@ class StripeListCustomers(BaseTool):
             "default_source": customer.get("default_source"),
         }
 
-    def _matches_metadata(
-        self, customer_metadata: Dict[str, str], filters: Dict[str, str]
-    ) -> bool:
+    def _matches_metadata(self, customer_metadata: Dict[str, str], filters: Dict[str, str]) -> bool:
         """Check if customer metadata matches all filter criteria."""
         for key, value in filters.items():
             if customer_metadata.get(key) != value:
@@ -348,9 +329,7 @@ if __name__ == "__main__":
 
     # Test 4: Metadata filtering
     print("\n4. Testing metadata filtering...")
-    tool = StripeListCustomers(
-        metadata_filters={"tier": "premium"}, limit=10
-    )
+    tool = StripeListCustomers(metadata_filters={"tier": "premium"}, limit=10)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -379,9 +358,7 @@ if __name__ == "__main__":
     # Test 7: Error handling - conflicting pagination
     print("\n7. Testing error handling (conflicting pagination)...")
     try:
-        tool = StripeListCustomers(
-            starting_after="cus_123", ending_before="cus_456"
-        )
+        tool = StripeListCustomers(starting_after="cus_123", ending_before="cus_456")
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except ValidationError as e:

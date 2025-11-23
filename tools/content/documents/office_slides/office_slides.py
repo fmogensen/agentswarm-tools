@@ -2,26 +2,27 @@
 Generate professional PowerPoint presentations (.pptx) from structured content.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
 import tempfile
-from datetime import datetime
-import urllib.request
 import urllib.parse
+import urllib.request
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 try:
     from pptx import Presentation
-    from pptx.util import Inches, Pt
-    from pptx.enum.text import PP_ALIGN
     from pptx.dml.color import RGBColor
+    from pptx.enum.text import PP_ALIGN
+    from pptx.util import Inches, Pt
 
     PPTX_AVAILABLE = True
 except ImportError:
     PPTX_AVAILABLE = False
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class OfficeSlidesTool(BaseTool):

@@ -7,9 +7,10 @@ parameter tables, examples, and TOOLS_INDEX updates.
 
 import ast
 import re
-from pathlib import Path
-from typing import Dict, List, Any, Optional
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 from jinja2 import Environment, FileSystemLoader
 
 

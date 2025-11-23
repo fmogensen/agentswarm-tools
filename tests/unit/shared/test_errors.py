@@ -3,27 +3,28 @@ Comprehensive tests for shared.errors module.
 Target coverage: 100%
 """
 
-import pytest
 from datetime import datetime
 from unittest.mock import Mock
 
+import pytest
+
 from shared.errors import (
+    APIError,
+    AuthenticationError,
+    ConfigurationError,
+    MediaError,
+    QuotaExceededError,
+    RateLimitError,
+    ResourceNotFoundError,
+    SecurityError,
+    TimeoutError,
     ToolError,
     ValidationError,
-    APIError,
-    RateLimitError,
-    AuthenticationError,
-    TimeoutError,
-    ResourceNotFoundError,
-    ConfigurationError,
-    QuotaExceededError,
-    SecurityError,
-    MediaError,
-    handle_api_response
+    handle_api_response,
 )
 
-
 # Test ToolError Base Class
+
 
 def test_tool_error_basic():
     """Test basic ToolError creation."""
@@ -45,7 +46,7 @@ def test_tool_error_with_all_params():
         tool_name="test_tool",
         error_code="CUSTOM_ERROR",
         details=details,
-        retry_after=120
+        retry_after=120,
     )
 
     assert error.message == "Error message"
@@ -62,7 +63,7 @@ def test_tool_error_to_dict():
         tool_name="test_tool",
         error_code="TEST_ERROR",
         details={"info": "extra"},
-        retry_after=60
+        retry_after=60,
     )
 
     result = error.to_dict()
@@ -79,32 +80,21 @@ def test_tool_error_to_dict():
 
 def test_tool_error_str():
     """Test ToolError string representation."""
-    error = ToolError(
-        message="Error occurred",
-        error_code="ERR_CODE"
-    )
+    error = ToolError(message="Error occurred", error_code="ERR_CODE")
 
     assert str(error) == "[ERR_CODE] Error occurred"
 
 
 def test_tool_error_str_with_tool_name():
     """Test ToolError string with tool name."""
-    error = ToolError(
-        message="Error occurred",
-        tool_name="my_tool",
-        error_code="ERR_CODE"
-    )
+    error = ToolError(message="Error occurred", tool_name="my_tool", error_code="ERR_CODE")
 
     assert str(error) == "my_tool: [ERR_CODE] Error occurred"
 
 
 def test_tool_error_str_with_retry_after():
     """Test ToolError string with retry_after."""
-    error = ToolError(
-        message="Error occurred",
-        error_code="ERR_CODE",
-        retry_after=30
-    )
+    error = ToolError(message="Error occurred", error_code="ERR_CODE", retry_after=30)
 
     assert str(error) == "[ERR_CODE] Error occurred (retry after 30s)"
 
@@ -112,10 +102,7 @@ def test_tool_error_str_with_retry_after():
 def test_tool_error_str_complete():
     """Test ToolError string with all components."""
     error = ToolError(
-        message="Error occurred",
-        tool_name="my_tool",
-        error_code="ERR_CODE",
-        retry_after=60
+        message="Error occurred", tool_name="my_tool", error_code="ERR_CODE", retry_after=60
     )
 
     assert str(error) == "my_tool: [ERR_CODE] Error occurred (retry after 60s)"
@@ -131,6 +118,7 @@ def test_tool_error_is_exception():
 
 
 # Test ValidationError
+
 
 def test_validation_error_basic():
     """Test basic ValidationError."""
@@ -161,10 +149,7 @@ def test_validation_error_with_field_and_tool():
 def test_validation_error_with_existing_details():
     """Test ValidationError merging field with existing details."""
     error = ValidationError(
-        "Invalid input",
-        field="email",
-        details={"reason": "format"},
-        tool_name="test_tool"
+        "Invalid input", field="email", details={"reason": "format"}, tool_name="test_tool"
     )
 
     assert error.details["field"] == "email"
@@ -172,6 +157,7 @@ def test_validation_error_with_existing_details():
 
 
 # Test APIError
+
 
 def test_api_error_basic():
     """Test basic APIError."""
@@ -203,6 +189,7 @@ def test_api_error_with_tool_name():
 
 # Test RateLimitError
 
+
 def test_rate_limit_error_basic():
     """Test basic RateLimitError with defaults."""
     error = RateLimitError()
@@ -215,11 +202,7 @@ def test_rate_limit_error_basic():
 
 def test_rate_limit_error_with_params():
     """Test RateLimitError with custom parameters."""
-    error = RateLimitError(
-        message="Too many requests",
-        retry_after=120,
-        limit=100
-    )
+    error = RateLimitError(message="Too many requests", retry_after=120, limit=100)
 
     assert error.message == "Too many requests"
     assert error.retry_after == 120
@@ -235,6 +218,7 @@ def test_rate_limit_error_with_tool_name():
 
 
 # Test AuthenticationError
+
 
 def test_authentication_error_basic():
     """Test basic AuthenticationError."""
@@ -263,6 +247,7 @@ def test_authentication_error_with_tool():
 
 # Test TimeoutError
 
+
 def test_timeout_error_basic():
     """Test basic TimeoutError with default message."""
     error = TimeoutError()
@@ -289,6 +274,7 @@ def test_timeout_error_with_tool():
 
 
 # Test ResourceNotFoundError
+
 
 def test_resource_not_found_error_basic():
     """Test basic ResourceNotFoundError."""
@@ -317,6 +303,7 @@ def test_resource_not_found_error_with_tool():
 
 # Test ConfigurationError
 
+
 def test_configuration_error_basic():
     """Test basic ConfigurationError."""
     error = ConfigurationError("Config error")
@@ -344,6 +331,7 @@ def test_configuration_error_with_tool():
 
 # Test QuotaExceededError
 
+
 def test_quota_exceeded_error_basic():
     """Test basic QuotaExceededError with defaults."""
     error = QuotaExceededError()
@@ -358,10 +346,7 @@ def test_quota_exceeded_error_basic():
 def test_quota_exceeded_error_with_params():
     """Test QuotaExceededError with all parameters."""
     error = QuotaExceededError(
-        message="Daily quota exceeded",
-        quota_type="daily_requests",
-        limit=1000,
-        used=1005
+        message="Daily quota exceeded", quota_type="daily_requests", limit=1000, used=1005
     )
 
     assert error.message == "Daily quota exceeded"
@@ -372,18 +357,14 @@ def test_quota_exceeded_error_with_params():
 
 def test_quota_exceeded_error_with_tool():
     """Test QuotaExceededError with tool name."""
-    error = QuotaExceededError(
-        quota_type="api_calls",
-        limit=100,
-        used=100,
-        tool_name="api_tool"
-    )
+    error = QuotaExceededError(quota_type="api_calls", limit=100, used=100, tool_name="api_tool")
 
     assert error.tool_name == "api_tool"
     assert error.details["quota_type"] == "api_calls"
 
 
 # Test SecurityError
+
 
 def test_security_error_basic():
     """Test basic SecurityError."""
@@ -405,9 +386,7 @@ def test_security_error_with_violation():
 def test_security_error_with_tool():
     """Test SecurityError with tool name."""
     error = SecurityError(
-        "SQL injection attempt",
-        violation_type="sql_injection",
-        tool_name="db_tool"
+        "SQL injection attempt", violation_type="sql_injection", tool_name="db_tool"
     )
 
     assert error.tool_name == "db_tool"
@@ -415,6 +394,7 @@ def test_security_error_with_tool():
 
 
 # Test MediaError
+
 
 def test_media_error_basic():
     """Test basic MediaError."""
@@ -442,6 +422,7 @@ def test_media_error_with_tool():
 
 
 # Test handle_api_response Utility
+
 
 def test_handle_api_response_401():
     """Test handle_api_response with 401 status."""
@@ -578,6 +559,7 @@ def test_handle_api_response_no_status_code():
 
 # Test Error Inheritance
 
+
 def test_all_errors_inherit_from_tool_error():
     """Test that all custom errors inherit from ToolError."""
     error_classes = [
@@ -590,7 +572,7 @@ def test_all_errors_inherit_from_tool_error():
         ConfigurationError,
         QuotaExceededError,
         SecurityError,
-        MediaError
+        MediaError,
     ]
 
     for error_class in error_classes:
@@ -612,7 +594,7 @@ def test_error_code_uniqueness():
         "ConfigurationError": ConfigurationError("msg"),
         "QuotaExceededError": QuotaExceededError(),
         "SecurityError": SecurityError("msg"),
-        "MediaError": MediaError("msg")
+        "MediaError": MediaError("msg"),
     }
 
     error_codes = set()
@@ -622,6 +604,7 @@ def test_error_code_uniqueness():
 
 
 # Test Edge Cases
+
 
 def test_tool_error_empty_message():
     """Test ToolError with empty message."""

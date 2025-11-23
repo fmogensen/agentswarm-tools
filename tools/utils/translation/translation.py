@@ -5,15 +5,16 @@ This tool provides translation services using Google Translate or DeepL API,
 with support for auto-detection, format preservation, and batch translation.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
-import requests
 import re
 from html.parser import HTMLParser
+from typing import Any, Dict, List, Optional
+
+import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class Translation(BaseTool):

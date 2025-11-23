@@ -2,13 +2,14 @@
 Search for videos on YouTube platform and return comprehensive results
 """
 
-from typing import Any, Dict, List
-from pydantic import Field
 import os
+from typing import Any, Dict, List
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class VideoSearch(BaseTool):
@@ -43,9 +44,7 @@ class VideoSearch(BaseTool):
 
     # Parameters
     query: str = Field(..., description="Video search query", min_length=1)
-    max_results: int = Field(
-        10, description="Maximum number of results to return", ge=1, le=50
-    )
+    max_results: int = Field(10, description="Maximum number of results to return", ge=1, le=50)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -79,10 +78,7 @@ class VideoSearch(BaseTool):
             raise ValidationError("Query cannot be empty", tool_name=self.tool_name)
 
         if self.max_results < 1 or self.max_results > 50:
-            raise ValidationError(
-                "max_results must be between 1 and 50",
-                tool_name=self.tool_name
-            )
+            raise ValidationError("max_results must be between 1 and 50", tool_name=self.tool_name)
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode enabled."""
@@ -126,8 +122,7 @@ class VideoSearch(BaseTool):
             api_key = os.getenv("YOUTUBE_API_KEY")
             if not api_key:
                 raise ValidationError(
-                    "YOUTUBE_API_KEY environment variable not set",
-                    tool_name=self.tool_name
+                    "YOUTUBE_API_KEY environment variable not set", tool_name=self.tool_name
                 )
 
             # YouTube Data API v3 endpoint
@@ -166,7 +161,11 @@ class VideoSearch(BaseTool):
                     "channel": snippet.get("channelTitle", ""),
                     "views": details.get("viewCount", 0),
                     "duration": details.get("duration", ""),
-                    "upload_date": snippet.get("publishedAt", "").split("T")[0] if snippet.get("publishedAt") else "",
+                    "upload_date": (
+                        snippet.get("publishedAt", "").split("T")[0]
+                        if snippet.get("publishedAt")
+                        else ""
+                    ),
                     "thumbnails": {
                         "default": snippet.get("thumbnails", {}).get("default", {}).get("url", ""),
                         "medium": snippet.get("thumbnails", {}).get("medium", {}).get("url", ""),
@@ -276,8 +275,8 @@ if __name__ == "__main__":
     print(f"\nSuccess: {result.get('success')}")
     print(f"Results: {len(result.get('result', []))} items")
 
-    if result.get('result'):
-        first_result = result['result'][0]
+    if result.get("result"):
+        first_result = result["result"][0]
         print(f"\nFirst result:")
         print(f"  Video ID: {first_result.get('video_id')}")
         print(f"  Title: {first_result.get('title')}")

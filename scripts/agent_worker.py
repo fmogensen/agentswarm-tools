@@ -6,16 +6,16 @@ Each worker receives tool assignments from the orchestrator and develops them
 using AI-powered code generation.
 """
 
-import os
-import sys
-import asyncio
-import logging
-import json
 import argparse
+import asyncio
+import json
+import logging
+import os
 import subprocess
+import sys
 from datetime import datetime
-from typing import Optional, Dict, Any
 from pathlib import Path
+from typing import Any, Dict, Optional
 
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))

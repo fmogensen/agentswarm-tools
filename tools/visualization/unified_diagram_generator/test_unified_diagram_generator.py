@@ -3,13 +3,14 @@ Tests for UnifiedDiagramGenerator
 """
 
 import os
+
 import pytest
 
 # Set mock mode before importing
 os.environ["USE_MOCK_APIS"] = "true"
 
-from tools.visualization.unified_diagram_generator import UnifiedDiagramGenerator
 from shared.errors import ValidationError
+from tools.visualization.unified_diagram_generator import UnifiedDiagramGenerator
 
 
 class TestUnifiedDiagramGenerator:

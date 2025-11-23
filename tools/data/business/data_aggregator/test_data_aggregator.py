@@ -1,9 +1,12 @@
 """Test cases for DataAggregator tool."""
 
 import os
+
 import pytest
-from .data_aggregator import DataAggregator
+
 from shared.errors import ValidationError
+
+from .data_aggregator import DataAggregator
 
 
 class TestDataAggregator:
@@ -76,9 +79,7 @@ class TestDataAggregator:
     def test_with_filters(self):
         """Test aggregation with filters."""
         tool = DataAggregator(
-            sources=["10", "20", "30"],
-            aggregation_method="sum",
-            filters={"min_value": 15}
+            sources=["10", "20", "30"], aggregation_method="sum", filters={"min_value": 15}
         )
         result = tool.run()
 

@@ -4,13 +4,14 @@ Tests all 4 actions (list, create, update, delete) with various scenarios.
 """
 
 import os
-import pytest
 from datetime import datetime
+
+import pytest
 
 os.environ["USE_MOCK_APIS"] = "true"
 
-from tools.communication.unified_google_calendar import UnifiedGoogleCalendar
 from shared.errors import ValidationError
+from tools.communication.unified_google_calendar import UnifiedGoogleCalendar
 
 
 class TestUnifiedGoogleCalendarList:

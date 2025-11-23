@@ -2,10 +2,13 @@
 Unit tests for GenerateOrganizationChart tool
 """
 
-import pytest
 import os
-from .generate_organization_chart import GenerateOrganizationChart
+
+import pytest
+
 from shared.errors import ValidationError
+
+from .generate_organization_chart import GenerateOrganizationChart
 
 
 @pytest.fixture(autouse=True)

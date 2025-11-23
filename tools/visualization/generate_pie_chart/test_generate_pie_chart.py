@@ -1,14 +1,14 @@
 """Tests for generate_pie_chart tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock
 import base64
 import os
+from unittest.mock import MagicMock, patch
 
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.visualization.generate_pie_chart import GeneratePieChart
-from shared.errors import ValidationError, APIError
 
 
 class TestGeneratePieChart:

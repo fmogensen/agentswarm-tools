@@ -3,11 +3,12 @@ Base renderer interface for chart and diagram generation.
 Provides shared functionality and interface for all chart renderers.
 """
 
-from typing import Any, Dict, Optional
-from abc import ABC, abstractmethod
-import matplotlib.pyplot as plt
 import base64
 import io
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Optional
+
+import matplotlib.pyplot as plt
 
 
 class BaseRenderer(ABC):

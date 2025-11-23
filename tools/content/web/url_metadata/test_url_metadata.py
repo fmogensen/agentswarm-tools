@@ -1,12 +1,13 @@
 """Tests for url_metadata tool."""
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.web_content.url_metadata import UrlMetadata
-from shared.errors import ValidationError, APIError
 
 
 class TestUrlMetadata:

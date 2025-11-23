@@ -10,29 +10,30 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
 from shared.batch import (
-    parallel_process,
-    parallel_map,
-    parallel_filter,
-    batch_process_with_chunks,
-    get_optimal_batch_size,
-    get_default_max_workers,
-    ExecutorType,
     BatchResult,
     DefaultProgressCallback,
+    ExecutorType,
     SilentProgressCallback,
+    batch_process_with_chunks,
+    get_default_max_workers,
+    get_optimal_batch_size,
+    parallel_filter,
+    parallel_map,
+    parallel_process,
 )
 
 
 def test_parallel_process_basic():
     """Test basic parallel processing."""
+
     def square(x):
-        return x ** 2
+        return x**2
 
     result = parallel_process(
         items=[1, 2, 3, 4, 5],
         processor=square,
         max_workers=2,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
 
     assert result.successful_count == 5
@@ -45,6 +46,7 @@ def test_parallel_process_basic():
 
 def test_parallel_process_with_errors():
     """Test parallel processing with some failures."""
+
     def sometimes_fail(x):
         if x % 3 == 0:
             raise ValueError(f"Item {x} failed")
@@ -55,7 +57,7 @@ def test_parallel_process_with_errors():
         processor=sometimes_fail,
         max_workers=4,
         continue_on_error=True,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
 
     assert result.successful_count == 6  # 1,2,4,5,7,8
@@ -67,11 +69,7 @@ def test_parallel_process_with_errors():
 
 def test_parallel_map():
     """Test parallel_map convenience function."""
-    results = parallel_map(
-        items=[1, 2, 3, 4, 5],
-        processor=lambda x: x * 3,
-        max_workers=2
-    )
+    results = parallel_map(items=[1, 2, 3, 4, 5], processor=lambda x: x * 3, max_workers=2)
 
     assert sorted(results) == [3, 6, 9, 12, 15]
 
@@ -81,9 +79,7 @@ def test_parallel_map():
 def test_parallel_filter():
     """Test parallel_filter convenience function."""
     results = parallel_filter(
-        items=[1, 2, 3, 4, 5, 6, 7, 8],
-        predicate=lambda x: x % 2 == 0,
-        max_workers=2
+        items=[1, 2, 3, 4, 5, 6, 7, 8], predicate=lambda x: x % 2 == 0, max_workers=2
     )
 
     assert sorted(results) == [2, 4, 6, 8]
@@ -94,10 +90,7 @@ def test_parallel_filter():
 def test_batch_result():
     """Test BatchResult class."""
     result = BatchResult(
-        total_items=10,
-        successful_count=8,
-        failed_count=2,
-        processing_time_ms=150.5
+        total_items=10, successful_count=8, failed_count=2, processing_time_ms=150.5
     )
 
     assert result.total_items == 10
@@ -110,6 +103,7 @@ def test_batch_result():
 
 def test_executor_type_thread():
     """Test with thread executor."""
+
     def io_bound_task(x):
         time.sleep(0.001)  # Simulate I/O
         return x * 2
@@ -119,7 +113,7 @@ def test_executor_type_thread():
         processor=io_bound_task,
         max_workers=5,
         executor_type=ExecutorType.THREAD,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
 
     assert result.successful_count == 10
@@ -161,6 +155,7 @@ def test_get_optimal_batch_size():
 
 def test_progress_callback():
     """Test progress tracking."""
+
     class TestProgressCallback(DefaultProgressCallback):
         def __init__(self):
             super().__init__(verbose=False)
@@ -181,9 +176,7 @@ def test_progress_callback():
     callback = TestProgressCallback()
 
     result = parallel_process(
-        items=[1, 2, 3],
-        processor=lambda x: x * 2,
-        progress_callback=callback
+        items=[1, 2, 3], processor=lambda x: x * 2, progress_callback=callback
     )
 
     assert callback.started == True
@@ -196,6 +189,7 @@ def test_progress_callback():
 
 def test_batch_process_with_chunks():
     """Test chunk-based batch processing."""
+
     def process_chunk(items):
         # Process multiple items at once
         return [x * 2 for x in items]
@@ -205,7 +199,7 @@ def test_batch_process_with_chunks():
         processor=process_chunk,
         chunk_size=5,  # 20 items / 5 per chunk = 4 chunks
         max_workers=2,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
 
     assert result.successful_count == 20
@@ -218,6 +212,7 @@ def test_batch_process_with_chunks():
 
 def test_continue_on_error_false():
     """Test stopping on first error."""
+
     def fail_on_five(x):
         if x == 5:
             raise ValueError("Failed on 5")
@@ -228,7 +223,7 @@ def test_continue_on_error_false():
         processor=fail_on_five,
         max_workers=2,
         continue_on_error=False,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
 
     # Should have stopped after encountering error
@@ -240,6 +235,7 @@ def test_continue_on_error_false():
 
 def test_processing_time_measurement():
     """Test that processing time is measured correctly."""
+
     def slow_processor(x):
         time.sleep(0.01)  # 10ms
         return x
@@ -249,7 +245,7 @@ def test_processing_time_measurement():
         items=list(range(5)),
         processor=slow_processor,
         max_workers=5,  # All in parallel
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
     elapsed = (time.time() - start) * 1000
 
@@ -265,9 +261,7 @@ def test_processing_time_measurement():
 def test_empty_items_list():
     """Test handling of empty items list."""
     result = parallel_process(
-        items=[],
-        processor=lambda x: x,
-        progress_callback=SilentProgressCallback()
+        items=[], processor=lambda x: x, progress_callback=SilentProgressCallback()
     )
 
     assert result.total_items == 0
@@ -285,7 +279,7 @@ def test_metadata():
         items=[1, 2, 3],
         processor=lambda x: x * 2,
         batch_metadata=custom_metadata,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
 
     assert "test_key" in result.metadata
@@ -297,6 +291,7 @@ def test_metadata():
 
 def test_performance_improvement():
     """Test that parallel processing is faster than sequential."""
+
     def slow_task(x):
         time.sleep(0.01)  # 10ms per item
         return x
@@ -312,7 +307,7 @@ def test_performance_improvement():
         items=items,
         processor=slow_task,
         max_workers=10,  # All items at once
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
     parallel_time = (time.time() - start) * 1000
 

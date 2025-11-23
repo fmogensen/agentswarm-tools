@@ -6,13 +6,14 @@ Provides a web interface to monitor autonomous development progress.
 Shows real-time metrics, tool status, and system health.
 """
 
+import asyncio
+import json
+import logging
 import os
 import sys
-import asyncio
-import logging
-import json
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from aiohttp import web
 
 try:

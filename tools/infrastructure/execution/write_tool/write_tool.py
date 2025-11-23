@@ -2,12 +2,13 @@
 Create or overwrite files in sandboxed environment
 """
 
-from typing import Any, Dict
-from pydantic import Field
 import os
+from typing import Any, Dict
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class WriteTool(BaseTool):
@@ -32,7 +33,9 @@ class WriteTool(BaseTool):
     tool_name: str = "write_tool"
     tool_category: str = "infrastructure"
 
-    file_path: str = Field(..., description="Path where the file should be created/written", min_length=1)
+    file_path: str = Field(
+        ..., description="Path where the file should be created/written", min_length=1
+    )
     content: str = Field(..., description="Content to write to the file")
 
     def _execute(self) -> Dict[str, Any]:

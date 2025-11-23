@@ -4,10 +4,10 @@ Config command implementation
 Manages CLI configuration and API keys.
 """
 
-import sys
 import json
+import sys
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 
 def get_config_path() -> Path:

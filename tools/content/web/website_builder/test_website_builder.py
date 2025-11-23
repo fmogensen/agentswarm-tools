@@ -2,8 +2,9 @@
 Unit tests for the WebsiteBuilder tool.
 """
 
-import pytest
 import os
+
+import pytest
 from website_builder import WebsiteBuilder
 
 

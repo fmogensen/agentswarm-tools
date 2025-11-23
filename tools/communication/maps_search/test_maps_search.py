@@ -1,12 +1,13 @@
 """Tests for maps_search tool."""
 
-import pytest
+from typing import Any, Dict
 from unittest.mock import patch
-from typing import Dict, Any
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.location.maps_search import MapsSearch
-from shared.errors import ValidationError, APIError
 
 
 class TestMapsSearch:

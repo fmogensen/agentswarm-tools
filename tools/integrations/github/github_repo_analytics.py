@@ -5,14 +5,15 @@ Fetch repository statistics and insights using GitHub's GraphQL API.
 Provides metrics on commits, PRs, contributors, languages, and more.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class GitHubRepoAnalytics(BaseTool):
@@ -69,9 +70,7 @@ class GitHubRepoAnalytics(BaseTool):
         min_length=1,
         max_length=100,
     )
-    repo_name: str = Field(
-        ..., description="Repository name", min_length=1, max_length=100
-    )
+    repo_name: str = Field(..., description="Repository name", min_length=1, max_length=100)
 
     # Optional parameters
     since: Optional[str] = Field(
@@ -83,9 +82,7 @@ class GitHubRepoAnalytics(BaseTool):
     include_commits: bool = Field(True, description="Include commit statistics")
     include_prs: bool = Field(True, description="Include PR statistics")
     include_issues: bool = Field(True, description="Include issue statistics")
-    include_contributors: bool = Field(
-        True, description="Include contributor statistics"
-    )
+    include_contributors: bool = Field(True, description="Include contributor statistics")
     include_languages: bool = Field(True, description="Include language breakdown")
 
     def _execute(self) -> Dict[str, Any]:
@@ -102,9 +99,7 @@ class GitHubRepoAnalytics(BaseTool):
             result = self._fetch_analytics()
             return result
         except Exception as e:
-            raise APIError(
-                f"Failed to fetch analytics: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to fetch analytics: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -158,59 +153,69 @@ class GitHubRepoAnalytics(BaseTool):
                 "default_branch": "main",
                 "is_private": False,
             },
-            "commits": {
-                "total": 342,
-                "authors": 15,
-                "additions": 12450,
-                "deletions": 8320,
-                "files_changed": 456,
-            }
-            if self.include_commits
-            else None,
-            "pull_requests": {
-                "total": 87,
-                "open": 12,
-                "closed": 45,
-                "merged": 30,
-                "avg_merge_time_hours": 24.5,
-            }
-            if self.include_prs
-            else None,
-            "issues": {
-                "total": 123,
-                "open": 45,
-                "closed": 78,
-                "avg_close_time_hours": 48.2,
-            }
-            if self.include_issues
-            else None,
-            "contributors": [
+            "commits": (
                 {
-                    "login": "user1",
-                    "contributions": 145,
-                    "avatar_url": "https://avatars.githubusercontent.com/u/1",
-                },
+                    "total": 342,
+                    "authors": 15,
+                    "additions": 12450,
+                    "deletions": 8320,
+                    "files_changed": 456,
+                }
+                if self.include_commits
+                else None
+            ),
+            "pull_requests": (
                 {
-                    "login": "user2",
-                    "contributions": 98,
-                    "avatar_url": "https://avatars.githubusercontent.com/u/2",
-                },
+                    "total": 87,
+                    "open": 12,
+                    "closed": 45,
+                    "merged": 30,
+                    "avg_merge_time_hours": 24.5,
+                }
+                if self.include_prs
+                else None
+            ),
+            "issues": (
                 {
-                    "login": "user3",
-                    "contributions": 67,
-                    "avatar_url": "https://avatars.githubusercontent.com/u/3",
-                },
-            ]
-            if self.include_contributors
-            else None,
-            "languages": {
-                "Python": {"bytes": 125000, "percentage": 45.2},
-                "JavaScript": {"bytes": 98000, "percentage": 35.4},
-                "TypeScript": {"bytes": 45000, "percentage": 16.3},
-                "CSS": {"bytes": 8500, "percentage": 3.1},
-            }
-            if self.include_languages
-            else None,
+                    "total": 123,
+                    "open": 45,
+                    "closed": 78,
+                    "avg_close_time_hours": 48.2,
+                }
+                if self.include_issues
+                else None
+            ),
+            "contributors": (
+                [
+                    {
+                        "login": "user1",
+                        "contributions": 145,
+                        "avatar_url": "https://avatars.githubusercontent.com/u/1",
+                    },
+                    {
+                        "login": "user2",
+                        "contributions": 98,
+                        "avatar_url": "https://avatars.githubusercontent.com/u/2",
+                    },
+                    {
+                        "login": "user3",
+                        "contributions": 67,
+                        "avatar_url": "https://avatars.githubusercontent.com/u/3",
+                    },
+                ]
+                if self.include_contributors
+                else None
+            ),
+            "languages": (
+                {
+                    "Python": {"bytes": 125000, "percentage": 45.2},
+                    "JavaScript": {"bytes": 98000, "percentage": 35.4},
+                    "TypeScript": {"bytes": 45000, "percentage": 16.3},
+                    "CSS": {"bytes": 8500, "percentage": 3.1},
+                }
+                if self.include_languages
+                else None
+            ),
             "metadata": {
                 "tool_name": self.tool_name,
                 "repo": f"{self.repo_owner}/{self.repo_name}",
@@ -353,9 +358,7 @@ class GitHubRepoAnalytics(BaseTool):
                 "deletions": 0,
             }
 
-        history = (
-            response["data"]["repository"]["defaultBranchRef"]["target"]["history"]
-        )
+        history = response["data"]["repository"]["defaultBranchRef"]["target"]["history"]
 
         # Calculate statistics
         total_commits = history["totalCount"]
@@ -417,12 +420,8 @@ class GitHubRepoAnalytics(BaseTool):
             if pr["merged"]:
                 merged_count += 1
                 if pr["createdAt"] and pr["mergedAt"]:
-                    created = datetime.fromisoformat(
-                        pr["createdAt"].replace("Z", "+00:00")
-                    )
-                    merged = datetime.fromisoformat(
-                        pr["mergedAt"].replace("Z", "+00:00")
-                    )
+                    created = datetime.fromisoformat(pr["createdAt"].replace("Z", "+00:00"))
+                    merged = datetime.fromisoformat(pr["mergedAt"].replace("Z", "+00:00"))
                     merge_times.append((merged - created).total_seconds() / 3600)
 
         avg_merge_time = sum(merge_times) / len(merge_times) if merge_times else 0
@@ -470,12 +469,8 @@ class GitHubRepoAnalytics(BaseTool):
             else:
                 closed_count += 1
                 if issue["createdAt"] and issue["closedAt"]:
-                    created = datetime.fromisoformat(
-                        issue["createdAt"].replace("Z", "+00:00")
-                    )
-                    closed = datetime.fromisoformat(
-                        issue["closedAt"].replace("Z", "+00:00")
-                    )
+                    created = datetime.fromisoformat(issue["createdAt"].replace("Z", "+00:00"))
+                    closed = datetime.fromisoformat(issue["closedAt"].replace("Z", "+00:00"))
                     close_times.append((closed - created).total_seconds() / 3600)
 
         avg_close_time = sum(close_times) / len(close_times) if close_times else 0
@@ -558,9 +553,7 @@ class GitHubRepoAnalytics(BaseTool):
 
         return languages
 
-    def _execute_graphql(
-        self, token: str, query: str, variables: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _execute_graphql(self, token: str, query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
         """Execute GraphQL query/mutation."""
         import requests
 

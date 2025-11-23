@@ -3,16 +3,16 @@ Standalone test script for OfficeSheetsTool
 Run this directly without pytest to avoid dependency issues
 """
 
-import sys
 import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
 os.environ["USE_MOCK_APIS"] = "true"
 
-from tools.document_creation.office_sheets.office_sheets import OfficeSheetsTool
 from shared.errors import ValidationError
+from tools.document_creation.office_sheets.office_sheets import OfficeSheetsTool
 
 
 def test_basic_spreadsheet():

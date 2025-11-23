@@ -11,16 +11,16 @@ Usage:
 """
 
 import json
-import sys
 import os
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from shared.registry import tool_registry, discover_tools
-from shared.workflow import WorkflowEngine, WorkflowContext
+from shared.registry import discover_tools, tool_registry
+from shared.workflow import WorkflowContext, WorkflowEngine
 
 
 class WorkflowBuilder:
@@ -36,9 +36,9 @@ class WorkflowBuilder:
             "error_handling": {
                 "retry_on_failure": True,
                 "max_retries": 3,
-                "continue_on_error": False
+                "continue_on_error": False,
             },
-            "timeout": 1800
+            "timeout": 1800,
         }
 
         # Discover tools
@@ -114,7 +114,7 @@ class WorkflowBuilder:
 
             step_id = input("Step ID: ").strip()
             if not step_id:
-                if len(self.workflow['steps']) == 0:
+                if len(self.workflow["steps"]) == 0:
                     print("⚠ Workflow must have at least one step!")
                     continue
                 break
@@ -170,7 +170,7 @@ class WorkflowBuilder:
         # Group by category
         by_category: Dict[str, List[Dict]] = {}
         for tool in tools:
-            category = tool['category']
+            category = tool["category"]
             if category not in by_category:
                 by_category[category] = []
             by_category[category].append(tool)
@@ -197,10 +197,10 @@ class WorkflowBuilder:
         params = {}
         if metadata:
             print(f"\nParameters for {tool_name}:")
-            for field_name, field_info in metadata.get('fields', {}).items():
-                required = field_info.get('required', False)
-                description = field_info.get('description', '')
-                default = field_info.get('default')
+            for field_name, field_info in metadata.get("fields", {}).items():
+                required = field_info.get("required", False)
+                description = field_info.get("description", "")
+                default = field_info.get("default")
 
                 prompt = f"  {field_name}"
                 if required:
@@ -245,11 +245,7 @@ class WorkflowBuilder:
 
                     params[key] = value
 
-        return {
-            "id": step_id,
-            "tool": tool_name,
-            "params": params
-        }
+        return {"id": step_id, "tool": tool_name, "params": params}
 
     def _create_foreach_step(self, step_id: str) -> Dict[str, Any]:
         """Create a foreach loop step."""
@@ -259,12 +255,7 @@ class WorkflowBuilder:
         inner_step_id = input("Inner step ID: ").strip()
         inner_step = self._create_tool_step(inner_step_id)
 
-        return {
-            "id": step_id,
-            "type": "foreach",
-            "items": items,
-            "step": inner_step
-        }
+        return {"id": step_id, "type": "foreach", "items": items, "step": inner_step}
 
     def _create_condition_step(self, step_id: str) -> Dict[str, Any]:
         """Create a conditional step."""
@@ -274,17 +265,12 @@ class WorkflowBuilder:
         then_step = self._create_tool_step("then")
 
         else_step = None
-        has_else = input("Add 'else' step? (y/n): ").strip().lower() == 'y'
+        has_else = input("Add 'else' step? (y/n): ").strip().lower() == "y"
         if has_else:
             print("\nDefine the 'else' step:")
             else_step = self._create_tool_step("else")
 
-        step = {
-            "id": step_id,
-            "type": "condition",
-            "condition": condition,
-            "then": then_step
-        }
+        step = {"id": step_id, "type": "condition", "condition": condition, "then": then_step}
 
         if else_step:
             step["else"] = else_step
@@ -307,11 +293,7 @@ class WorkflowBuilder:
             step = self._create_tool_step(parallel_id)
             steps.append(step)
 
-        return {
-            "id": step_id,
-            "type": "parallel",
-            "steps": steps
-        }
+        return {"id": step_id, "type": "parallel", "steps": steps}
 
     def _configure_error_handling(self) -> None:
         """Configure error handling."""
@@ -319,14 +301,14 @@ class WorkflowBuilder:
         print("-" * 60)
 
         retry = input("Retry on failure? (y/n) [y]: ").strip().lower()
-        self.workflow["error_handling"]["retry_on_failure"] = retry != 'n'
+        self.workflow["error_handling"]["retry_on_failure"] = retry != "n"
 
         if self.workflow["error_handling"]["retry_on_failure"]:
             max_retries = input("Max retries [3]: ").strip()
             self.workflow["error_handling"]["max_retries"] = int(max_retries) if max_retries else 3
 
         continue_on_error = input("Continue on error? (y/n) [n]: ").strip().lower()
-        self.workflow["error_handling"]["continue_on_error"] = continue_on_error == 'y'
+        self.workflow["error_handling"]["continue_on_error"] = continue_on_error == "y"
 
         timeout = input("Timeout in seconds [1800]: ").strip()
         self.workflow["timeout"] = int(timeout) if timeout else 1800
@@ -350,13 +332,13 @@ class WorkflowBuilder:
 
         # Save
         save = input("\nSave workflow? (y/n) [y]: ").strip().lower()
-        if save != 'n':
+        if save != "n":
             filename = input(f"Filename [{self.workflow['name']}.json]: ").strip()
             if not filename:
                 filename = f"{self.workflow['name']}.json"
 
-            if not filename.endswith('.json'):
-                filename += '.json'
+            if not filename.endswith(".json"):
+                filename += ".json"
 
             # Create examples/workflows directory if not exists
             workflows_dir = Path(__file__).parent.parent / "examples" / "workflows"
@@ -364,14 +346,14 @@ class WorkflowBuilder:
 
             filepath = workflows_dir / filename
 
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 json.dump(self.workflow, f, indent=2)
 
             print(f"✓ Workflow saved to: {filepath}")
 
             # Test execution?
             test = input("\nTest execution in mock mode? (y/n) [n]: ").strip().lower()
-            if test == 'y':
+            if test == "y":
                 os.environ["USE_MOCK_APIS"] = "true"
                 try:
                     print("\nExecuting workflow...")
@@ -388,7 +370,7 @@ def load_template(template_name: str) -> Optional[Dict[str, Any]]:
     template_file = templates_dir / f"{template_name}.json"
 
     if template_file.exists():
-        with open(template_file, 'r') as f:
+        with open(template_file, "r") as f:
             return json.load(f)
     return None
 
@@ -450,7 +432,7 @@ def main():
     elif args.load:
         filepath = Path(args.load)
         if filepath.exists():
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 builder.workflow = json.load(f)
             print(f"Loaded workflow: {filepath}")
         else:

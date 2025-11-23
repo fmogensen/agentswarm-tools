@@ -2,21 +2,22 @@
 Unit tests for LiteLLM client integration.
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, RateLimitError
 from shared.llm_client import (
+    CostTrackingRecord,
     LLMClient,
+    LLMResponse,
+    ModelConfig,
+    TaskType,
     get_llm_client,
     reset_client,
-    LLMResponse,
-    TaskType,
-    ModelConfig,
-    CostTrackingRecord,
 )
-from shared.errors import APIError, RateLimitError, AuthenticationError
 
 
 class TestModelConfig:

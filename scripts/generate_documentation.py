@@ -13,11 +13,11 @@ Sources:
 - Existing examples
 """
 
+import ast
 import os
 import re
 from pathlib import Path
 from typing import Dict, List, Tuple
-import ast
 
 # Paths
 PROJECT_ROOT = Path(__file__).parent.parent

@@ -2,14 +2,15 @@
 Retrieve and convert content from URLs into readable format
 """
 
-from typing import Any, Dict
-from pydantic import Field
 import os
+from typing import Any, Dict
+
 import requests
 from bs4 import BeautifulSoup
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class Crawler(BaseTool):

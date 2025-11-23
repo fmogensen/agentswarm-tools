@@ -1,14 +1,14 @@
 """Tests for google_calendar_list tool."""
 
-import pytest
-from unittest.mock import patch
-from unittest.mock import Mock, patch, MagicMock
 import os
-from typing import Dict, Any
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.communication.google_calendar_list import GoogleCalendarList
-from shared.errors import ValidationError, APIError
 
 
 class TestGoogleCalendarList:

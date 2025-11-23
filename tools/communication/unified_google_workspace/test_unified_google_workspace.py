@@ -2,12 +2,14 @@
 Unit tests for UnifiedGoogleWorkspace tool
 """
 
-import pytest
 import os
 from unittest.mock import Mock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
+
 from .unified_google_workspace import UnifiedGoogleWorkspace
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 class TestUnifiedGoogleWorkspaceDocs:

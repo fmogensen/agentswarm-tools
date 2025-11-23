@@ -6,16 +6,15 @@ Tests all workspace integration tools:
 - notion_read
 """
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
-from tools.communication.notion_search.notion_search import NotionSearch
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.communication.notion_read.notion_read import NotionRead
-
-from shared.errors import ValidationError, APIError, AuthenticationError
-
+from tools.communication.notion_search.notion_search import NotionSearch
 
 # ========== NotionSearch Tests ==========
 

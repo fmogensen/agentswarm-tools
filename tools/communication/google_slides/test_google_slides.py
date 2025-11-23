@@ -2,9 +2,10 @@
 Unit tests for GoogleSlides tool
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from google_slides import GoogleSlides
 
 

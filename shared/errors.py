@@ -3,8 +3,8 @@ Custom exceptions for AgentSwarm Tools Framework.
 Provides structured error handling with analytics integration.
 """
 
-from typing import Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, Optional
 
 
 class ToolError(Exception):

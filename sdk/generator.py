@@ -7,11 +7,12 @@ with templates, tests, and documentation.
 
 import os
 import re
-from pathlib import Path
-from typing import Dict, List, Any, Optional
 from datetime import datetime
-from jinja2 import Environment, FileSystemLoader, Template
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import questionary
+from jinja2 import Environment, FileSystemLoader, Template
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -179,7 +180,8 @@ class ToolGenerator:
 
         # Tool name
         tool_name = questionary.text(
-            "Tool name (snake_case):", validate=lambda x: len(x) > 0 and x.replace("_", "").isalnum()
+            "Tool name (snake_case):",
+            validate=lambda x: len(x) > 0 and x.replace("_", "").isalnum(),
         ).ask()
 
         tool_name = self._to_snake_case(tool_name)
@@ -187,7 +189,8 @@ class ToolGenerator:
 
         # Category selection
         category_choices = [
-            f"{key}: {meta['name']} - {meta['description']}" for key, meta in self.CATEGORIES.items()
+            f"{key}: {meta['name']} - {meta['description']}"
+            for key, meta in self.CATEGORIES.items()
         ]
 
         category_answer = questionary.select("Select category:", choices=category_choices).ask()
@@ -277,7 +280,9 @@ class ToolGenerator:
         # Add constraints for certain types
         if param_type == "str" and param_required:
             param["constraints"] = "min_length=1"
-            param["validation"] = f'if not self.{param_name}.strip():\n            raise ValidationError("{param_name} cannot be empty", tool_name=self.tool_name)'
+            param["validation"] = (
+                f'if not self.{param_name}.strip():\n            raise ValidationError("{param_name} cannot be empty", tool_name=self.tool_name)'
+            )
         elif param_type == "int":
             min_val = questionary.text("Minimum value (optional):", default="").ask()
             max_val = questionary.text("Maximum value (optional):", default="").ask()
@@ -341,17 +346,13 @@ class ToolGenerator:
         """Prepare context for template rendering"""
 
         # Determine if we need certain imports
-        has_list_param = any(
-            p["type"].startswith("List") for p in config.get("parameters", [])
-        )
+        has_list_param = any(p["type"].startswith("List") for p in config.get("parameters", []))
         has_optional_params = any(
             p["type"].startswith("Optional") for p in config.get("parameters", [])
         )
 
         # Build import path
-        import_path = (
-            f"tools.{config['category']}.{config['subcategory']}.{config['tool_name']}"
-        )
+        import_path = f"tools.{config['category']}.{config['subcategory']}.{config['tool_name']}"
 
         # Mock result
         mock_result = '{"mock": True, "data": "sample result"}'
@@ -416,7 +417,9 @@ class ToolGenerator:
         console.print("\n[bold cyan]Next Steps:[/bold cyan]")
         console.print(f"  1. Implement _process() method in {config['tool_name']}.py")
         if config.get("requires_api_key"):
-            console.print(f"  2. Set environment variable: export {config['api_key_env_var']}=your-key")
+            console.print(
+                f"  2. Set environment variable: export {config['api_key_env_var']}=your-key"
+            )
             console.print("  3. Add API integration")
             console.print(f"  4. Run tests: pytest {config['tool_path']}/")
         else:

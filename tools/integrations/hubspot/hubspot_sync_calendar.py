@@ -5,14 +5,15 @@ Syncs HubSpot meetings and tasks with Google Calendar for seamless
 schedule management and meeting coordination.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class HubSpotSyncCalendar(BaseTool):
@@ -117,31 +118,21 @@ class HubSpotSyncCalendar(BaseTool):
     operation: str = Field(
         ...,
         description="Sync operation (hubspot_to_google, google_to_hubspot, "
-                    "bidirectional, create_meeting, update_meeting, delete_meeting)"
+        "bidirectional, create_meeting, update_meeting, delete_meeting)",
     )
 
     # Meeting details
     title: Optional[str] = Field(None, description="Meeting/event title", max_length=200)
-    start_time: Optional[str] = Field(
-        None, description="Meeting start time (ISO 8601 format)"
-    )
-    end_time: Optional[str] = Field(
-        None, description="Meeting end time (ISO 8601 format)"
-    )
-    description: Optional[str] = Field(
-        None, description="Meeting description", max_length=2000
-    )
+    start_time: Optional[str] = Field(None, description="Meeting start time (ISO 8601 format)")
+    end_time: Optional[str] = Field(None, description="Meeting end time (ISO 8601 format)")
+    description: Optional[str] = Field(None, description="Meeting description", max_length=2000)
     location: Optional[str] = Field(
         None, description="Meeting location or video link", max_length=500
     )
 
     # Attendees
-    attendee_emails: Optional[List[str]] = Field(
-        None, description="Attendee email addresses"
-    )
-    contact_ids: Optional[List[str]] = Field(
-        None, description="HubSpot contact IDs to associate"
-    )
+    attendee_emails: Optional[List[str]] = Field(None, description="Attendee email addresses")
+    contact_ids: Optional[List[str]] = Field(None, description="HubSpot contact IDs to associate")
     owner_id: Optional[str] = Field(None, description="HubSpot owner/user ID")
 
     # HubSpot specific
@@ -161,13 +152,9 @@ class HubSpotSyncCalendar(BaseTool):
 
     # Sync options
     sync_bidirectional: bool = Field(False, description="Enable bidirectional sync")
-    sync_interval: Optional[int] = Field(
-        None, description="Sync interval in hours", ge=1, le=168
-    )
+    sync_interval: Optional[int] = Field(None, description="Sync interval in hours", ge=1, le=168)
     include_past_events: bool = Field(False, description="Include past events in sync")
-    date_range_days: int = Field(
-        30, description="Number of days to sync", ge=1, le=365
-    )
+    date_range_days: int = Field(30, description="Number of days to sync", ge=1, le=365)
 
     # Notifications
     send_notifications: bool = Field(True, description="Send notifications to attendees")
@@ -204,16 +191,18 @@ class HubSpotSyncCalendar(BaseTool):
 
             return result
         except Exception as e:
-            raise APIError(
-                f"Failed to sync calendar: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to sync calendar: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
         # Validate operation
         valid_operations = [
-            "hubspot_to_google", "google_to_hubspot", "bidirectional",
-            "create_meeting", "update_meeting", "delete_meeting"
+            "hubspot_to_google",
+            "google_to_hubspot",
+            "bidirectional",
+            "create_meeting",
+            "update_meeting",
+            "delete_meeting",
         ]
         if self.operation.lower() not in valid_operations:
             raise ValidationError(
@@ -234,8 +223,8 @@ class HubSpotSyncCalendar(BaseTool):
 
             # Validate time format
             try:
-                start = datetime.fromisoformat(self.start_time.replace('Z', '+00:00'))
-                end = datetime.fromisoformat(self.end_time.replace('Z', '+00:00'))
+                start = datetime.fromisoformat(self.start_time.replace("Z", "+00:00"))
+                end = datetime.fromisoformat(self.end_time.replace("Z", "+00:00"))
 
                 if start >= end:
                     raise ValidationError(
@@ -324,8 +313,8 @@ class HubSpotSyncCalendar(BaseTool):
                 "sync_status": "synced",
                 "outcome": self.outcome,
                 "updated_fields": [
-                    field for field in ["title", "start_time", "end_time",
-                                       "description", "outcome"]
+                    field
+                    for field in ["title", "start_time", "end_time", "description", "outcome"]
                     if getattr(self, field, None) is not None
                 ],
                 "metadata": {
@@ -359,7 +348,9 @@ class HubSpotSyncCalendar(BaseTool):
                 "sync_direction": operation,
                 "date_range": {
                     "start": datetime.now().strftime("%Y-%m-%d"),
-                    "end": (datetime.now() + timedelta(days=self.date_range_days)).strftime("%Y-%m-%d"),
+                    "end": (datetime.now() + timedelta(days=self.date_range_days)).strftime(
+                        "%Y-%m-%d"
+                    ),
                 },
                 "next_sync": next_sync if self.sync_interval else None,
                 "metadata": {
@@ -422,10 +413,14 @@ class HubSpotSyncCalendar(BaseTool):
         if self.contact_ids:
             hubspot_payload["associations"] = []
             for contact_id in self.contact_ids:
-                hubspot_payload["associations"].append({
-                    "to": {"id": contact_id},
-                    "types": [{"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 200}]
-                })
+                hubspot_payload["associations"].append(
+                    {
+                        "to": {"id": contact_id},
+                        "types": [
+                            {"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 200}
+                        ],
+                    }
+                )
 
         try:
             # Create in HubSpot
@@ -461,13 +456,9 @@ class HubSpotSyncCalendar(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                raise AuthenticationError(
-                    "Invalid HubSpot API key", tool_name=self.tool_name
-                )
+                raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
-                raise APIError(
-                    "Rate limit exceeded. Try again later.", tool_name=self.tool_name
-                )
+                raise APIError("Rate limit exceeded. Try again later.", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -475,9 +466,7 @@ class HubSpotSyncCalendar(BaseTool):
                     tool_name=self.tool_name,
                 )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_update_meeting(self) -> Dict[str, Any]:
         """Process meeting update in HubSpot."""
@@ -536,9 +525,7 @@ class HubSpotSyncCalendar(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404:
-                raise APIError(
-                    f"Meeting not found: {self.meeting_id}", tool_name=self.tool_name
-                )
+                raise APIError(f"Meeting not found: {self.meeting_id}", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -546,9 +533,7 @@ class HubSpotSyncCalendar(BaseTool):
                     tool_name=self.tool_name,
                 )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_delete_meeting(self) -> Dict[str, Any]:
         """Process meeting deletion from HubSpot."""
@@ -588,9 +573,7 @@ class HubSpotSyncCalendar(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404:
-                raise APIError(
-                    f"Meeting not found: {self.meeting_id}", tool_name=self.tool_name
-                )
+                raise APIError(f"Meeting not found: {self.meeting_id}", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -598,9 +581,7 @@ class HubSpotSyncCalendar(BaseTool):
                     tool_name=self.tool_name,
                 )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_sync(self) -> Dict[str, Any]:
         """Process calendar synchronization."""

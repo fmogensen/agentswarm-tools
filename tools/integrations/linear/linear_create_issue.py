@@ -5,14 +5,15 @@ Creates issues in Linear with full support for projects, labels, assignees,
 priorities, estimates, and custom fields using GraphQL API.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Optional
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class LinearCreateIssue(BaseTool):
@@ -73,71 +74,33 @@ class LinearCreateIssue(BaseTool):
     tool_category: str = "integrations"
 
     # Required parameters
-    title: str = Field(
-        ...,
-        description="Issue title",
-        min_length=1,
-        max_length=255
-    )
-    team_id: str = Field(
-        ...,
-        description="Linear team ID (e.g., 'team_abc123')",
-        min_length=1
-    )
+    title: str = Field(..., description="Issue title", min_length=1, max_length=255)
+    team_id: str = Field(..., description="Linear team ID (e.g., 'team_abc123')", min_length=1)
 
     # Optional parameters
     description: Optional[str] = Field(
-        None,
-        description="Issue description in Markdown format",
-        max_length=50000
+        None, description="Issue description in Markdown format", max_length=50000
     )
-    project_id: Optional[str] = Field(
-        None,
-        description="Project ID to associate issue with"
-    )
-    assignee_id: Optional[str] = Field(
-        None,
-        description="User ID to assign the issue to"
-    )
+    project_id: Optional[str] = Field(None, description="Project ID to associate issue with")
+    assignee_id: Optional[str] = Field(None, description="User ID to assign the issue to")
     priority: int = Field(
-        0,
-        description="Priority: 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low",
-        ge=0,
-        le=4
+        0, description="Priority: 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low", ge=0, le=4
     )
-    labels: Optional[List[str]] = Field(
-        None,
-        description="List of label IDs to attach"
-    )
+    labels: Optional[List[str]] = Field(None, description="List of label IDs to attach")
     state_id: Optional[str] = Field(
-        None,
-        description="Workflow state ID (defaults to team's default)"
+        None, description="Workflow state ID (defaults to team's default)"
     )
     estimate: Optional[float] = Field(
-        None,
-        description="Story points or time estimate",
-        ge=0,
-        le=1000
+        None, description="Story points or time estimate", ge=0, le=1000
     )
-    due_date: Optional[str] = Field(
-        None,
-        description="Due date in ISO 8601 format (YYYY-MM-DD)"
-    )
-    parent_id: Optional[str] = Field(
-        None,
-        description="Parent issue ID for creating sub-issues"
-    )
-    cycle_id: Optional[str] = Field(
-        None,
-        description="Cycle/sprint ID"
-    )
+    due_date: Optional[str] = Field(None, description="Due date in ISO 8601 format (YYYY-MM-DD)")
+    parent_id: Optional[str] = Field(None, description="Parent issue ID for creating sub-issues")
+    cycle_id: Optional[str] = Field(None, description="Cycle/sprint ID")
     subscriber_ids: Optional[List[str]] = Field(
-        None,
-        description="List of user IDs to subscribe to the issue"
+        None, description="List of user IDs to subscribe to the issue"
     )
     custom_fields: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Custom field values as key-value pairs"
+        None, description="Custom field values as key-value pairs"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -163,30 +126,23 @@ class LinearCreateIssue(BaseTool):
                     "tool_name": self.tool_name,
                     "team_id": self.team_id,
                     "project_id": self.project_id,
-                }
+                },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to create Linear issue: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to create Linear issue: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
         # Validate title
         if not self.title or not self.title.strip():
             raise ValidationError(
-                "Issue title cannot be empty",
-                tool_name=self.tool_name,
-                field="title"
+                "Issue title cannot be empty", tool_name=self.tool_name, field="title"
             )
 
         # Validate team_id format
         if not self.team_id.strip():
             raise ValidationError(
-                "Team ID cannot be empty",
-                tool_name=self.tool_name,
-                field="team_id"
+                "Team ID cannot be empty", tool_name=self.tool_name, field="team_id"
             )
 
         # Validate priority range
@@ -194,27 +150,26 @@ class LinearCreateIssue(BaseTool):
             raise ValidationError(
                 "Priority must be between 0 (None) and 4 (Low)",
                 tool_name=self.tool_name,
-                field="priority"
+                field="priority",
             )
 
         # Validate estimate
         if self.estimate is not None and self.estimate < 0:
             raise ValidationError(
-                "Estimate must be a positive number",
-                tool_name=self.tool_name,
-                field="estimate"
+                "Estimate must be a positive number", tool_name=self.tool_name, field="estimate"
             )
 
         # Validate due_date format
         if self.due_date:
             try:
                 from datetime import datetime
-                datetime.fromisoformat(self.due_date.replace('Z', '+00:00'))
+
+                datetime.fromisoformat(self.due_date.replace("Z", "+00:00"))
             except (ValueError, AttributeError):
                 raise ValidationError(
                     "Due date must be in ISO 8601 format (YYYY-MM-DD)",
                     tool_name=self.tool_name,
-                    field="due_date"
+                    field="due_date",
                 )
 
     def _should_use_mock(self) -> bool:
@@ -235,7 +190,7 @@ class LinearCreateIssue(BaseTool):
                 "team_id": self.team_id,
                 "project_id": self.project_id,
                 "mock_mode": True,
-            }
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -244,8 +199,7 @@ class LinearCreateIssue(BaseTool):
         api_key = os.getenv("LINEAR_API_KEY")
         if not api_key:
             raise AuthenticationError(
-                "Missing LINEAR_API_KEY environment variable",
-                tool_name=self.tool_name
+                "Missing LINEAR_API_KEY environment variable", tool_name=self.tool_name
             )
 
         # Prepare GraphQL mutation
@@ -328,17 +282,11 @@ class LinearCreateIssue(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": mutation,
-            "variables": {"input": input_data}
-        }
+        payload = {"query": mutation, "variables": {"input": input_data}}
 
         try:
             response = requests.post(
-                "https://api.linear.app/graphql",
-                headers=headers,
-                json=payload,
-                timeout=30
+                "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
             )
             response.raise_for_status()
 
@@ -348,30 +296,22 @@ class LinearCreateIssue(BaseTool):
             if "errors" in data:
                 error_messages = [e.get("message", str(e)) for e in data["errors"]]
                 raise APIError(
-                    f"GraphQL errors: {'; '.join(error_messages)}",
-                    tool_name=self.tool_name
+                    f"GraphQL errors: {'; '.join(error_messages)}", tool_name=self.tool_name
                 )
 
             # Extract issue data
             issue_data = data.get("data", {}).get("issueCreate", {})
 
             if not issue_data.get("success"):
-                raise APIError(
-                    "Issue creation failed",
-                    tool_name=self.tool_name
-                )
+                raise APIError("Issue creation failed", tool_name=self.tool_name)
 
             return issue_data.get("issue", {})
 
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Linear API request failed: {str(e)}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Linear API request failed: {str(e)}", tool_name=self.tool_name)
         except (KeyError, ValueError) as e:
             raise APIError(
-                f"Failed to parse Linear API response: {str(e)}",
-                tool_name=self.tool_name
+                f"Failed to parse Linear API response: {str(e)}", tool_name=self.tool_name
             )
 
 
@@ -380,6 +320,7 @@ if __name__ == "__main__":
     print("Testing LinearCreateIssue...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic issue creation
@@ -387,7 +328,7 @@ if __name__ == "__main__":
     tool = LinearCreateIssue(
         title="Implement user authentication",
         description="Add OAuth2 support for Google login",
-        team_id="team_abc123"
+        team_id="team_abc123",
     )
     result = tool.run()
 
@@ -409,7 +350,7 @@ if __name__ == "__main__":
         priority=1,  # Urgent
         labels=["label_bug", "label_payments"],
         estimate=3.0,
-        due_date="2025-12-31"
+        due_date="2025-12-31",
     )
     result = tool.run()
 
@@ -421,10 +362,7 @@ if __name__ == "__main__":
     # Test 3: Sub-issue creation
     print("\n3. Testing sub-issue creation...")
     tool = LinearCreateIssue(
-        title="Design mockups",
-        team_id="team_abc123",
-        parent_id="parent_issue_123",
-        estimate=2.0
+        title="Design mockups", team_id="team_abc123", parent_id="parent_issue_123", estimate=2.0
     )
     result = tool.run()
 
@@ -434,14 +372,11 @@ if __name__ == "__main__":
     # Test 4: Error handling - empty title
     print("\n4. Testing error handling (empty title)...")
     try:
-        tool = LinearCreateIssue(
-            title="",
-            team_id="team_abc123"
-        )
+        tool = LinearCreateIssue(title="", team_id="team_abc123")
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")
@@ -449,15 +384,11 @@ if __name__ == "__main__":
     # Test 5: Error handling - invalid priority
     print("\n5. Testing error handling (invalid priority)...")
     try:
-        tool = LinearCreateIssue(
-            title="Test issue",
-            team_id="team_abc123",
-            priority=10
-        )
+        tool = LinearCreateIssue(title="Test issue", team_id="team_abc123", priority=10)
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")

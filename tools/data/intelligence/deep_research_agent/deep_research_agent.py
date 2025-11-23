@@ -9,17 +9,18 @@ This tool performs in-depth research on a topic by:
 5. Creating executive summaries and outlines
 """
 
-from typing import Any, Dict, List, Literal, Optional
-from pydantic import Field
-import os
-import json
-import requests
-from datetime import datetime
 import hashlib
+import json
+import os
 import time
+from datetime import datetime
+from typing import Any, Dict, List, Literal, Optional
+
+import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class DeepResearchAgent(BaseTool):
@@ -80,56 +81,43 @@ class DeepResearchAgent(BaseTool):
         ...,
         description="The research topic or question to investigate",
         min_length=10,
-        max_length=500
+        max_length=500,
     )
 
     # Optional parameters with defaults
     depth: Literal["quick", "standard", "comprehensive"] = Field(
         "standard",
-        description="Research depth: quick (5min), standard (15min), comprehensive (30min+)"
+        description="Research depth: quick (5min), standard (15min), comprehensive (30min+)",
     )
 
     sources: List[Literal["web", "scholar", "documents", "news"]] = Field(
         default=["web", "scholar"],
-        description="Types of sources to search (web, scholar, documents, news)"
+        description="Types of sources to search (web, scholar, documents, news)",
     )
 
     max_sources: int = Field(
-        20,
-        description="Maximum number of sources to gather per source type",
-        ge=5,
-        le=100
+        20, description="Maximum number of sources to gather per source type", ge=5, le=100
     )
 
     citation_style: Literal["apa", "mla", "chicago", "ieee"] = Field(
-        "apa",
-        description="Citation format for references (apa, mla, chicago, ieee)"
+        "apa", description="Citation format for references (apa, mla, chicago, ieee)"
     )
 
     output_format: Literal["markdown", "html", "pdf"] = Field(
-        "markdown",
-        description="Format for the research report output"
+        "markdown", description="Format for the research report output"
     )
 
     include_methodology: bool = Field(
-        True,
-        description="Include research methodology section in report"
+        True, description="Include research methodology section in report"
     )
 
-    fact_check: bool = Field(
-        True,
-        description="Perform fact-checking on key claims using AI"
-    )
+    fact_check: bool = Field(True, description="Perform fact-checking on key claims using AI")
 
     generate_summary: bool = Field(
-        True,
-        description="Generate executive summary at the beginning of report"
+        True, description="Generate executive summary at the beginning of report"
     )
 
-    generate_outline: bool = Field(
-        True,
-        description="Generate research outline before full report"
-    )
+    generate_outline: bool = Field(True, description="Generate research outline before full report")
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -164,8 +152,8 @@ class DeepResearchAgent(BaseTool):
                     "citation_style": self.citation_style,
                     "duration_seconds": result["duration_seconds"],
                     "source_breakdown": result["source_breakdown"],
-                    "timestamp": datetime.utcnow().isoformat()
-                }
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
             }
         except Exception as e:
             raise APIError(f"Research failed: {e}", tool_name=self.tool_name)
@@ -174,30 +162,28 @@ class DeepResearchAgent(BaseTool):
         """Validate input parameters."""
         if not self.research_topic.strip():
             raise ValidationError(
-                "Research topic cannot be empty",
-                field="research_topic",
-                tool_name=self.tool_name
+                "Research topic cannot be empty", field="research_topic", tool_name=self.tool_name
             )
 
         if len(self.research_topic) < 10:
             raise ValidationError(
                 "Research topic must be at least 10 characters for meaningful research",
                 field="research_topic",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         if not self.sources:
             raise ValidationError(
                 "At least one source type must be specified",
                 field="sources",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         if self.max_sources < 5:
             raise ValidationError(
                 "max_sources must be at least 5 for comprehensive research",
                 field="max_sources",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
     def _should_use_mock(self) -> bool:
@@ -208,7 +194,9 @@ class DeepResearchAgent(BaseTool):
         """Generate realistic mock research results for testing."""
         # Generate realistic mock data based on the research topic
         mock_report_id = hashlib.md5(self.research_topic.encode()).hexdigest()[:8]
-        mock_report_url = f"https://research.example.com/reports/{mock_report_id}.{self.output_format}"
+        mock_report_url = (
+            f"https://research.example.com/reports/{mock_report_id}.{self.output_format}"
+        )
 
         # Generate mock executive summary
         mock_summary = f"""
@@ -259,13 +247,12 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
             "   6.1. Summary of Findings",
             "   6.2. Recommendations",
             "   6.3. Future Research Directions",
-            "7. References"
+            "7. References",
         ]
 
         # Source breakdown
         mock_source_breakdown = {
-            source: self.max_sources // len(self.sources)
-            for source in self.sources
+            source: self.max_sources // len(self.sources) for source in self.sources
         }
 
         # Adjust for remainder
@@ -289,8 +276,8 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
                 "citation_style": self.citation_style,
                 "duration_seconds": 0.5,
                 "source_breakdown": mock_source_breakdown,
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -344,10 +331,7 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
         # Step 8: Format report and get URL
         self._logger.info(f"Formatting report as {self.output_format}")
         report_url = self._format_and_save_report(
-            report_content,
-            executive_summary,
-            outline,
-            ranked_sources
+            report_content, executive_summary, outline, ranked_sources
         )
 
         # Calculate duration
@@ -363,7 +347,7 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
             "fact_check_score": fact_check_score,
             "outline": outline,
             "duration_seconds": round(duration, 2),
-            "source_breakdown": source_breakdown
+            "source_breakdown": source_breakdown,
         }
 
     def _gather_sources(self) -> List[Dict[str, Any]]:
@@ -377,12 +361,12 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
 
         # Import search tools dynamically to avoid circular imports
         try:
-            from tools.search.web_search.web_search import WebSearch
             from tools.search.scholar_search.scholar_search import ScholarSearch
+            from tools.search.web_search.web_search import WebSearch
         except ImportError:
             raise ConfigurationError(
                 "Search tools not available. Ensure web_search and scholar_search are installed.",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         # Gather from web search
@@ -392,32 +376,38 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
                 web_result = web_tool.run()
                 if web_result.get("success"):
                     for item in web_result.get("result", []):
-                        all_sources.append({
-                            "type": "web",
-                            "title": item.get("title", ""),
-                            "url": item.get("link", ""),
-                            "snippet": item.get("snippet", ""),
-                            "relevance_score": 0.8  # Default score, will be re-ranked
-                        })
+                        all_sources.append(
+                            {
+                                "type": "web",
+                                "title": item.get("title", ""),
+                                "url": item.get("link", ""),
+                                "snippet": item.get("snippet", ""),
+                                "relevance_score": 0.8,  # Default score, will be re-ranked
+                            }
+                        )
             except Exception as e:
                 self._logger.warning(f"Web search failed: {e}")
 
         # Gather from scholar search
         if "scholar" in self.sources:
             try:
-                scholar_tool = ScholarSearch(query=self.research_topic, max_results=self.max_sources)
+                scholar_tool = ScholarSearch(
+                    query=self.research_topic, max_results=self.max_sources
+                )
                 scholar_result = scholar_tool.run()
                 if scholar_result.get("success"):
                     for item in scholar_result.get("result", []):
-                        all_sources.append({
-                            "type": "scholar",
-                            "title": item.get("title", ""),
-                            "url": item.get("url", ""),
-                            "snippet": item.get("abstract", ""),
-                            "authors": item.get("authors", []),
-                            "year": item.get("year"),
-                            "relevance_score": 0.9  # Scholarly sources get higher default score
-                        })
+                        all_sources.append(
+                            {
+                                "type": "scholar",
+                                "title": item.get("title", ""),
+                                "url": item.get("url", ""),
+                                "snippet": item.get("abstract", ""),
+                                "authors": item.get("authors", []),
+                                "year": item.get("year"),
+                                "relevance_score": 0.9,  # Scholarly sources get higher default score
+                            }
+                        )
             except Exception as e:
                 self._logger.warning(f"Scholar search failed: {e}")
 
@@ -427,7 +417,7 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
         if not all_sources:
             raise APIError(
                 "Failed to gather any sources. Check API credentials and source availability.",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         return all_sources
@@ -463,7 +453,7 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
         ranked = sorted(unique_sources, key=rank_key, reverse=True)
 
         # Limit to max_sources
-        return ranked[:self.max_sources]
+        return ranked[: self.max_sources]
 
     def _extract_information(self, sources: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
@@ -484,18 +474,20 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
             "key_points": [],
             "themes": [],
             "statistics": [],
-            "quotes": []
+            "quotes": [],
         }
 
         # Simple extraction from snippets
         for source in sources:
             snippet = source.get("snippet", "")
             if snippet:
-                extracted["key_points"].append({
-                    "text": snippet[:200],  # First 200 chars
-                    "source": source.get("title", "Unknown"),
-                    "url": source.get("url", "")
-                })
+                extracted["key_points"].append(
+                    {
+                        "text": snippet[:200],  # First 200 chars
+                        "source": source.get("title", "Unknown"),
+                        "url": source.get("url", ""),
+                    }
+                )
 
         return extracted
 
@@ -515,7 +507,7 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
             raise ConfigurationError(
                 "OPENAI_API_KEY environment variable required for AI synthesis",
                 config_key="OPENAI_API_KEY",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         # Prepare context from sources
@@ -526,26 +518,23 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
         try:
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json"
-                },
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
                 json={
                     "model": "gpt-4",
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are a research assistant creating structured outlines for academic reports."
+                            "content": "You are a research assistant creating structured outlines for academic reports.",
                         },
                         {
                             "role": "user",
-                            "content": f"Create a detailed research outline for: {self.research_topic}\n\n{context}\n\nFormat as numbered list with sections and subsections."
-                        }
+                            "content": f"Create a detailed research outline for: {self.research_topic}\n\n{context}\n\nFormat as numbered list with sections and subsections.",
+                        },
                     ],
                     "temperature": 0.7,
-                    "max_tokens": 800
+                    "max_tokens": 800,
                 },
-                timeout=30
+                timeout=30,
             )
             response.raise_for_status()
             result = response.json()
@@ -565,14 +554,11 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
                 "3. Main Findings",
                 "4. Discussion",
                 "5. Conclusion",
-                "6. References"
+                "6. References",
             ]
 
     def _synthesize_report(
-        self,
-        info: Dict[str, Any],
-        sources: List[Dict[str, Any]],
-        outline: Optional[List[str]]
+        self, info: Dict[str, Any], sources: List[Dict[str, Any]], outline: Optional[List[str]]
     ) -> str:
         """
         Synthesize research report using AI.
@@ -590,7 +576,7 @@ sources, synthesized using AI-powered aggregation and fact-checked for accuracy
             raise ConfigurationError(
                 "OPENAI_API_KEY environment variable required for AI synthesis",
                 config_key="OPENAI_API_KEY",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         # Build context from sources
@@ -632,26 +618,20 @@ Requirements:
         try:
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json"
-                },
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
                 json={
                     "model": "gpt-4",
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are an expert research analyst and academic writer."
+                            "content": "You are an expert research analyst and academic writer.",
                         },
-                        {
-                            "role": "user",
-                            "content": prompt
-                        }
+                        {"role": "user", "content": prompt},
                     ],
                     "temperature": 0.7,
-                    "max_tokens": 4000 if self.depth == "comprehensive" else 2500
+                    "max_tokens": 4000 if self.depth == "comprehensive" else 2500,
                 },
-                timeout=60
+                timeout=60,
             )
             response.raise_for_status()
             result = response.json()
@@ -661,9 +641,7 @@ Requirements:
 
         except requests.RequestException as e:
             raise APIError(
-                f"Report synthesis failed: {e}",
-                api_name="OpenAI",
-                tool_name=self.tool_name
+                f"Report synthesis failed: {e}", api_name="OpenAI", tool_name=self.tool_name
             )
 
     def _fact_check_claims(self, report_content: str, sources: List[Dict[str, Any]]) -> int:
@@ -688,40 +666,39 @@ Requirements:
         try:
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json"
-                },
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
                 json={
                     "model": "gpt-4",
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are a fact-checking expert. Analyze research reports for accuracy and provide a confidence score."
+                            "content": "You are a fact-checking expert. Analyze research reports for accuracy and provide a confidence score.",
                         },
                         {
                             "role": "user",
-                            "content": f"Fact-check this research excerpt and provide a confidence score (0-100) based on:\n- Logical consistency\n- Source credibility ({len(sources)} sources used)\n- Claim specificity\n- Evidence quality\n\nExcerpt:\n{sample}\n\nRespond with just a number 0-100."
-                        }
+                            "content": f"Fact-check this research excerpt and provide a confidence score (0-100) based on:\n- Logical consistency\n- Source credibility ({len(sources)} sources used)\n- Claim specificity\n- Evidence quality\n\nExcerpt:\n{sample}\n\nRespond with just a number 0-100.",
+                        },
                     ],
                     "temperature": 0.3,
-                    "max_tokens": 50
+                    "max_tokens": 50,
                 },
-                timeout=30
+                timeout=30,
             )
             response.raise_for_status()
             result = response.json()
 
             score_text = result["choices"][0]["message"]["content"].strip()
             # Extract number from response
-            score = int(''.join(filter(str.isdigit, score_text)))
+            score = int("".join(filter(str.isdigit, score_text)))
             return max(0, min(100, score))  # Clamp to 0-100
 
         except Exception as e:
             self._logger.warning(f"Fact-checking failed: {e}")
             return 75  # Default moderate confidence
 
-    def _generate_executive_summary(self, report_content: str, fact_check_score: Optional[int]) -> str:
+    def _generate_executive_summary(
+        self, report_content: str, fact_check_score: Optional[int]
+    ) -> str:
         """
         Generate executive summary from report.
 
@@ -737,32 +714,29 @@ Requirements:
             raise ConfigurationError(
                 "OPENAI_API_KEY environment variable required for summary generation",
                 config_key="OPENAI_API_KEY",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         try:
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json"
-                },
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
                 json={
                     "model": "gpt-4",
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are an expert at creating concise executive summaries of research reports."
+                            "content": "You are an expert at creating concise executive summaries of research reports.",
                         },
                         {
                             "role": "user",
-                            "content": f"Create a concise executive summary (200-300 words) for this research report:\n\n{report_content[:2000]}\n\nHighlight: key findings, methodology, and main conclusions."
-                        }
+                            "content": f"Create a concise executive summary (200-300 words) for this research report:\n\n{report_content[:2000]}\n\nHighlight: key findings, methodology, and main conclusions.",
+                        },
                     ],
                     "temperature": 0.7,
-                    "max_tokens": 500
+                    "max_tokens": 500,
                 },
-                timeout=30
+                timeout=30,
             )
             response.raise_for_status()
             result = response.json()
@@ -777,9 +751,7 @@ Requirements:
 
         except requests.RequestException as e:
             raise APIError(
-                f"Summary generation failed: {e}",
-                api_name="OpenAI",
-                tool_name=self.tool_name
+                f"Summary generation failed: {e}", api_name="OpenAI", tool_name=self.tool_name
             )
 
     def _format_and_save_report(
@@ -787,7 +759,7 @@ Requirements:
         report_content: str,
         executive_summary: Optional[str],
         outline: Optional[List[str]],
-        sources: List[Dict[str, Any]]
+        sources: List[Dict[str, Any]],
     ) -> str:
         """
         Format report and save to file, return URL.
@@ -839,16 +811,24 @@ Requirements:
             full_report.append("\n---\n\n")
             full_report.append("## Research Methodology\n\n")
             full_report.append(f"**Research Question**: {self.research_topic}\n\n")
-            full_report.append(f"**Search Strategy**: Multi-source aggregation across {', '.join(self.sources)}\n\n")
-            full_report.append(f"**Source Selection**: Top {len(sources)} sources ranked by relevance and credibility\n\n")
+            full_report.append(
+                f"**Search Strategy**: Multi-source aggregation across {', '.join(self.sources)}\n\n"
+            )
+            full_report.append(
+                f"**Source Selection**: Top {len(sources)} sources ranked by relevance and credibility\n\n"
+            )
             full_report.append(f"**Synthesis Method**: AI-powered analysis using GPT-4\n\n")
             if self.fact_check:
-                full_report.append(f"**Quality Assurance**: Fact-checking performed on key claims\n\n")
+                full_report.append(
+                    f"**Quality Assurance**: Fact-checking performed on key claims\n\n"
+                )
 
         report_text = "".join(full_report)
 
         # Save to file (simulated - in production would save to storage)
-        report_id = hashlib.md5(f"{self.research_topic}{datetime.utcnow()}".encode()).hexdigest()[:12]
+        report_id = hashlib.md5(f"{self.research_topic}{datetime.utcnow()}".encode()).hexdigest()[
+            :12
+        ]
         filename = f"research_report_{report_id}.{self.output_format}"
 
         # In production, this would upload to cloud storage
@@ -891,7 +871,7 @@ Requirements:
             else:
                 author_str = "Unknown Author"
 
-            return f"[{number}] {author_str}. \"{title}.\" {year}. Web. <{url}>"
+            return f'[{number}] {author_str}. "{title}." {year}. Web. <{url}>'
 
         elif self.citation_style == "chicago":
             if authors:
@@ -902,7 +882,7 @@ Requirements:
             return f"[{number}] {author_str}. \"{title}.\" Accessed {datetime.utcnow().strftime('%B %d, %Y')}. {url}."
 
         elif self.citation_style == "ieee":
-            return f"[{number}] \"{title},\" {year}. [Online]. Available: {url}"
+            return f'[{number}] "{title}," {year}. [Online]. Available: {url}'
 
         else:
             return f"[{number}] {title}. {url}"
@@ -931,6 +911,7 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic research with default parameters
@@ -946,7 +927,7 @@ if __name__ == "__main__":
     print(f"Sources Used: {result.get('sources_used')}")
     print(f"Fact-Check Score: {result.get('fact_check_score')}")
     print(f"\nExecutive Summary Preview:")
-    print(result.get('executive_summary', '')[:200] + "...")
+    print(result.get("executive_summary", "")[:200] + "...")
     print(f"\nOutline Items: {len(result.get('outline', []))}")
     print(f"Source Breakdown: {result.get('metadata', {}).get('source_breakdown')}")
 
@@ -960,7 +941,7 @@ if __name__ == "__main__":
         max_sources=10,
         citation_style="ieee",
         fact_check=False,
-        generate_outline=False
+        generate_outline=False,
     )
     result2 = tool2.run()
 
@@ -982,7 +963,7 @@ if __name__ == "__main__":
         include_methodology=True,
         fact_check=True,
         generate_summary=True,
-        generate_outline=True
+        generate_outline=True,
     )
     result3 = tool3.run()
 
@@ -1007,10 +988,7 @@ if __name__ == "__main__":
 
     try:
         # Should fail - max_sources too low
-        bad_tool2 = DeepResearchAgent(
-            research_topic="Valid research topic here",
-            max_sources=2
-        )
+        bad_tool2 = DeepResearchAgent(research_topic="Valid research topic here", max_sources=2)
         bad_tool2.run()
         print("ERROR: Should have failed validation")
     except Exception as e:

@@ -1,12 +1,13 @@
 """Tests for financial_report tool."""
 
-import pytest
+from typing import Any, Dict
 from unittest.mock import patch
-from typing import Dict, Any
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.search.financial_report import FinancialReport
-from shared.errors import ValidationError, APIError
 
 
 class TestFinancialReport:
@@ -104,7 +105,9 @@ class TestFinancialReport:
         ],
     )
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
-    def test_input_validation(self, ticker_value: str, expected_success: bool, is_pydantic_error: bool):
+    def test_input_validation(
+        self, ticker_value: str, expected_success: bool, is_pydantic_error: bool
+    ):
         """Test input validation with various inputs."""
         if is_pydantic_error:
             with pytest.raises(PydanticValidationError):

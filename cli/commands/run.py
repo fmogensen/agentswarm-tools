@@ -4,13 +4,15 @@ Run command implementation
 Executes a tool with provided parameters.
 """
 
-import sys
-import json
-import yaml
 import importlib
 import inspect
+import json
+import sys
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
+import yaml
+
 from ..utils.interactive import prompt_for_params
 from ..utils.validators import validate_params
 

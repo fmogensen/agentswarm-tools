@@ -6,8 +6,8 @@ Demonstrates fluent pipeline API with real-world use cases.
 
 import os
 from pathlib import Path
-from shared.pipeline import Pipeline, ParallelPipeline, pipeline_builder
 
+from shared.pipeline import ParallelPipeline, Pipeline, pipeline_builder
 
 # Enable mock mode for examples
 os.environ["USE_MOCK_APIS"] = "true"
@@ -29,11 +29,11 @@ def example_1_research_pipeline():
             "results": [
                 {"url": f"https://example.com/{i}", "title": f"Result {i}", "score": 0.9 - i * 0.1}
                 for i in range(max_results)
-            ]
+            ],
         }
 
     def extract_urls(data):
-        return [item['url'] for item in data.get('results', [])]
+        return [item["url"] for item in data.get("results", [])]
 
     def mock_crawl(data):
         # Data parameter receives previous result
@@ -55,7 +55,7 @@ def example_1_research_pipeline():
     print(f"Success: {result['success']}")
     print(f"Steps: {result['total_steps']}")
     print(f"Duration: {result['duration_ms']:.2f}ms")
-    if result.get('result'):
+    if result.get("result"):
         print(f"Result: {str(result['result'])[:100]}...")
     else:
         print(f"Error: {result.get('error', 'Unknown')}")
@@ -86,13 +86,13 @@ def example_2_data_processing():
 
     def clean_data(data):
         # Remove invalid entries
-        return [row for row in data if row.get('sales', 0) > 0]
+        return [row for row in data if row.get("sales", 0) > 0]
 
     def aggregate_by_month(data):
         result = {}
         for row in data:
-            month = row['month']
-            result[month] = result.get(month, 0) + row['sales']
+            month = row["month"]
+            result[month] = result.get(month, 0) + row["sales"]
         return [{"month": k, "total": v} for k, v in sorted(result.items())]
 
     # Build pipeline with transformations
@@ -100,7 +100,7 @@ def example_2_data_processing():
         Pipeline("data-processing")
         .add_function("load", load_data)
         .add_function("clean", clean_data)
-        .filter("valid", lambda row: row.get('sales', 0) > 1100)
+        .filter("valid", lambda row: row.get("sales", 0) > 1100)
         .add_function("aggregate", aggregate_by_month)
     )
 
@@ -131,9 +131,9 @@ def example_3_map_filter_reduce():
     pipeline = (
         Pipeline("transform")
         .add_step("search", mock_search, query="AI")
-        .add_function("extract", lambda data: data['results'])
-        .filter("high_score", lambda item: item['score'] > 0.6)
-        .map("titles", lambda item: item['title'])
+        .add_function("extract", lambda data: data["results"])
+        .filter("high_score", lambda item: item["score"] > 0.6)
+        .map("titles", lambda item: item["title"])
         .reduce("join", lambda acc, title: f"{acc}, {title}" if acc else title, initial="")
     )
 
@@ -154,11 +154,7 @@ def example_4_conditional_pipeline():
     print("=" * 60)
 
     def check_data(data):
-        return {
-            "has_data": True,
-            "count": 5,
-            "data": ["item1", "item2", "item3", "item4", "item5"]
-        }
+        return {"has_data": True, "count": 5, "data": ["item1", "item2", "item3", "item4", "item5"]}
 
     def process_large(data):
         return f"Processed {data['count']} items (large batch)"
@@ -171,9 +167,9 @@ def example_4_conditional_pipeline():
         .add_step("check", check_data)
         .conditional(
             "decide",
-            condition=lambda data: data.get('count', 0) > 3,
+            condition=lambda data: data.get("count", 0) > 3,
             then_step=process_large,
-            else_step=process_small
+            else_step=process_small,
         )
     )
 
@@ -231,14 +227,11 @@ def example_6_decorator_pattern():
     def research_workflow(topic: str):
         # Step 1: Search
         search_results = {
-            "results": [
-                {"url": f"url{i}", "title": f"{topic} result {i}"}
-                for i in range(5)
-            ]
+            "results": [{"url": f"url{i}", "title": f"{topic} result {i}"} for i in range(5)]
         }
 
         # Step 2: Extract
-        urls = [item['url'] for item in search_results['results']]
+        urls = [item["url"] for item in search_results["results"]]
 
         # Step 3: Process
         content = f"Processed {len(urls)} URLs for {topic}"
@@ -290,7 +283,7 @@ def example_7_parallel_pipelines():
     print(f"Pipelines: {result['total_pipelines']}")
     print(f"Successful: {result['successful_pipelines']}")
     print(f"Duration: {result['duration_ms']:.2f}ms")
-    for pipeline_result in result['results']:
+    for pipeline_result in result["results"]:
         print(f"  - {pipeline_result['pipeline_name']}: {pipeline_result['success']}")
     print()
 
@@ -309,15 +302,15 @@ def example_8_complex_workflow():
     def search_topic(topic):
         return {
             "topic": topic,
-            "results": [{"url": f"{topic}_url{i}", "score": 0.9 - i * 0.1} for i in range(3)]
+            "results": [{"url": f"{topic}_url{i}", "score": 0.9 - i * 0.1} for i in range(3)],
         }
 
     def aggregate_results(search_results):
-        total = sum(len(sr['results']) for sr in search_results)
+        total = sum(len(sr["results"]) for sr in search_results)
         return {
             "total_results": total,
-            "topics": [sr['topic'] for sr in search_results],
-            "all_results": [item for sr in search_results for item in sr['results']]
+            "topics": [sr["topic"] for sr in search_results],
+            "all_results": [item for sr in search_results for item in sr["results"]],
         }
 
     pipeline = (
@@ -326,7 +319,10 @@ def example_8_complex_workflow():
         .map("search_each", search_topic)
         .add_function("aggregate", aggregate_results)
         .filter("high_quality", lambda: True)  # Would filter in real impl
-        .add_function("format", lambda data: f"Found {data['total_results']} results across {len(data['topics'])} topics")
+        .add_function(
+            "format",
+            lambda data: f"Found {data['total_results']} results across {len(data['topics'])} topics",
+        )
     )
 
     result = pipeline.execute()

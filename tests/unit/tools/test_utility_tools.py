@@ -6,22 +6,21 @@ Tests all utility tools:
 - fact_checker, json_validator, text_formatter, translation
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any
 import json
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
 
-from tools.utils.think.think import Think
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.utils.ask_for_clarification.ask_for_clarification import AskForClarification
 from tools.utils.batch_processor.batch_processor import BatchProcessor
 from tools.utils.create_profile.create_profile import CreateProfile
 from tools.utils.fact_checker.fact_checker import FactChecker
 from tools.utils.json_validator.json_validator import JsonValidator
 from tools.utils.text_formatter.text_formatter import TextFormatter
+from tools.utils.think.think import Think
 from tools.utils.translation.translation import Translation
-
-from shared.errors import ValidationError, APIError
-
 
 # ========== Think Tests ==========
 
@@ -48,6 +47,7 @@ class TestThink:
     def test_validate_parameters_empty_thought(self):
         """Test validation with empty thought"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = Think(thought="")
 
@@ -69,9 +69,7 @@ class TestAskForClarification:
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = AskForClarification(
-            question="Could you clarify the requirements?"
-        )
+        tool = AskForClarification(question="Could you clarify the requirements?")
         assert tool.question == "Could you clarify the requirements?"
         assert tool.tool_name == "ask_for_clarification"
 
@@ -87,6 +85,7 @@ class TestAskForClarification:
     def test_validate_parameters_empty_question(self):
         """Test validation with empty question"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = AskForClarification(question="")
 
@@ -119,12 +118,14 @@ class TestBatchProcessor:
     def test_validate_parameters_empty_items(self):
         """Test validation with empty items list"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = BatchProcessor(items=[], operation="transform")
 
     def test_validate_parameters_invalid_batch_size(self):
         """Test validation with invalid batch size"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             BatchProcessor(items=["a", "b"], operation="transform", batch_size=0)
 
@@ -163,6 +164,7 @@ class TestCreateProfile:
     def test_validate_parameters_empty_name(self):
         """Test validation with empty name"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = CreateProfile(name="", role="User")
 
@@ -200,6 +202,7 @@ class TestFactChecker:
     def test_validate_parameters_empty_claim(self):
         """Test validation with empty claim"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = FactChecker(claim="", sources=["source1"])
 
@@ -243,6 +246,7 @@ class TestJsonValidator:
     def test_validate_parameters_empty_json(self):
         """Test validation with empty JSON"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = JsonValidator(json_data="")
 
@@ -317,6 +321,7 @@ class TestTextFormatter:
     def test_validate_parameters_empty_text(self):
         """Test validation with empty text"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = TextFormatter(text="", operations=["trim"])
 
@@ -363,6 +368,7 @@ class TestTranslation:
     def test_validate_parameters_empty_text(self):
         """Test validation with empty text"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = Translation(text="", source_lang="en", target_lang="es")
 
@@ -375,6 +381,7 @@ class TestTranslation:
     def test_validate_parameters_empty_target_lang(self):
         """Test validation when target_lang is empty"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             tool = Translation(text="test", target_lang="")
 

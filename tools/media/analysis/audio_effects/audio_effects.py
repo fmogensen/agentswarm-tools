@@ -2,14 +2,15 @@
 Apply various audio effects like reverb, echo, EQ, compression, normalization
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
+import json
 import os
 import subprocess
-import json
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class AudioEffects(BaseTool):

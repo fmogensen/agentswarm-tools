@@ -22,11 +22,11 @@ Usage:
     result = tool.run()
 """
 
-from .linear_create_issue import LinearCreateIssue
-from .linear_update_status import LinearUpdateStatus
 from .linear_assign_team import LinearAssignTeam
+from .linear_create_issue import LinearCreateIssue
 from .linear_get_roadmap import LinearGetRoadmap
 from .linear_sync_github import LinearSyncGitHub
+from .linear_update_status import LinearUpdateStatus
 
 __all__ = [
     "LinearCreateIssue",
@@ -43,34 +43,34 @@ LINEAR_TOOLS = {
         "category": "integrations",
         "description": "Create Linear issues with full field support",
         "requires_auth": True,
-        "api": "Linear GraphQL"
+        "api": "Linear GraphQL",
     },
     "linear_update_status": {
         "class": LinearUpdateStatus,
         "category": "integrations",
         "description": "Update Linear issue status and workflows",
         "requires_auth": True,
-        "api": "Linear GraphQL"
+        "api": "Linear GraphQL",
     },
     "linear_assign_team": {
         "class": LinearAssignTeam,
         "category": "integrations",
         "description": "Assign issues to teams with capacity planning",
         "requires_auth": True,
-        "api": "Linear GraphQL"
+        "api": "Linear GraphQL",
     },
     "linear_get_roadmap": {
         "class": LinearGetRoadmap,
         "category": "integrations",
         "description": "Retrieve roadmap and project tracking",
         "requires_auth": True,
-        "api": "Linear GraphQL"
+        "api": "Linear GraphQL",
     },
     "linear_sync_github": {
         "class": LinearSyncGitHub,
         "category": "integrations",
         "description": "Bi-directional sync with GitHub",
         "requires_auth": True,
-        "api": "Linear GraphQL + GitHub REST"
-    }
+        "api": "Linear GraphQL + GitHub REST",
+    },
 }

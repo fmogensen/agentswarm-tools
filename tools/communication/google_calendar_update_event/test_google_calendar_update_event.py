@@ -1,8 +1,10 @@
 """Tests for GoogleCalendarUpdateEvent tool."""
 
-import pytest
 import os
+
+import pytest
 from google_calendar_update_event import GoogleCalendarUpdateEvent
+
 from shared.errors import ValidationError
 
 

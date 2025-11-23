@@ -10,12 +10,13 @@ Test coverage:
 - Validation and error handling
 """
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from tools.integrations.linear.linear_update_status import LinearUpdateStatus
+import pytest
+
 from shared.errors import ValidationError
+from tools.integrations.linear.linear_update_status import LinearUpdateStatus
 
 
 class TestLinearUpdateStatus:
@@ -34,10 +35,7 @@ class TestLinearUpdateStatus:
 
     def test_update_state_by_name(self):
         """Test updating issue state by name."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            state_name="In Progress"
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", state_name="In Progress")
         result = tool.run()
 
         assert result["success"] is True
@@ -46,10 +44,7 @@ class TestLinearUpdateStatus:
 
     def test_update_state_by_id(self):
         """Test updating issue state by ID."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            state_id="state_xyz789"
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", state_id="state_xyz789")
         result = tool.run()
 
         assert result["success"] is True
@@ -57,10 +52,7 @@ class TestLinearUpdateStatus:
 
     def test_update_priority(self):
         """Test updating issue priority."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            priority=1  # Urgent
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", priority=1)  # Urgent
         result = tool.run()
 
         assert result["success"] is True
@@ -68,10 +60,7 @@ class TestLinearUpdateStatus:
 
     def test_update_assignee(self):
         """Test updating issue assignee."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            assignee_id="user_xyz789"
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", assignee_id="user_xyz789")
         result = tool.run()
 
         assert result["success"] is True
@@ -79,20 +68,14 @@ class TestLinearUpdateStatus:
 
     def test_unassign_issue(self):
         """Test removing assignee from issue."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            assignee_id="unassign"
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", assignee_id="unassign")
         result = tool.run()
 
         assert result["success"] is True
 
     def test_update_estimate(self):
         """Test updating issue estimate."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            estimate=5.0
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", estimate=5.0)
         result = tool.run()
 
         assert result["success"] is True
@@ -107,7 +90,7 @@ class TestLinearUpdateStatus:
             state_name="In Progress",
             priority=2,
             assignee_id="user_xyz789",
-            estimate=3.0
+            estimate=3.0,
         )
         result = tool.run()
 
@@ -123,7 +106,7 @@ class TestLinearUpdateStatus:
         tool = LinearUpdateStatus(
             issue_id="issue_abc123",
             state_name="Done",
-            comment="Completed implementation and testing"
+            comment="Completed implementation and testing",
         )
         result = tool.run()
 
@@ -134,10 +117,7 @@ class TestLinearUpdateStatus:
 
     def test_add_labels(self):
         """Test adding labels to issue."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            add_labels=["label_urgent", "label_bug"]
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", add_labels=["label_urgent", "label_bug"])
         result = tool.run()
 
         assert result["success"] is True
@@ -145,10 +125,7 @@ class TestLinearUpdateStatus:
 
     def test_remove_labels(self):
         """Test removing labels from issue."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            remove_labels=["label_backlog"]
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", remove_labels=["label_backlog"])
         result = tool.run()
 
         assert result["success"] is True
@@ -157,9 +134,7 @@ class TestLinearUpdateStatus:
     def test_add_and_remove_labels(self):
         """Test adding and removing labels simultaneously."""
         tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            add_labels=["label_urgent"],
-            remove_labels=["label_backlog"]
+            issue_id="issue_abc123", add_labels=["label_urgent"], remove_labels=["label_backlog"]
         )
         result = tool.run()
 
@@ -173,10 +148,7 @@ class TestLinearUpdateStatus:
     def test_validation_empty_issue_id(self):
         """Test validation fails for empty issue ID."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearUpdateStatus(
-                issue_id="",
-                state_name="In Progress"
-            )
+            tool = LinearUpdateStatus(issue_id="", state_name="In Progress")
             tool.run()
 
         assert "issue" in str(exc_info.value).lower() or "empty" in str(exc_info.value).lower()
@@ -193,9 +165,7 @@ class TestLinearUpdateStatus:
         """Test validation fails when both state_id and state_name provided."""
         with pytest.raises(Exception) as exc_info:
             tool = LinearUpdateStatus(
-                issue_id="issue_abc123",
-                state_id="state_123",
-                state_name="In Progress"
+                issue_id="issue_abc123", state_id="state_123", state_name="In Progress"
             )
             tool.run()
 
@@ -204,10 +174,7 @@ class TestLinearUpdateStatus:
     def test_validation_invalid_priority(self):
         """Test validation fails for invalid priority."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearUpdateStatus(
-                issue_id="issue_abc123",
-                priority=10
-            )
+            tool = LinearUpdateStatus(issue_id="issue_abc123", priority=10)
             tool.run()
 
         assert "priority" in str(exc_info.value).lower()
@@ -215,10 +182,7 @@ class TestLinearUpdateStatus:
     def test_validation_negative_estimate(self):
         """Test validation fails for negative estimate."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearUpdateStatus(
-                issue_id="issue_abc123",
-                estimate=-1.0
-            )
+            tool = LinearUpdateStatus(issue_id="issue_abc123", estimate=-1.0)
             tool.run()
 
         assert "estimate" in str(exc_info.value).lower()
@@ -229,10 +193,7 @@ class TestLinearUpdateStatus:
         """Test all valid priority levels."""
         priorities = [0, 1, 2, 3, 4]  # None, Urgent, High, Normal, Low
         for priority in priorities:
-            tool = LinearUpdateStatus(
-                issue_id="issue_abc123",
-                priority=priority
-            )
+            tool = LinearUpdateStatus(issue_id="issue_abc123", priority=priority)
             result = tool.run()
             assert result["success"] is True
 
@@ -242,10 +203,7 @@ class TestLinearUpdateStatus:
         """Test various state transitions."""
         states = ["Todo", "In Progress", "In Review", "Done", "Canceled"]
         for state in states:
-            tool = LinearUpdateStatus(
-                issue_id="issue_abc123",
-                state_name=state
-            )
+            tool = LinearUpdateStatus(issue_id="issue_abc123", state_name=state)
             result = tool.run()
             assert result["success"] is True
             assert result["new_state"] == state
@@ -254,20 +212,14 @@ class TestLinearUpdateStatus:
 
     def test_fractional_estimate(self):
         """Test updating with fractional estimate."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            estimate=2.5
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", estimate=2.5)
         result = tool.run()
 
         assert result["success"] is True
 
     def test_zero_estimate(self):
         """Test updating with zero estimate."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            estimate=0.0
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", estimate=0.0)
         result = tool.run()
 
         assert result["success"] is True
@@ -276,10 +228,7 @@ class TestLinearUpdateStatus:
 
     def test_tool_metadata(self):
         """Test that tool metadata is correctly set."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            state_name="Done"
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", state_name="Done")
 
         assert tool.tool_name == "linear_update_status"
         assert tool.tool_category == "integrations"
@@ -291,7 +240,7 @@ class TestLinearUpdateStatus:
             state_name="In Progress",
             priority=1,
             estimate=5.0,
-            add_labels=["label_bug"]
+            add_labels=["label_bug"],
         )
         result = tool.run()
 
@@ -305,10 +254,7 @@ class TestLinearUpdateStatus:
 
     def test_comment_only_update(self):
         """Test updating with only a comment."""
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            comment="Status update comment"
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", comment="Status update comment")
         result = tool.run()
 
         assert result["success"] is True
@@ -316,10 +262,7 @@ class TestLinearUpdateStatus:
     def test_long_comment(self):
         """Test updating with long comment."""
         long_comment = "A" * 5000
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            comment=long_comment
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", comment=long_comment)
         result = tool.run()
 
         assert result["success"] is True
@@ -327,7 +270,7 @@ class TestLinearUpdateStatus:
     # Integration tests
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "LINEAR_API_KEY": "test_key"})
-    @patch('requests.post')
+    @patch("requests.post")
     def test_real_api_call_structure(self, mock_post):
         """Test that real API calls are structured correctly."""
         # Mock get current issue
@@ -339,7 +282,7 @@ class TestLinearUpdateStatus:
                     "identifier": "ENG-123",
                     "state": {"id": "state_1", "name": "Todo"},
                     "team": {"id": "team_123"},
-                    "labels": {"nodes": []}
+                    "labels": {"nodes": []},
                 }
             }
         }
@@ -355,18 +298,15 @@ class TestLinearUpdateStatus:
                         "identifier": "ENG-123",
                         "state": {"id": "state_2", "name": "In Progress"},
                         "priority": 1,
-                        "estimate": 5.0
-                    }
+                        "estimate": 5.0,
+                    },
                 }
             }
         }
 
         mock_post.side_effect = [mock_get_response, mock_update_response]
 
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            state_name="In Progress"
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", state_name="In Progress")
         result = tool.run()
 
         assert mock_post.call_count >= 1

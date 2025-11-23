@@ -4,13 +4,15 @@ Info command implementation
 Shows detailed information about a specific tool.
 """
 
-import sys
-import json
-import yaml
 import importlib
 import inspect
+import json
+import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
+
+import yaml
+
 from ..utils.formatters import format_json, format_yaml
 
 

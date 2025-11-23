@@ -2,13 +2,14 @@
 Apply artistic styles to images using neural style transfer
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
 import uuid
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class ImageStyleTransfer(BaseTool):

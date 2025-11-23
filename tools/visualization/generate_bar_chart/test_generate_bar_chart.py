@@ -1,14 +1,14 @@
 """Tests for generate_bar_chart tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock
-from typing import Dict, Any
 import os
+from typing import Any, Dict
+from unittest.mock import MagicMock, patch
 
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.visualization.generate_bar_chart import GenerateBarChart
-from shared.errors import ValidationError, APIError
 
 
 class TestGenerateBarChart:

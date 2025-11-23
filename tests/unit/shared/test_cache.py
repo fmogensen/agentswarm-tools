@@ -5,25 +5,25 @@ Tests all cache backends, cache decorator, cache key generation,
 TTL functionality, thread safety, and integration with BaseTool.
 """
 
-import time
 import os
-import pytest
 import threading
-from unittest.mock import Mock, patch, MagicMock
-from typing import Dict, Any
+import time
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
 
-from shared.cache import (
-    InMemoryCache,
-    RedisCache,
-    CacheManager,
-    NoOpCache,
-    generate_cache_key,
-    make_cache_key,
-    cache_result,
-)
-from shared.base import BaseTool
+import pytest
 from pydantic import Field
 
+from shared.base import BaseTool
+from shared.cache import (
+    CacheManager,
+    InMemoryCache,
+    NoOpCache,
+    RedisCache,
+    cache_result,
+    generate_cache_key,
+    make_cache_key,
+)
 
 # ============================================================================
 # Test InMemoryCache

@@ -2,13 +2,14 @@
 Extract audio track from video files to MP3
 """
 
-from typing import Any, Dict
-from pydantic import Field
 import os
 import subprocess
+from typing import Any, Dict
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class ExtractAudioFromVideo(BaseTool):

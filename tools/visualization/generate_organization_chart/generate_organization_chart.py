@@ -2,13 +2,14 @@
 Generate Organization Chart - Create hierarchical organization structure visualizations
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class GenerateOrganizationChart(BaseTool):

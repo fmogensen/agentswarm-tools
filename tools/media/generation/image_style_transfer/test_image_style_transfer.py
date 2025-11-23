@@ -2,12 +2,13 @@
 Tests for ImageStyleTransfer tool
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.media_generation.image_style_transfer import ImageStyleTransfer
-from shared.errors import ValidationError, APIError
 
 
 class TestImageStyleTransfer:

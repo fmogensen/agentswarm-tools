@@ -9,9 +9,9 @@ Manages server configuration including:
 
 import json
 import os
-from typing import List, Optional, Dict, Any
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from dataclasses import dataclass, asdict
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -48,7 +48,7 @@ class MCPConfig:
                 "visualization",
                 "content",
                 "infrastructure",
-                "utils"
+                "utils",
             ]
 
     @classmethod

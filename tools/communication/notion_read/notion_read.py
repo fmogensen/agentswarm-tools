@@ -2,13 +2,14 @@
 Retrieve and summarize full Notion page content
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, Optional
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class NotionRead(BaseTool):

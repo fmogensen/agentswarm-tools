@@ -3,11 +3,13 @@ Comprehensive tests for SupabaseStorage tool.
 Achieves 90%+ code coverage.
 """
 
-import pytest
-import os
 import base64
-from tools.integrations.supabase.supabase_storage import SupabaseStorage
+import os
+
+import pytest
+
 from shared.errors import ValidationError
+from tools.integrations.supabase.supabase_storage import SupabaseStorage
 
 
 class TestSupabaseStorageValidation:

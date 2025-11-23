@@ -4,12 +4,12 @@ Validate command implementation
 Validates tool structure and compliance with Agency Swarm standards.
 """
 
-import sys
 import ast
-import inspect
 import importlib
+import inspect
+import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 
 def validate_tool_file(tool_path: Path, strict: bool = False) -> Dict[str, Any]:

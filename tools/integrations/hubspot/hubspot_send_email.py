@@ -5,14 +5,15 @@ Sends marketing emails via HubSpot with template support, personalization,
 tracking, and campaign management.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class HubSpotSendEmail(BaseTool):
@@ -114,20 +115,12 @@ class HubSpotSendEmail(BaseTool):
 
     # Email content
     template_id: Optional[str] = Field(None, description="HubSpot email template ID")
-    subject: Optional[str] = Field(
-        None, description="Email subject line", max_length=500
-    )
-    body: Optional[str] = Field(
-        None, description="Email HTML body content", max_length=100000
-    )
+    subject: Optional[str] = Field(None, description="Email subject line", max_length=500)
+    body: Optional[str] = Field(None, description="Email HTML body content", max_length=100000)
 
     # Recipients
-    contact_ids: Optional[List[str]] = Field(
-        None, description="Contact IDs to send email to"
-    )
-    list_ids: Optional[List[str]] = Field(
-        None, description="Contact list IDs to send email to"
-    )
+    contact_ids: Optional[List[str]] = Field(None, description="Contact IDs to send email to")
+    list_ids: Optional[List[str]] = Field(None, description="Contact list IDs to send email to")
     recipient_email: Optional[str] = Field(
         None,
         description="Single recipient email address",
@@ -163,9 +156,7 @@ class HubSpotSendEmail(BaseTool):
     )
 
     # Campaign
-    campaign_id: Optional[str] = Field(
-        None, description="Campaign ID to associate email with"
-    )
+    campaign_id: Optional[str] = Field(None, description="Campaign ID to associate email with")
     ab_test_id: Optional[str] = Field(None, description="A/B test ID")
 
     # Scheduling
@@ -197,9 +188,7 @@ class HubSpotSendEmail(BaseTool):
 
             return result
         except Exception as e:
-            raise APIError(
-                f"Failed to send email: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to send email: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -213,14 +202,16 @@ class HubSpotSendEmail(BaseTool):
 
             # Validate each email
             for idx, email in enumerate(self.batch_emails):
-                if not (email.get("template_id") or
-                       (email.get("subject") and email.get("body"))):
+                if not (email.get("template_id") or (email.get("subject") and email.get("body"))):
                     raise ValidationError(
                         f"Email at index {idx} must have template_id or subject+body",
                         tool_name=self.tool_name,
                     )
-                if not (email.get("contact_ids") or email.get("list_ids") or
-                       email.get("recipient_email")):
+                if not (
+                    email.get("contact_ids")
+                    or email.get("list_ids")
+                    or email.get("recipient_email")
+                ):
                     raise ValidationError(
                         f"Email at index {idx} must have recipients",
                         tool_name=self.tool_name,
@@ -267,7 +258,7 @@ class HubSpotSendEmail(BaseTool):
         if self.scheduled_time:
             if not self.scheduled_time.isdigit():  # Not Unix timestamp
                 try:
-                    datetime.fromisoformat(self.scheduled_time.replace('Z', '+00:00'))
+                    datetime.fromisoformat(self.scheduled_time.replace("Z", "+00:00"))
                 except ValueError:
                     raise ValidationError(
                         "scheduled_time must be ISO 8601 format or Unix timestamp",
@@ -282,14 +273,18 @@ class HubSpotSendEmail(BaseTool):
         """Generate mock results for testing."""
         if self.batch_emails:
             # Mock batch results
-            email_ids = [f"email_mock_{i}_{hash(str(email))}"[:20]
-                        for i, email in enumerate(self.batch_emails)]
-            recipients_count = sum([
-                len(email.get("contact_ids", [])) +
-                len(email.get("list_ids", [])) * 50 +  # Assume 50 per list
-                (1 if email.get("recipient_email") else 0)
-                for email in self.batch_emails
-            ])
+            email_ids = [
+                f"email_mock_{i}_{hash(str(email))}"[:20]
+                for i, email in enumerate(self.batch_emails)
+            ]
+            recipients_count = sum(
+                [
+                    len(email.get("contact_ids", []))
+                    + len(email.get("list_ids", [])) * 50  # Assume 50 per list
+                    + (1 if email.get("recipient_email") else 0)
+                    for email in self.batch_emails
+                ]
+            )
 
             return {
                 "success": True,
@@ -309,9 +304,9 @@ class HubSpotSendEmail(BaseTool):
 
         # Calculate recipients count
         recipients_count = (
-            len(self.contact_ids or []) +
-            len(self.list_ids or []) * 50 +  # Assume 50 contacts per list
-            (1 if self.recipient_email else 0)
+            len(self.contact_ids or [])
+            + len(self.list_ids or []) * 50  # Assume 50 contacts per list
+            + (1 if self.recipient_email else 0)
         )
 
         # Determine status
@@ -465,9 +460,9 @@ class HubSpotSendEmail(BaseTool):
 
             # Calculate recipients count
             recipients_count = (
-                len(self.contact_ids or []) +
-                len(self.list_ids or []) * 50 +
-                (1 if self.recipient_email else 0)
+                len(self.contact_ids or [])
+                + len(self.list_ids or []) * 50
+                + (1 if self.recipient_email else 0)
             )
 
             # Determine status
@@ -498,13 +493,9 @@ class HubSpotSendEmail(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                raise AuthenticationError(
-                    "Invalid HubSpot API key", tool_name=self.tool_name
-                )
+                raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
-                raise APIError(
-                    "Rate limit exceeded. Try again later.", tool_name=self.tool_name
-                )
+                raise APIError("Rate limit exceeded. Try again later.", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -512,9 +503,7 @@ class HubSpotSendEmail(BaseTool):
                     tool_name=self.tool_name,
                 )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_batch(self) -> Dict[str, Any]:
         """Process batch email sending with HubSpot API."""
@@ -556,9 +545,9 @@ class HubSpotSendEmail(BaseTool):
 
                 # Calculate recipients
                 recipients = (
-                    len(email_data.get("contact_ids", [])) +
-                    len(email_data.get("list_ids", [])) * 50 +
-                    (1 if email_data.get("recipient_email") else 0)
+                    len(email_data.get("contact_ids", []))
+                    + len(email_data.get("list_ids", [])) * 50
+                    + (1 if email_data.get("recipient_email") else 0)
                 )
                 total_recipients += recipients
 
@@ -599,7 +588,7 @@ if __name__ == "__main__":
         personalization_tokens={
             "first_name": "John",
             "company": "Acme Corp",
-            "discount_code": "SAVE20"
+            "discount_code": "SAVE20",
         },
         track_opens=True,
         track_clicks=True,

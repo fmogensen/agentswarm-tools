@@ -5,8 +5,9 @@ These tests make real API calls. Requires valid API keys.
 """
 
 import os
+from typing import Any, Dict
+
 import pytest
-from typing import Dict, Any
 
 # Ensure we're using live mode for these tests
 pytestmark = [

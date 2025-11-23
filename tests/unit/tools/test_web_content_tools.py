@@ -8,20 +8,19 @@ Tests all web content tools:
 - webpage_capture_screen
 """
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.content.web.crawler.crawler import Crawler
 from tools.content.web.summarize_large_document.summarize_large_document import (
     SummarizeLargeDocument,
 )
 from tools.content.web.url_metadata.url_metadata import UrlMetadata
 from tools.content.web.webpage_capture_screen.webpage_capture_screen import WebpageCaptureScreen
-
-from shared.errors import ValidationError, APIError
-
 
 # ========== Crawler Tests ==========
 
@@ -85,7 +84,9 @@ class TestCrawler:
 
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.content = b"<html><body><a href='/page1'>Link</a></body></html>"  # BeautifulSoup needs content
+        mock_response.content = (
+            b"<html><body><a href='/page1'>Link</a></body></html>"  # BeautifulSoup needs content
+        )
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
 
@@ -133,18 +134,14 @@ class TestSummarizeLargeDocument:
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = SummarizeLargeDocument(
-            input="https://example.com/document.pdf"
-        )
+        tool = SummarizeLargeDocument(input="https://example.com/document.pdf")
         assert tool.input == "https://example.com/document.pdf"
         assert tool.tool_name == "summarize_large_document"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = SummarizeLargeDocument(
-            input="https://example.com/doc.pdf"
-        )
+        tool = SummarizeLargeDocument(input="https://example.com/doc.pdf")
         result = tool.run()
 
         assert result["success"] is True
@@ -180,9 +177,7 @@ class TestSummarizeLargeDocument:
         mock_get_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_get_response
 
-        tool = SummarizeLargeDocument(
-            input="https://example.com/doc.pdf"
-        )
+        tool = SummarizeLargeDocument(input="https://example.com/doc.pdf")
         result = tool.run()
 
         assert result["success"] is True
@@ -238,7 +233,7 @@ class TestUrlMetadata:
         mock_response.headers = {
             "Content-Type": "text/html",
             "Content-Length": "1024",
-            "Content-Disposition": 'attachment; filename="example.html"'
+            "Content-Disposition": 'attachment; filename="example.html"',
         }
         mock_response.raise_for_status = MagicMock()
         mock_head.return_value = mock_response
@@ -260,6 +255,7 @@ class TestUrlMetadata:
         mock_rate_limiter.return_value = mock_limiter
 
         import requests
+
         mock_head.side_effect = requests.RequestException("Not found")
 
         tool = UrlMetadata(url="https://example.com/nonexistent")
@@ -292,9 +288,7 @@ class TestWebpageCaptureScreen:
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = WebpageCaptureScreen(
-            input="https://example.com"
-        )
+        tool = WebpageCaptureScreen(input="https://example.com")
         assert str(tool.input) == "https://example.com/"  # HttpUrl adds trailing slash
         assert tool.tool_name == "webpage_capture_screen"
 

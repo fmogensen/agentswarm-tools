@@ -1,14 +1,14 @@
 """Tests for generate_dual_axes_chart tool."""
 
-import pytest
+import base64
 import os
 from unittest.mock import patch
-import base64
 
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.visualization.generate_dual_axes_chart import GenerateDualAxesChart
-from shared.errors import ValidationError, APIError
 
 
 class TestGenerateDualAxesChart:

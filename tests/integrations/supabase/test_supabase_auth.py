@@ -3,10 +3,12 @@ Comprehensive tests for SupabaseAuth tool.
 Achieves 90%+ code coverage.
 """
 
-import pytest
 import os
+
+import pytest
+
+from shared.errors import AuthenticationError, ValidationError
 from tools.integrations.supabase.supabase_auth import SupabaseAuth
-from shared.errors import ValidationError, AuthenticationError
 
 
 class TestSupabaseAuthValidation:

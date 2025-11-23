@@ -5,13 +5,14 @@ Retrieves invoices for a specific customer with support for filtering by status,
 date range, subscription, and pagination.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class StripeGetInvoices(BaseTool):
@@ -60,25 +61,15 @@ class StripeGetInvoices(BaseTool):
     tool_category: str = "integrations"
 
     # Optional parameters
-    customer_id: Optional[str] = Field(
-        None, description="Stripe customer ID (cus_xxx)"
-    )
+    customer_id: Optional[str] = Field(None, description="Stripe customer ID (cus_xxx)")
     status: Optional[str] = Field(
         None,
         description="Filter by status: draft, open, paid, void, uncollectible",
     )
-    subscription_id: Optional[str] = Field(
-        None, description="Filter by subscription ID (sub_xxx)"
-    )
-    limit: int = Field(
-        10, description="Maximum number of invoices to return", ge=1, le=100
-    )
-    starting_after: Optional[str] = Field(
-        None, description="Invoice ID to start pagination after"
-    )
-    ending_before: Optional[str] = Field(
-        None, description="Invoice ID to end pagination before"
-    )
+    subscription_id: Optional[str] = Field(None, description="Filter by subscription ID (sub_xxx)")
+    limit: int = Field(10, description="Maximum number of invoices to return", ge=1, le=100)
+    starting_after: Optional[str] = Field(None, description="Invoice ID to start pagination after")
+    ending_before: Optional[str] = Field(None, description="Invoice ID to end pagination before")
     created_after: Optional[int] = Field(
         None, description="Unix timestamp - invoices created after this date", ge=0
     )
@@ -127,9 +118,7 @@ class StripeGetInvoices(BaseTool):
             return response
 
         except Exception as e:
-            raise APIError(
-                f"Failed to retrieve invoices: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to retrieve invoices: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -149,11 +138,7 @@ class StripeGetInvoices(BaseTool):
             )
 
         # Validate date ranges
-        if (
-            self.created_after
-            and self.created_before
-            and self.created_after >= self.created_before
-        ):
+        if self.created_after and self.created_before and self.created_after >= self.created_before:
             raise ValidationError(
                 "created_after must be before created_before",
                 tool_name=self.tool_name,
@@ -314,13 +299,9 @@ class StripeGetInvoices(BaseTool):
             return invoices
 
         except stripe.error.InvalidRequestError as e:
-            raise ValidationError(
-                f"Invalid request: {str(e)}", tool_name=self.tool_name
-            )
+            raise ValidationError(f"Invalid request: {str(e)}", tool_name=self.tool_name)
         except stripe.error.AuthenticationError as e:
-            raise AuthenticationError(
-                f"Authentication failed: {str(e)}", tool_name=self.tool_name
-            )
+            raise AuthenticationError(f"Authentication failed: {str(e)}", tool_name=self.tool_name)
         except stripe.error.StripeError as e:
             raise APIError(f"Stripe error: {str(e)}", tool_name=self.tool_name)
 
@@ -487,9 +468,7 @@ if __name__ == "__main__":
     # Test 10: Error handling - invalid date range
     print("\n10. Testing error handling (invalid date range)...")
     try:
-        tool = StripeGetInvoices(
-            created_after=current_time, created_before=week_ago
-        )
+        tool = StripeGetInvoices(created_after=current_time, created_before=week_ago)
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except ValidationError as e:

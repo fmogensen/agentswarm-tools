@@ -1,10 +1,12 @@
 """Tests for think tool."""
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
+
+from shared.errors import APIError, ValidationError
 from tools.utils.think import Think
-from shared.errors import ValidationError, APIError
 
 
 class TestThink:

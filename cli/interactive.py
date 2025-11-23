@@ -4,19 +4,18 @@ Enhanced Interactive Mode for AgentSwarm CLI
 Provides a rich, menu-driven interface for tool selection and execution.
 """
 
-import sys
 import json
-from typing import Dict, List, Any, Optional
+import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
-from rich.prompt import Prompt, Confirm
-from rich.tree import Tree
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import box
-
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.prompt import Confirm, Prompt
+from rich.table import Table
+from rich.tree import Tree
 
 console = Console()
 
@@ -33,6 +32,7 @@ class InteractiveMode:
         """Load recently used tools from history."""
         try:
             from .history import CommandHistory
+
             history = CommandHistory()
             commands = history.get_history(limit=10)
 
@@ -132,7 +132,7 @@ Navigate using number keys and follow the prompts.
             "content": "Documents and web content",
             "infrastructure": "Code execution and storage",
             "utils": "Utility tools and helpers",
-            "integrations": "External service connectors"
+            "integrations": "External service connectors",
         }
 
         for i, category in enumerate(category_list, 1):
@@ -202,10 +202,7 @@ Navigate using number keys and follow the prompts.
                 all_tools.append(tool)
 
         # Search in tool names
-        results = [
-            tool for tool in all_tools
-            if search_query.lower() in tool["name"].lower()
-        ]
+        results = [tool for tool in all_tools if search_query.lower() in tool["name"].lower()]
 
         if not results:
             self.console.print(f"[yellow]No tools found matching '{search_query}'[/yellow]")
@@ -282,23 +279,31 @@ Navigate using number keys and follow the prompts.
         choice = Prompt.ask("\nSelect action", default="b")
 
         if choice == "1":
-            from .commands.list import execute as list_execute
             from argparse import Namespace
+
+            from .commands.list import execute as list_execute
+
             args = Namespace(category=None, format="table", categories=False)
             list_execute(args)
         elif choice == "2":
-            from .commands.history import execute as history_execute
             from argparse import Namespace
+
+            from .commands.history import execute as history_execute
+
             args = Namespace(action="list", limit=20, filter=None, id=None)
             history_execute(args)
         elif choice == "3":
-            from .commands.workflow import execute as workflow_execute
             from argparse import Namespace
+
+            from .commands.workflow import execute as workflow_execute
+
             args = Namespace(action="list", name=None, params=None, output=None)
             workflow_execute(args)
         elif choice == "4":
-            from .commands.config import execute as config_execute
             from argparse import Namespace
+
+            from .commands.config import execute as config_execute
+
             args = Namespace(show=False, set=None, get=None, reset=False, validate=True)
             config_execute(args)
 
@@ -316,27 +321,36 @@ Navigate using number keys and follow the prompts.
         choice = Prompt.ask("\nSelect option", default="b")
 
         if choice == "1":
-            from .commands.config import execute as config_execute
             from argparse import Namespace
+
+            from .commands.config import execute as config_execute
+
             args = Namespace(show=True, set=None, get=None, reset=False, validate=False)
             config_execute(args)
         elif choice == "2":
             key_name = Prompt.ask("Enter API key name (e.g., GENSPARK_API_KEY)")
             key_value = Prompt.ask("Enter API key value", password=True)
 
-            from .commands.config import execute as config_execute
             from argparse import Namespace
-            args = Namespace(show=False, set=f"{key_name}={key_value}", get=None, reset=False, validate=False)
+
+            from .commands.config import execute as config_execute
+
+            args = Namespace(
+                show=False, set=f"{key_name}={key_value}", get=None, reset=False, validate=False
+            )
             config_execute(args)
         elif choice == "3":
             if Confirm.ask("Are you sure you want to clear command history?"):
                 from .history import CommandHistory
+
                 history = CommandHistory()
                 history.clear()
                 self.console.print("[green]History cleared successfully.[/green]")
         elif choice == "4":
-            from .commands.completion import execute as completion_execute
             from argparse import Namespace
+
+            from .commands.completion import execute as completion_execute
+
             args = Namespace(action="install", shell=None)
             completion_execute(args)
 
@@ -344,16 +358,11 @@ Navigate using number keys and follow the prompts.
         """Run a tool interactively."""
         self.console.print(f"\n[bold cyan]Running tool: {tool_name}[/bold cyan]")
 
-        from .commands.run import execute as run_execute
         from argparse import Namespace
 
-        args = Namespace(
-            tool=tool_name,
-            params=None,
-            interactive=True,
-            output=None,
-            format="json"
-        )
+        from .commands.run import execute as run_execute
+
+        args = Namespace(tool=tool_name, params=None, interactive=True, output=None, format="json")
 
         try:
             run_execute(args)

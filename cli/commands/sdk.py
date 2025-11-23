@@ -5,13 +5,14 @@ Provides commands for creating, validating, and documenting tools.
 """
 
 from pathlib import Path
+
 from rich.console import Console
 from rich.progress import Progress
 
-from sdk.generator import ToolGenerator
-from sdk.validator import ToolValidator
-from sdk.test_generator import TestGenerator
 from sdk.docs_generator import DocsGenerator
+from sdk.generator import ToolGenerator
+from sdk.test_generator import TestGenerator
+from sdk.validator import ToolValidator
 
 console = Console()
 
@@ -54,9 +55,9 @@ def create_tool(args):
             tool_name=args.tool_name,
             category=args.category,
             description=args.description,
-            subcategory=getattr(args, 'subcategory', None),
-            requires_api_key=getattr(args, 'api_key', False),
-            api_key_env_var=getattr(args, 'api_key_var', None),
+            subcategory=getattr(args, "subcategory", None),
+            requires_api_key=getattr(args, "api_key", False),
+            api_key_env_var=getattr(args, "api_key_var", None),
         )
 
     console.print(f"\n[green]✓ Tool created: {result['tool_name']}[/green]")
@@ -86,8 +87,8 @@ def validate_tool(args):
 def validate_all(args):
     """Validate all tools in the tools directory"""
     validator = ToolValidator()
-    tools_dir = Path(getattr(args, 'tools_dir', 'tools'))
-    min_score = getattr(args, 'min_score', 70)
+    tools_dir = Path(getattr(args, "tools_dir", "tools"))
+    min_score = getattr(args, "min_score", 70)
 
     console.print(f"[bold]Validating all tools in {tools_dir}...[/bold]\n")
 
@@ -135,13 +136,13 @@ def generate_docs(args):
     """Generate documentation for tools"""
     generator = DocsGenerator()
 
-    if getattr(args, 'index', False):
+    if getattr(args, "index", False):
         # Update TOOLS_INDEX.md
         tools_dir = Path("tools")
         index_file = generator.update_tools_index(tools_dir)
         console.print(f"[green]✓ Updated TOOLS_INDEX: {index_file}[/green]")
 
-    elif getattr(args, 'category', None):
+    elif getattr(args, "category", None):
         # Generate category README
         category_dir = Path("tools") / args.category
         if not category_dir.exists():
@@ -151,7 +152,7 @@ def generate_docs(args):
         readme_file = generator.generate_category_docs(category_dir)
         console.print(f"[green]✓ Generated category README: {readme_file}[/green]")
 
-    elif getattr(args, 'all_tools', False):
+    elif getattr(args, "all_tools", False):
         # Generate for all tools
         tools_dir = Path("tools")
         count = 0

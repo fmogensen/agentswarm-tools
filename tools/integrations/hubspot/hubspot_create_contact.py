@@ -5,14 +5,15 @@ Creates and updates contacts in HubSpot CRM with custom properties,
 list assignments, and bulk operations support.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 import time
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class HubSpotCreateContact(BaseTool):
@@ -106,9 +107,7 @@ class HubSpotCreateContact(BaseTool):
         None, description="Dictionary of custom property names and values"
     )
     lists: Optional[List[str]] = Field(None, description="List IDs to add contact to")
-    update_if_exists: bool = Field(
-        True, description="Update contact if email already exists"
-    )
+    update_if_exists: bool = Field(True, description="Update contact if email already exists")
 
     # Batch operations
     batch_contacts: Optional[List[Dict[str, Any]]] = Field(
@@ -133,9 +132,7 @@ class HubSpotCreateContact(BaseTool):
 
             return result
         except Exception as e:
-            raise APIError(
-                f"Failed to create contact: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to create contact: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -197,8 +194,10 @@ class HubSpotCreateContact(BaseTool):
         """Generate mock results for testing."""
         if self.batch_contacts:
             # Mock batch results
-            contact_ids = [f"vid_mock_{i}_{''.join([str(ord(c)) for c in contact.get('email', '')])}"[:20]
-                          for i, contact in enumerate(self.batch_contacts)]
+            contact_ids = [
+                f"vid_mock_{i}_{''.join([str(ord(c)) for c in contact.get('email', '')])}"[:20]
+                for i, contact in enumerate(self.batch_contacts)
+            ]
             return {
                 "success": True,
                 "status": "batch_processed",
@@ -233,8 +232,14 @@ class HubSpotCreateContact(BaseTool):
             # Build from provided contact data (for batch)
             properties = {}
             standard_props = [
-                "email", "firstname", "lastname", "phone", "company",
-                "website", "jobtitle", "lifecyclestage"
+                "email",
+                "firstname",
+                "lastname",
+                "phone",
+                "company",
+                "website",
+                "jobtitle",
+                "lifecyclestage",
             ]
             for prop in standard_props:
                 if contact_data.get(prop):
@@ -356,13 +361,9 @@ class HubSpotCreateContact(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                raise AuthenticationError(
-                    "Invalid HubSpot API key", tool_name=self.tool_name
-                )
+                raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
-                raise APIError(
-                    "Rate limit exceeded. Try again later.", tool_name=self.tool_name
-                )
+                raise APIError("Rate limit exceeded. Try again later.", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -375,9 +376,7 @@ class HubSpotCreateContact(BaseTool):
                 tool_name=self.tool_name,
             )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_batch(self) -> Dict[str, Any]:
         """Process batch contact creation with HubSpot API."""
@@ -434,13 +433,9 @@ class HubSpotCreateContact(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                raise AuthenticationError(
-                    "Invalid HubSpot API key", tool_name=self.tool_name
-                )
+                raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
-                raise APIError(
-                    "Rate limit exceeded. Try again later.", tool_name=self.tool_name
-                )
+                raise APIError("Rate limit exceeded. Try again later.", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -453,9 +448,7 @@ class HubSpotCreateContact(BaseTool):
                 tool_name=self.tool_name,
             )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _get_contact_by_email(self, api_key: str, email: str) -> Optional[str]:
         """Get contact ID by email address."""
@@ -627,8 +620,7 @@ if __name__ == "__main__":
     print("\n5. Testing error handling (batch too large)...")
     try:
         large_batch = [
-            {"email": f"user{i}@example.com", "firstname": f"User{i}"}
-            for i in range(11)
+            {"email": f"user{i}@example.com", "firstname": f"User{i}"} for i in range(11)
         ]
         tool = HubSpotCreateContact(batch_contacts=large_batch)
         result = tool.run()

@@ -1,15 +1,15 @@
 """Tests for generate_radar_chart tool."""
 
-import pytest
-import os
-from unittest.mock import patch
-from typing import Dict, Any
 import math
+import os
+from typing import Any, Dict
+from unittest.mock import patch
 
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.visualization.generate_radar_chart import GenerateRadarChart
-from shared.errors import ValidationError, APIError
 
 
 class TestGenerateRadarChart:

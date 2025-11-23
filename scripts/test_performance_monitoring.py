@@ -3,21 +3,21 @@
 Test script for performance monitoring implementation.
 """
 
-import tempfile
 import os
 import sys
+import tempfile
 from datetime import datetime
 
 # Add project to path
 sys.path.insert(0, os.path.dirname(__file__))
 
+from shared.dashboard import export_dashboard_html, generate_dashboard_data
 from shared.monitoring import (
-    PerformanceMonitor,
     PerformanceMetric,
+    PerformanceMonitor,
     get_monitor,
     record_performance_metric,
 )
-from shared.dashboard import generate_dashboard_data, export_dashboard_html
 
 
 def test_monitoring():
@@ -55,7 +55,11 @@ def test_monitoring():
         print("\n[3/8] Retrieving aggregated metrics...")
         metrics = monitor.get_metrics("tool_0", days=1)
         print(f"  Total Requests: {metrics.total_requests}")
-        success_rate = (metrics.successful_requests / metrics.total_requests * 100) if metrics.total_requests > 0 else 0
+        success_rate = (
+            (metrics.successful_requests / metrics.total_requests * 100)
+            if metrics.total_requests > 0
+            else 0
+        )
         print(f"  Success Rate: {success_rate:.2f}%")
         print(f"  Avg Latency: {metrics.avg_latency_ms:.2f}ms")
         print(f"  P95 Latency: {metrics.p95_latency_ms:.2f}ms")
@@ -103,7 +107,7 @@ def test_monitoring():
         print(f"    Total Tools: {dashboard_data['overview']['total_tools']}")
         print(f"    Total Requests: {dashboard_data['overview']['total_requests']}")
         print(f"    Avg Latency: {dashboard_data['overview']['avg_latency_ms']}ms")
-        assert dashboard_data['overview']['total_tools'] >= 5
+        assert dashboard_data["overview"]["total_tools"] >= 5
         print("✓ Dashboard data generated")
 
         # Test HTML export
@@ -128,6 +132,7 @@ def test_monitoring():
 
         print("\nPerformance Overhead Test:")
         import time
+
         start = time.time()
         for i in range(1000):
             metric = PerformanceMetric(

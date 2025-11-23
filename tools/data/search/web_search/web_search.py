@@ -2,13 +2,14 @@
 Perform web search with Google and return comprehensive results
 """
 
-from typing import Any, Dict, List
-from pydantic import Field
 import os
+from typing import Any, Dict, List
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class WebSearch(BaseTool):
@@ -41,9 +42,7 @@ class WebSearch(BaseTool):
 
     # Parameters
     query: str = Field(..., description="Search query string", min_length=1)
-    max_results: int = Field(
-        10, description="Maximum number of results to return", ge=1, le=100
-    )
+    max_results: int = Field(10, description="Maximum number of results to return", ge=1, le=100)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -102,12 +101,14 @@ class WebSearch(BaseTool):
         try:
             # Get API credentials from environment
             api_key = os.getenv("GOOGLE_SEARCH_API_KEY") or os.getenv("GOOGLE_SHOPPING_API_KEY")
-            engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") or os.getenv("GOOGLE_SHOPPING_ENGINE_ID")
+            engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") or os.getenv(
+                "GOOGLE_SHOPPING_ENGINE_ID"
+            )
 
             if not api_key or not engine_id:
                 raise APIError(
                     "Missing API credentials. Set GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_ENGINE_ID",
-                    tool_name=self.tool_name
+                    tool_name=self.tool_name,
                 )
 
             # Call Google Custom Search API
@@ -143,6 +144,7 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = WebSearch(query="Python programming", max_results=3)

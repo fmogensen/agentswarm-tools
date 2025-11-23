@@ -10,14 +10,14 @@ Tests parallel processing performance across different:
 Results show actual performance improvements and optimal configurations.
 """
 
-import time
-import sys
 import os
+import sys
+import time
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from shared.batch import parallel_process, ExecutorType, SilentProgressCallback
+from shared.batch import ExecutorType, SilentProgressCallback, parallel_process
 
 
 # Simulated workloads
@@ -67,14 +67,16 @@ def benchmark_batch_size(operation, operation_name):
             items=items,
             processor=operation,
             max_workers=max_workers,
-            progress_callback=SilentProgressCallback()
+            progress_callback=SilentProgressCallback(),
         )
         parallel_time = (time.time() - start) * 1000
 
         speedup = sequential_time / parallel_time
 
-        print(f"{batch_size:<15} {sequential_time:>10.2f}ms   "
-              f"{parallel_time:>10.2f}ms   {speedup:>10.2f}x")
+        print(
+            f"{batch_size:<15} {sequential_time:>10.2f}ms   "
+            f"{parallel_time:>10.2f}ms   {speedup:>10.2f}x"
+        )
 
     print()
 
@@ -99,7 +101,7 @@ def benchmark_worker_count(operation, operation_name):
             items=items,
             processor=operation,
             max_workers=workers,
-            progress_callback=SilentProgressCallback()
+            progress_callback=SilentProgressCallback(),
         )
         elapsed = (time.time() - start) * 1000
 
@@ -109,8 +111,10 @@ def benchmark_worker_count(operation, operation_name):
         speedup = baseline_time / elapsed
         throughput = batch_size / (elapsed / 1000)  # items per second
 
-        print(f"{workers:<15} {elapsed:>10.2f}ms   "
-              f"{speedup:>10.2f}x      {throughput:>10.1f} items/s")
+        print(
+            f"{workers:<15} {elapsed:>10.2f}ms   "
+            f"{speedup:>10.2f}x      {throughput:>10.1f} items/s"
+        )
 
     print()
 
@@ -141,14 +145,16 @@ def benchmark_operation_types():
             items=items,
             processor=operation,
             max_workers=max_workers,
-            progress_callback=SilentProgressCallback()
+            progress_callback=SilentProgressCallback(),
         )
         parallel_time = (time.time() - start) * 1000
 
         speedup = sequential_time / parallel_time
 
-        print(f"{name:<20} {batch_size:<10} {max_workers:<10} "
-              f"{parallel_time:>10.2f}ms   {speedup:>10.2f}x")
+        print(
+            f"{name:<20} {batch_size:<10} {max_workers:<10} "
+            f"{parallel_time:>10.2f}ms   {speedup:>10.2f}x"
+        )
 
     print()
 
@@ -172,7 +178,7 @@ def benchmark_executor_types():
         processor=medium_operation,
         max_workers=max_workers,
         executor_type=ExecutorType.THREAD,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
     thread_time = (time.time() - start) * 1000
 
@@ -200,12 +206,14 @@ def benchmark_error_handling():
         items=list(range(batch_size)),
         processor=lambda x: x * 2,
         max_workers=max_workers,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
     no_error_time = (time.time() - start) * 1000
 
-    print(f"{'No errors':<25} {result.success_rate:>10.1f}%   "
-          f"{no_error_time:>10.2f}ms   {'baseline':<15}")
+    print(
+        f"{'No errors':<25} {result.success_rate:>10.1f}%   "
+        f"{no_error_time:>10.2f}ms   {'baseline':<15}"
+    )
 
     # 10% errors
     def fail_10_percent(x):
@@ -219,12 +227,14 @@ def benchmark_error_handling():
         processor=fail_10_percent,
         max_workers=max_workers,
         continue_on_error=True,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
     error_10_time = (time.time() - start) * 1000
 
-    print(f"{'10% errors':<25} {result.success_rate:>10.1f}%   "
-          f"{error_10_time:>10.2f}ms   {((error_10_time / no_error_time - 1) * 100):>10.1f}%")
+    print(
+        f"{'10% errors':<25} {result.success_rate:>10.1f}%   "
+        f"{error_10_time:>10.2f}ms   {((error_10_time / no_error_time - 1) * 100):>10.1f}%"
+    )
 
     # 50% errors
     def fail_50_percent(x):
@@ -238,12 +248,14 @@ def benchmark_error_handling():
         processor=fail_50_percent,
         max_workers=max_workers,
         continue_on_error=True,
-        progress_callback=SilentProgressCallback()
+        progress_callback=SilentProgressCallback(),
     )
     error_50_time = (time.time() - start) * 1000
 
-    print(f"{'50% errors':<25} {result.success_rate:>10.1f}%   "
-          f"{error_50_time:>10.2f}ms   {((error_50_time / no_error_time - 1) * 100):>10.1f}%")
+    print(
+        f"{'50% errors':<25} {result.success_rate:>10.1f}%   "
+        f"{error_50_time:>10.2f}ms   {((error_50_time / no_error_time - 1) * 100):>10.1f}%"
+    )
 
     print()
 
@@ -276,9 +288,9 @@ def summary():
 
 
 if __name__ == "__main__":
-    print("="*70)
+    print("=" * 70)
     print(" AGENTSWARM TOOLS - BATCH PROCESSING BENCHMARKS")
-    print("="*70)
+    print("=" * 70)
     print("\nThis benchmark tests batch processing performance across")
     print("different configurations to identify optimal settings.\n")
 
@@ -290,6 +302,6 @@ if __name__ == "__main__":
     benchmark_error_handling()
     summary()
 
-    print("="*70)
+    print("=" * 70)
     print(" BENCHMARKS COMPLETE")
-    print("="*70)
+    print("=" * 70)

@@ -4,10 +4,13 @@ Consolidates rendering logic for line, bar, pie, scatter, area, column, histogra
 """
 
 from typing import Any, Dict, List, Optional, Union
+
 import matplotlib.pyplot as plt
 import numpy as np
-from .base_renderer import BaseRenderer
+
 from shared.errors import ValidationError
+
+from .base_renderer import BaseRenderer
 
 
 class LineChartRenderer(BaseRenderer):

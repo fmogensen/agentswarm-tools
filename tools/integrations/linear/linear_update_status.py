@@ -5,14 +5,15 @@ Updates issue status, transitions, and workflow states in Linear with support
 for state validation, automatic transitions, and workflow rules.
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, Optional
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class LinearUpdateStatus(BaseTool):
@@ -65,51 +66,23 @@ class LinearUpdateStatus(BaseTool):
     tool_category: str = "integrations"
 
     # Required parameters
-    issue_id: str = Field(
-        ...,
-        description="Linear issue ID",
-        min_length=1
-    )
+    issue_id: str = Field(..., description="Linear issue ID", min_length=1)
 
     # Optional parameters - state update
-    state_id: Optional[str] = Field(
-        None,
-        description="New workflow state ID"
-    )
-    state_name: Optional[str] = Field(
-        None,
-        description="State name (alternative to state_id)"
-    )
+    state_id: Optional[str] = Field(None, description="New workflow state ID")
+    state_name: Optional[str] = Field(None, description="State name (alternative to state_id)")
 
     # Optional parameters - other updates
     priority: Optional[int] = Field(
-        None,
-        description="New priority: 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low",
-        ge=0,
-        le=4
+        None, description="New priority: 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low", ge=0, le=4
     )
     assignee_id: Optional[str] = Field(
-        None,
-        description="New assignee user ID (use 'unassign' to remove)"
+        None, description="New assignee user ID (use 'unassign' to remove)"
     )
-    estimate: Optional[float] = Field(
-        None,
-        description="New estimate value",
-        ge=0,
-        le=1000
-    )
-    add_labels: Optional[list] = Field(
-        None,
-        description="List of label IDs to add"
-    )
-    remove_labels: Optional[list] = Field(
-        None,
-        description="List of label IDs to remove"
-    )
-    comment: Optional[str] = Field(
-        None,
-        description="Comment to add with status update"
-    )
+    estimate: Optional[float] = Field(None, description="New estimate value", ge=0, le=1000)
+    add_labels: Optional[list] = Field(None, description="List of label IDs to add")
+    remove_labels: Optional[list] = Field(None, description="List of label IDs to remove")
+    comment: Optional[str] = Field(None, description="Comment to add with status update")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the status update."""
@@ -133,40 +106,36 @@ class LinearUpdateStatus(BaseTool):
                 "metadata": {
                     "tool_name": self.tool_name,
                     "updates_applied": self._get_updates_summary(),
-                }
+                },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to update Linear issue status: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to update Linear issue status: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
         # Validate issue_id
         if not self.issue_id or not self.issue_id.strip():
             raise ValidationError(
-                "Issue ID cannot be empty",
-                tool_name=self.tool_name,
-                field="issue_id"
+                "Issue ID cannot be empty", tool_name=self.tool_name, field="issue_id"
             )
 
         # At least one update must be specified
-        has_updates = any([
-            self.state_id,
-            self.state_name,
-            self.priority is not None,
-            self.assignee_id,
-            self.estimate is not None,
-            self.add_labels,
-            self.remove_labels,
-            self.comment
-        ])
+        has_updates = any(
+            [
+                self.state_id,
+                self.state_name,
+                self.priority is not None,
+                self.assignee_id,
+                self.estimate is not None,
+                self.add_labels,
+                self.remove_labels,
+                self.comment,
+            ]
+        )
 
         if not has_updates:
             raise ValidationError(
-                "At least one update field must be specified",
-                tool_name=self.tool_name
+                "At least one update field must be specified", tool_name=self.tool_name
             )
 
         # Validate priority if provided
@@ -174,22 +143,19 @@ class LinearUpdateStatus(BaseTool):
             raise ValidationError(
                 "Priority must be between 0 (None) and 4 (Low)",
                 tool_name=self.tool_name,
-                field="priority"
+                field="priority",
             )
 
         # Validate estimate if provided
         if self.estimate is not None and self.estimate < 0:
             raise ValidationError(
-                "Estimate must be a positive number",
-                tool_name=self.tool_name,
-                field="estimate"
+                "Estimate must be a positive number", tool_name=self.tool_name, field="estimate"
             )
 
         # Can't specify both state_id and state_name
         if self.state_id and self.state_name:
             raise ValidationError(
-                "Cannot specify both state_id and state_name",
-                tool_name=self.tool_name
+                "Cannot specify both state_id and state_name", tool_name=self.tool_name
             )
 
     def _should_use_mock(self) -> bool:
@@ -209,7 +175,7 @@ class LinearUpdateStatus(BaseTool):
                 "tool_name": self.tool_name,
                 "updates_applied": self._get_updates_summary(),
                 "mock_mode": True,
-            }
+            },
         }
 
     def _get_updates_summary(self) -> Dict[str, Any]:
@@ -237,8 +203,7 @@ class LinearUpdateStatus(BaseTool):
         api_key = os.getenv("LINEAR_API_KEY")
         if not api_key:
             raise AuthenticationError(
-                "Missing LINEAR_API_KEY environment variable",
-                tool_name=self.tool_name
+                "Missing LINEAR_API_KEY environment variable", tool_name=self.tool_name
             )
 
         # First, get current issue state for comparison
@@ -313,20 +278,11 @@ class LinearUpdateStatus(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": mutation,
-            "variables": {
-                "id": self.issue_id,
-                "input": input_data
-            }
-        }
+        payload = {"query": mutation, "variables": {"id": self.issue_id, "input": input_data}}
 
         try:
             response = requests.post(
-                "https://api.linear.app/graphql",
-                headers=headers,
-                json=payload,
-                timeout=30
+                "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
             )
             response.raise_for_status()
 
@@ -336,18 +292,14 @@ class LinearUpdateStatus(BaseTool):
             if "errors" in data:
                 error_messages = [e.get("message", str(e)) for e in data["errors"]]
                 raise APIError(
-                    f"GraphQL errors: {'; '.join(error_messages)}",
-                    tool_name=self.tool_name
+                    f"GraphQL errors: {'; '.join(error_messages)}", tool_name=self.tool_name
                 )
 
             # Extract issue data
             update_data = data.get("data", {}).get("issueUpdate", {})
 
             if not update_data.get("success"):
-                raise APIError(
-                    "Issue update failed",
-                    tool_name=self.tool_name
-                )
+                raise APIError("Issue update failed", tool_name=self.tool_name)
 
             issue = update_data.get("issue", {})
             issue["previous_state"] = previous_state
@@ -359,14 +311,10 @@ class LinearUpdateStatus(BaseTool):
             return issue
 
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Linear API request failed: {str(e)}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Linear API request failed: {str(e)}", tool_name=self.tool_name)
         except (KeyError, ValueError) as e:
             raise APIError(
-                f"Failed to parse Linear API response: {str(e)}",
-                tool_name=self.tool_name
+                f"Failed to parse Linear API response: {str(e)}", tool_name=self.tool_name
             )
 
     def _get_current_issue(self, api_key: str) -> Dict[str, Any]:
@@ -398,16 +346,10 @@ class LinearUpdateStatus(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": query,
-            "variables": {"id": self.issue_id}
-        }
+        payload = {"query": query, "variables": {"id": self.issue_id}}
 
         response = requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
+            "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
 
@@ -432,18 +374,10 @@ class LinearUpdateStatus(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": query,
-            "variables": {
-                "filter": {"team": {"id": {"eq": team_id}}}
-            }
-        }
+        payload = {"query": query, "variables": {"filter": {"team": {"id": {"eq": team_id}}}}}
 
         response = requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
+            "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
 
@@ -474,20 +408,10 @@ class LinearUpdateStatus(BaseTool):
 
         payload = {
             "query": mutation,
-            "variables": {
-                "input": {
-                    "issueId": issue_id,
-                    "body": comment
-                }
-            }
+            "variables": {"input": {"issueId": issue_id, "body": comment}},
         }
 
-        requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
-        )
+        requests.post("https://api.linear.app/graphql", headers=headers, json=payload, timeout=30)
 
 
 if __name__ == "__main__":
@@ -495,14 +419,12 @@ if __name__ == "__main__":
     print("Testing LinearUpdateStatus...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Update state by name
     print("\n1. Testing state update by name...")
-    tool = LinearUpdateStatus(
-        issue_id="issue_abc123",
-        state_name="In Progress"
-    )
+    tool = LinearUpdateStatus(issue_id="issue_abc123", state_name="In Progress")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -519,7 +441,7 @@ if __name__ == "__main__":
         priority=1,
         assignee_id="user_xyz789",
         estimate=5.0,
-        comment="Starting work on this"
+        comment="Starting work on this",
     )
     result = tool.run()
 
@@ -529,10 +451,7 @@ if __name__ == "__main__":
 
     # Test 3: Unassign issue
     print("\n3. Testing unassign...")
-    tool = LinearUpdateStatus(
-        issue_id="issue_abc123",
-        assignee_id="unassign"
-    )
+    tool = LinearUpdateStatus(issue_id="issue_abc123", assignee_id="unassign")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -543,7 +462,7 @@ if __name__ == "__main__":
     tool = LinearUpdateStatus(
         issue_id="issue_abc123",
         add_labels=["label_bug", "label_urgent"],
-        remove_labels=["label_backlog"]
+        remove_labels=["label_backlog"],
     )
     result = tool.run()
 
@@ -557,7 +476,7 @@ if __name__ == "__main__":
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")
@@ -565,14 +484,11 @@ if __name__ == "__main__":
     # Test 6: Error handling - invalid priority
     print("\n6. Testing error handling (invalid priority)...")
     try:
-        tool = LinearUpdateStatus(
-            issue_id="issue_abc123",
-            priority=10
-        )
+        tool = LinearUpdateStatus(issue_id="issue_abc123", priority=10)
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")

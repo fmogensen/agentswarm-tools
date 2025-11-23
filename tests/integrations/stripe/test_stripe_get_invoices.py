@@ -2,13 +2,14 @@
 Tests for Stripe Get Invoices Tool
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch
 import time
+from unittest.mock import Mock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.stripe.stripe_get_invoices import StripeGetInvoices
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 @pytest.fixture
@@ -116,9 +117,7 @@ class TestStripeGetInvoices:
     def test_validation_conflicting_pagination(self):
         """Test validation for conflicting pagination"""
         with pytest.raises(ValidationError) as exc_info:
-            tool = StripeGetInvoices(
-                starting_after="in_123", ending_before="in_456"
-            )
+            tool = StripeGetInvoices(starting_after="in_123", ending_before="in_456")
             tool.run()
 
         assert "Cannot specify both" in str(exc_info.value)
@@ -130,16 +129,12 @@ class TestStripeGetInvoices:
 
         # Invalid created range
         with pytest.raises(ValidationError):
-            tool = StripeGetInvoices(
-                created_after=current_time, created_before=week_ago
-            )
+            tool = StripeGetInvoices(created_after=current_time, created_before=week_ago)
             tool.run()
 
         # Invalid due_date range
         with pytest.raises(ValidationError):
-            tool = StripeGetInvoices(
-                due_date_after=current_time, due_date_before=week_ago
-            )
+            tool = StripeGetInvoices(due_date_after=current_time, due_date_before=week_ago)
             tool.run()
 
     def test_validation_invalid_customer_id(self):
@@ -184,9 +179,7 @@ class TestStripeGetInvoices:
         current_time = int(time.time())
         month_from_now = current_time + (86400 * 30)
 
-        tool = StripeGetInvoices(
-            due_date_after=current_time, due_date_before=month_from_now
-        )
+        tool = StripeGetInvoices(due_date_after=current_time, due_date_before=month_from_now)
         result = tool.run()
 
         assert result["success"] is True
@@ -268,7 +261,10 @@ class TestStripeGetInvoices:
         mock_response = Mock()
         mock_response.data = [mock_invoice]
         mock_response.has_more = False
-        mock_response.get = lambda key, default=None: {"data": [mock_invoice], "has_more": False}.get(key, default)
+        mock_response.get = lambda key, default=None: {
+            "data": [mock_invoice],
+            "has_more": False,
+        }.get(key, default)
 
         mock_stripe.Invoice.list.return_value = mock_response
 
@@ -292,15 +288,13 @@ class TestStripeGetInvoices:
         mock_response = Mock()
         mock_response.data = []
         mock_response.has_more = False
-        mock_response.get = lambda key, default=None: {"data": [], "has_more": False}.get(key, default)
+        mock_response.get = lambda key, default=None: {"data": [], "has_more": False}.get(
+            key, default
+        )
 
         mock_stripe.Invoice.list.return_value = mock_response
 
-        tool = StripeGetInvoices(
-            customer_id="cus_123",
-            status="paid",
-            limit=10
-        )
+        tool = StripeGetInvoices(customer_id="cus_123", status="paid", limit=10)
         result = tool.run()
 
         assert result["success"] is True

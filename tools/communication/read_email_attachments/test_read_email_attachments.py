@@ -1,13 +1,14 @@
 """Tests for read_email_attachments tool."""
 
-import pytest
-import os
 import json
-from unittest.mock import patch, mock_open
+import os
+from unittest.mock import mock_open, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.communication.read_email_attachments import ReadEmailAttachments
-from shared.errors import ValidationError, APIError
 
 
 class TestReadEmailAttachments:

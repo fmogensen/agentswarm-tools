@@ -2,14 +2,16 @@
 Capture screenshot of a webpage as visual representation
 """
 
-from typing import Any, Dict
-from pydantic import Field, HttpUrl
 import os
+from typing import Any, Dict
+
 import requests
+from pydantic import Field, HttpUrl
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class WebpageCaptureScreen(BaseTool):

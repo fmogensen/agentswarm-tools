@@ -2,16 +2,16 @@
 Search and list emails from Gmail based on query
 """
 
-from typing import Any, Dict, List
-from pydantic import Field
 import os
-
-from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from typing import Any, Dict, List
 
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from pydantic import Field
+
+from shared.base import BaseTool
+from shared.errors import APIError, ValidationError
 
 
 class GmailSearch(BaseTool):

@@ -2,13 +2,14 @@
 Tests for Stripe Create Subscription Tool
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
 import time
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.stripe.stripe_create_subscription import StripeCreateSubscription
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 @pytest.fixture
@@ -331,8 +332,7 @@ class TestStripeCreateSubscription:
         import stripe as stripe_module
 
         mock_stripe.Subscription.create.side_effect = stripe_module.error.InvalidRequestError(
-            message="Invalid price",
-            param="price"
+            message="Invalid price", param="price"
         )
 
         with pytest.raises(ValidationError) as exc_info:

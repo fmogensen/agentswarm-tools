@@ -1,13 +1,14 @@
 """Tests for phone_call tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any
 import os
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.communication.phone_call import PhoneCall
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 class TestPhoneCall:

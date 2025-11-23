@@ -9,13 +9,13 @@ This test file demonstrates:
 - Error case testing
 """
 
-import pytest
-from unittest.mock import patch
-from unittest.mock import Mock, patch, MagicMock
-from typing import Dict, Any
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools._examples.demo_tool import DemoTool
-from shared.errors import ValidationError, APIError
 
 
 class TestDemoTool:

@@ -5,7 +5,8 @@ Functions for validating tool parameters.
 """
 
 import inspect
-from typing import Dict, Any, Type
+from typing import Any, Dict, Type
+
 from pydantic import ValidationError
 
 

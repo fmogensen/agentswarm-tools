@@ -4,12 +4,12 @@ Test command implementation
 Tests tools with mock data to verify functionality.
 """
 
-import sys
-import os
 import importlib
 import inspect
+import os
+import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 
 def get_all_tool_classes() -> List[tuple]:

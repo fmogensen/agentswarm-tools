@@ -5,6 +5,7 @@ These tests validate utility tools that don't require external APIs.
 """
 
 import os
+
 import pytest
 
 pytestmark = [
@@ -15,8 +16,9 @@ pytestmark = [
 @pytest.fixture(autouse=True)
 def reset_rate_limiter_for_test():
     """Reset rate limiter before each test by giving buckets full tokens."""
-    from shared.security import get_rate_limiter
     from datetime import datetime
+
+    from shared.security import get_rate_limiter
 
     limiter = get_rate_limiter()
     # Clear all buckets
@@ -89,8 +91,8 @@ class TestCodeExecutionTools:
 
     def test_write_and_read_file(self, tmp_path):
         """Test writing and reading a file."""
-        from tools.infrastructure.execution.write_tool import WriteTool
         from tools.infrastructure.execution.read_tool import ReadTool
+        from tools.infrastructure.execution.write_tool import WriteTool
 
         test_file = str(tmp_path / "test.txt")
         test_content = "Hello, World!"

@@ -2,20 +2,21 @@
 Automatically extract engaging clips from long-form videos using AI-powered scene detection.
 """
 
-from typing import Any, Dict, List, Optional, Literal, ClassVar
-from pydantic import Field, HttpUrl, field_validator
+import json
 import os
+import re
 import subprocess
 import tempfile
-import requests
 import uuid
-import json
-import re
 from pathlib import Path
+from typing import Any, ClassVar, Dict, List, Literal, Optional
 from urllib.parse import urlparse
 
+import requests
+from pydantic import Field, HttpUrl, field_validator
+
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, MediaError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, MediaError, ValidationError
 
 
 class VideoClipperTool(BaseTool):

@@ -5,13 +5,14 @@ Creates pull requests using GitHub's GraphQL API (10x faster than REST).
 Supports PR templates, auto-reviewers, labels, and draft PRs.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class GitHubCreatePR(BaseTool):
@@ -73,23 +74,13 @@ class GitHubCreatePR(BaseTool):
         min_length=1,
         max_length=100,
     )
-    repo_name: str = Field(
-        ..., description="Repository name", min_length=1, max_length=100
-    )
-    title: str = Field(
-        ..., description="Pull request title", min_length=1, max_length=256
-    )
-    head_branch: str = Field(
-        ..., description="Source branch name", min_length=1, max_length=100
-    )
+    repo_name: str = Field(..., description="Repository name", min_length=1, max_length=100)
+    title: str = Field(..., description="Pull request title", min_length=1, max_length=256)
+    head_branch: str = Field(..., description="Source branch name", min_length=1, max_length=100)
 
     # Optional parameters
-    base_branch: str = Field(
-        "main", description="Target branch name", min_length=1, max_length=100
-    )
-    body: Optional[str] = Field(
-        None, description="Pull request description (markdown supported)"
-    )
+    base_branch: str = Field("main", description="Target branch name", min_length=1, max_length=100)
+    body: Optional[str] = Field(None, description="Pull request description (markdown supported)")
     draft: bool = Field(False, description="Create as draft PR")
     reviewers: Optional[List[str]] = Field(
         None, description="GitHub usernames to request reviews from"
@@ -98,12 +89,8 @@ class GitHubCreatePR(BaseTool):
         None, description="Team slugs to request reviews from"
     )
     labels: Optional[List[str]] = Field(None, description="Label names to add to PR")
-    assignees: Optional[List[str]] = Field(
-        None, description="GitHub usernames to assign to PR"
-    )
-    milestone: Optional[int] = Field(
-        None, description="Milestone number to associate with PR"
-    )
+    assignees: Optional[List[str]] = Field(None, description="GitHub usernames to assign to PR")
+    milestone: Optional[int] = Field(None, description="Milestone number to associate with PR")
     auto_merge: bool = Field(False, description="Enable auto-merge when checks pass")
 
     def _execute(self) -> Dict[str, Any]:
@@ -174,9 +161,7 @@ class GitHubCreatePR(BaseTool):
         if self.labels:
             for label in self.labels:
                 if not label.strip():
-                    raise ValidationError(
-                        "Label name cannot be empty", tool_name=self.tool_name
-                    )
+                    raise ValidationError("Label name cannot be empty", tool_name=self.tool_name)
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""
@@ -402,9 +387,7 @@ class GitHubCreatePR(BaseTool):
         }
         """
 
-        variables = {
-            "input": {"pullRequestId": pr_id, "mergeMethod": "MERGE"}
-        }
+        variables = {"input": {"pullRequestId": pr_id, "mergeMethod": "MERGE"}}
 
         self._execute_graphql(token, mutation, variables)
 
@@ -472,9 +455,7 @@ class GitHubCreatePR(BaseTool):
         label = response.get("data", {}).get("repository", {}).get("label")
         return label["id"] if label else None
 
-    def _execute_graphql(
-        self, token: str, query: str, variables: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _execute_graphql(self, token: str, query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
         """Execute GraphQL query/mutation."""
         import requests
 

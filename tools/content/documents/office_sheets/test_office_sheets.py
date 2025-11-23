@@ -2,10 +2,12 @@
 Unit tests for OfficeSheetsTool
 """
 
-import pytest
 import os
+
+import pytest
 from office_sheets import OfficeSheetsTool
-from shared.errors import ValidationError, APIError
+
+from shared.errors import APIError, ValidationError
 
 
 class TestOfficeSheetsTool:

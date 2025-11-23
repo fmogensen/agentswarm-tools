@@ -2,11 +2,12 @@
 Tests for command history functionality
 """
 
-import pytest
 import json
 import tempfile
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 from cli.history import CommandHistory
 
@@ -29,11 +30,7 @@ class TestCommandHistory:
         history = temp_history
 
         history.add_command(
-            command="run",
-            tool="web_search",
-            params={"query": "test"},
-            success=True,
-            duration=1.5
+            command="run", tool="web_search", params={"query": "test"}, success=True, duration=1.5
         )
 
         assert len(history.history) == 1
@@ -48,11 +45,7 @@ class TestCommandHistory:
         history = temp_history
 
         for i in range(5):
-            history.add_command(
-                command="run",
-                tool=f"tool_{i}",
-                success=True
-            )
+            history.add_command(command="run", tool=f"tool_{i}", success=True)
 
         assert len(history.history) == 5
 
@@ -142,11 +135,7 @@ class TestCommandHistory:
         history = temp_history
 
         # Add command
-        history.add_command(
-            command="run",
-            tool="web_search",
-            params={"query": "test"}
-        )
+        history.add_command(command="run", tool="web_search", params={"query": "test"})
 
         # Get for replay
         replay_info = history.replay_command(1)
@@ -221,7 +210,7 @@ def test_history_entry_structure():
         params={"query": "test"},
         success=True,
         error=None,
-        duration=1.5
+        duration=1.5,
     )
 
     entry = history.history[0]

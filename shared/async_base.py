@@ -5,22 +5,23 @@ Provides async execution support for I/O-bound tools with non-blocking operation
 This class extends the sync BaseTool while maintaining 100% API compatibility.
 """
 
-from typing import Any, Optional, Dict
-from datetime import datetime
-from abc import abstractmethod
 import asyncio
-import time
 import logging
-import uuid
 import os
+import time
+import uuid
+from abc import abstractmethod
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 # Import from Agency Swarm
 try:
     from agency_swarm.tools.base_tool import BaseTool as AgencyBaseTool
 except ImportError:
     # Fallback for development/testing without agency-swarm installed
-    from pydantic import BaseModel
     from abc import ABC
+
+    from pydantic import BaseModel
 
     class AgencyBaseTool(BaseModel, ABC):
         """Fallback BaseTool for development."""
@@ -30,10 +31,9 @@ except ImportError:
             pass
 
 
+from .analytics import AnalyticsEvent, EventType, record_event
 from .errors import ToolError, ValidationError
-from .analytics import record_event, AnalyticsEvent, EventType
 from .security import get_rate_limiter
-
 
 # Configure logging
 logging.basicConfig(
@@ -215,6 +215,7 @@ class AsyncBaseTool(AgencyBaseTool):
                 # If loop is already running, create a new task
                 # This shouldn't happen in normal Agency Swarm usage
                 import concurrent.futures
+
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(asyncio.run, self.run_async())
                     return future.result()

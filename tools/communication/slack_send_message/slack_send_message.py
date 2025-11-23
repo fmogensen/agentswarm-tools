@@ -2,12 +2,13 @@
 Send messages to Slack channels via Slack API
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 try:
     from slack_sdk import WebClient
@@ -131,8 +132,8 @@ class SlackSendMessage(BaseTool):
 
     def _generate_mock_results(self) -> Dict[str, Any]:
         """Generate mock results."""
-        from datetime import datetime
         import time
+        from datetime import datetime
 
         mock_ts = str(time.time())
 

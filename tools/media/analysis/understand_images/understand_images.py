@@ -2,19 +2,20 @@
 Read and analyze image content from URLs or AI Drive paths using LiteLLM vision models
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 try:
     import requests
 except ImportError:
     requests = None
 
+from shared.analytics import AnalyticsEvent, EventType, record_event
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
-from shared.llm_client import get_llm_client, LLMResponse
-from shared.analytics import record_event, AnalyticsEvent, EventType
+from shared.errors import APIError, ValidationError
+from shared.llm_client import LLMResponse, get_llm_client
 
 
 class UnderstandImages(BaseTool):
@@ -143,7 +144,10 @@ class UnderstandImages(BaseTool):
             fallback = self.fallback_models or ["claude-3-opus-20240229", "gemini-pro-vision"]
 
             # Build instruction prompt
-            instruction = self.instruction or "Describe this image in detail, including objects, people, text, colors, and composition."
+            instruction = (
+                self.instruction
+                or "Describe this image in detail, including objects, people, text, colors, and composition."
+            )
 
             # Prepare messages for vision API
             messages = [{"role": "user", "content": instruction}]

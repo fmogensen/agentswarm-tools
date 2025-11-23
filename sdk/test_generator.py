@@ -6,7 +6,8 @@ Generates comprehensive test suites with edge cases and mock data.
 
 import ast
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
+
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -85,7 +86,12 @@ class TestGenerator:
                                     # Extract parameters
                                     if (
                                         name
-                                        not in ["tool_name", "tool_category", "max_retries", "retry_delay"]
+                                        not in [
+                                            "tool_name",
+                                            "tool_category",
+                                            "max_retries",
+                                            "retry_delay",
+                                        ]
                                         and item.annotation
                                     ):
                                         param = self._extract_parameter(name, item)

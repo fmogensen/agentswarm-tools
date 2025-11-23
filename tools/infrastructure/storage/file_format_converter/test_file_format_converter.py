@@ -1,12 +1,13 @@
 """Tests for file_format_converter tool."""
 
-import pytest
-from unittest.mock import patch
 import base64
+from unittest.mock import patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.storage.file_format_converter import FileFormatConverter
-from shared.errors import ValidationError, APIError
 
 
 class TestFileFormatConverter:

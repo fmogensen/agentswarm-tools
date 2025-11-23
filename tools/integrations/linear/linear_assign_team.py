@@ -5,15 +5,16 @@ Manages team assignments, cycles, and estimates for Linear issues with support
 for sprint planning, capacity management, and team workflows.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
-import requests
+import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class LinearAssignTeam(BaseTool):
@@ -67,49 +68,29 @@ class LinearAssignTeam(BaseTool):
 
     # Required parameters
     issue_ids: List[str] = Field(
-        ...,
-        description="List of issue IDs to assign (can be single issue)",
-        min_items=1
+        ..., description="List of issue IDs to assign (can be single issue)", min_items=1
     )
 
     # Optional parameters - assignment targets
-    team_id: Optional[str] = Field(
-        None,
-        description="Team ID to assign issues to"
-    )
-    assignee_id: Optional[str] = Field(
-        None,
-        description="User ID to assign issues to"
-    )
-    cycle_id: Optional[str] = Field(
-        None,
-        description="Cycle/sprint ID"
-    )
+    team_id: Optional[str] = Field(None, description="Team ID to assign issues to")
+    assignee_id: Optional[str] = Field(None, description="User ID to assign issues to")
+    cycle_id: Optional[str] = Field(None, description="Cycle/sprint ID")
 
     # Optional parameters - estimation and planning
     estimate: Optional[float] = Field(
-        None,
-        description="Story points estimate to apply to all issues",
-        ge=0,
-        le=100
+        None, description="Story points estimate to apply to all issues", ge=0, le=100
     )
-    auto_assign: bool = Field(
-        False,
-        description="Auto-assign to team member with lowest workload"
-    )
+    auto_assign: bool = Field(False, description="Auto-assign to team member with lowest workload")
     distribute_evenly: bool = Field(
-        False,
-        description="Distribute issues evenly across team members"
+        False, description="Distribute issues evenly across team members"
     )
 
     # Optional parameters - dates
     start_date: Optional[str] = Field(
-        None,
-        description="Start date for cycle planning (ISO 8601 format)"
+        None, description="Start date for cycle planning (ISO 8601 format)"
     )
     due_date: Optional[str] = Field(
-        None,
-        description="Due date for cycle planning (ISO 8601 format)"
+        None, description="Due date for cycle planning (ISO 8601 format)"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -135,13 +116,10 @@ class LinearAssignTeam(BaseTool):
                     "tool_name": self.tool_name,
                     "team_id": self.team_id,
                     "cycle_id": self.cycle_id,
-                }
+                },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to assign team in Linear: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to assign team in Linear: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -150,50 +128,47 @@ class LinearAssignTeam(BaseTool):
             raise ValidationError(
                 "At least one issue ID must be provided",
                 tool_name=self.tool_name,
-                field="issue_ids"
+                field="issue_ids",
             )
 
         # Validate estimate
         if self.estimate is not None and self.estimate < 0:
             raise ValidationError(
-                "Estimate must be a positive number",
-                tool_name=self.tool_name,
-                field="estimate"
+                "Estimate must be a positive number", tool_name=self.tool_name, field="estimate"
             )
 
         # Can't use both assignee_id and auto_assign/distribute_evenly
         if self.assignee_id and (self.auto_assign or self.distribute_evenly):
             raise ValidationError(
                 "Cannot specify assignee_id with auto_assign or distribute_evenly",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         # auto_assign and distribute_evenly are mutually exclusive
         if self.auto_assign and self.distribute_evenly:
             raise ValidationError(
-                "Cannot use both auto_assign and distribute_evenly",
-                tool_name=self.tool_name
+                "Cannot use both auto_assign and distribute_evenly", tool_name=self.tool_name
             )
 
         # Validate dates
         if self.start_date:
             try:
-                datetime.fromisoformat(self.start_date.replace('Z', '+00:00'))
+                datetime.fromisoformat(self.start_date.replace("Z", "+00:00"))
             except (ValueError, AttributeError):
                 raise ValidationError(
                     "Start date must be in ISO 8601 format",
                     tool_name=self.tool_name,
-                    field="start_date"
+                    field="start_date",
                 )
 
         if self.due_date:
             try:
-                datetime.fromisoformat(self.due_date.replace('Z', '+00:00'))
+                datetime.fromisoformat(self.due_date.replace("Z", "+00:00"))
             except (ValueError, AttributeError):
                 raise ValidationError(
                     "Due date must be in ISO 8601 format",
                     tool_name=self.tool_name,
-                    field="due_date"
+                    field="due_date",
                 )
 
     def _should_use_mock(self) -> bool:
@@ -204,14 +179,16 @@ class LinearAssignTeam(BaseTool):
         """Generate mock results for testing."""
         assignments = []
         for i, issue_id in enumerate(self.issue_ids):
-            assignments.append({
-                "issue_id": issue_id,
-                "issue_identifier": f"ENG-{100 + i}",
-                "assigned_to": self.assignee_id or f"user_mock_{i % 3}",
-                "team": self.team_id or "team_mock",
-                "cycle": self.cycle_id,
-                "estimate": self.estimate or 3.0
-            })
+            assignments.append(
+                {
+                    "issue_id": issue_id,
+                    "issue_identifier": f"ENG-{100 + i}",
+                    "assigned_to": self.assignee_id or f"user_mock_{i % 3}",
+                    "team": self.team_id or "team_mock",
+                    "cycle": self.cycle_id,
+                    "estimate": self.estimate or 3.0,
+                }
+            )
 
         return {
             "success": True,
@@ -220,26 +197,30 @@ class LinearAssignTeam(BaseTool):
             "team_info": {
                 "team_id": self.team_id or "team_mock",
                 "team_name": "Engineering",
-                "member_count": 5
+                "member_count": 5,
             },
-            "cycle_info": {
-                "cycle_id": self.cycle_id,
-                "cycle_name": "Sprint 12",
-                "start_date": self.start_date or "2025-12-01",
-                "end_date": self.due_date or "2025-12-14"
-            } if self.cycle_id else {},
+            "cycle_info": (
+                {
+                    "cycle_id": self.cycle_id,
+                    "cycle_name": "Sprint 12",
+                    "start_date": self.start_date or "2025-12-01",
+                    "end_date": self.due_date or "2025-12-14",
+                }
+                if self.cycle_id
+                else {}
+            ),
             "capacity_summary": {
                 "total_capacity": 50.0,
                 "allocated": 25.0,
                 "remaining": 25.0,
-                "utilization": 0.5
+                "utilization": 0.5,
             },
             "metadata": {
                 "tool_name": self.tool_name,
                 "team_id": self.team_id,
                 "cycle_id": self.cycle_id,
                 "mock_mode": True,
-            }
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -248,8 +229,7 @@ class LinearAssignTeam(BaseTool):
         api_key = os.getenv("LINEAR_API_KEY")
         if not api_key:
             raise AuthenticationError(
-                "Missing LINEAR_API_KEY environment variable",
-                tool_name=self.tool_name
+                "Missing LINEAR_API_KEY environment variable", tool_name=self.tool_name
             )
 
         # Get team info if team_id provided
@@ -289,7 +269,7 @@ class LinearAssignTeam(BaseTool):
                 self.cycle_id,
                 self.estimate,
                 self.start_date,
-                self.due_date
+                self.due_date,
             )
 
             assignments.append(assignment)
@@ -298,12 +278,11 @@ class LinearAssignTeam(BaseTool):
             if assignee and team_members:
                 for member in team_members:
                     if member["id"] == assignee:
-                        member["workload"] += (self.estimate or 0)
+                        member["workload"] += self.estimate or 0
 
         # Calculate capacity summary
         capacity_summary = self._calculate_capacity_summary(
-            team_members if team_members else [],
-            cycle_info
+            team_members if team_members else [], cycle_info
         )
 
         return {
@@ -311,7 +290,7 @@ class LinearAssignTeam(BaseTool):
             "assignments": assignments,
             "team_info": team_info,
             "cycle_info": cycle_info,
-            "capacity_summary": capacity_summary
+            "capacity_summary": capacity_summary,
         }
 
     def _get_team_info(self, api_key: str, team_id: str) -> Dict[str, Any]:
@@ -337,16 +316,10 @@ class LinearAssignTeam(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": query,
-            "variables": {"id": team_id}
-        }
+        payload = {"query": query, "variables": {"id": team_id}}
 
         response = requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
+            "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
 
@@ -357,7 +330,7 @@ class LinearAssignTeam(BaseTool):
             "team_id": team.get("id"),
             "team_name": team.get("name"),
             "team_key": team.get("key"),
-            "member_count": len(team.get("members", {}).get("nodes", []))
+            "member_count": len(team.get("members", {}).get("nodes", [])),
         }
 
     def _get_cycle_info(self, api_key: str, cycle_id: str) -> Dict[str, Any]:
@@ -381,16 +354,10 @@ class LinearAssignTeam(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": query,
-            "variables": {"id": cycle_id}
-        }
+        payload = {"query": query, "variables": {"id": cycle_id}}
 
         response = requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
+            "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
 
@@ -403,7 +370,7 @@ class LinearAssignTeam(BaseTool):
             "cycle_number": cycle.get("number"),
             "start_date": cycle.get("startsAt"),
             "end_date": cycle.get("endsAt"),
-            "progress": cycle.get("progress", 0)
+            "progress": cycle.get("progress", 0),
         }
 
     def _get_team_members_workload(self, api_key: str, team_id: str) -> List[Dict[str, Any]]:
@@ -431,16 +398,10 @@ class LinearAssignTeam(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": query,
-            "variables": {"id": team_id}
-        }
+        payload = {"query": query, "variables": {"id": team_id}}
 
         response = requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
+            "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
 
@@ -452,11 +413,7 @@ class LinearAssignTeam(BaseTool):
         for member in members:
             issues = member.get("assignedIssues", {}).get("nodes", [])
             workload = sum(issue.get("estimate", 0) for issue in issues)
-            workload_list.append({
-                "id": member["id"],
-                "name": member["name"],
-                "workload": workload
-            })
+            workload_list.append({"id": member["id"], "name": member["name"], "workload": workload})
 
         return workload_list
 
@@ -476,7 +433,7 @@ class LinearAssignTeam(BaseTool):
         cycle_id: Optional[str],
         estimate: Optional[float],
         start_date: Optional[str],
-        due_date: Optional[str]
+        due_date: Optional[str],
     ) -> Dict[str, Any]:
         """Update issue with assignment details."""
         mutation = """
@@ -517,19 +474,10 @@ class LinearAssignTeam(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": mutation,
-            "variables": {
-                "id": issue_id,
-                "input": input_data
-            }
-        }
+        payload = {"query": mutation, "variables": {"id": issue_id, "input": input_data}}
 
         response = requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
+            "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
 
@@ -542,13 +490,11 @@ class LinearAssignTeam(BaseTool):
             "assigned_to": issue.get("assignee", {}).get("name"),
             "assignee_id": issue.get("assignee", {}).get("id"),
             "cycle": issue.get("cycle", {}).get("name"),
-            "estimate": issue.get("estimate")
+            "estimate": issue.get("estimate"),
         }
 
     def _calculate_capacity_summary(
-        self,
-        team_members: List[Dict[str, Any]],
-        cycle_info: Dict[str, Any]
+        self, team_members: List[Dict[str, Any]], cycle_info: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Calculate team capacity summary."""
         if not team_members:
@@ -564,7 +510,7 @@ class LinearAssignTeam(BaseTool):
             "remaining": max(0, total_capacity - total_workload),
             "utilization": min(1.0, total_workload / total_capacity if total_capacity > 0 else 0),
             "team_size": len(team_members),
-            "average_workload": total_workload / len(team_members) if team_members else 0
+            "average_workload": total_workload / len(team_members) if team_members else 0,
         }
 
 
@@ -573,15 +519,12 @@ if __name__ == "__main__":
     print("Testing LinearAssignTeam...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic assignment
     print("\n1. Testing basic team assignment...")
-    tool = LinearAssignTeam(
-        issue_ids=["issue_abc123"],
-        team_id="team_xyz",
-        assignee_id="user_123"
-    )
+    tool = LinearAssignTeam(issue_ids=["issue_abc123"], team_id="team_xyz", assignee_id="user_123")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -596,7 +539,7 @@ if __name__ == "__main__":
         issue_ids=["issue_1", "issue_2", "issue_3"],
         team_id="team_xyz",
         cycle_id="cycle_123",
-        estimate=5.0
+        estimate=5.0,
     )
     result = tool.run()
 
@@ -609,10 +552,7 @@ if __name__ == "__main__":
     # Test 3: Auto-assign (lowest workload)
     print("\n3. Testing auto-assign...")
     tool = LinearAssignTeam(
-        issue_ids=["issue_1", "issue_2"],
-        team_id="team_xyz",
-        auto_assign=True,
-        estimate=3.0
+        issue_ids=["issue_1", "issue_2"], team_id="team_xyz", auto_assign=True, estimate=3.0
     )
     result = tool.run()
 
@@ -626,7 +566,7 @@ if __name__ == "__main__":
         issue_ids=["issue_1", "issue_2", "issue_3", "issue_4", "issue_5"],
         team_id="team_xyz",
         distribute_evenly=True,
-        estimate=2.0
+        estimate=2.0,
     )
     result = tool.run()
 
@@ -638,14 +578,11 @@ if __name__ == "__main__":
     # Test 5: Error handling - no issues
     print("\n5. Testing error handling (no issues)...")
     try:
-        tool = LinearAssignTeam(
-            issue_ids=[],
-            team_id="team_xyz"
-        )
+        tool = LinearAssignTeam(issue_ids=[], team_id="team_xyz")
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")
@@ -653,15 +590,11 @@ if __name__ == "__main__":
     # Test 6: Error handling - conflicting options
     print("\n6. Testing error handling (conflicting options)...")
     try:
-        tool = LinearAssignTeam(
-            issue_ids=["issue_1"],
-            assignee_id="user_123",
-            auto_assign=True
-        )
+        tool = LinearAssignTeam(issue_ids=["issue_1"], assignee_id="user_123", auto_assign=True)
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")

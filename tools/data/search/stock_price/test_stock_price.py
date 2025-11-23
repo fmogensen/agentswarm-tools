@@ -1,12 +1,13 @@
 """Tests for stock_price tool."""
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.search.stock_price import StockPrice
-from shared.errors import ValidationError, APIError
 
 
 class TestStockPrice:
@@ -106,7 +107,9 @@ class TestStockPrice:
         ],
     )
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
-    def test_parameter_validation(self, ticker_value: str, expected_valid: bool, is_pydantic_error: bool):
+    def test_parameter_validation(
+        self, ticker_value: str, expected_valid: bool, is_pydantic_error: bool
+    ):
         """Test parameter validation with various inputs."""
         if is_pydantic_error:
             with pytest.raises(PydanticValidationError):

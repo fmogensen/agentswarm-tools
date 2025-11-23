@@ -5,8 +5,9 @@ These tests validate chart generation with real data.
 """
 
 import os
+from typing import Any, Dict
+
 import pytest
-from typing import Dict, Any
 
 pytestmark = [
     pytest.mark.integration,
@@ -25,8 +26,9 @@ def live_mode():
 @pytest.fixture(autouse=True)
 def reset_rate_limiter_for_test():
     """Reset rate limiter before each test by giving buckets full tokens."""
-    from shared.security import get_rate_limiter
     from datetime import datetime
+
+    from shared.security import get_rate_limiter
 
     limiter = get_rate_limiter()
     limiter._buckets.clear()

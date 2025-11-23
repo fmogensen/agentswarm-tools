@@ -4,12 +4,12 @@ Shared pytest fixtures for AgentSwarm Tools.
 This file provides common fixtures used across all tests.
 """
 
-import pytest
-from typing import Dict, Any, Generator
-from unittest.mock import Mock, MagicMock
-import redis
 import os
+from typing import Any, Dict, Generator
+from unittest.mock import MagicMock, Mock
 
+import pytest
+import redis
 
 # ========== PYTEST CONFIGURATION ==========
 

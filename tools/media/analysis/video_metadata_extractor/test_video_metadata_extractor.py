@@ -2,13 +2,14 @@
 Tests for VideoMetadataExtractor tool
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
 import tempfile
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.media_analysis.video_metadata_extractor import VideoMetadataExtractor
-from shared.errors import ValidationError, APIError
 
 
 class TestVideoMetadataExtractor:

@@ -4,17 +4,17 @@ CLI Commands Package
 All command implementations for the AgentSwarm CLI.
 """
 
+from . import completion as completion_tool
+from . import config as config_tool
+from . import history as history_tool
+from . import info as info_tool
+from . import interactive as interactive_tool
 from . import list as list_tools
+from . import performance
 from . import run as run_tool
 from . import test as test_tool
 from . import validate as validate_tool
-from . import config as config_tool
-from . import info as info_tool
-from . import interactive as interactive_tool
 from . import workflow as workflow_tool
-from . import history as history_tool
-from . import completion as completion_tool
-from . import performance
 
 __all__ = [
     "list_tools",

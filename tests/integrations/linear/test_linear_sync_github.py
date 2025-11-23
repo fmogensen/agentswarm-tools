@@ -12,9 +12,10 @@ Test coverage:
 - Validation and error handling
 """
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from tools.integrations.linear.linear_sync_github import LinearSyncGitHub
 
@@ -38,7 +39,7 @@ class TestLinearSyncGitHub:
         tool = LinearSyncGitHub(
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
-            github_repo="company/project"
+            github_repo="company/project",
         )
         result = tool.run()
 
@@ -49,9 +50,7 @@ class TestLinearSyncGitHub:
     def test_github_to_linear_sync(self):
         """Test syncing from GitHub to Linear."""
         tool = LinearSyncGitHub(
-            sync_direction="github_to_linear",
-            github_issue_number=42,
-            github_repo="company/project"
+            sync_direction="github_to_linear", github_issue_number=42, github_repo="company/project"
         )
         result = tool.run()
 
@@ -64,7 +63,7 @@ class TestLinearSyncGitHub:
             sync_direction="bidirectional",
             linear_issue_id="issue_abc123",
             github_issue_number=42,
-            github_repo="company/project"
+            github_repo="company/project",
         )
         result = tool.run()
 
@@ -80,7 +79,7 @@ class TestLinearSyncGitHub:
             linear_issue_id="issue_abc123",
             github_issue_number=42,
             github_repo="company/project",
-            sync_comments=True
+            sync_comments=True,
         )
         result = tool.run()
 
@@ -94,7 +93,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
             github_repo="company/project",
-            sync_labels=True
+            sync_labels=True,
         )
         result = tool.run()
 
@@ -108,7 +107,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
             github_repo="company/project",
-            sync_status=True
+            sync_status=True,
         )
         result = tool.run()
 
@@ -125,7 +124,7 @@ class TestLinearSyncGitHub:
             github_repo="company/project",
             sync_comments=True,
             sync_labels=True,
-            sync_status=True
+            sync_status=True,
         )
         result = tool.run()
 
@@ -140,7 +139,7 @@ class TestLinearSyncGitHub:
             linear_issue_id="issue_abc123",
             github_issue_number=42,
             github_repo="company/project",
-            conflict_resolution="linear_wins"
+            conflict_resolution="linear_wins",
         )
         result = tool.run()
 
@@ -153,7 +152,7 @@ class TestLinearSyncGitHub:
             linear_issue_id="issue_abc123",
             github_issue_number=42,
             github_repo="company/project",
-            conflict_resolution="github_wins"
+            conflict_resolution="github_wins",
         )
         result = tool.run()
 
@@ -166,7 +165,7 @@ class TestLinearSyncGitHub:
             linear_issue_id="issue_abc123",
             github_issue_number=42,
             github_repo="company/project",
-            conflict_resolution="manual"
+            conflict_resolution="manual",
         )
         result = tool.run()
 
@@ -183,7 +182,7 @@ class TestLinearSyncGitHub:
             linear_issue_id="issue_abc123",
             github_repo="company/project",
             sync_labels=True,
-            label_mapping={"bug": "type: bug", "urgent": "priority: high"}
+            label_mapping={"bug": "type: bug", "urgent": "priority: high"},
         )
         result = tool.run()
 
@@ -197,7 +196,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
             github_repo="company/project",
-            create_branch=True
+            create_branch=True,
         )
         result = tool.run()
 
@@ -213,7 +212,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
             github_repo="company/project",
-            github_pr_number=123
+            github_pr_number=123,
         )
         result = tool.run()
 
@@ -228,7 +227,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             github_repo="company/project",
             batch_sync=True,
-            batch_filters={"team_id": "team_xyz", "state": "In Progress"}
+            batch_filters={"team_id": "team_xyz", "state": "In Progress"},
         )
         result = tool.run()
 
@@ -241,7 +240,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             github_repo="company/project",
             batch_sync=True,
-            batch_filters={"team_id": "team_xyz"}
+            batch_filters={"team_id": "team_xyz"},
         )
         result = tool.run()
 
@@ -256,7 +255,7 @@ class TestLinearSyncGitHub:
             tool = LinearSyncGitHub(
                 sync_direction="invalid_direction",
                 github_repo="company/project",
-                linear_issue_id="issue_abc"
+                linear_issue_id="issue_abc",
             )
             tool.run()
 
@@ -268,7 +267,7 @@ class TestLinearSyncGitHub:
             tool = LinearSyncGitHub(
                 sync_direction="linear_to_github",
                 github_repo="invalid-format",
-                linear_issue_id="issue_abc"
+                linear_issue_id="issue_abc",
             )
             tool.run()
 
@@ -278,20 +277,20 @@ class TestLinearSyncGitHub:
         """Test validation fails when no issue IDs provided."""
         with pytest.raises(Exception) as exc_info:
             tool = LinearSyncGitHub(
-                sync_direction="linear_to_github",
-                github_repo="company/project"
+                sync_direction="linear_to_github", github_repo="company/project"
             )
             tool.run()
 
-        assert "issue" in str(exc_info.value).lower() or "linear_issue_id" in str(exc_info.value).lower()
+        assert (
+            "issue" in str(exc_info.value).lower()
+            or "linear_issue_id" in str(exc_info.value).lower()
+        )
 
     def test_validation_batch_without_filters(self):
         """Test validation fails for batch sync without filters."""
         with pytest.raises(Exception) as exc_info:
             tool = LinearSyncGitHub(
-                sync_direction="linear_to_github",
-                github_repo="company/project",
-                batch_sync=True
+                sync_direction="linear_to_github", github_repo="company/project", batch_sync=True
             )
             tool.run()
 
@@ -304,7 +303,7 @@ class TestLinearSyncGitHub:
                 sync_direction="bidirectional",
                 linear_issue_id="issue_abc",
                 github_repo="company/project",
-                conflict_resolution="invalid_option"
+                conflict_resolution="invalid_option",
             )
             tool.run()
 
@@ -317,7 +316,7 @@ class TestLinearSyncGitHub:
         tool = LinearSyncGitHub(
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
-            github_repo="company/project"
+            github_repo="company/project",
         )
         result = tool.run()
 
@@ -333,7 +332,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
             github_issue_number=42,
-            github_repo="company/project"
+            github_repo="company/project",
         )
         result = tool.run()
 
@@ -349,7 +348,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
             github_repo="company/project",
-            create_branch=True
+            create_branch=True,
         )
         result = tool.run()
 
@@ -362,7 +361,7 @@ class TestLinearSyncGitHub:
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc123",
             github_repo="company/project",
-            github_pr_number=123
+            github_pr_number=123,
         )
         result = tool.run()
 
@@ -376,7 +375,7 @@ class TestLinearSyncGitHub:
         tool = LinearSyncGitHub(
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc",
-            github_repo="company/project"
+            github_repo="company/project",
         )
 
         assert tool.tool_name == "linear_sync_github"
@@ -387,7 +386,7 @@ class TestLinearSyncGitHub:
         tool = LinearSyncGitHub(
             sync_direction="bidirectional",
             linear_issue_id="issue_abc",
-            github_repo="company/project"
+            github_repo="company/project",
         )
         result = tool.run()
 
@@ -404,22 +403,23 @@ class TestLinearSyncGitHub:
             "owner/repo",
             "org-name/repo-name",
             "user_123/project_456",
-            "company.com/repo.name"
+            "company.com/repo.name",
         ]
         for repo in valid_repos:
             tool = LinearSyncGitHub(
-                sync_direction="linear_to_github",
-                linear_issue_id="issue_abc",
-                github_repo=repo
+                sync_direction="linear_to_github", linear_issue_id="issue_abc", github_repo=repo
             )
             result = tool.run()
             assert result["success"] is True
 
     # Integration tests
 
-    @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "LINEAR_API_KEY": "test_key", "GITHUB_TOKEN": "gh_token"})
-    @patch('requests.post')
-    @patch('requests.get')
+    @patch.dict(
+        os.environ,
+        {"USE_MOCK_APIS": "false", "LINEAR_API_KEY": "test_key", "GITHUB_TOKEN": "gh_token"},
+    )
+    @patch("requests.post")
+    @patch("requests.get")
     def test_real_api_call_structure(self, mock_get, mock_post):
         """Test that real API calls are structured correctly."""
         # Mock Linear API response
@@ -433,7 +433,7 @@ class TestLinearSyncGitHub:
                     "description": "Description",
                     "state": {"name": "Todo"},
                     "labels": {"nodes": []},
-                    "updatedAt": "2025-01-01T00:00:00Z"
+                    "updatedAt": "2025-01-01T00:00:00Z",
                 }
             }
         }
@@ -445,7 +445,7 @@ class TestLinearSyncGitHub:
             "title": "Test issue",
             "body": "Description",
             "state": "open",
-            "labels": []
+            "labels": [],
         }
 
         mock_post.return_value = mock_linear_response
@@ -455,7 +455,7 @@ class TestLinearSyncGitHub:
             sync_direction="bidirectional",
             linear_issue_id="issue_abc",
             github_issue_number=42,
-            github_repo="company/project"
+            github_repo="company/project",
         )
         result = tool.run()
 
@@ -468,7 +468,7 @@ class TestLinearSyncGitHub:
         tool = LinearSyncGitHub(
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc",
-            github_repo="company/project"
+            github_repo="company/project",
         )
         result = tool.run()
 
@@ -480,7 +480,7 @@ class TestLinearSyncGitHub:
         tool = LinearSyncGitHub(
             sync_direction="linear_to_github",
             linear_issue_id="issue_abc",
-            github_repo="company/project"
+            github_repo="company/project",
         )
         result = tool.run()
 

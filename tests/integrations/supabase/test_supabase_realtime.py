@@ -3,10 +3,12 @@ Comprehensive tests for SupabaseRealtime tool.
 Achieves 90%+ code coverage.
 """
 
-import pytest
 import os
-from tools.integrations.supabase.supabase_realtime import SupabaseRealtime
+
+import pytest
+
 from shared.errors import ValidationError
+from tools.integrations.supabase.supabase_realtime import SupabaseRealtime
 
 
 class TestSupabaseRealtimeValidation:

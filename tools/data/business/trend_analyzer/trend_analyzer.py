@@ -2,13 +2,14 @@
 Analyze trends in time-series data.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
 import statistics
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class TrendAnalyzer(BaseTool):
@@ -41,23 +42,16 @@ class TrendAnalyzer(BaseTool):
 
     # Parameters
     data_points: List[float] = Field(
-        ...,
-        description="List of numeric data points in chronological order",
-        min_items=2
+        ..., description="List of numeric data points in chronological order", min_items=2
     )
     time_labels: Optional[List[str]] = Field(
-        None,
-        description="Optional time labels (e.g., dates) for each data point"
+        None, description="Optional time labels (e.g., dates) for each data point"
     )
     analysis_type: str = Field(
-        "trend",
-        description="Type of analysis: trend, volatility, seasonality, all"
+        "trend", description="Type of analysis: trend, volatility, seasonality, all"
     )
     window_size: int = Field(
-        3,
-        description="Window size for moving average calculations",
-        ge=2,
-        le=10
+        3, description="Window size for moving average calculations", ge=2, le=10
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -81,8 +75,8 @@ class TrendAnalyzer(BaseTool):
                     "analysis_type": self.analysis_type,
                     "data_points_count": len(self.data_points),
                     "window_size": self.window_size,
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"Trend analysis failed: {e}", tool_name=self.tool_name)
@@ -95,28 +89,28 @@ class TrendAnalyzer(BaseTool):
             raise ValidationError(
                 f"analysis_type must be one of {valid_types}",
                 tool_name=self.tool_name,
-                field="analysis_type"
+                field="analysis_type",
             )
 
         if len(self.data_points) < 2:
             raise ValidationError(
                 "data_points must contain at least 2 values",
                 tool_name=self.tool_name,
-                field="data_points"
+                field="data_points",
             )
 
         if self.time_labels and len(self.time_labels) != len(self.data_points):
             raise ValidationError(
                 "time_labels length must match data_points length",
                 tool_name=self.tool_name,
-                field="time_labels"
+                field="time_labels",
             )
 
         if self.window_size > len(self.data_points):
             raise ValidationError(
                 "window_size cannot be larger than number of data points",
                 tool_name=self.tool_name,
-                field="window_size"
+                field="window_size",
             )
 
     def _should_use_mock(self) -> bool:
@@ -138,14 +132,14 @@ class TrendAnalyzer(BaseTool):
                     "median": 14.5,
                     "std_dev": 4.2,
                     "min": 10.0,
-                    "max": 22.0
-                }
+                    "max": 22.0,
+                },
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
-                "data_points_count": len(self.data_points)
-            }
+                "data_points_count": len(self.data_points),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -207,7 +201,7 @@ class TrendAnalyzer(BaseTool):
             "slope": round(slope, 4),
             "percent_change": round(percent_change, 2),
             "first_value": first_value,
-            "last_value": last_value
+            "last_value": last_value,
         }
 
     def _analyze_volatility(self) -> Dict[str, Any]:
@@ -236,7 +230,7 @@ class TrendAnalyzer(BaseTool):
             "coefficient_of_variation": round(cv, 2),
             "range": round(data_range, 4),
             "min": min(self.data_points),
-            "max": max(self.data_points)
+            "max": max(self.data_points),
         }
 
     def _analyze_seasonality(self) -> Dict[str, Any]:
@@ -247,7 +241,7 @@ class TrendAnalyzer(BaseTool):
         if len(self.data_points) < 4:
             return {
                 "detected": False,
-                "message": "Insufficient data points for seasonality analysis (need at least 4)"
+                "message": "Insufficient data points for seasonality analysis (need at least 4)",
             }
 
         # Check for repeating patterns
@@ -260,12 +254,14 @@ class TrendAnalyzer(BaseTool):
                 diff = abs(self.data_points[i] - self.data_points[j])
                 avg = (self.data_points[i] + self.data_points[j]) / 2
                 if avg != 0 and diff / avg < 0.1:  # Within 10% similarity
-                    patterns_detected.append({
-                        "position_1": i,
-                        "position_2": j,
-                        "interval": j - i,
-                        "value": round(avg, 2)
-                    })
+                    patterns_detected.append(
+                        {
+                            "position_1": i,
+                            "position_2": j,
+                            "interval": j - i,
+                            "value": round(avg, 2),
+                        }
+                    )
 
         detected = len(patterns_detected) > 0
 
@@ -273,7 +269,11 @@ class TrendAnalyzer(BaseTool):
             "detected": detected,
             "pattern_count": len(patterns_detected),
             "patterns": patterns_detected[:5] if detected else [],  # Limit to first 5
-            "message": "Potential seasonal patterns detected" if detected else "No clear seasonal patterns found"
+            "message": (
+                "Potential seasonal patterns detected"
+                if detected
+                else "No clear seasonal patterns found"
+            ),
         }
 
     def _calculate_statistics(self) -> Dict[str, Any]:
@@ -282,10 +282,12 @@ class TrendAnalyzer(BaseTool):
             "count": len(self.data_points),
             "mean": round(statistics.mean(self.data_points), 4),
             "median": round(statistics.median(self.data_points), 4),
-            "std_dev": round(statistics.stdev(self.data_points), 4) if len(self.data_points) > 1 else 0,
+            "std_dev": (
+                round(statistics.stdev(self.data_points), 4) if len(self.data_points) > 1 else 0
+            ),
             "min": min(self.data_points),
             "max": max(self.data_points),
-            "sum": sum(self.data_points)
+            "sum": sum(self.data_points),
         }
 
     def _calculate_moving_average(self) -> List[float]:
@@ -295,7 +297,7 @@ class TrendAnalyzer(BaseTool):
 
         moving_avg = []
         for i in range(len(self.data_points) - self.window_size + 1):
-            window = self.data_points[i:i + self.window_size]
+            window = self.data_points[i : i + self.window_size]
             avg = statistics.mean(window)
             moving_avg.append(round(avg, 4))
 
@@ -308,12 +310,9 @@ if __name__ == "__main__":
     # Test with mock mode
     os.environ["USE_MOCK_APIS"] = "true"
 
-    tool = TrendAnalyzer(
-        data_points=[10, 12, 15, 14, 18, 20, 22],
-        analysis_type="all"
-    )
+    tool = TrendAnalyzer(data_points=[10, 12, 15, 14, 18, 20, 22], analysis_type="all")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True
+    assert result.get("success") == True
     print("TrendAnalyzer test passed!")

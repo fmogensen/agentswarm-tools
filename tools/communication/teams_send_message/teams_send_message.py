@@ -2,13 +2,14 @@
 Send messages to Microsoft Teams channels via Microsoft Graph API
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, Optional
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class TeamsSendMessage(BaseTool):
@@ -135,8 +136,8 @@ class TeamsSendMessage(BaseTool):
 
     def _generate_mock_results(self) -> Dict[str, Any]:
         """Generate mock results."""
-        from datetime import datetime
         import uuid
+        from datetime import datetime
 
         mock_id = str(uuid.uuid4())
 

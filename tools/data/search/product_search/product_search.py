@@ -2,13 +2,14 @@
 Search and recommend products from Amazon with detailed information
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, List, Optional
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class ProductSearch(BaseTool):
@@ -45,22 +46,10 @@ class ProductSearch(BaseTool):
     cache_key_params: list = ["type", "query", "ASIN", "location_domain"]
 
     # Parameters
-    type: str = Field(
-        ...,
-        description="Type of search: 'product_search' or 'product_detail'"
-    )
-    query: Optional[str] = Field(
-        None,
-        description="Search query for product_search"
-    )
-    ASIN: Optional[str] = Field(
-        None,
-        description="Amazon product ID for product_detail"
-    )
-    location_domain: Optional[str] = Field(
-        "com",
-        description="Amazon domain ('com' for US)"
-    )
+    type: str = Field(..., description="Type of search: 'product_search' or 'product_detail'")
+    query: Optional[str] = Field(None, description="Search query for product_search")
+    ASIN: Optional[str] = Field(None, description="Amazon product ID for product_detail")
+    location_domain: Optional[str] = Field("com", description="Amazon domain ('com' for US)")
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -105,21 +94,17 @@ class ProductSearch(BaseTool):
             raise ValidationError(
                 "Type must be 'product_search' or 'product_detail'",
                 tool_name=self.tool_name,
-                field="type"
+                field="type",
             )
 
         if self.type == "product_search" and not self.query:
             raise ValidationError(
-                "Query is required for product_search",
-                tool_name=self.tool_name,
-                field="query"
+                "Query is required for product_search", tool_name=self.tool_name, field="query"
             )
 
         if self.type == "product_detail" and not self.ASIN:
             raise ValidationError(
-                "ASIN is required for product_detail",
-                tool_name=self.tool_name,
-                field="ASIN"
+                "ASIN is required for product_detail", tool_name=self.tool_name, field="ASIN"
             )
 
     def _should_use_mock(self) -> bool:
@@ -140,10 +125,10 @@ class ProductSearch(BaseTool):
                         "review_count": 1000 + i * 100,
                         "images": [f"https://example.com/image{i}.jpg"],
                         "availability": "In Stock",
-                        "prime": True
+                        "prime": True,
                     }
                     for i in range(1, 6)
-                ]
+                ],
             }
         else:  # product_detail
             mock_results = {
@@ -152,33 +137,22 @@ class ProductSearch(BaseTool):
                 "price": "$49.99",
                 "rating": 4.5,
                 "review_count": 2500,
-                "images": [
-                    f"https://example.com/image1.jpg",
-                    f"https://example.com/image2.jpg"
-                ],
+                "images": [f"https://example.com/image1.jpg", f"https://example.com/image2.jpg"],
                 "availability": "In Stock",
                 "prime": True,
                 "description": "This is a detailed mock product description with features and specifications.",
-                "specifications": {
-                    "Brand": "Mock Brand",
-                    "Color": "Black",
-                    "Weight": "1.5 pounds"
-                },
+                "specifications": {"Brand": "Mock Brand", "Color": "Black", "Weight": "1.5 pounds"},
                 "customer_reviews": [
                     {
                         "rating": 5,
                         "title": "Great product!",
                         "text": "This is a mock review. The product works great.",
-                        "verified": True
+                        "verified": True,
                     }
                 ],
                 "related_products": [
-                    {
-                        "ASIN": "B08RELATED1",
-                        "title": "Related Product 1",
-                        "price": "$39.99"
-                    }
-                ]
+                    {"ASIN": "B08RELATED1", "title": "Related Product 1", "price": "$39.99"}
+                ],
             }
 
         metadata = {
@@ -205,10 +179,7 @@ class ProductSearch(BaseTool):
             # Get API key from environment
             api_key = os.getenv("AMAZON_API_KEY")
             if not api_key:
-                raise APIError(
-                    "AMAZON_API_KEY not found in environment",
-                    tool_name=self.tool_name
-                )
+                raise APIError("AMAZON_API_KEY not found in environment", tool_name=self.tool_name)
 
             # Build API request based on type
             if self.type == "product_search":
@@ -230,7 +201,7 @@ class ProductSearch(BaseTool):
                 "domain": self.location_domain,
                 "api_key": api_key,
             },
-            timeout=30
+            timeout=30,
         )
         response.raise_for_status()
 
@@ -239,22 +210,20 @@ class ProductSearch(BaseTool):
         # Extract and format product listings
         products = []
         for item in data.get("results", []):
-            products.append({
-                "ASIN": item.get("asin"),
-                "title": item.get("title"),
-                "price": item.get("price"),
-                "rating": item.get("rating"),
-                "review_count": item.get("reviews_count"),
-                "images": item.get("images", []),
-                "availability": item.get("availability"),
-                "prime": item.get("is_prime", False)
-            })
+            products.append(
+                {
+                    "ASIN": item.get("asin"),
+                    "title": item.get("title"),
+                    "price": item.get("price"),
+                    "rating": item.get("rating"),
+                    "review_count": item.get("reviews_count"),
+                    "images": item.get("images", []),
+                    "availability": item.get("availability"),
+                    "prime": item.get("is_prime", False),
+                }
+            )
 
-        return {
-            "search_query": self.query,
-            "products": products,
-            "total_results": len(products)
-        }
+        return {"search_query": self.query, "products": products, "total_results": len(products)}
 
     def _get_product_detail(self, api_key: str) -> Dict[str, Any]:
         """Get detailed information for a specific product."""
@@ -267,7 +236,7 @@ class ProductSearch(BaseTool):
                 "domain": self.location_domain,
                 "api_key": api_key,
             },
-            timeout=30
+            timeout=30,
         )
         response.raise_for_status()
 
@@ -288,7 +257,7 @@ class ProductSearch(BaseTool):
             "customer_reviews": data.get("customer_reviews", []),
             "qa": data.get("questions_and_answers", []),
             "related_products": data.get("related_products", []),
-            "pricing_history": data.get("pricing_history", [])
+            "pricing_history": data.get("pricing_history", []),
         }
 
 
@@ -310,8 +279,8 @@ if __name__ == "__main__":
     print(f"Success: {result.get('success')}")
     print(f"Search query: {result.get('result', {}).get('search_query')}")
     print(f"Products found: {len(result.get('result', {}).get('products', []))}")
-    if result.get('result', {}).get('products'):
-        first_product = result['result']['products'][0]
+    if result.get("result", {}).get("products"):
+        first_product = result["result"]["products"][0]
         print(f"First product ASIN: {first_product.get('ASIN')}")
         print(f"First product title: {first_product.get('title')}")
         print(f"First product price: {first_product.get('price')}")

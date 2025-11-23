@@ -2,15 +2,16 @@
 Detect and catalog downloadable media resources from web pages
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
-import requests
-from bs4 import BeautifulSoup
+from typing import Any, Dict, List, Optional
 from urllib.parse import urljoin
 
+import requests
+from bs4 import BeautifulSoup
+from pydantic import Field
+
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class ResourceDiscovery(BaseTool):

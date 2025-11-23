@@ -2,12 +2,13 @@
 Unit tests for MeetingNotesAgent tool
 """
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
+import pytest
 from meeting_notes import MeetingNotesAgent
-from shared.errors import ValidationError, APIError
+
+from shared.errors import APIError, ValidationError
 
 
 class TestMeetingNotesAgent:

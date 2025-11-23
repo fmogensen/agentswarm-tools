@@ -2,17 +2,18 @@
 Make AI-assisted phone calls via Twilio API
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
 import re
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 try:
-    from twilio.rest import Client
     from twilio.base.exceptions import TwilioRestException
+    from twilio.rest import Client
 
     TWILIO_AVAILABLE = True
 except ImportError:

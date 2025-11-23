@@ -2,13 +2,14 @@
 Retrieve current stock price information for a company
 """
 
-from typing import Any, Dict
-from pydantic import Field
 import os
+from typing import Any, Dict
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class StockPrice(BaseTool):
@@ -34,7 +35,12 @@ class StockPrice(BaseTool):
     tool_category: str = "data"
 
     # Parameters
-    ticker: str = Field(..., description="Stock ticker symbol (e.g., AAPL, GOOGL, TSLA)", min_length=1, max_length=10)
+    ticker: str = Field(
+        ...,
+        description="Stock ticker symbol (e.g., AAPL, GOOGL, TSLA)",
+        min_length=1,
+        max_length=10,
+    )
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -116,6 +122,7 @@ if __name__ == "__main__":
     print("Testing StockPrice...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = StockPrice(ticker="AAPL")
@@ -123,6 +130,6 @@ if __name__ == "__main__":
 
     print(f"Success: {result.get('success')}")
     print(f"Result: {result.get('result')}")
-    assert result.get('success') == True
-    assert result.get('result', {}).get('symbol') == "AAPL"
+    assert result.get("success") == True
+    assert result.get("result", {}).get("symbol") == "AAPL"
     print("All tests passed!")

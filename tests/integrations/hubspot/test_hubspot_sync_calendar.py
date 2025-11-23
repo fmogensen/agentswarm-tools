@@ -6,11 +6,13 @@ calendar synchronization, and bidirectional sync operations.
 """
 
 import os
-import pytest
-from unittest.mock import Mock, patch
 from datetime import datetime, timedelta
+from unittest.mock import Mock, patch
+
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.integrations.hubspot.hubspot_sync_calendar import HubSpotSyncCalendar
-from shared.errors import ValidationError, APIError
 
 
 class TestHubSpotSyncCalendar:

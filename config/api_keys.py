@@ -4,10 +4,10 @@ API key management
 Functions for managing API keys and credentials.
 """
 
-import os
-from typing import Optional, Dict, List
-from pathlib import Path
 import json
+import os
+from pathlib import Path
+from typing import Dict, List, Optional
 
 
 def get_config_path() -> Path:
@@ -79,7 +79,7 @@ def validate_api_keys() -> Dict[str, bool]:
     Returns:
         Dictionary mapping key names to whether they are set
     """
-    from .defaults import REQUIRED_API_KEYS, OPTIONAL_API_KEYS
+    from .defaults import OPTIONAL_API_KEYS, REQUIRED_API_KEYS
 
     results = {}
 

@@ -58,6 +58,7 @@ def test_validator():
     except Exception as e:
         print(f"❌ Validator test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -90,9 +91,9 @@ def test_test_generator():
         print(f"  - Tool Name: {tool_info['tool_name']}")
         print(f"  - Parameters: {len(tool_info['parameters'])}")
 
-        if tool_info['parameters']:
+        if tool_info["parameters"]:
             print(f"\n  Parameters:")
-            for param in tool_info['parameters']:
+            for param in tool_info["parameters"]:
                 print(f"    - {param['name']}: {param['type']}")
 
         return True
@@ -100,6 +101,7 @@ def test_test_generator():
     except Exception as e:
         print(f"❌ Test generator test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -135,7 +137,7 @@ def test_docs_generator():
         print(f"  - Parameters: {len(tool_info['parameters'])}")
         print(f"  - Requires API Key: {tool_info['requires_api_key']}")
 
-        if tool_info['requires_api_key']:
+        if tool_info["requires_api_key"]:
             print(f"  - API Key Env Var: {tool_info['api_key_env_var']}")
 
         return True
@@ -143,6 +145,7 @@ def test_docs_generator():
     except Exception as e:
         print(f"❌ Docs generator test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -207,6 +210,7 @@ def test_tool_structure():
     except Exception as e:
         print(f"❌ Structure analysis failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 

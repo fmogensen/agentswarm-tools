@@ -1,8 +1,10 @@
 """Tests for SlackReadMessages tool."""
 
-import pytest
 import os
+
+import pytest
 from slack_read_messages import SlackReadMessages
+
 from shared.errors import ValidationError
 
 

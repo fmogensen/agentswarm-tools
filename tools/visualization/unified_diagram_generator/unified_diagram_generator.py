@@ -8,12 +8,13 @@ Replaces:
 - generate_organization_chart
 """
 
-from typing import Any, Dict, Literal
-from pydantic import Field
 import os
+from typing import Any, Dict, Literal
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 from tools.visualization.renderers import DIAGRAM_RENDERERS
 
 DiagramType = Literal["fishbone", "flow", "mindmap", "org_chart"]

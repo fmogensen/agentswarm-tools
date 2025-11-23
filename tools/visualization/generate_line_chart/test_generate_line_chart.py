@@ -1,13 +1,13 @@
 """Tests for generate_line_chart tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
 
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.visualization.generate_line_chart import GenerateLineChart
-from shared.errors import ValidationError, APIError
 
 
 class TestGenerateLineChart:

@@ -5,8 +5,9 @@ Functions for formatting CLI output in various formats.
 """
 
 import json
+from typing import Any, Dict, List
+
 import yaml
-from typing import List, Any, Dict
 
 
 def format_table(headers: List[str], rows: List[List[Any]], max_width: int = 100) -> str:

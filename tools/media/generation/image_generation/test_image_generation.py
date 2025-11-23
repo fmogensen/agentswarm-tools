@@ -1,12 +1,13 @@
 """Tests for image_generation tool."""
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.media_generation.image_generation import ImageGeneration
-from shared.errors import ValidationError, APIError
 
 
 class TestImageGeneration:

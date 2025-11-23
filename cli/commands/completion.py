@@ -5,10 +5,10 @@ Manages shell auto-completion installation and display.
 """
 
 import sys
+
 from rich.console import Console
 
 from ..completion import CompletionManager
-
 
 console = Console()
 
@@ -87,15 +87,9 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Manage shell completion")
+    parser.add_argument("action", choices=["install", "show"], help="Completion action")
     parser.add_argument(
-        "action",
-        choices=["install", "show"],
-        help="Completion action"
-    )
-    parser.add_argument(
-        "--shell",
-        choices=["bash", "zsh", "fish"],
-        help="Shell type (auto-detect if not specified)"
+        "--shell", choices=["bash", "zsh", "fish"], help="Shell type (auto-detect if not specified)"
     )
 
     args = parser.parse_args()

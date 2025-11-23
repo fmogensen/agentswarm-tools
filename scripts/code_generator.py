@@ -6,10 +6,11 @@ Uses Claude Sonnet to generate complete tool implementations
 following the BaseTool pattern.
 """
 
-import os
 import json
+import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from openai import OpenAI
 
 

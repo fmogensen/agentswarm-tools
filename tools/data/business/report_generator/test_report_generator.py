@@ -1,9 +1,12 @@
 """Test cases for ReportGenerator tool."""
 
 import os
+
 import pytest
-from .report_generator import ReportGenerator
+
 from shared.errors import ValidationError
+
+from .report_generator import ReportGenerator
 
 
 class TestReportGenerator:
@@ -16,9 +19,7 @@ class TestReportGenerator:
     def test_summary_report(self):
         """Test summary report generation."""
         tool = ReportGenerator(
-            data={"revenue": 100000, "expenses": 60000},
-            report_type="summary",
-            title="Test Report"
+            data={"revenue": 100000, "expenses": 60000}, report_type="summary", title="Test Report"
         )
         result = tool.run()
 
@@ -29,9 +30,7 @@ class TestReportGenerator:
     def test_detailed_report(self):
         """Test detailed report generation."""
         tool = ReportGenerator(
-            data={"metric1": 100, "metric2": 200},
-            report_type="detailed",
-            title="Detailed Analysis"
+            data={"metric1": 100, "metric2": 200}, report_type="detailed", title="Detailed Analysis"
         )
         result = tool.run()
 
@@ -41,9 +40,7 @@ class TestReportGenerator:
     def test_executive_report(self):
         """Test executive report generation."""
         tool = ReportGenerator(
-            data={"kpi1": 95, "kpi2": 88},
-            report_type="executive",
-            title="Executive Summary"
+            data={"kpi1": 95, "kpi2": 88}, report_type="executive", title="Executive Summary"
         )
         result = tool.run()
 
@@ -53,9 +50,7 @@ class TestReportGenerator:
     def test_analytics_report(self):
         """Test analytics report generation."""
         tool = ReportGenerator(
-            data={"value1": 10, "value2": 20},
-            report_type="analytics",
-            title="Analytics Report"
+            data={"value1": 10, "value2": 20}, report_type="analytics", title="Analytics Report"
         )
         result = tool.run()
 
@@ -65,10 +60,7 @@ class TestReportGenerator:
     def test_json_format(self):
         """Test JSON output format."""
         tool = ReportGenerator(
-            data={"test": 123},
-            report_type="summary",
-            title="JSON Test",
-            format="json"
+            data={"test": 123}, report_type="summary", title="JSON Test", format="json"
         )
         result = tool.run()
 
@@ -78,10 +70,7 @@ class TestReportGenerator:
     def test_markdown_format(self):
         """Test Markdown output format."""
         tool = ReportGenerator(
-            data={"test": 123},
-            report_type="summary",
-            title="Markdown Test",
-            format="markdown"
+            data={"test": 123}, report_type="summary", title="Markdown Test", format="markdown"
         )
         result = tool.run()
 
@@ -92,10 +81,7 @@ class TestReportGenerator:
     def test_html_format(self):
         """Test HTML output format."""
         tool = ReportGenerator(
-            data={"test": 123},
-            report_type="summary",
-            title="HTML Test",
-            format="html"
+            data={"test": 123}, report_type="summary", title="HTML Test", format="html"
         )
         result = tool.run()
 
@@ -109,7 +95,7 @@ class TestReportGenerator:
             data={"value": 100},
             report_type="summary",
             title="Custom Sections",
-            sections=["overview", "metrics"]
+            sections=["overview", "metrics"],
         )
         result = tool.run()
 
@@ -119,42 +105,27 @@ class TestReportGenerator:
     def test_invalid_report_type(self):
         """Test invalid report type."""
         with pytest.raises(ValidationError):
-            tool = ReportGenerator(
-                data={"test": 1},
-                report_type="invalid",
-                title="Test"
-            )
+            tool = ReportGenerator(data={"test": 1}, report_type="invalid", title="Test")
             tool._validate_parameters()
 
     def test_invalid_format(self):
         """Test invalid format."""
         with pytest.raises(ValidationError):
             tool = ReportGenerator(
-                data={"test": 1},
-                report_type="summary",
-                title="Test",
-                format="invalid"
+                data={"test": 1}, report_type="summary", title="Test", format="invalid"
             )
             tool._validate_parameters()
 
     def test_empty_title(self):
         """Test empty title."""
         with pytest.raises(ValidationError):
-            tool = ReportGenerator(
-                data={"test": 1},
-                report_type="summary",
-                title=""
-            )
+            tool = ReportGenerator(data={"test": 1}, report_type="summary", title="")
             tool._validate_parameters()
 
     def test_mock_mode(self):
         """Test mock mode."""
         os.environ["USE_MOCK_APIS"] = "true"
-        tool = ReportGenerator(
-            data={"test": 1},
-            report_type="summary",
-            title="Mock Test"
-        )
+        tool = ReportGenerator(data={"test": 1}, report_type="summary", title="Mock Test")
         result = tool.run()
 
         assert result["success"] == True

@@ -2,13 +2,14 @@
 Generate 5-10 second video clips from text or reference images
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
 import time
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class VideoGeneration(BaseTool):

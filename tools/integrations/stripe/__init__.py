@@ -25,9 +25,9 @@ Example:
 
 from .stripe_create_payment import StripeCreatePayment
 from .stripe_create_subscription import StripeCreateSubscription
-from .stripe_list_customers import StripeListCustomers
 from .stripe_get_invoices import StripeGetInvoices
-from .stripe_handle_webhooks import StripeHandleWebhooks, STRIPE_EVENT_TYPES
+from .stripe_handle_webhooks import STRIPE_EVENT_TYPES, StripeHandleWebhooks
+from .stripe_list_customers import StripeListCustomers
 
 __all__ = [
     "StripeCreatePayment",

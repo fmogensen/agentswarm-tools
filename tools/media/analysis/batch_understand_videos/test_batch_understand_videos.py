@@ -1,12 +1,13 @@
 """Tests for batch_understand_videos tool."""
 
-import pytest
+from typing import Any, Dict
 from unittest.mock import patch
-from typing import Dict, Any
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.media_analysis.batch_understand_videos import BatchUnderstandVideos
-from shared.errors import ValidationError, APIError
 
 
 class TestBatchUnderstandVideos:

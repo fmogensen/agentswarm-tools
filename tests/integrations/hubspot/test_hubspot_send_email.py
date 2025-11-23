@@ -6,10 +6,12 @@ scheduling, tracking, and batch operations.
 """
 
 import os
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.integrations.hubspot.hubspot_send_email import HubSpotSendEmail
-from shared.errors import ValidationError, APIError
 
 
 class TestHubSpotSendEmail:

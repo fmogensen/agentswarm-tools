@@ -1,9 +1,12 @@
 """Test cases for BatchProcessor tool."""
 
 import os
+
 import pytest
-from .batch_processor import BatchProcessor
+
 from shared.errors import ValidationError
+
+from .batch_processor import BatchProcessor
 
 
 class TestBatchProcessor:

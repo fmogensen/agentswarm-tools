@@ -11,22 +11,21 @@ Tests all media generation tools:
 - video_effects
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
 
-from tools.media.generation.image_generation.image_generation import ImageGeneration
-from tools.media.generation.video_generation.video_generation import VideoGeneration
+import pytest
+
+from shared.errors import APIError, MediaError, ValidationError
 from tools.media.generation.audio_generation.audio_generation import AudioGeneration
-from tools.media.generation.podcast_generator.podcast_generator import PodcastGenerator
+from tools.media.generation.image_generation.image_generation import ImageGeneration
 from tools.media.generation.image_style_transfer.image_style_transfer import ImageStyleTransfer
+from tools.media.generation.podcast_generator.podcast_generator import PodcastGenerator
 from tools.media.generation.text_to_speech_advanced.text_to_speech_advanced import (
     TextToSpeechAdvanced,
 )
 from tools.media.generation.video_effects.video_effects import VideoEffects
-
-from shared.errors import ValidationError, APIError, MediaError
-
+from tools.media.generation.video_generation.video_generation import VideoGeneration
 
 # ========== ImageGeneration Tests ==========
 
@@ -53,9 +52,7 @@ class TestImageGeneration:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = ImageGeneration(
-            prompt="mountain landscape"
-        )
+        tool = ImageGeneration(prompt="mountain landscape")
         result = tool.run()
 
         assert result["success"] is True
@@ -81,6 +78,7 @@ class TestImageGeneration:
         # Don't actually run in live mode to avoid rate limits
         # Just test that the structure is correct in mock mode
         import os
+
         os.environ["USE_MOCK_APIS"] = "true"
 
         tool = ImageGeneration(prompt="test image", params={"size": "1024x1024"})
@@ -101,9 +99,7 @@ class TestImageGeneration:
         """Test size parameter validation"""
         valid_sizes = ["512x512", "1024x1024", "1024x768"]
         for size in valid_sizes:
-            tool = ImageGeneration(
-                prompt="test", params={"size": size}
-            )
+            tool = ImageGeneration(prompt="test", params={"size": size})
             # Should not raise
             tool._validate_parameters()
 
@@ -127,9 +123,7 @@ class TestVideoGeneration:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = VideoGeneration(
-            prompt="dancing robot"
-        )
+        tool = VideoGeneration(prompt="dancing robot")
         result = tool.run()
 
         assert result["success"] is True
@@ -152,6 +146,7 @@ class TestVideoGeneration:
     def test_execute_live_mode_success(self):
         """Test execution returns properly formatted result"""
         import os
+
         os.environ["USE_MOCK_APIS"] = "true"
 
         tool = VideoGeneration(prompt="test video", params={"duration": 6})
@@ -181,9 +176,7 @@ class TestAudioGeneration:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = AudioGeneration(
-            prompt="Test speech"
-        )
+        tool = AudioGeneration(prompt="Test speech")
         result = tool.run()
 
         assert result["success"] is True
@@ -200,6 +193,7 @@ class TestAudioGeneration:
     def test_execute_live_mode_success(self):
         """Test execution returns properly formatted result"""
         import os
+
         os.environ["USE_MOCK_APIS"] = "true"
 
         tool = AudioGeneration(prompt="test audio", params={"voice": "female"})
@@ -237,7 +231,7 @@ class TestPodcastGenerator:
             topic="Climate change",
             duration_minutes=5,
             num_speakers=1,
-            speaker_personalities=["climate expert"]
+            speaker_personalities=["climate expert"],
         )
         result = tool.run()
 
@@ -248,10 +242,7 @@ class TestPodcastGenerator:
     def test_validate_parameters_empty_topic(self):
         """Test validation with empty topic"""
         tool = PodcastGenerator(
-            topic="test",
-            duration_minutes=5,
-            num_speakers=1,
-            speaker_personalities=["host"]
+            topic="test", duration_minutes=5, num_speakers=1, speaker_personalities=["host"]
         )
         tool.topic = ""  # Set empty after init
         with pytest.raises(ValidationError):
@@ -260,12 +251,10 @@ class TestPodcastGenerator:
     def test_validate_parameters_invalid_duration(self):
         """Test validation with invalid duration - Pydantic validates at init"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             PodcastGenerator(
-                topic="test",
-                duration_minutes=0,
-                num_speakers=1,
-                speaker_personalities=["host"]
+                topic="test", duration_minutes=0, num_speakers=1, speaker_personalities=["host"]
             )
 
 
@@ -301,14 +290,13 @@ class TestImageStyleTransfer:
     def test_validate_parameters_empty_url(self):
         """Test validation with empty URL - Pydantic validates at init"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             ImageStyleTransfer(input_image="", style="starry_night")
 
     def test_validate_parameters_invalid_url(self):
         """Test validation with invalid URL"""
-        tool = ImageStyleTransfer(
-            input_image="not-a-url", style="starry_night"
-        )
+        tool = ImageStyleTransfer(input_image="not-a-url", style="starry_night")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
@@ -317,11 +305,10 @@ class TestImageStyleTransfer:
         # Don't actually run in live mode to avoid rate limits
         # Just test that the structure is correct in mock mode
         import os
+
         os.environ["USE_MOCK_APIS"] = "true"
 
-        tool = ImageStyleTransfer(
-            input_image="https://example.com/test.jpg", style="starry_night"
-        )
+        tool = ImageStyleTransfer(input_image="https://example.com/test.jpg", style="starry_night")
         result = tool.run()
 
         assert result["success"] is True
@@ -367,18 +354,21 @@ class TestTextToSpeechAdvanced:
     def test_validate_parameters_empty_text(self):
         """Test validation with empty text - Pydantic validates at init"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             TextToSpeechAdvanced(text="")
 
     def test_validate_parameters_invalid_rate(self):
         """Test validation with invalid rate - Pydantic validates at init"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             TextToSpeechAdvanced(text="test", rate=0.3)  # Below minimum 0.5
 
     def test_validate_parameters_rate_range(self):
         """Test validation with rate out of range - Pydantic validates at init"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             TextToSpeechAdvanced(text="test", rate=5.0)  # Above maximum 2.0
 
@@ -387,6 +377,7 @@ class TestTextToSpeechAdvanced:
         # Don't actually run in live mode to avoid rate limits
         # Just test that the structure is correct in mock mode
         import os
+
         os.environ["USE_MOCK_APIS"] = "true"
 
         tool = TextToSpeechAdvanced(text="test speech", gender="female", emotion="happy")
@@ -434,15 +425,14 @@ class TestVideoEffects:
     def test_validate_parameters_empty_path(self):
         """Test validation with empty input path - Pydantic validates at init"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
-            VideoEffects(
-                input_path="",
-                effects=[{"type": "blur"}]
-            )
+            VideoEffects(input_path="", effects=[{"type": "blur"}])
 
     def test_validate_parameters_empty_effects(self):
         """Test validation with empty effects list - Pydantic validates at init"""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             VideoEffects(
                 input_path="/path/to/video.mp4",
@@ -460,10 +450,7 @@ class TestVideoEffects:
         mock_rate_limiter.return_value = mock_limiter_instance
 
         # File validation happens in _validate_parameters
-        tool = VideoEffects(
-            input_path="/path/to/test.mp4",
-            effects=[{"type": "sepia"}]
-        )
+        tool = VideoEffects(input_path="/path/to/test.mp4", effects=[{"type": "sepia"}])
 
         # BaseTool catches ValidationError and returns error response
         result = tool.run()

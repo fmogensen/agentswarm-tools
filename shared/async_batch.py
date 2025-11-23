@@ -4,17 +4,17 @@ Provides concurrent execution, rate limiting, and error handling for async tools
 """
 
 import asyncio
+import logging
 import time
-from typing import Any, List, Dict, Optional, Callable, TypeVar, Coroutine
 from dataclasses import dataclass
 from datetime import datetime
-import logging
+from typing import Any, Callable, Coroutine, Dict, List, Optional, TypeVar
 
-from .errors import ToolError, RateLimitError
+from .errors import RateLimitError, ToolError
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
@@ -168,9 +168,13 @@ class AsyncBatchProcessor:
         results = []
         errors = []
 
-        logger.info(f"{description}: Processing {len(items)} items with max_concurrency={self.max_concurrency}")
+        logger.info(
+            f"{description}: Processing {len(items)} items with max_concurrency={self.max_concurrency}"
+        )
 
-        async def process_item(item: T, index: int) -> tuple[int, Optional[Any], Optional[Dict[str, Any]]]:
+        async def process_item(
+            item: T, index: int
+        ) -> tuple[int, Optional[Any], Optional[Dict[str, Any]]]:
             """Process single item with retry logic."""
             for attempt in range(self.max_retries):
                 try:
@@ -182,10 +186,7 @@ class AsyncBatchProcessor:
 
                         # Execute operation with optional timeout
                         if self.timeout:
-                            result = await asyncio.wait_for(
-                                operation(item),
-                                timeout=self.timeout
-                            )
+                            result = await asyncio.wait_for(operation(item), timeout=self.timeout)
                         else:
                             result = await operation(item)
 
@@ -200,7 +201,7 @@ class AsyncBatchProcessor:
                     }
 
                     if attempt < self.max_retries - 1:
-                        retry_delay = self.retry_delay * (2 ** attempt)
+                        retry_delay = self.retry_delay * (2**attempt)
                         logger.warning(f"Item {index} timeout, retrying in {retry_delay}s...")
                         await asyncio.sleep(retry_delay)
                     else:
@@ -216,11 +217,14 @@ class AsyncBatchProcessor:
                     }
 
                     # Don't retry on validation or auth errors
-                    if isinstance(e, ToolError) and e.error_code in ["VALIDATION_ERROR", "AUTH_ERROR"]:
+                    if isinstance(e, ToolError) and e.error_code in [
+                        "VALIDATION_ERROR",
+                        "AUTH_ERROR",
+                    ]:
                         return (index, None, error)
 
                     if attempt < self.max_retries - 1:
-                        retry_delay = self.retry_delay * (2 ** attempt)
+                        retry_delay = self.retry_delay * (2**attempt)
                         logger.warning(f"Item {index} failed: {e}, retrying in {retry_delay}s...")
                         await asyncio.sleep(retry_delay)
                     else:
@@ -239,10 +243,12 @@ class AsyncBatchProcessor:
             for result in completed:
                 if isinstance(result, Exception):
                     # Unexpected error from gather
-                    errors.append({
-                        "error": str(result),
-                        "error_type": type(result).__name__,
-                    })
+                    errors.append(
+                        {
+                            "error": str(result),
+                            "error_type": type(result).__name__,
+                        }
+                    )
                     results.append(None)
                 else:
                     index, item_result, item_error = result
@@ -259,10 +265,12 @@ class AsyncBatchProcessor:
 
         except Exception as e:
             logger.error(f"Batch processing failed: {e}")
-            errors.append({
-                "error": f"Batch processing failed: {e}",
-                "error_type": type(e).__name__,
-            })
+            errors.append(
+                {
+                    "error": f"Batch processing failed: {e}",
+                    "error_type": type(e).__name__,
+                }
+            )
 
         duration_ms = (time.time() - start_time) * 1000
         successful_count = len([r for r in results if r is not None])
@@ -285,14 +293,12 @@ class AsyncBatchProcessor:
                 "total_items": len(items),
                 "max_concurrency": self.max_concurrency,
                 "max_retries": self.max_retries,
-            }
+            },
         )
 
 
 async def gather_with_concurrency(
-    *coroutines: Coroutine,
-    max_concurrency: int = 10,
-    return_exceptions: bool = False
+    *coroutines: Coroutine, max_concurrency: int = 10, return_exceptions: bool = False
 ) -> List[Any]:
     """
     Gather coroutines with concurrency limit.
@@ -393,7 +399,7 @@ async def retry_async(
 
             if attempt < max_retries - 1:
                 if exponential_backoff:
-                    delay = retry_delay * (2 ** attempt)
+                    delay = retry_delay * (2**attempt)
                 else:
                     delay = retry_delay
 
@@ -435,9 +441,7 @@ if __name__ == "__main__":
 
         numbers = list(range(10))
         result = await processor.process(
-            items=numbers,
-            operation=process_number,
-            description="Processing numbers"
+            items=numbers, operation=process_number, description="Processing numbers"
         )
 
         print(f"  Success: {result.success}")
@@ -454,10 +458,7 @@ if __name__ == "__main__":
             await asyncio.sleep(0.05)
             return n * 2
 
-        results = await gather_with_concurrency(
-            *[fetch(i) for i in range(10)],
-            max_concurrency=3
-        )
+        results = await gather_with_concurrency(*[fetch(i) for i in range(10)], max_concurrency=3)
 
         print(f"  Results: {results}")
         assert len(results) == 10
@@ -480,11 +481,7 @@ if __name__ == "__main__":
 
             return "Success!"
 
-        result = await retry_async(
-            flaky_operation,
-            max_retries=5,
-            retry_delay=0.1
-        )
+        result = await retry_async(flaky_operation, max_retries=5, retry_delay=0.1)
 
         print(f"  Result: {result}")
         print(f"  Attempts: {attempt_count}")

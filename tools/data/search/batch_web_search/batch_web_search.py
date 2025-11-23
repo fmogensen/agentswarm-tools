@@ -2,13 +2,14 @@
 Perform multiple web searches in parallel for maximum efficiency
 """
 
-from typing import Any, Dict, List
-from pydantic import Field
 import os
+from typing import Any, Dict, List
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
-from shared.batch import parallel_process, DefaultProgressCallback
+from shared.batch import DefaultProgressCallback, parallel_process
+from shared.errors import APIError, ValidationError
 
 
 class BatchWebSearch(BaseTool):
@@ -51,9 +52,7 @@ class BatchWebSearch(BaseTool):
     max_results_per_query: int = Field(
         10, description="Maximum number of results per query", ge=1, le=100
     )
-    max_workers: int = Field(
-        10, description="Maximum number of parallel workers", ge=1, le=50
-    )
+    max_workers: int = Field(10, description="Maximum number of parallel workers", ge=1, le=50)
     show_progress: bool = Field(True, description="Whether to show progress information")
 
     def _execute(self) -> Dict[str, Any]:
@@ -175,8 +174,9 @@ class BatchWebSearch(BaseTool):
         """
         try:
             # Import WebSearch here to avoid circular imports and dependency issues
-            import sys
             import os
+            import sys
+
             parent_dir = os.path.dirname(os.path.dirname(__file__))
             if parent_dir not in sys.path:
                 sys.path.insert(0, parent_dir)

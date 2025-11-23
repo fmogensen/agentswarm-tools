@@ -1,12 +1,13 @@
 """Tests for merge_audio tool."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from io import BytesIO
 import json
+from io import BytesIO
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.media_analysis.merge_audio import MergeAudio
-from shared.errors import ValidationError, APIError
 
 
 class TestMergeAudio:

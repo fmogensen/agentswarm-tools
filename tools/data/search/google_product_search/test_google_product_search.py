@@ -1,12 +1,13 @@
 """Tests for google_product_search tool."""
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.search.google_product_search import GoogleProductSearch
-from shared.errors import ValidationError, APIError
 
 
 class TestGoogleProductSearch:
@@ -45,9 +46,7 @@ class TestGoogleProductSearch:
 
     def test_execute_success(self, tool: GoogleProductSearch):
         """Test successful execution."""
-        with patch.object(
-            tool, "_process", return_value=tool._generate_mock_results()["result"]
-        ):
+        with patch.object(tool, "_process", return_value=tool._generate_mock_results()["result"]):
             result = tool.run()
         assert result["success"] is True
         assert "result" in result
@@ -90,7 +89,11 @@ class TestGoogleProductSearch:
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
             result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert len(error_msg) > 0
 
     # ========== MOCK MODE ==========
@@ -118,9 +121,7 @@ class TestGoogleProductSearch:
     def test_unicode_query(self):
         """Test Unicode characters in query."""
         tool = GoogleProductSearch(query="笔记本电脑", num=5)
-        with patch.object(
-            tool, "_process", return_value=tool._generate_mock_results()["result"]
-        ):
+        with patch.object(tool, "_process", return_value=tool._generate_mock_results()["result"]):
             result = tool.run()
         assert result["success"] is True
         assert result["metadata"]["tool_name"] == "google_product_search"
@@ -130,9 +131,7 @@ class TestGoogleProductSearch:
         """Test special characters in query."""
         special_query = "laptop @#$%^&* special"
         tool = GoogleProductSearch(query=special_query, num=5)
-        with patch.object(
-            tool, "_process", return_value=tool._generate_mock_results()["result"]
-        ):
+        with patch.object(tool, "_process", return_value=tool._generate_mock_results()["result"]):
             result = tool.run()
         assert result["success"] is True
         assert result["metadata"]["tool_name"] == "google_product_search"
@@ -162,9 +161,7 @@ class TestGoogleProductSearch:
             ("test", 50, 5, True),  # Valid pagination
         ],
     )
-    def test_parameter_validation(
-        self, query: str, num: int, page: int, expected_valid: bool
-    ):
+    def test_parameter_validation(self, query: str, num: int, page: int, expected_valid: bool):
         """Test parameter validation with various inputs."""
         if expected_valid:
             tool = GoogleProductSearch(query=query, num=num, page=page)
@@ -182,9 +179,7 @@ class TestGoogleProductSearch:
     def test_full_workflow(self):
         """Test complete workflow."""
         tool = GoogleProductSearch(query="gaming mouse", num=10, page=0)
-        with patch.object(
-            tool, "_process", return_value=tool._generate_mock_results()["result"]
-        ):
+        with patch.object(tool, "_process", return_value=tool._generate_mock_results()["result"]):
             result = tool.run()
         assert result["success"] is True
         assert "result" in result

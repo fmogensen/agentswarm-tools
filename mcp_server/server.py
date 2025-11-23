@@ -8,24 +8,24 @@ Protocol: JSON-RPC 2.0 over stdio transport
 Spec: https://modelcontextprotocol.io/docs/specification
 """
 
-import sys
 import json
 import logging
-from typing import Any, Dict, List, Optional
-from datetime import datetime
+import sys
 import traceback
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from .tools import ToolRegistry
 from .config import MCPConfig
+from .tools import ToolRegistry
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('/tmp/agentswarm_mcp_server.log'),
-        logging.StreamHandler(sys.stderr)
-    ]
+        logging.FileHandler("/tmp/agentswarm_mcp_server.log"),
+        logging.StreamHandler(sys.stderr),
+    ],
 )
 
 logger = logging.getLogger(__name__)
@@ -61,7 +61,9 @@ class MCPServer:
 
         # Load tools
         self.tools = self.tool_registry.discover_tools()
-        logger.info(f"Loaded {len(self.tools)} tools from {len(self.config.enabled_categories)} categories")
+        logger.info(
+            f"Loaded {len(self.tools)} tools from {len(self.config.enabled_categories)} categories"
+        )
 
     def handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -91,21 +93,13 @@ class MCPServer:
             elif method == "ping":
                 result = {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
             else:
-                return self._error_response(
-                    request_id,
-                    -32601,
-                    f"Method not found: {method}"
-                )
+                return self._error_response(request_id, -32601, f"Method not found: {method}")
 
             return self._success_response(request_id, result)
 
         except Exception as e:
             logger.error(f"Error handling request: {e}\n{traceback.format_exc()}")
-            return self._error_response(
-                request_id,
-                -32603,
-                f"Internal error: {str(e)}"
-            )
+            return self._error_response(request_id, -32603, f"Internal error: {str(e)}")
 
     def _handle_initialize(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -115,15 +109,8 @@ class MCPServer:
         """
         return {
             "protocolVersion": self.PROTOCOL_VERSION,
-            "serverInfo": {
-                "name": "agentswarm-tools",
-                "version": self.VERSION
-            },
-            "capabilities": {
-                "tools": {
-                    "listChanged": False
-                }
-            }
+            "serverInfo": {"name": "agentswarm-tools", "version": self.VERSION},
+            "capabilities": {"tools": {"listChanged": False}},
         }
 
     def _handle_list_tools(self, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -176,12 +163,7 @@ class MCPServer:
 
             # Format response per MCP spec
             return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(result, indent=2, default=str)
-                    }
-                ]
+                "content": [{"type": "text", "text": json.dumps(result, indent=2, default=str)}]
             }
 
         except Exception as e:
@@ -190,21 +172,12 @@ class MCPServer:
             # Return error in content
             error_result = {
                 "success": False,
-                "error": {
-                    "code": "EXECUTION_ERROR",
-                    "message": str(e),
-                    "tool": tool_name
-                }
+                "error": {"code": "EXECUTION_ERROR", "message": str(e), "tool": tool_name},
             }
 
             return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(error_result, indent=2)
-                    }
-                ],
-                "isError": True
+                "content": [{"type": "text", "text": json.dumps(error_result, indent=2)}],
+                "isError": True,
             }
 
     def _success_response(self, request_id: Any, result: Any) -> Dict[str, Any]:
@@ -218,11 +191,7 @@ class MCPServer:
         Returns:
             JSON-RPC 2.0 response
         """
-        return {
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "result": result
-        }
+        return {"jsonrpc": "2.0", "id": request_id, "result": result}
 
     def _error_response(self, request_id: Any, code: int, message: str) -> Dict[str, Any]:
         """
@@ -236,14 +205,7 @@ class MCPServer:
         Returns:
             JSON-RPC 2.0 error response
         """
-        return {
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "error": {
-                "code": code,
-                "message": message
-            }
-        }
+        return {"jsonrpc": "2.0", "id": request_id, "error": {"code": code, "message": message}}
 
     def run(self):
         """
@@ -278,21 +240,13 @@ class MCPServer:
 
                 except json.JSONDecodeError as e:
                     logger.error(f"Invalid JSON: {e}")
-                    error_response = self._error_response(
-                        None,
-                        -32700,
-                        "Parse error: Invalid JSON"
-                    )
+                    error_response = self._error_response(None, -32700, "Parse error: Invalid JSON")
                     print(json.dumps(error_response))
                     sys.stdout.flush()
 
                 except Exception as e:
                     logger.error(f"Error processing request: {e}\n{traceback.format_exc()}")
-                    error_response = self._error_response(
-                        None,
-                        -32603,
-                        f"Internal error: {str(e)}"
-                    )
+                    error_response = self._error_response(None, -32603, f"Internal error: {str(e)}")
                     print(json.dumps(error_response))
                     sys.stdout.flush()
 

@@ -10,23 +10,21 @@ Provides unified interface for 100+ LLM providers with:
 - Streaming support
 """
 
-from typing import Any, Dict, List, Optional, Union, Iterator
+import json
+import logging
+import os
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import os
-import logging
-import time
-import json
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 try:
     import litellm
-    from litellm import completion, acompletion, image_generation
-    from litellm.exceptions import (
-        RateLimitError as LiteLLMRateLimitError,
-        AuthenticationError as LiteLLMAuthError,
-        Timeout as LiteLLMTimeout,
-    )
+    from litellm import acompletion, completion, image_generation
+    from litellm.exceptions import AuthenticationError as LiteLLMAuthError
+    from litellm.exceptions import RateLimitError as LiteLLMRateLimitError
+    from litellm.exceptions import Timeout as LiteLLMTimeout
 
     LITELLM_AVAILABLE = True
 except ImportError:
@@ -35,11 +33,10 @@ except ImportError:
 
 from .errors import (
     APIError,
-    RateLimitError,
     AuthenticationError,
+    RateLimitError,
     TimeoutError,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -250,9 +247,7 @@ class LLMClient:
             timeout: Request timeout in seconds
         """
         if not LITELLM_AVAILABLE:
-            raise ImportError(
-                "LiteLLM is not installed. Install with: pip install litellm>=1.30.0"
-            )
+            raise ImportError("LiteLLM is not installed. Install with: pip install litellm>=1.30.0")
 
         self.model_configs = model_configs or DEFAULT_MODEL_CONFIGS
         self.enable_fallback = enable_fallback

@@ -11,7 +11,6 @@ from typing import Optional
 from rich.console import Console
 from rich.panel import Panel
 
-
 console = Console()
 
 
@@ -29,7 +28,7 @@ class CompletionManager:
         Returns:
             Bash completion script
         """
-        return '''# AgentSwarm CLI bash completion
+        return """# AgentSwarm CLI bash completion
 
 _agentswarm_completions() {
     local cur prev opts tools categories commands
@@ -116,7 +115,7 @@ _agentswarm_completions() {
 }
 
 complete -F _agentswarm_completions agentswarm
-'''
+"""
 
     def generate_zsh_completion(self) -> str:
         """
@@ -125,7 +124,7 @@ complete -F _agentswarm_completions agentswarm
         Returns:
             Zsh completion script
         """
-        return '''#compdef agentswarm
+        return """#compdef agentswarm
 
 # AgentSwarm CLI zsh completion
 
@@ -242,7 +241,7 @@ _agentswarm() {
 }
 
 _agentswarm "$@"
-'''
+"""
 
     def generate_fish_completion(self) -> str:
         """
@@ -251,7 +250,7 @@ _agentswarm "$@"
         Returns:
             Fish completion script
         """
-        return '''# AgentSwarm CLI fish completion
+        return """# AgentSwarm CLI fish completion
 
 # Main commands
 complete -c agentswarm -f -n "__fish_use_subcommand" -a "list" -d "List available tools"
@@ -310,7 +309,7 @@ complete -c agentswarm -n "__fish_seen_subcommand_from config" -l set -d "Set va
 complete -c agentswarm -n "__fish_seen_subcommand_from config" -l get -d "Get value"
 complete -c agentswarm -n "__fish_seen_subcommand_from config" -l reset -d "Reset configuration"
 complete -c agentswarm -n "__fish_seen_subcommand_from config" -l validate -d "Validate configuration"
-'''
+"""
 
     def detect_shell(self) -> Optional[str]:
         """
@@ -474,9 +473,7 @@ Or start a new terminal session.
 """
 
         panel = Panel(
-            instructions.strip(),
-            title="[bold cyan]Next Steps[/bold cyan]",
-            border_style="green"
+            instructions.strip(), title="[bold cyan]Next Steps[/bold cyan]", border_style="green"
         )
         console.print(panel)
 

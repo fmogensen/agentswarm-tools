@@ -2,15 +2,16 @@
 Unified Google Workspace Tool - Consolidates Google Docs, Sheets, and Slides operations
 """
 
-from typing import Any, Dict, List, Optional, Literal
-from pydantic import Field
-import os
 import json
+import os
 import re
 from datetime import datetime
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError, ConfigurationError
+from shared.errors import APIError, AuthenticationError, ConfigurationError, ValidationError
 
 try:
     from google.oauth2 import service_account

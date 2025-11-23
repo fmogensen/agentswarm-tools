@@ -5,14 +5,15 @@ Submit pull request reviews using GitHub's GraphQL API.
 Supports comments, approve/reject, line-specific feedback, and suggestions.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class ReviewEvent(str, Enum):
@@ -79,25 +80,17 @@ class GitHubReviewCode(BaseTool):
         min_length=1,
         max_length=100,
     )
-    repo_name: str = Field(
-        ..., description="Repository name", min_length=1, max_length=100
-    )
+    repo_name: str = Field(..., description="Repository name", min_length=1, max_length=100)
     pr_number: int = Field(..., description="Pull request number", ge=1)
-    event: ReviewEvent = Field(
-        ..., description="Review action (APPROVE, REQUEST_CHANGES, COMMENT)"
-    )
+    event: ReviewEvent = Field(..., description="Review action (APPROVE, REQUEST_CHANGES, COMMENT)")
 
     # Optional parameters
-    body: Optional[str] = Field(
-        None, description="Overall review comment (markdown supported)"
-    )
+    body: Optional[str] = Field(None, description="Overall review comment (markdown supported)")
     comments: Optional[List[Dict[str, Any]]] = Field(
         None,
         description="Line-specific comments with path, position, and body",
     )
-    commit_id: Optional[str] = Field(
-        None, description="Specific commit SHA to review"
-    )
+    commit_id: Optional[str] = Field(None, description="Specific commit SHA to review")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the code review."""
@@ -133,9 +126,7 @@ class GitHubReviewCode(BaseTool):
         """Validate input parameters."""
         # Validate PR number
         if self.pr_number < 1:
-            raise ValidationError(
-                "pr_number must be positive", tool_name=self.tool_name
-            )
+            raise ValidationError("pr_number must be positive", tool_name=self.tool_name)
 
         # Validate body exists for APPROVE/REQUEST_CHANGES
         if self.event in [ReviewEvent.APPROVE, ReviewEvent.REQUEST_CHANGES]:
@@ -315,9 +306,7 @@ class GitHubReviewCode(BaseTool):
         response = self._execute_graphql(token, query, variables)
 
         if "errors" in response:
-            raise APIError(
-                "Failed to get latest commit", tool_name=self.tool_name
-            )
+            raise APIError("Failed to get latest commit", tool_name=self.tool_name)
 
         commits = response["data"]["node"]["commits"]["nodes"]
         if not commits:
@@ -325,9 +314,7 @@ class GitHubReviewCode(BaseTool):
 
         return commits[0]["commit"]["oid"]
 
-    def _execute_graphql(
-        self, token: str, query: str, variables: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _execute_graphql(self, token: str, query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
         """Execute GraphQL query/mutation."""
         import requests
 

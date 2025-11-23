@@ -3,31 +3,32 @@ Comprehensive tests for shared.analytics module.
 Target coverage: 90%+
 """
 
-import pytest
-import os
 import json
-import tempfile
+import os
 import shutil
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from shared.analytics import (
-    EventType,
-    AnalyticsEvent,
-    ToolMetrics,
     AnalyticsBackend,
-    InMemoryBackend,
+    AnalyticsEvent,
+    EventType,
     FileBackend,
-    get_backend,
-    record_event,
-    get_metrics,
+    InMemoryBackend,
+    ToolMetrics,
     get_all_metrics,
-    print_metrics
+    get_backend,
+    get_metrics,
+    print_metrics,
+    record_event,
 )
 
-
 # Fixtures
+
 
 @pytest.fixture
 def temp_analytics_dir():
@@ -63,6 +64,7 @@ def file_backend(temp_analytics_dir):
 
 # Test EventType Enum
 
+
 def test_event_type_values():
     """Test EventType enum values."""
     assert EventType.TOOL_START.value == "tool_start"
@@ -81,7 +83,7 @@ def test_event_type_members():
         "TOOL_ERROR",
         "API_CALL",
         "RATE_LIMIT",
-        "VALIDATION_ERROR"
+        "VALIDATION_ERROR",
     }
     actual = {e.name for e in EventType}
     assert actual == expected
@@ -89,12 +91,10 @@ def test_event_type_members():
 
 # Test AnalyticsEvent
 
+
 def test_analytics_event_creation():
     """Test AnalyticsEvent creation with required fields."""
-    event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    )
+    event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
 
     assert event.event_type == EventType.TOOL_SUCCESS
     assert event.tool_name == "test_tool"
@@ -119,7 +119,7 @@ def test_analytics_event_with_all_fields():
         error_message="Test error message",
         metadata={"key": "value"},
         user_id="user123",
-        request_id="req123"
+        request_id="req123",
     )
 
     assert event.duration_ms == 123.45
@@ -134,9 +134,7 @@ def test_analytics_event_with_all_fields():
 def test_analytics_event_to_dict():
     """Test AnalyticsEvent.to_dict() conversion."""
     event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool",
-        duration_ms=100.0
+        event_type=EventType.TOOL_SUCCESS, tool_name="test_tool", duration_ms=100.0
     )
 
     result = event.to_dict()
@@ -149,6 +147,7 @@ def test_analytics_event_to_dict():
 
 
 # Test ToolMetrics
+
 
 def test_tool_metrics_defaults():
     """Test ToolMetrics default values."""
@@ -238,18 +237,16 @@ def test_tool_metrics_to_dict():
 
 # Test InMemoryBackend
 
+
 def test_inmemory_backend_init(memory_backend):
     """Test InMemoryBackend initialization."""
     assert memory_backend.events == []
-    assert hasattr(memory_backend, '_lock')
+    assert hasattr(memory_backend, "_lock")
 
 
 def test_inmemory_backend_record_event(memory_backend):
     """Test recording events in memory."""
-    event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    )
+    event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
 
     memory_backend.record_event(event)
 
@@ -260,10 +257,7 @@ def test_inmemory_backend_record_event(memory_backend):
 def test_inmemory_backend_multiple_events(memory_backend):
     """Test recording multiple events."""
     for i in range(5):
-        event = AnalyticsEvent(
-            event_type=EventType.TOOL_SUCCESS,
-            tool_name=f"tool_{i}"
-        )
+        event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name=f"tool_{i}")
         memory_backend.record_event(event)
 
     assert len(memory_backend.events) == 5
@@ -282,9 +276,7 @@ def test_inmemory_backend_get_metrics_success(memory_backend):
     # Add success events
     for i in range(3):
         event = AnalyticsEvent(
-            event_type=EventType.TOOL_SUCCESS,
-            tool_name="test_tool",
-            duration_ms=100.0 + i * 10
+            event_type=EventType.TOOL_SUCCESS, tool_name="test_tool", duration_ms=100.0 + i * 10
         )
         memory_backend.record_event(event)
 
@@ -305,7 +297,7 @@ def test_inmemory_backend_get_metrics_errors(memory_backend):
             event_type=EventType.TOOL_ERROR,
             tool_name="test_tool",
             success=False,
-            error_code="ERROR_1"
+            error_code="ERROR_1",
         )
         memory_backend.record_event(event)
 
@@ -322,19 +314,20 @@ def test_inmemory_backend_get_metrics_mixed(memory_backend):
     """Test get_metrics with mixed success/error events."""
     # 3 successes
     for _ in range(3):
-        memory_backend.record_event(AnalyticsEvent(
-            event_type=EventType.TOOL_SUCCESS,
-            tool_name="test_tool"
-        ))
+        memory_backend.record_event(
+            AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
+        )
 
     # 2 errors
     for _ in range(2):
-        memory_backend.record_event(AnalyticsEvent(
-            event_type=EventType.TOOL_ERROR,
-            tool_name="test_tool",
-            success=False,
-            error_code="ERROR"
-        ))
+        memory_backend.record_event(
+            AnalyticsEvent(
+                event_type=EventType.TOOL_ERROR,
+                tool_name="test_tool",
+                success=False,
+                error_code="ERROR",
+            )
+        )
 
     metrics = memory_backend.get_metrics("test_tool")
 
@@ -348,18 +341,12 @@ def test_inmemory_backend_get_metrics_mixed(memory_backend):
 def test_inmemory_backend_get_metrics_with_days_filter(memory_backend):
     """Test get_metrics with days filter."""
     # Old event (10 days ago)
-    old_event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    )
+    old_event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
     old_event.timestamp = datetime.utcnow() - timedelta(days=10)
     memory_backend.record_event(old_event)
 
     # Recent event
-    recent_event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    )
+    recent_event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
     memory_backend.record_event(recent_event)
 
     # Get metrics for last 7 days
@@ -371,14 +358,12 @@ def test_inmemory_backend_get_metrics_with_days_filter(memory_backend):
 def test_inmemory_backend_get_all_metrics(memory_backend):
     """Test get_all_metrics."""
     # Add events for multiple tools
-    memory_backend.record_event(AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="tool_a"
-    ))
-    memory_backend.record_event(AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="tool_b"
-    ))
+    memory_backend.record_event(
+        AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="tool_a")
+    )
+    memory_backend.record_event(
+        AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="tool_b")
+    )
 
     all_metrics = memory_backend.get_all_metrics()
 
@@ -389,6 +374,7 @@ def test_inmemory_backend_get_all_metrics(memory_backend):
 
 
 # Test FileBackend
+
 
 def test_file_backend_init(file_backend, temp_analytics_dir):
     """Test FileBackend initialization."""
@@ -407,10 +393,7 @@ def test_file_backend_get_log_file(file_backend):
 
 def test_file_backend_record_event(file_backend):
     """Test recording event to file."""
-    event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    )
+    event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
 
     file_backend.record_event(event)
 
@@ -419,7 +402,7 @@ def test_file_backend_record_event(file_backend):
     assert log_file.exists()
 
     # Check content
-    with open(log_file, 'r') as f:
+    with open(log_file, "r") as f:
         line = f.readline()
         data = json.loads(line)
         assert data["tool_name"] == "test_tool"
@@ -428,16 +411,13 @@ def test_file_backend_record_event(file_backend):
 def test_file_backend_record_multiple_events(file_backend):
     """Test recording multiple events to file."""
     for i in range(3):
-        event = AnalyticsEvent(
-            event_type=EventType.TOOL_SUCCESS,
-            tool_name=f"tool_{i}"
-        )
+        event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name=f"tool_{i}")
         file_backend.record_event(event)
 
     log_file = file_backend._get_log_file(datetime.utcnow())
 
     # Check all events were written
-    with open(log_file, 'r') as f:
+    with open(log_file, "r") as f:
         lines = f.readlines()
         assert len(lines) == 3
 
@@ -447,9 +427,7 @@ def test_file_backend_get_metrics_from_file(file_backend):
     # Record events
     for i in range(3):
         event = AnalyticsEvent(
-            event_type=EventType.TOOL_SUCCESS,
-            tool_name="test_tool",
-            duration_ms=100.0 + i * 10
+            event_type=EventType.TOOL_SUCCESS, tool_name="test_tool", duration_ms=100.0 + i * 10
         )
         file_backend.record_event(event)
 
@@ -472,14 +450,8 @@ def test_file_backend_get_metrics_nonexistent_file(file_backend):
 def test_file_backend_get_all_metrics(file_backend):
     """Test get_all_metrics from files."""
     # Record events for multiple tools
-    file_backend.record_event(AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="tool_a"
-    ))
-    file_backend.record_event(AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="tool_b"
-    ))
+    file_backend.record_event(AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="tool_a"))
+    file_backend.record_event(AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="tool_b"))
 
     all_metrics = file_backend.get_all_metrics()
 
@@ -491,7 +463,7 @@ def test_file_backend_handles_malformed_json(file_backend):
     """Test FileBackend handles malformed JSON gracefully."""
     # Write malformed JSON
     log_file = file_backend._get_log_file(datetime.utcnow())
-    with open(log_file, 'w') as f:
+    with open(log_file, "w") as f:
         f.write("not valid json\n")
         f.write('{"valid": "json"}\n')  # But wrong format
 
@@ -502,12 +474,14 @@ def test_file_backend_handles_malformed_json(file_backend):
 
 # Test Global Functions
 
+
 def test_get_backend_default(clean_env, temp_analytics_dir):
     """Test get_backend with default (file) backend."""
     os.environ["ANALYTICS_LOG_DIR"] = temp_analytics_dir
 
     # Reset global backend
     import shared.analytics
+
     shared.analytics._backend = None
 
     backend = get_backend()
@@ -521,6 +495,7 @@ def test_get_backend_memory(clean_env):
 
     # Reset global backend
     import shared.analytics
+
     shared.analytics._backend = None
 
     backend = get_backend()
@@ -543,12 +518,10 @@ def test_record_event_global(clean_env):
 
     # Reset backend
     import shared.analytics
+
     shared.analytics._backend = None
 
-    event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    )
+    event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
 
     record_event(event)
 
@@ -563,13 +536,11 @@ def test_record_event_disabled(clean_env):
 
     # Reset backend
     import shared.analytics
+
     shared.analytics._backend = None
     shared.analytics._enabled = False
 
-    event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    )
+    event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
 
     record_event(event)
 
@@ -583,14 +554,12 @@ def test_record_event_exception_handling(clean_env):
 
     # Reset backend
     import shared.analytics
+
     shared.analytics._backend = None
 
-    event = AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    )
+    event = AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool")
 
-    with patch('shared.analytics.get_backend', side_effect=Exception("Backend error")):
+    with patch("shared.analytics.get_backend", side_effect=Exception("Backend error")):
         # Should not raise exception
         record_event(event)
 
@@ -601,12 +570,10 @@ def test_get_metrics_global(clean_env):
 
     # Reset and setup
     import shared.analytics
+
     shared.analytics._backend = None
 
-    record_event(AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool"
-    ))
+    record_event(AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool"))
 
     metrics = get_metrics("test_tool")
 
@@ -620,12 +587,10 @@ def test_get_all_metrics_global(clean_env):
 
     # Reset
     import shared.analytics
+
     shared.analytics._backend = None
 
-    record_event(AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="tool_a"
-    ))
+    record_event(AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="tool_a"))
 
     all_metrics = get_all_metrics()
 
@@ -639,13 +604,12 @@ def test_print_metrics_single_tool(clean_env, capsys):
 
     # Reset
     import shared.analytics
+
     shared.analytics._backend = None
 
-    record_event(AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="test_tool",
-        duration_ms=100.0
-    ))
+    record_event(
+        AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="test_tool", duration_ms=100.0)
+    )
 
     print_metrics("test_tool")
 
@@ -660,12 +624,10 @@ def test_print_metrics_all_tools(clean_env, capsys):
 
     # Reset
     import shared.analytics
+
     shared.analytics._backend = None
 
-    record_event(AnalyticsEvent(
-        event_type=EventType.TOOL_SUCCESS,
-        tool_name="tool_a"
-    ))
+    record_event(AnalyticsEvent(event_type=EventType.TOOL_SUCCESS, tool_name="tool_a"))
 
     print_metrics()
 

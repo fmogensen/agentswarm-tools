@@ -2,11 +2,13 @@
 Unit tests for Google Sheets tool
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
+
+from shared.errors import APIError, ConfigurationError, ValidationError
 from tools.communication.google_sheets.google_sheets import GoogleSheets
-from shared.errors import ValidationError, APIError, ConfigurationError
 
 
 class TestGoogleSheets:

@@ -2,13 +2,14 @@
 Check agent status and health metrics.
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class AgentStatus(BaseTool):

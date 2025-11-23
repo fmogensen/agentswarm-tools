@@ -9,38 +9,37 @@ Tests all communication tools:
 - google_docs, google_sheets, google_slides, meeting_notes
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any
 from datetime import datetime
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
-from tools.communication.gmail_search.gmail_search import GmailSearch
-from tools.communication.gmail_read.gmail_read import GmailRead
-from tools.communication.read_email_attachments.read_email_attachments import ReadEmailAttachments
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.communication.email_draft.email_draft import EmailDraft
 from tools.communication.email_send.email_send import EmailSend
-from tools.communication.google_calendar_list.google_calendar_list import GoogleCalendarList
+from tools.communication.gmail_read.gmail_read import GmailRead
+from tools.communication.gmail_search.gmail_search import GmailSearch
 from tools.communication.google_calendar_create_event_draft.google_calendar_create_event_draft import (
     GoogleCalendarCreateEventDraft,
-)
-from tools.communication.google_calendar_update_event.google_calendar_update_event import (
-    GoogleCalendarUpdateEvent,
 )
 from tools.communication.google_calendar_delete_event.google_calendar_delete_event import (
     GoogleCalendarDeleteEvent,
 )
+from tools.communication.google_calendar_list.google_calendar_list import GoogleCalendarList
+from tools.communication.google_calendar_update_event.google_calendar_update_event import (
+    GoogleCalendarUpdateEvent,
+)
+from tools.communication.meeting_notes.meeting_notes import MeetingNotesAgent
 from tools.communication.phone_call.phone_call import PhoneCall
 from tools.communication.query_call_logs.query_call_logs import QueryCallLogs
-from tools.communication.twilio_phone_call.twilio_phone_call import TwilioPhoneCall
-from tools.communication.twilio_call_logs.twilio_call_logs import TwilioCallLogs
-from tools.communication.slack_send_message.slack_send_message import SlackSendMessage
+from tools.communication.read_email_attachments.read_email_attachments import ReadEmailAttachments
 from tools.communication.slack_read_messages.slack_read_messages import SlackReadMessages
+from tools.communication.slack_send_message.slack_send_message import SlackSendMessage
 from tools.communication.teams_send_message.teams_send_message import TeamsSendMessage
-from tools.communication.meeting_notes.meeting_notes import MeetingNotesAgent
-
-from shared.errors import ValidationError, APIError, AuthenticationError
-
+from tools.communication.twilio_call_logs.twilio_call_logs import TwilioCallLogs
+from tools.communication.twilio_phone_call.twilio_phone_call import TwilioPhoneCall
 
 # ========== GmailSearch Tests ==========
 
@@ -129,12 +128,14 @@ class TestReadEmailAttachments:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         import json
+
         tool = ReadEmailAttachments(input=json.dumps({"email_id": "12345"}))
         assert tool.tool_name == "read_email_attachments"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = ReadEmailAttachments(input=json.dumps({"email_id": "test123"}))
         result = tool.run()
@@ -152,9 +153,7 @@ class TestEmailDraft:
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = EmailDraft(
-            input="Test email draft"
-        )
+        tool = EmailDraft(input="Test email draft")
         assert tool.input == "Test email draft"
         assert tool.tool_name == "email_draft"
 
@@ -248,6 +247,7 @@ class TestGoogleCalendarCreateEventDraft:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         import json
+
         event_data = {
             "title": "Team Meeting",
             "start_time": "2025-01-15T10:00:00Z",
@@ -260,11 +260,12 @@ class TestGoogleCalendarCreateEventDraft:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         event_data = {
             "title": "Meeting",
             "start_time": "2025-01-15T10:00:00Z",
-            "end_time": "2025-01-15T11:00:00Z"
+            "end_time": "2025-01-15T11:00:00Z",
         }
         tool = GoogleCalendarCreateEventDraft(input=json.dumps(event_data))
         result = tool.run()
@@ -387,7 +388,7 @@ class TestTwilioPhoneCall:
             recipient_name="John",
             phone_number="+1234567890",
             call_purpose="test",
-            ai_instructions="Test call with proper length"
+            ai_instructions="Test call with proper length",
         )
         assert tool.phone_number == "+1234567890"
         assert tool.recipient_name == "John"
@@ -400,7 +401,7 @@ class TestTwilioPhoneCall:
             recipient_name="Test",
             phone_number="+1234567890",
             call_purpose="test",
-            ai_instructions="Test message with proper length"
+            ai_instructions="Test message with proper length",
         )
         result = tool.run()
 
@@ -515,8 +516,7 @@ class TestMeetingNotesAgent:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         tool = MeetingNotesAgent(
-            audio_url="https://example.com/meeting.mp3",
-            meeting_title="Team Meeting"
+            audio_url="https://example.com/meeting.mp3", meeting_title="Team Meeting"
         )
         assert tool.audio_url == "https://example.com/meeting.mp3"
         assert tool.meeting_title == "Team Meeting"

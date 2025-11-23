@@ -2,12 +2,13 @@
 Read messages from Slack channels via Slack API
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 try:
     from slack_sdk import WebClient

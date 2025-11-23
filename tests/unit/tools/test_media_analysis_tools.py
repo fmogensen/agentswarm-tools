@@ -14,32 +14,31 @@ Tests all media analysis and processing tools:
 - video_metadata_extractor
 """
 
-import pytest
 import json
 import os
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
-from tools.media.analysis.understand_images.understand_images import UnderstandImages
-from tools.media.analysis.understand_video.understand_video import UnderstandVideo
+from shared.errors import APIError, MediaError, ValidationError
+from tools.media.analysis.analyze_media_content.analyze_media_content import AnalyzeMediaContent
+from tools.media.analysis.audio_effects.audio_effects import AudioEffects
+from tools.media.analysis.audio_transcribe.audio_transcribe import AudioTranscribe
 from tools.media.analysis.batch_understand_videos.batch_understand_videos import (
     BatchUnderstandVideos,
 )
-from tools.media.analysis.analyze_media_content.analyze_media_content import AnalyzeMediaContent
-from tools.media.analysis.audio_transcribe.audio_transcribe import AudioTranscribe
-from tools.media.analysis.merge_audio.merge_audio import MergeAudio
+from tools.media.analysis.batch_video_analysis.batch_video_analysis import BatchVideoAnalysis
 from tools.media.analysis.extract_audio_from_video.extract_audio_from_video import (
     ExtractAudioFromVideo,
 )
-from tools.media.analysis.audio_effects.audio_effects import AudioEffects
-from tools.media.analysis.batch_video_analysis.batch_video_analysis import BatchVideoAnalysis
+from tools.media.analysis.merge_audio.merge_audio import MergeAudio
+from tools.media.analysis.understand_images.understand_images import UnderstandImages
+from tools.media.analysis.understand_video.understand_video import UnderstandVideo
 from tools.media.analysis.video_metadata_extractor.video_metadata_extractor import (
     VideoMetadataExtractor,
 )
-
-from shared.errors import ValidationError, APIError, MediaError
-
 
 # ========== UnderstandImages Tests ==========
 
@@ -101,7 +100,9 @@ class TestUnderstandImages:
     def test_edge_case_aidrive_url(self, monkeypatch):
         """Test analyzing image from AI Drive"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = UnderstandImages(media_url="aidrive://path/to/image.jpg", instruction="Analyze this image")
+        tool = UnderstandImages(
+            media_url="aidrive://path/to/image.jpg", instruction="Analyze this image"
+        )
         result = tool.run()
 
         assert result["success"] is True
@@ -127,7 +128,8 @@ class TestUnderstandVideo:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = UnderstandVideo(
-            media_url="https://www.youtube.com/watch?v=test123", instruction="What happens in this video?"
+            media_url="https://www.youtube.com/watch?v=test123",
+            instruction="What happens in this video?",
         )
         result = tool.run()
 
@@ -217,9 +219,7 @@ class TestAnalyzeMediaContent:
 
     def test_validate_parameters_invalid_url(self):
         """Test validation with invalid URL"""
-        tool = AnalyzeMediaContent(
-            media_url="not-a-valid-url", instruction="test"
-        )
+        tool = AnalyzeMediaContent(media_url="not-a-valid-url", instruction="test")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
 
@@ -292,13 +292,16 @@ class TestMergeAudio:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         import json
-        input_json = json.dumps({
-            "clips": [
-                {"path": "https://example.com/audio1.mp3", "start": 0},
-                {"path": "https://example.com/audio2.mp3", "start": 5000}
-            ],
-            "output_format": "mp3"
-        })
+
+        input_json = json.dumps(
+            {
+                "clips": [
+                    {"path": "https://example.com/audio1.mp3", "start": 0},
+                    {"path": "https://example.com/audio2.mp3", "start": 5000},
+                ],
+                "output_format": "mp3",
+            }
+        )
         tool = MergeAudio(input=input_json)
         assert tool.input is not None
         assert tool.tool_name == "merge_audio"
@@ -307,13 +310,16 @@ class TestMergeAudio:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         import json
-        input_json = json.dumps({
-            "clips": [
-                {"path": "https://example.com/a1.mp3", "start": 0},
-                {"path": "https://example.com/a2.mp3", "start": 3000}
-            ],
-            "output_format": "mp3"
-        })
+
+        input_json = json.dumps(
+            {
+                "clips": [
+                    {"path": "https://example.com/a1.mp3", "start": 0},
+                    {"path": "https://example.com/a2.mp3", "start": 3000},
+                ],
+                "output_format": "mp3",
+            }
+        )
         tool = MergeAudio(input=input_json)
         result = tool.run()
 
@@ -323,12 +329,13 @@ class TestMergeAudio:
     def test_validate_parameters_insufficient_files(self):
         """Test validation with less than 2 audio files"""
         import json
-        input_json = json.dumps({
-            "clips": [
-                {"path": "https://example.com/audio1.mp3", "start": 0}
-            ],
-            "output_format": "mp3"
-        })
+
+        input_json = json.dumps(
+            {
+                "clips": [{"path": "https://example.com/audio1.mp3", "start": 0}],
+                "output_format": "mp3",
+            }
+        )
         tool = MergeAudio(input=input_json)
         # Single clip is technically valid for MergeAudio, just validates the structure
         tool._validate_parameters()  # Should not raise error
@@ -337,11 +344,11 @@ class TestMergeAudio:
         """Test merging many audio files"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         import json
-        clips = [{"path": f"https://example.com/audio{i}.mp3", "start": i * 1000} for i in range(10)]
-        input_json = json.dumps({
-            "clips": clips,
-            "output_format": "mp3"
-        })
+
+        clips = [
+            {"path": f"https://example.com/audio{i}.mp3", "start": i * 1000} for i in range(10)
+        ]
+        input_json = json.dumps({"clips": clips, "output_format": "mp3"})
         tool = MergeAudio(input=input_json)
         result = tool.run()
 
@@ -357,6 +364,7 @@ class TestExtractAudioFromVideo:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         import tempfile
+
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
             tmp_path = tmp.name
         try:
@@ -365,6 +373,7 @@ class TestExtractAudioFromVideo:
             assert tool.tool_name == "extract_audio_from_video"
         finally:
             import os as os_mod
+
             if os_mod.path.exists(tmp_path):
                 os_mod.remove(tmp_path)
 
@@ -372,6 +381,7 @@ class TestExtractAudioFromVideo:
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         import tempfile
+
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
             tmp_path = tmp.name
         try:
@@ -382,6 +392,7 @@ class TestExtractAudioFromVideo:
             assert result["metadata"]["mock_mode"] is True
         finally:
             import os as os_mod
+
             if os_mod.path.exists(tmp_path):
                 os_mod.remove(tmp_path)
 
@@ -401,6 +412,7 @@ class TestExtractAudioFromVideo:
         """Test execution with mocked extraction - uses mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         import tempfile
+
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
             tmp_path = tmp.name
         try:
@@ -410,6 +422,7 @@ class TestExtractAudioFromVideo:
             assert result["success"] is True
         finally:
             import os as os_mod
+
             if os_mod.path.exists(tmp_path):
                 os_mod.remove(tmp_path)
 
@@ -426,8 +439,8 @@ class TestAudioEffects:
             input_path="/path/to/audio.mp3",
             effects=[
                 {"type": "reverb", "parameters": {"room_size": 0.5}},
-                {"type": "normalize", "parameters": {"target_level": -3}}
-            ]
+                {"type": "normalize", "parameters": {"target_level": -3}},
+            ],
         )
         assert tool.input_path == "/path/to/audio.mp3"
         assert len(tool.effects) == 2
@@ -439,7 +452,7 @@ class TestAudioEffects:
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = AudioEffects(
             input_path="/path/to/test.mp3",
-            effects=[{"type": "echo", "parameters": {"delay": 500, "decay": 0.6}}]
+            effects=[{"type": "echo", "parameters": {"delay": 500, "decay": 0.6}}],
         )
         result = tool.run()
 
@@ -449,8 +462,7 @@ class TestAudioEffects:
     def test_validate_parameters_invalid_intensity(self):
         """Test validation with invalid effect type"""
         tool = AudioEffects(
-            input_path="/path/to/audio.mp3",
-            effects=[{"type": "invalid_effect", "parameters": {}}]
+            input_path="/path/to/audio.mp3", effects=[{"type": "invalid_effect", "parameters": {}}]
         )
         with pytest.raises(ValidationError):
             tool._validate_parameters()
@@ -462,8 +474,7 @@ class TestAudioEffects:
 
         for effect in effects:
             tool = AudioEffects(
-                input_path="/path/to/audio.mp3",
-                effects=[{"type": effect, "parameters": {}}]
+                input_path="/path/to/audio.mp3", effects=[{"type": effect, "parameters": {}}]
             )
             result = tool.run()
             assert result["success"] is True
@@ -479,7 +490,7 @@ class TestBatchVideoAnalysis:
         """Test successful tool initialization"""
         tool = BatchVideoAnalysis(
             video_urls="https://example.com/v1.mp4,https://example.com/v2.mp4",
-            analysis_types=["content"]
+            analysis_types=["content"],
         )
         assert "," in tool.video_urls
         assert "content" in tool.analysis_types

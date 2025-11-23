@@ -16,7 +16,8 @@ Usage:
     config.validate_required("search.serpapi_key", "search.google_search_api_key")
 """
 
-from typing import Optional, List
+from typing import List, Optional
+
 from pydantic import Field
 from pydantic_settings import BaseSettings
 

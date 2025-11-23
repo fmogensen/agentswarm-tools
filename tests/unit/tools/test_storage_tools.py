@@ -8,18 +8,19 @@ Tests all storage tools:
 - onedrive_file_read
 """
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ResourceNotFoundError, ValidationError
 from tools.infrastructure.storage.aidrive_tool.aidrive_tool import AidriveTool
-from tools.infrastructure.storage.file_format_converter.file_format_converter import FileFormatConverter
-from tools.infrastructure.storage.onedrive_search.onedrive_search import OnedriveSearch
+from tools.infrastructure.storage.file_format_converter.file_format_converter import (
+    FileFormatConverter,
+)
 from tools.infrastructure.storage.onedrive_file_read.onedrive_file_read import OnedriveFileRead
-
-from shared.errors import ValidationError, APIError, ResourceNotFoundError
-
+from tools.infrastructure.storage.onedrive_search.onedrive_search import OnedriveSearch
 
 # ========== AidriveTool Tests ==========
 
@@ -139,18 +140,16 @@ class TestFileFormatConverter:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         import base64
-        tool = FileFormatConverter(
-            input=f"pdf|docx|{base64.b64encode(b'test data').decode()}"
-        )
+
+        tool = FileFormatConverter(input=f"pdf|docx|{base64.b64encode(b'test data').decode()}")
         assert tool.tool_name == "file_format_converter"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         import base64
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = FileFormatConverter(
-            input=f"xlsx|csv|{base64.b64encode(b'test data').decode()}"
-        )
+        tool = FileFormatConverter(input=f"xlsx|csv|{base64.b64encode(b'test data').decode()}")
         result = tool.run()
 
         assert result["success"] is True
@@ -165,6 +164,7 @@ class TestFileFormatConverter:
     def test_validate_parameters_empty_target_format(self):
         """Test validation with empty target format"""
         import base64
+
         tool = FileFormatConverter(input=f"doc||{base64.b64encode(b'test').decode()}")
         with pytest.raises(ValidationError):
             tool._validate_parameters()
@@ -172,6 +172,7 @@ class TestFileFormatConverter:
     def test_validate_parameters_unsupported_format(self):
         """Test validation with unsupported format"""
         import base64
+
         tool = FileFormatConverter(input=f"xyz|abc|{base64.b64encode(b'test').decode()}")
         # Tool doesn't validate format types, so it should succeed
         result = tool.run()
@@ -180,11 +181,10 @@ class TestFileFormatConverter:
     def test_execute_live_mode_success(self, monkeypatch):
         """Test execution with mocked conversion API - using mock mode"""
         import base64
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
 
-        tool = FileFormatConverter(
-            input=f"pdf|docx|{base64.b64encode(b'test data').decode()}"
-        )
+        tool = FileFormatConverter(input=f"pdf|docx|{base64.b64encode(b'test data').decode()}")
         result = tool.run()
 
         assert result["success"] is True
@@ -192,6 +192,7 @@ class TestFileFormatConverter:
     def test_edge_case_same_format(self, monkeypatch):
         """Test converting to same format"""
         import base64
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         tool = FileFormatConverter(input=f"pdf|pdf|{base64.b64encode(b'test').decode()}")
         result = tool.run()
@@ -201,6 +202,7 @@ class TestFileFormatConverter:
     def test_supported_conversions(self, monkeypatch):
         """Test various supported conversion types"""
         import base64
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         conversions = [
             ("pdf", "docx"),
@@ -289,6 +291,7 @@ class TestOnedriveFileRead:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         import json
+
         test_input = json.dumps({"query": "test", "file_reference": {"base64_content": "SGVsbG8="}})
         tool = OnedriveFileRead(input=test_input)
         assert tool.input == test_input
@@ -297,6 +300,7 @@ class TestOnedriveFileRead:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         test_input = json.dumps({"query": "test", "file_reference": {"base64_content": "SGVsbG8="}})
         tool = OnedriveFileRead(input=test_input)
@@ -314,8 +318,11 @@ class TestOnedriveFileRead:
     def test_execute_live_mode_success(self, monkeypatch):
         """Test execution with mocked OneDrive API - using mock mode due to complex API"""
         import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        test_input = json.dumps({"query": "test", "file_reference": {"base64_content": "SGVsbG8gV29ybGQ="}})
+        test_input = json.dumps(
+            {"query": "test", "file_reference": {"base64_content": "SGVsbG8gV29ybGQ="}}
+        )
         tool = OnedriveFileRead(input=test_input)
         result = tool.run()
 
@@ -324,6 +331,7 @@ class TestOnedriveFileRead:
     def test_api_error_handling_not_found(self, monkeypatch):
         """Test handling of file not found errors - using mock mode"""
         import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
 
         # Missing file_reference - in mock mode, it will succeed with mock data
@@ -334,14 +342,19 @@ class TestOnedriveFileRead:
 
     def test_edge_case_large_file_id(self, monkeypatch):
         """Test handling of very long file IDs"""
-        import json
         import base64
+        import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         long_content = "a" * 500
-        test_input = json.dumps({
-            "query": "test",
-            "file_reference": {"base64_content": base64.b64encode(long_content.encode()).decode()}
-        })
+        test_input = json.dumps(
+            {
+                "query": "test",
+                "file_reference": {
+                    "base64_content": base64.b64encode(long_content.encode()).decode()
+                },
+            }
+        )
         tool = OnedriveFileRead(input=test_input)
         result = tool.run()
 
@@ -349,15 +362,18 @@ class TestOnedriveFileRead:
 
     def test_execute_live_mode_binary_file(self, monkeypatch):
         """Test reading binary file content"""
-        import json
         import base64
+        import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
 
         binary_content = b"\x89PNG\r\n\x1a\n"  # PNG header
-        test_input = json.dumps({
-            "query": "test",
-            "file_reference": {"base64_content": base64.b64encode(binary_content).decode()}
-        })
+        test_input = json.dumps(
+            {
+                "query": "test",
+                "file_reference": {"base64_content": base64.b64encode(binary_content).decode()},
+            }
+        )
         tool = OnedriveFileRead(input=test_input)
         result = tool.run()
 

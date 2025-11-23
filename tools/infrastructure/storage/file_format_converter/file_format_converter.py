@@ -2,13 +2,14 @@
 Convert files between different formats
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
-import os
 import base64
+import os
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class FileFormatConverter(BaseTool):

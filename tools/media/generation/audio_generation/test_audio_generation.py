@@ -1,13 +1,14 @@
 """Tests for audio_generation tool."""
 
-import pytest
-from unittest.mock import patch
 import uuid
-from typing import Dict, Any
+from typing import Any, Dict
+from unittest.mock import patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.media_generation.audio_generation import AudioGeneration
-from shared.errors import ValidationError, APIError
 
 
 class TestAudioGeneration:

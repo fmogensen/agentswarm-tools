@@ -6,16 +6,15 @@ Allows creation, management, and execution of multi-step tool workflows.
 
 import json
 import os
-from typing import Dict, List, Any, Optional
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from rich.console import Console
-from rich.prompt import Prompt, Confirm
-from rich.table import Table
-from rich.panel import Panel
 from rich import box
-
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Confirm, Prompt
+from rich.table import Table
 
 console = Console()
 
@@ -28,7 +27,9 @@ class WorkflowManager:
         self.workflows_dir = Path.home() / ".agentswarm" / "workflows"
         self.workflows_dir.mkdir(parents=True, exist_ok=True)
 
-    def create_workflow(self, name: Optional[str] = None, interactive: bool = True) -> Dict[str, Any]:
+    def create_workflow(
+        self, name: Optional[str] = None, interactive: bool = True
+    ) -> Dict[str, Any]:
         """
         Create a new workflow.
 
@@ -46,7 +47,7 @@ class WorkflowManager:
             "name": name or f"workflow_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             "description": "",
             "created_at": datetime.now().isoformat(),
-            "steps": []
+            "steps": [],
         }
 
         return workflow
@@ -65,7 +66,7 @@ class WorkflowManager:
             "description": description,
             "created_at": datetime.now().isoformat(),
             "steps": [],
-            "variables": {}
+            "variables": {},
         }
 
         console.print("\n[bold yellow]Add workflow steps[/bold yellow]")
@@ -102,9 +103,7 @@ class WorkflowManager:
             # Optional step configuration
             condition = Prompt.ask("Condition (optional, e.g., ${steps[0].success})", default="")
             error_handling = Prompt.ask(
-                "Error handling",
-                choices=["stop", "continue", "retry"],
-                default="stop"
+                "Error handling", choices=["stop", "continue", "retry"], default="stop"
             )
 
             step = {
@@ -141,7 +140,7 @@ class WorkflowManager:
                     workflow["variables"][var_name] = {
                         "type": var_type,
                         "description": var_desc,
-                        "required": True
+                        "required": True,
                     }
 
         # Save workflow
@@ -200,13 +199,15 @@ class WorkflowManager:
             try:
                 with open(workflow_file, "r") as f:
                     workflow = json.load(f)
-                    workflows.append({
-                        "name": workflow["name"],
-                        "description": workflow.get("description", ""),
-                        "steps": len(workflow.get("steps", [])),
-                        "created_at": workflow.get("created_at", ""),
-                        "file": str(workflow_file)
-                    })
+                    workflows.append(
+                        {
+                            "name": workflow["name"],
+                            "description": workflow.get("description", ""),
+                            "steps": len(workflow.get("steps", [])),
+                            "created_at": workflow.get("created_at", ""),
+                            "file": str(workflow_file),
+                        }
+                    )
             except Exception:
                 continue
 
@@ -230,7 +231,9 @@ class WorkflowManager:
 
         return False
 
-    def run_workflow(self, name: str, input_vars: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def run_workflow(
+        self, name: str, input_vars: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Execute a workflow.
 
@@ -252,18 +255,14 @@ class WorkflowManager:
             console.print(f"[dim]{workflow['description']}[/dim]\n")
 
         # Prepare context
-        context = {
-            "input": input_vars or {},
-            "steps": [],
-            "variables": {}
-        }
+        context = {"input": input_vars or {}, "steps": [], "variables": {}}
 
         results = {
             "workflow": name,
             "started_at": datetime.now().isoformat(),
             "steps": [],
             "success": True,
-            "errors": []
+            "errors": [],
         }
 
         # Execute each step
@@ -302,12 +301,14 @@ class WorkflowManager:
                 step_result = self._execute_step(step["tool"], resolved_params)
                 context["steps"].append(step_result)
 
-                results["steps"].append({
-                    "step": i + 1,
-                    "tool": step["tool"],
-                    "success": step_result.get("success", False),
-                    "result": step_result
-                })
+                results["steps"].append(
+                    {
+                        "step": i + 1,
+                        "tool": step["tool"],
+                        "success": step_result.get("success", False),
+                        "result": step_result,
+                    }
+                )
 
                 if step_result.get("success"):
                     console.print("[green]Step completed successfully[/green]")
@@ -334,7 +335,9 @@ class WorkflowManager:
 
         return results
 
-    def _resolve_parameters(self, params: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    def _resolve_parameters(
+        self, params: Dict[str, Any], context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Resolve parameter values with variable substitution.
 
@@ -354,16 +357,16 @@ class WorkflowManager:
 
                 # Replace ${input.var}
                 import re
-                for match in re.finditer(r'\$\{input\.(\w+)\}', value):
+
+                for match in re.finditer(r"\$\{input\.(\w+)\}", value):
                     var_name = match.group(1)
                     if var_name in context["input"]:
                         resolved_value = resolved_value.replace(
-                            match.group(0),
-                            str(context["input"][var_name])
+                            match.group(0), str(context["input"][var_name])
                         )
 
                 # Replace ${steps[N].result}
-                for match in re.finditer(r'\$\{steps\[(\d+)\]\.(\w+)\}', value):
+                for match in re.finditer(r"\$\{steps\[(\d+)\]\.(\w+)\}", value):
                     step_idx = int(match.group(1))
                     field = match.group(2)
 
@@ -371,8 +374,7 @@ class WorkflowManager:
                         step_data = context["steps"][step_idx]
                         if field in step_data:
                             resolved_value = resolved_value.replace(
-                                match.group(0),
-                                str(step_data[field])
+                                match.group(0), str(step_data[field])
                             )
 
                 resolved[key] = resolved_value
@@ -397,7 +399,7 @@ class WorkflowManager:
         import re
 
         # Check ${steps[N].success}
-        match = re.search(r'\$\{steps\[(\d+)\]\.success\}', condition)
+        match = re.search(r"\$\{steps\[(\d+)\]\.success\}", condition)
         if match:
             step_idx = int(match.group(1))
             if step_idx < len(context["steps"]):
@@ -422,10 +424,7 @@ class WorkflowManager:
             result = run_tool_by_name(tool_name, params)
             return result
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
     def _save_execution_log(self, workflow_name: str, results: Dict[str, Any]):
         """Save workflow execution log."""
@@ -484,29 +483,14 @@ if __name__ == "__main__":
         "name": "research-workflow",
         "description": "Search web and create document",
         "created_at": datetime.now().isoformat(),
-        "variables": {
-            "query": {
-                "type": "string",
-                "description": "Search query",
-                "required": True
-            }
-        },
+        "variables": {"query": {"type": "string", "description": "Search query", "required": True}},
         "steps": [
-            {
-                "tool": "web_search",
-                "params": {
-                    "query": "${input.query}",
-                    "max_results": 10
-                }
-            },
+            {"tool": "web_search", "params": {"query": "${input.query}", "max_results": 10}},
             {
                 "tool": "create_agent",
-                "params": {
-                    "agent_type": "docs",
-                    "content": "${steps[0].result}"
-                }
-            }
-        ]
+                "params": {"agent_type": "docs", "content": "${steps[0].result}"},
+            },
+        ],
     }
 
     print("Example workflow created.")

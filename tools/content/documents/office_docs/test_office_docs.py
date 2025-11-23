@@ -2,11 +2,13 @@
 Comprehensive tests for OfficeDocsTool
 """
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from shared.errors import ConfigurationError, ValidationError
 from tools.document_creation.office_docs.office_docs import OfficeDocsTool
-from shared.errors import ValidationError, ConfigurationError
 
 
 class TestOfficeDocsTool:

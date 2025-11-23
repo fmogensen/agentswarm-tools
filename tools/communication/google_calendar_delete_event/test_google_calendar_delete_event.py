@@ -1,8 +1,10 @@
 """Tests for GoogleCalendarDeleteEvent tool."""
 
-import pytest
 import os
+
+import pytest
 from google_calendar_delete_event import GoogleCalendarDeleteEvent
+
 from shared.errors import ValidationError
 
 

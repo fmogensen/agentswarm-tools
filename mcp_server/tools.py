@@ -8,13 +8,14 @@ Handles:
 - Tool execution and parameter mapping
 """
 
-import os
-import sys
 import importlib
 import inspect
 import logging
-from typing import Any, Dict, List, Type, Optional
+import os
+import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Type
+
 from pydantic import Field
 from pydantic.fields import FieldInfo
 
@@ -142,9 +143,13 @@ class ToolRegistry:
             "media": ["media/generation", "media/analysis", "media/processing"],
             "visualization": ["visualization"],
             "content": ["content/documents", "content/web"],
-            "infrastructure": ["infrastructure/execution", "infrastructure/storage", "infrastructure/management"],
+            "infrastructure": [
+                "infrastructure/execution",
+                "infrastructure/storage",
+                "infrastructure/management",
+            ],
             "utils": ["utils"],
-            "integrations": ["integrations"]
+            "integrations": ["integrations"],
         }
 
         paths = category_map.get(category, [])
@@ -219,11 +224,7 @@ class ToolRegistry:
         # Generate input schema from Pydantic model
         input_schema = self._generate_input_schema(tool_class)
 
-        return {
-            "name": tool_name,
-            "description": description,
-            "inputSchema": input_schema
-        }
+        return {"name": tool_name, "description": description, "inputSchema": input_schema}
 
     def _generate_input_schema(self, tool_class: Type[BaseTool]) -> Dict[str, Any]:
         """
@@ -235,11 +236,7 @@ class ToolRegistry:
         Returns:
             JSON Schema dict
         """
-        schema = {
-            "type": "object",
-            "properties": {},
-            "required": []
-        }
+        schema = {"type": "object", "properties": {}, "required": []}
 
         # Get model fields
         try:
@@ -256,8 +253,15 @@ class ToolRegistry:
 
             # Skip tool metadata fields
             if field_name in [
-                "tool_name", "tool_category", "rate_limit_type", "rate_limit_cost",
-                "max_retries", "retry_delay", "enable_cache", "cache_ttl", "cache_key_params"
+                "tool_name",
+                "tool_category",
+                "rate_limit_type",
+                "rate_limit_cost",
+                "max_retries",
+                "retry_delay",
+                "enable_cache",
+                "cache_ttl",
+                "cache_key_params",
             ]:
                 continue
 
@@ -272,7 +276,9 @@ class ToolRegistry:
 
         return schema
 
-    def _field_to_json_schema(self, field_name: str, field_info: FieldInfo) -> Optional[Dict[str, Any]]:
+    def _field_to_json_schema(
+        self, field_name: str, field_info: FieldInfo
+    ) -> Optional[Dict[str, Any]]:
         """
         Convert Pydantic field to JSON Schema.
 
@@ -386,10 +392,20 @@ class ToolRegistry:
         """
         # Filter out internal fields from arguments
         filtered_args = {
-            k: v for k, v in arguments.items()
-            if not k.startswith("_") and k not in [
-                "tool_name", "tool_category", "rate_limit_type", "rate_limit_cost",
-                "max_retries", "retry_delay", "enable_cache", "cache_ttl", "cache_key_params"
+            k: v
+            for k, v in arguments.items()
+            if not k.startswith("_")
+            and k
+            not in [
+                "tool_name",
+                "tool_category",
+                "rate_limit_type",
+                "rate_limit_cost",
+                "max_retries",
+                "retry_delay",
+                "enable_cache",
+                "cache_ttl",
+                "cache_key_params",
             ]
         }
 

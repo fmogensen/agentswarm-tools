@@ -5,14 +5,15 @@ Trigger GitHub Actions workflows and check their status using GitHub API.
 Supports manual workflow dispatch, status monitoring, and artifact downloads.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 import time
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError, TimeoutError
+from shared.errors import APIError, AuthenticationError, TimeoutError, ValidationError
 
 
 class GitHubRunActions(BaseTool):
@@ -69,26 +70,16 @@ class GitHubRunActions(BaseTool):
         min_length=1,
         max_length=100,
     )
-    repo_name: str = Field(
-        ..., description="Repository name", min_length=1, max_length=100
-    )
+    repo_name: str = Field(..., description="Repository name", min_length=1, max_length=100)
 
     # Conditional parameters
     workflow_id: Optional[str] = Field(
         None, description="Workflow filename or ID (required for trigger)"
     )
-    ref: Optional[str] = Field(
-        None, description="Git reference (branch/tag/commit) for workflow"
-    )
-    inputs: Optional[Dict[str, str]] = Field(
-        None, description="Workflow input parameters"
-    )
-    wait_for_completion: bool = Field(
-        False, description="Wait for workflow to complete"
-    )
-    timeout: int = Field(
-        300, description="Maximum seconds to wait for completion", ge=10, le=3600
-    )
+    ref: Optional[str] = Field(None, description="Git reference (branch/tag/commit) for workflow")
+    inputs: Optional[Dict[str, str]] = Field(None, description="Workflow input parameters")
+    wait_for_completion: bool = Field(False, description="Wait for workflow to complete")
+    timeout: int = Field(300, description="Maximum seconds to wait for completion", ge=10, le=3600)
     check_run_id: Optional[int] = Field(
         None, description="Check status of specific workflow run ID"
     )
@@ -111,9 +102,7 @@ class GitHubRunActions(BaseTool):
                 # Trigger new workflow
                 return self._trigger_workflow()
         except Exception as e:
-            raise APIError(
-                f"Failed to run workflow: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to run workflow: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -148,27 +137,31 @@ class GitHubRunActions(BaseTool):
             "run_url": f"https://github.com/{self.repo_owner}/{self.repo_name}/actions/runs/{run_id}",
             "status": status,
             "conclusion": conclusion,
-            "jobs": [
-                {
-                    "id": 11111,
-                    "name": "build",
-                    "status": "completed",
-                    "conclusion": "success",
-                    "started_at": "2024-01-15T10:00:00Z",
-                    "completed_at": "2024-01-15T10:05:00Z",
-                }
-            ]
-            if self.wait_for_completion
-            else [],
-            "artifacts": [
-                {
-                    "id": 22222,
-                    "name": "build-output",
-                    "size_in_bytes": 1024000,
-                }
-            ]
-            if self.wait_for_completion
-            else [],
+            "jobs": (
+                [
+                    {
+                        "id": 11111,
+                        "name": "build",
+                        "status": "completed",
+                        "conclusion": "success",
+                        "started_at": "2024-01-15T10:00:00Z",
+                        "completed_at": "2024-01-15T10:05:00Z",
+                    }
+                ]
+                if self.wait_for_completion
+                else []
+            ),
+            "artifacts": (
+                [
+                    {
+                        "id": 22222,
+                        "name": "build-output",
+                        "size_in_bytes": 1024000,
+                    }
+                ]
+                if self.wait_for_completion
+                else []
+            ),
             "metadata": {
                 "tool_name": self.tool_name,
                 "repo": f"{self.repo_owner}/{self.repo_name}",
@@ -265,9 +258,7 @@ class GitHubRunActions(BaseTool):
             },
         }
 
-    def _wait_for_workflow_completion(
-        self, token: str, run_id: int
-    ) -> Dict[str, Any]:
+    def _wait_for_workflow_completion(self, token: str, run_id: int) -> Dict[str, Any]:
         """Wait for workflow to complete with timeout."""
         start_time = time.time()
         poll_interval = 5  # seconds
@@ -331,9 +322,7 @@ class GitHubRunActions(BaseTool):
 
         data = response.json()
         if not data.get("workflow_runs"):
-            raise APIError(
-                "No workflow runs found", tool_name=self.tool_name
-            )
+            raise APIError("No workflow runs found", tool_name=self.tool_name)
 
         return data["workflow_runs"][0]["id"]
 
@@ -341,7 +330,9 @@ class GitHubRunActions(BaseTool):
         """Get workflow run details."""
         import requests
 
-        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/actions/runs/{run_id}"
+        url = (
+            f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/actions/runs/{run_id}"
+        )
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github.v3+json",
@@ -392,9 +383,7 @@ class GitHubRunActions(BaseTool):
 
         return jobs
 
-    def _get_workflow_artifacts(
-        self, token: str, run_id: int
-    ) -> List[Dict[str, Any]]:
+    def _get_workflow_artifacts(self, token: str, run_id: int) -> List[Dict[str, Any]]:
         """Get artifacts for a workflow run."""
         import requests
 

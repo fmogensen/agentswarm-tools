@@ -1,13 +1,14 @@
 """Tests for bash_tool tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock
-import subprocess
 import os
+import subprocess
+from unittest.mock import MagicMock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.code_execution.bash_tool import BashTool
-from shared.errors import ValidationError, APIError
 
 
 class TestBashTool:

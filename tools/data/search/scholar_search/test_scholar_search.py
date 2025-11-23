@@ -1,12 +1,13 @@
 """Tests for scholar_search tool."""
 
-import pytest
+from typing import Any, Dict
 from unittest.mock import patch
-from typing import Dict, Any
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.search.scholar_search import ScholarSearch
-from shared.errors import ValidationError, APIError
 
 
 class TestScholarSearch:
@@ -65,7 +66,11 @@ class TestScholarSearch:
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
             result = tool.run()
             assert result["success"] is False
-            error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+            error_msg = (
+                result.get("error", {}).get("message", "")
+                if isinstance(result.get("error"), dict)
+                else str(result.get("error", ""))
+            )
             assert "API failed" in error_msg
 
     # ========== MOCK MODE ==========
@@ -126,9 +131,7 @@ class TestScholarSearch:
             ("test", 101, False),  # Max_results too high
         ],
     )
-    def test_parameter_validation(
-        self, query: str, max_results: int, expected_valid: bool
-    ):
+    def test_parameter_validation(self, query: str, max_results: int, expected_valid: bool):
         """Test parameter validation with various inputs."""
         if expected_valid:
             tool = ScholarSearch(query=query, max_results=max_results)

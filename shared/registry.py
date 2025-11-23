@@ -3,13 +3,13 @@ Tool registry for AgentSwarm Tools Framework.
 Provides centralized discovery, registration, and management of tools.
 """
 
-import os
 import importlib
-import pkgutil
 import inspect
 import logging
-from typing import Dict, List, Optional, Type, Any
+import os
+import pkgutil
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Type
 
 from .base import BaseTool
 

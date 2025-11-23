@@ -2,13 +2,14 @@
 Aggregate data from multiple sources with various methods.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
 import statistics
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class DataAggregator(BaseTool):
@@ -40,17 +41,13 @@ class DataAggregator(BaseTool):
 
     # Parameters
     sources: List[str] = Field(
-        ...,
-        description="Data source identifiers or numeric values as strings",
-        min_items=1
+        ..., description="Data source identifiers or numeric values as strings", min_items=1
     )
     aggregation_method: str = Field(
-        ...,
-        description="Aggregation method: sum, avg, max, min, count, median"
+        ..., description="Aggregation method: sum, avg, max, min, count, median"
     )
     filters: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Optional filters to apply (e.g., {'min_value': 10, 'max_value': 100})"
+        None, description="Optional filters to apply (e.g., {'min_value': 10, 'max_value': 100})"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -73,8 +70,8 @@ class DataAggregator(BaseTool):
                     "tool_name": self.tool_name,
                     "sources_count": len(self.sources),
                     "method": self.aggregation_method,
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"Aggregation failed: {e}", tool_name=self.tool_name)
@@ -87,14 +84,12 @@ class DataAggregator(BaseTool):
             raise ValidationError(
                 f"aggregation_method must be one of {valid_methods}",
                 tool_name=self.tool_name,
-                field="aggregation_method"
+                field="aggregation_method",
             )
 
         if not self.sources or len(self.sources) == 0:
             raise ValidationError(
-                "sources cannot be empty",
-                tool_name=self.tool_name,
-                field="sources"
+                "sources cannot be empty", tool_name=self.tool_name, field="sources"
             )
 
     def _should_use_mock(self) -> bool:
@@ -109,7 +104,7 @@ class DataAggregator(BaseTool):
             "max": 75.0,
             "min": 25.0,
             "count": 3,
-            "median": 50.0
+            "median": 50.0,
         }.get(self.aggregation_method, 42.5)
 
         return {
@@ -118,13 +113,13 @@ class DataAggregator(BaseTool):
                 "aggregated_value": mock_value,
                 "sources_processed": len(self.sources),
                 "method": self.aggregation_method,
-                "data_points": len(self.sources)
+                "data_points": len(self.sources),
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
-                "sources_count": len(self.sources)
-            }
+                "sources_count": len(self.sources),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -144,7 +139,7 @@ class DataAggregator(BaseTool):
             raise ValidationError(
                 "No valid numeric values found in sources",
                 tool_name=self.tool_name,
-                field="sources"
+                field="sources",
             )
 
         # Apply filters if provided
@@ -160,9 +155,7 @@ class DataAggregator(BaseTool):
 
         if not numeric_values:
             raise ValidationError(
-                "No values remain after applying filters",
-                tool_name=self.tool_name,
-                field="filters"
+                "No values remain after applying filters", tool_name=self.tool_name, field="filters"
             )
 
         # Perform aggregation
@@ -185,7 +178,7 @@ class DataAggregator(BaseTool):
             "sources_processed": len(self.sources),
             "valid_values": len(numeric_values),
             "method": self.aggregation_method,
-            "data_points": len(numeric_values)
+            "data_points": len(numeric_values),
         }
 
 
@@ -199,5 +192,5 @@ if __name__ == "__main__":
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True
+    assert result.get("success") == True
     print("DataAggregator test passed!")

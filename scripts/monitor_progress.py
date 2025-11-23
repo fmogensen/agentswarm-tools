@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Real-time progress monitoring script."""
 
-import redis
 import json
 import os
 import time
 from datetime import datetime, timezone
+
+import redis
 
 
 def clear_screen():

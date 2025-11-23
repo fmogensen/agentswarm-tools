@@ -1,12 +1,13 @@
 """Tests for read_tool tool."""
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.code_execution.read_tool import ReadTool
-from shared.errors import ValidationError, APIError
 
 
 class TestReadTool:

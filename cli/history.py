@@ -5,14 +5,13 @@ Tracks all CLI commands for replay and analysis.
 """
 
 import json
-from typing import Dict, List, Any, Optional
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
+from rich import box
 from rich.console import Console
 from rich.table import Table
-from rich import box
-
 
 console = Console()
 
@@ -55,7 +54,7 @@ class CommandHistory:
         params: Optional[Dict[str, Any]] = None,
         success: bool = True,
         error: Optional[str] = None,
-        duration: Optional[float] = None
+        duration: Optional[float] = None,
     ):
         """
         Add a command to history.
@@ -76,7 +75,7 @@ class CommandHistory:
             "params": params or {},
             "success": success,
             "error": error,
-            "duration": duration
+            "duration": duration,
         }
 
         self.history.append(entry)
@@ -92,7 +91,7 @@ class CommandHistory:
         limit: Optional[int] = None,
         command_filter: Optional[str] = None,
         tool_filter: Optional[str] = None,
-        success_only: bool = False
+        success_only: bool = False,
     ) -> List[Dict[str, Any]]:
         """
         Get command history with filters.
@@ -166,7 +165,7 @@ class CommandHistory:
         return {
             "command": entry.get("command"),
             "tool": entry.get("tool"),
-            "params": entry.get("params")
+            "params": entry.get("params"),
         }
 
     def get_statistics(self) -> Dict[str, Any]:
@@ -181,7 +180,7 @@ class CommandHistory:
                 "total_commands": 0,
                 "success_rate": 0.0,
                 "most_used_tools": [],
-                "most_used_commands": []
+                "most_used_commands": [],
             }
 
         total = len(self.history)
@@ -202,17 +201,9 @@ class CommandHistory:
                 command_counts[cmd] = command_counts.get(cmd, 0) + 1
 
         # Sort by usage
-        most_used_tools = sorted(
-            tool_counts.items(),
-            key=lambda x: x[1],
-            reverse=True
-        )[:10]
+        most_used_tools = sorted(tool_counts.items(), key=lambda x: x[1], reverse=True)[:10]
 
-        most_used_commands = sorted(
-            command_counts.items(),
-            key=lambda x: x[1],
-            reverse=True
-        )
+        most_used_commands = sorted(command_counts.items(), key=lambda x: x[1], reverse=True)
 
         return {
             "total_commands": total,
@@ -220,14 +211,14 @@ class CommandHistory:
             "failed_commands": total - successful,
             "success_rate": (successful / total * 100) if total > 0 else 0.0,
             "most_used_tools": [{"tool": t, "count": c} for t, c in most_used_tools],
-            "most_used_commands": [{"command": c, "count": n} for c, n in most_used_commands]
+            "most_used_commands": [{"command": c, "count": n} for c, n in most_used_commands],
         }
 
     def display_history(
         self,
         limit: int = 20,
         command_filter: Optional[str] = None,
-        tool_filter: Optional[str] = None
+        tool_filter: Optional[str] = None,
     ):
         """
         Display command history in a table.
@@ -238,9 +229,7 @@ class CommandHistory:
             tool_filter: Filter by tool name
         """
         entries = self.get_history(
-            limit=limit,
-            command_filter=command_filter,
-            tool_filter=tool_filter
+            limit=limit, command_filter=command_filter, tool_filter=tool_filter
         )
 
         if not entries:
@@ -251,7 +240,7 @@ class CommandHistory:
             title=f"Command History (Last {len(entries)} commands)",
             show_header=True,
             header_style="bold magenta",
-            box=box.ROUNDED
+            box=box.ROUNDED,
         )
 
         table.add_column("ID", style="dim", width=6)
@@ -357,19 +346,11 @@ if __name__ == "__main__":
 
     # Add some example commands
     history.add_command(
-        command="run",
-        tool="web_search",
-        params={"query": "test"},
-        success=True,
-        duration=1.5
+        command="run", tool="web_search", params={"query": "test"}, success=True, duration=1.5
     )
 
     history.add_command(
-        command="test",
-        tool="image_generation",
-        params={},
-        success=False,
-        error="API key not found"
+        command="test", tool="image_generation", params={}, success=False, error="API key not found"
     )
 
     # Display history

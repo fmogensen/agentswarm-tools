@@ -5,10 +5,11 @@ Accelerate Development - Push high-priority tools to agent teams
 This script assigns priority tools to teams via Redis queue.
 """
 
-import redis
 import json
 import os
 from datetime import datetime, timezone
+
+import redis
 
 # Priority tools to develop next
 PRIORITY_TOOLS = [

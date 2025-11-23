@@ -9,22 +9,21 @@ Tests all 5 code execution tools:
 - downloadfilewrapper_tool (DownloadFileWrapper)
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, Mock, mock_open
-from typing import Dict, Any
 import os
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, mock_open, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.infrastructure.execution.bash_tool.bash_tool import BashTool
-from tools.infrastructure.execution.read_tool.read_tool import ReadTool
-from tools.infrastructure.execution.write_tool.write_tool import WriteTool
-from tools.infrastructure.execution.multiedit_tool.multiedit_tool import MultieditTool
 from tools.infrastructure.execution.downloadfilewrapper_tool.downloadfilewrapper_tool import (
     DownloadfilewrapperTool,
 )
-
-from shared.errors import ValidationError, APIError
-
+from tools.infrastructure.execution.multiedit_tool.multiedit_tool import MultieditTool
+from tools.infrastructure.execution.read_tool.read_tool import ReadTool
+from tools.infrastructure.execution.write_tool.write_tool import WriteTool
 
 # ========== BashTool Tests ==========
 
@@ -237,12 +236,13 @@ class TestMultieditTool:
     def test_initialization_success(self):
         """Test successful tool initialization"""
         import json
+
         edits = {
             "file_path": "/file1.txt",
             "edits": [
                 {"action": "replace", "search": "old1", "replace": "new1"},
                 {"action": "replace", "search": "old2", "replace": "new2"},
-            ]
+            ],
         }
         tool = MultieditTool(input=json.dumps(edits))
         assert tool.tool_name == "multiedit_tool"
@@ -250,10 +250,11 @@ class TestMultieditTool:
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         edits = {
             "file_path": "/test.txt",
-            "edits": [{"action": "replace", "search": "hello", "replace": "world"}]
+            "edits": [{"action": "replace", "search": "hello", "replace": "world"}],
         }
         tool = MultieditTool(input=json.dumps(edits))
         result = tool.run()
@@ -264,6 +265,7 @@ class TestMultieditTool:
     def test_validate_parameters_empty_edits(self):
         """Test validation with empty edits list - tool allows empty list"""
         import json
+
         tool = MultieditTool(input=json.dumps({"file_path": "/test.txt", "edits": []}))
         # Tool allows empty edits list - it's valid (just does nothing)
         tool._validate_parameters()  # Should not raise
@@ -271,6 +273,7 @@ class TestMultieditTool:
     def test_validate_parameters_invalid_edit_format(self):
         """Test validation with invalid edit format"""
         import json
+
         edits = {"file_path": "/test.txt", "edits": [{"no_action": "test"}]}  # Missing action
         tool = MultieditTool(input=json.dumps(edits))
         with pytest.raises(ValidationError):
@@ -280,11 +283,12 @@ class TestMultieditTool:
     def test_execute_live_mode_success(self, mock_file, monkeypatch):
         """Test execution with mocked file editing"""
         import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
 
         edits = {
             "file_path": "/test.txt",
-            "edits": [{"action": "replace", "search": "old", "replace": "new"}]
+            "edits": [{"action": "replace", "search": "old", "replace": "new"}],
         }
         tool = MultieditTool(input=json.dumps(edits))
         result = tool.run()
@@ -294,13 +298,14 @@ class TestMultieditTool:
     def test_edge_case_multiple_edits_same_file(self, monkeypatch):
         """Test multiple edits to the same file"""
         import json
+
         monkeypatch.setenv("USE_MOCK_APIS", "true")
         edits = {
             "file_path": "/test.txt",
             "edits": [
                 {"action": "replace", "search": "a", "replace": "b"},
                 {"action": "replace", "search": "c", "replace": "d"},
-            ]
+            ],
         }
         tool = MultieditTool(input=json.dumps(edits))
         result = tool.run()
@@ -316,18 +321,14 @@ class TestDownloadfilewrapperTool:
 
     def test_initialization_success(self):
         """Test successful tool initialization"""
-        tool = DownloadfilewrapperTool(
-            input="https://example.com/file.txt"
-        )
+        tool = DownloadfilewrapperTool(input="https://example.com/file.txt")
         assert tool.input == "https://example.com/file.txt"
         assert tool.tool_name == "downloadfilewrapper_tool"
 
     def test_execute_mock_mode(self, monkeypatch):
         """Test execution in mock mode"""
         monkeypatch.setenv("USE_MOCK_APIS", "true")
-        tool = DownloadfilewrapperTool(
-            input="https://example.com/test.pdf"
-        )
+        tool = DownloadfilewrapperTool(input="https://example.com/test.pdf")
         result = tool.run()
 
         assert result["success"] is True

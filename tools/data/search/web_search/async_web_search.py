@@ -2,9 +2,10 @@
 Async version of web search - perform web searches with Google using non-blocking I/O
 """
 
-from typing import Any, Dict, List
-from pydantic import Field
 import os
+from typing import Any, Dict, List
+
+from pydantic import Field
 
 try:
     import httpx
@@ -12,7 +13,7 @@ except ImportError:
     httpx = None
 
 from shared.async_base import AsyncBaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class AsyncWebSearch(AsyncBaseTool):
@@ -51,9 +52,7 @@ class AsyncWebSearch(AsyncBaseTool):
 
     # Parameters
     query: str = Field(..., description="Search query string", min_length=1)
-    max_results: int = Field(
-        10, description="Maximum number of results to return", ge=1, le=100
-    )
+    max_results: int = Field(10, description="Maximum number of results to return", ge=1, le=100)
 
     async def _execute(self) -> Dict[str, Any]:
         """
@@ -118,12 +117,14 @@ class AsyncWebSearch(AsyncBaseTool):
         try:
             # Get API credentials from environment
             api_key = os.getenv("GOOGLE_SEARCH_API_KEY") or os.getenv("GOOGLE_SHOPPING_API_KEY")
-            engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") or os.getenv("GOOGLE_SHOPPING_ENGINE_ID")
+            engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") or os.getenv(
+                "GOOGLE_SHOPPING_ENGINE_ID"
+            )
 
             if not api_key or not engine_id:
                 raise APIError(
                     "Missing API credentials. Set GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_ENGINE_ID",
-                    tool_name=self.tool_name
+                    tool_name=self.tool_name,
                 )
 
             # Call Google Custom Search API (async)
@@ -152,7 +153,7 @@ class AsyncWebSearch(AsyncBaseTool):
         except httpx.HTTPStatusError as e:
             raise APIError(
                 f"API request failed with status {e.response.status_code}: {e}",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
         except httpx.RequestError as e:
             raise APIError(f"API request failed: {e}", tool_name=self.tool_name)
@@ -176,9 +177,11 @@ if __name__ == "__main__":
 
         print(f"  Success: {result.get('success')}")
         print(f"  Results: {len(result.get('result', []))} items")
-        print(f"  First result: {result.get('result', [{}])[0] if result.get('result') else 'None'}")
-        assert result.get('success') == True
-        assert len(result.get('result', [])) == 3
+        print(
+            f"  First result: {result.get('result', [{}])[0] if result.get('result') else 'None'}"
+        )
+        assert result.get("success") == True
+        assert len(result.get("result", [])) == 3
         print("  ✓ Async execution test passed")
 
     async def test_concurrent():
@@ -188,20 +191,18 @@ if __name__ == "__main__":
         os.environ["USE_MOCK_APIS"] = "true"
 
         # Create multiple search tasks
-        searches = [
-            AsyncWebSearch(query=f"Query {i}", max_results=2)
-            for i in range(5)
-        ]
+        searches = [AsyncWebSearch(query=f"Query {i}", max_results=2) for i in range(5)]
 
         # Execute concurrently
         import time
+
         start = time.time()
         results = await asyncio.gather(*[tool.run_async() for tool in searches])
         duration = time.time() - start
 
         print(f"  Completed {len(results)} searches in {duration:.3f}s")
         print(f"  All successful: {all(r.get('success') for r in results)}")
-        assert all(r.get('success') for r in results)
+        assert all(r.get("success") for r in results)
         print("  ✓ Concurrent search test passed")
 
     def test_sync_wrapper():
@@ -215,7 +216,7 @@ if __name__ == "__main__":
 
         print(f"  Success: {result.get('success')}")
         print(f"  Results: {len(result.get('result', []))} items")
-        assert result.get('success') == True
+        assert result.get("success") == True
         print("  ✓ Sync wrapper test passed")
 
     async def test_batch_processing():
@@ -230,17 +231,11 @@ if __name__ == "__main__":
             tool = AsyncWebSearch(query=query, max_results=2)
             return await tool.run_async()
 
-        processor = AsyncBatchProcessor(
-            max_concurrency=3,
-            rate_limit=5,
-            rate_limit_per=1.0
-        )
+        processor = AsyncBatchProcessor(max_concurrency=3, rate_limit=5, rate_limit_per=1.0)
 
         queries = [f"Search query {i}" for i in range(10)]
         batch_result = await processor.process(
-            items=queries,
-            operation=search_query,
-            description="Batch web searches"
+            items=queries, operation=search_query, description="Batch web searches"
         )
 
         print(f"  Successful: {batch_result.successful_count}/{len(queries)}")

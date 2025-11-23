@@ -5,9 +5,9 @@ Simple test script for MCP Server
 Tests basic functionality without requiring full MCP client setup.
 """
 
-import sys
-import os
 import json
+import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -20,9 +20,7 @@ def test_config():
     """Test configuration."""
     print("Testing Configuration...")
     config = MCPConfig(
-        enabled_categories=["data", "utils"],
-        enable_analytics=False,
-        enable_caching=False
+        enabled_categories=["data", "utils"], enable_analytics=False, enable_caching=False
     )
     print(f"  ✓ Config created: {config.server_name} v{config.server_version}")
     print(f"  ✓ Categories: {config.enabled_categories}")
@@ -42,12 +40,7 @@ def test_server_init(config):
 def test_initialize_request(server):
     """Test initialize request."""
     print("\nTesting Initialize Request...")
-    request = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "initialize",
-        "params": {}
-    }
+    request = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}
     response = server.handle_request(request)
     print(f"  ✓ Response: {json.dumps(response, indent=2)[:200]}...")
     return response
@@ -56,12 +49,7 @@ def test_initialize_request(server):
 def test_tools_list_request(server):
     """Test tools/list request."""
     print("\nTesting Tools List Request...")
-    request = {
-        "jsonrpc": "2.0",
-        "id": 2,
-        "method": "tools/list",
-        "params": {}
-    }
+    request = {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}
     response = server.handle_request(request)
     tools = response.get("result", {}).get("tools", [])
     print(f"  ✓ Tools available: {len(tools)}")
@@ -77,12 +65,7 @@ def test_tools_list_request(server):
 def test_ping_request(server):
     """Test ping request."""
     print("\nTesting Ping Request...")
-    request = {
-        "jsonrpc": "2.0",
-        "id": 3,
-        "method": "ping",
-        "params": {}
-    }
+    request = {"jsonrpc": "2.0", "id": 3, "method": "ping", "params": {}}
     response = server.handle_request(request)
     print(f"  ✓ Ping response: {response.get('result', {}).get('status')}")
     return response
@@ -109,6 +92,7 @@ def main():
     except Exception as e:
         print(f"\n✗ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

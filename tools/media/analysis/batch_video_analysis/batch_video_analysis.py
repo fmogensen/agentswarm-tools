@@ -2,13 +2,14 @@
 Analyze multiple videos in batch with custom analysis criteria
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
 import re
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class BatchVideoAnalysis(BaseTool):

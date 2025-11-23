@@ -10,9 +10,10 @@ Test coverage:
 - Validation and error handling
 """
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from tools.integrations.linear.linear_get_roadmap import LinearGetRoadmap
 
@@ -197,10 +198,7 @@ class TestLinearGetRoadmap:
 
     def test_filter_by_date_range(self):
         """Test filtering by both start and end dates."""
-        tool = LinearGetRoadmap(
-            date_range_start="2025-01-01",
-            date_range_end="2025-12-31"
-        )
+        tool = LinearGetRoadmap(date_range_start="2025-01-01", date_range_end="2025-12-31")
         result = tool.run()
 
         assert result["success"] is True
@@ -352,10 +350,7 @@ class TestLinearGetRoadmap:
 
     def test_result_metadata(self):
         """Test that result includes proper metadata."""
-        tool = LinearGetRoadmap(
-            team_id="team_xyz",
-            status_filter="started"
-        )
+        tool = LinearGetRoadmap(team_id="team_xyz", status_filter="started")
         result = tool.run()
 
         metadata = result["metadata"]
@@ -374,7 +369,7 @@ class TestLinearGetRoadmap:
             include_milestones=True,
             include_progress=True,
             sort_by="progress",
-            limit=20
+            limit=20,
         )
         result = tool.run()
 
@@ -383,25 +378,27 @@ class TestLinearGetRoadmap:
     # Integration tests
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "LINEAR_API_KEY": "test_key"})
-    @patch('requests.post')
+    @patch("requests.post")
     def test_real_api_call_structure(self, mock_post):
         """Test that real API calls are structured correctly."""
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "data": {
                 "projects": {
-                    "nodes": [{
-                        "id": "proj_123",
-                        "name": "Test Project",
-                        "state": "started",
-                        "progress": 0.5,
-                        "startDate": "2025-01-01",
-                        "targetDate": "2025-12-31",
-                        "teams": {"nodes": []},
-                        "projectMilestones": {"nodes": []},
-                        "issues": {"nodes": []},
-                        "health": "onTrack"
-                    }]
+                    "nodes": [
+                        {
+                            "id": "proj_123",
+                            "name": "Test Project",
+                            "state": "started",
+                            "progress": 0.5,
+                            "startDate": "2025-01-01",
+                            "targetDate": "2025-12-31",
+                            "teams": {"nodes": []},
+                            "projectMilestones": {"nodes": []},
+                            "issues": {"nodes": []},
+                            "health": "onTrack",
+                        }
+                    ]
                 }
             }
         }

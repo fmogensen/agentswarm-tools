@@ -8,15 +8,16 @@ This atomic tool handles:
 4. Citation extraction and analysis
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-import os
 import hashlib
-import requests
+import os
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class ResearchPaperAnalysis(BaseTool):
@@ -61,35 +62,23 @@ class ResearchPaperAnalysis(BaseTool):
 
     # Required parameters
     paper_urls: List[str] = Field(
-        ...,
-        description="List of paper URLs or DOIs to analyze",
-        min_length=1,
-        max_length=50
+        ..., description="List of paper URLs or DOIs to analyze", min_length=1, max_length=50
     )
 
     # Optional parameters
     research_question: Optional[str] = Field(
-        None,
-        description="Optional research question to focus the analysis",
-        max_length=500
+        None, description="Optional research question to focus the analysis", max_length=500
     )
 
     extract_citations: bool = Field(
-        True,
-        description="Whether to extract and analyze citations from papers"
+        True, description="Whether to extract and analyze citations from papers"
     )
 
     include_methodology: bool = Field(
-        True,
-        description="Extract and summarize methodology sections"
+        True, description="Extract and summarize methodology sections"
     )
 
-    max_papers: int = Field(
-        10,
-        description="Maximum number of papers to analyze",
-        ge=1,
-        le=50
-    )
+    max_papers: int = Field(10, description="Maximum number of papers to analyze", ge=1, le=50)
 
     def _execute(self) -> Dict[str, Any]:
         """Execute paper analysis."""
@@ -113,8 +102,8 @@ class ResearchPaperAnalysis(BaseTool):
                     "papers_analyzed": len(result["papers"]),
                     "research_question": self.research_question,
                     "extract_citations": self.extract_citations,
-                    "timestamp": datetime.utcnow().isoformat()
-                }
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
             }
         except Exception as e:
             raise APIError(f"Paper analysis failed: {e}", tool_name=self.tool_name)
@@ -125,14 +114,14 @@ class ResearchPaperAnalysis(BaseTool):
             raise ValidationError(
                 "At least one paper URL must be provided",
                 field="paper_urls",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         if len(self.paper_urls) > self.max_papers:
             raise ValidationError(
                 f"Number of papers ({len(self.paper_urls)}) exceeds max_papers ({self.max_papers})",
                 field="paper_urls",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
     def _should_use_mock(self) -> bool:
@@ -143,7 +132,7 @@ class ResearchPaperAnalysis(BaseTool):
         """Generate mock paper analysis results."""
         mock_papers = []
 
-        for i, url in enumerate(self.paper_urls[:self.max_papers]):
+        for i, url in enumerate(self.paper_urls[: self.max_papers]):
             paper_id = hashlib.md5(url.encode()).hexdigest()[:8]
 
             mock_paper = {
@@ -154,20 +143,28 @@ class ResearchPaperAnalysis(BaseTool):
                 "year": 2024 - (i % 5),
                 "venue": "International Conference on Research",
                 "abstract": f"This paper presents novel findings on {self.research_question or 'the research topic'}. "
-                           f"We introduce a new methodology that improves upon previous work by 25%. "
-                           f"Our experiments demonstrate significant improvements in key metrics.",
+                f"We introduce a new methodology that improves upon previous work by 25%. "
+                f"Our experiments demonstrate significant improvements in key metrics.",
                 "key_findings": [
                     f"Finding 1: Novel approach to {self.research_question or 'problem'}",
                     "Finding 2: 25% improvement over baseline methods",
-                    "Finding 3: Validated across multiple datasets"
+                    "Finding 3: Validated across multiple datasets",
                 ],
-                "methodology": "Experimental study using quantitative analysis and machine learning techniques" if self.include_methodology else None,
-                "citations": [
-                    {"title": "Foundational Work 1", "year": 2020, "citations": 150},
-                    {"title": "Related Research 2", "year": 2022, "citations": 75}
-                ] if self.extract_citations else [],
+                "methodology": (
+                    "Experimental study using quantitative analysis and machine learning techniques"
+                    if self.include_methodology
+                    else None
+                ),
+                "citations": (
+                    [
+                        {"title": "Foundational Work 1", "year": 2020, "citations": 150},
+                        {"title": "Related Research 2", "year": 2022, "citations": 75},
+                    ]
+                    if self.extract_citations
+                    else []
+                ),
                 "citation_count": 42 + (i * 10),
-                "relevance_score": round(0.95 - (i * 0.05), 2)
+                "relevance_score": round(0.95 - (i * 0.05), 2),
             }
 
             mock_papers.append(mock_paper)
@@ -187,8 +184,8 @@ class ResearchPaperAnalysis(BaseTool):
                 "papers_analyzed": len(mock_papers),
                 "research_question": self.research_question,
                 "extract_citations": self.extract_citations,
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -196,7 +193,7 @@ class ResearchPaperAnalysis(BaseTool):
         analyzed_papers = []
 
         # Limit to max_papers
-        urls_to_process = self.paper_urls[:self.max_papers]
+        urls_to_process = self.paper_urls[: self.max_papers]
 
         for url in urls_to_process:
             self._logger.info(f"Analyzing paper: {url}")
@@ -215,8 +212,7 @@ class ResearchPaperAnalysis(BaseTool):
 
                 # Analyze findings relative to research question
                 paper_data["key_findings"] = self._extract_key_findings(
-                    paper_data,
-                    self.research_question
+                    paper_data, self.research_question
                 )
 
                 analyzed_papers.append(paper_data)
@@ -230,10 +226,7 @@ class ResearchPaperAnalysis(BaseTool):
         for paper in analyzed_papers:
             all_findings.extend(paper.get("key_findings", []))
 
-        return {
-            "papers": analyzed_papers,
-            "key_findings": all_findings
-        }
+        return {"papers": analyzed_papers, "key_findings": all_findings}
 
     def _fetch_paper_metadata(self, url: str) -> Dict[str, Any]:
         """
@@ -258,7 +251,7 @@ class ResearchPaperAnalysis(BaseTool):
             "abstract": "Paper abstract discussing research findings and methodology.",
             "full_text": "Full paper text would be extracted here...",
             "venue": "Conference/Journal Name",
-            "citation_count": 50
+            "citation_count": 50,
         }
 
     def _extract_methodology(self, paper_data: Dict[str, Any]) -> str:
@@ -287,13 +280,11 @@ class ResearchPaperAnalysis(BaseTool):
         # In production, would parse bibliography and fetch metadata
         return [
             {"title": "Citation 1", "year": 2020, "citations": 100},
-            {"title": "Citation 2", "year": 2021, "citations": 50}
+            {"title": "Citation 2", "year": 2021, "citations": 50},
         ]
 
     def _extract_key_findings(
-        self,
-        paper_data: Dict[str, Any],
-        research_question: Optional[str]
+        self, paper_data: Dict[str, Any], research_question: Optional[str]
     ) -> List[str]:
         """
         Extract key findings from paper using AI.
@@ -310,7 +301,7 @@ class ResearchPaperAnalysis(BaseTool):
         return [
             "Finding 1: Novel contribution to the field",
             "Finding 2: Significant performance improvement",
-            "Finding 3: Validated experimental results"
+            "Finding 3: Validated experimental results",
         ]
 
 
@@ -319,6 +310,7 @@ if __name__ == "__main__":
     print("Testing ResearchPaperAnalysis tool...\n")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic paper analysis
@@ -326,7 +318,7 @@ if __name__ == "__main__":
     print("-" * 50)
     tool = ResearchPaperAnalysis(
         paper_urls=["https://arxiv.org/abs/1234.5678", "https://arxiv.org/abs/2345.6789"],
-        research_question="machine learning optimization"
+        research_question="machine learning optimization",
     )
     result = tool.run()
 
@@ -341,7 +333,7 @@ if __name__ == "__main__":
     tool2 = ResearchPaperAnalysis(
         paper_urls=["https://example.com/paper1.pdf"],
         extract_citations=True,
-        include_methodology=True
+        include_methodology=True,
     )
     result2 = tool2.run()
 

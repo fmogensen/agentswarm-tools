@@ -3,16 +3,16 @@ Analytics and monitoring system for AgentSwarm Tools.
 Tracks requests, performance, errors, and usage metrics.
 """
 
-from typing import Optional, Dict, Any, List
-from datetime import datetime, timedelta
-from dataclasses import dataclass, field, asdict
-from enum import Enum
 import json
 import os
-from pathlib import Path
+import statistics
 import threading
 from collections import defaultdict
-import statistics
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 class EventType(Enum):
@@ -69,7 +69,9 @@ class ToolMetrics:
     last_success: Optional[datetime] = None
     last_error: Optional[datetime] = None
     slow_queries: int = 0  # Requests exceeding slow query threshold
-    _duration_samples: List[float] = field(default_factory=list, repr=False)  # For percentile calculation
+    _duration_samples: List[float] = field(
+        default_factory=list, repr=False
+    )  # For percentile calculation
 
     @property
     def avg_duration_ms(self) -> float:
@@ -471,9 +473,7 @@ def get_llm_costs(days: int = 7) -> Dict[str, Any]:
         "cost_by_provider": {k: round(v, 6) for k, v in cost_by_provider.items()},
         "calls_by_model": dict(calls_by_model),
         "avg_cost_per_call": (
-            round(total_cost / sum(calls_by_model.values()), 6)
-            if calls_by_model
-            else 0.0
+            round(total_cost / sum(calls_by_model.values()), 6) if calls_by_model else 0.0
         ),
     }
 
@@ -496,9 +496,7 @@ def print_llm_costs(days: int = 7) -> None:
 
     if costs["cost_by_model"]:
         print("\nCost by Model:")
-        for model, cost in sorted(
-            costs["cost_by_model"].items(), key=lambda x: x[1], reverse=True
-        ):
+        for model, cost in sorted(costs["cost_by_model"].items(), key=lambda x: x[1], reverse=True):
             calls = costs["calls_by_model"].get(model, 0)
             avg = cost / calls if calls > 0 else 0
             print(f"  {model}: ${cost:.6f} ({calls} calls, ${avg:.6f}/call)")

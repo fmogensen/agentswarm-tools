@@ -2,19 +2,19 @@
 Send emails via Gmail API
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field, field_validator
-import os
 import base64
-from email.mime.text import MIMEText
+import os
 from email.mime.multipart import MIMEMultipart
-
-from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from email.mime.text import MIMEText
+from typing import Any, Dict, List, Optional
 
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from pydantic import Field, field_validator
+
+from shared.base import BaseTool
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class EmailSend(BaseTool):

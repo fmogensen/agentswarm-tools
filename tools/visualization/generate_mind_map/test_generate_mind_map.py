@@ -1,14 +1,14 @@
 """Tests for generate_mind_map tool."""
 
-import pytest
 import os
+from typing import Any, Dict
 from unittest.mock import patch
-from typing import Dict, Any
 
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.visualization.generate_mind_map import GenerateMindMap
-from shared.errors import ValidationError, APIError
 
 
 class TestGenerateMindMap:

@@ -4,11 +4,11 @@ Performance dashboard data generation for AgentSwarm Tools.
 Generates dashboard-ready JSON data for visualizing performance metrics.
 """
 
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from .monitoring import get_monitor, AggregatedMetrics
+from .monitoring import AggregatedMetrics, get_monitor
 
 
 def generate_dashboard_data(days: int = 7) -> Dict[str, Any]:
@@ -67,9 +67,7 @@ def _calculate_overview(all_metrics: Dict[str, AggregatedMetrics]) -> Dict[str, 
 
     # Calculate average latency across all tools (weighted by requests)
     if total_requests > 0:
-        weighted_latency = sum(
-            m.avg_latency_ms * m.total_requests for m in all_metrics.values()
-        )
+        weighted_latency = sum(m.avg_latency_ms * m.total_requests for m in all_metrics.values())
         avg_latency = weighted_latency / total_requests
     else:
         avg_latency = 0.0
@@ -82,9 +80,7 @@ def _calculate_overview(all_metrics: Dict[str, AggregatedMetrics]) -> Dict[str, 
     error_rate = (failed_requests / total_requests * 100) if total_requests > 0 else 0.0
 
     # Cache hit rate (if available)
-    cache_metrics = [
-        m for m in all_metrics.values() if m.cache_hit_rate_percent is not None
-    ]
+    cache_metrics = [m for m in all_metrics.values() if m.cache_hit_rate_percent is not None]
     if cache_metrics:
         weighted_cache_rate = sum(
             m.cache_hit_rate_percent * m.total_requests for m in cache_metrics
@@ -156,12 +152,8 @@ def _generate_trends(days: int = 7) -> Dict[str, Any]:
 
         trends["daily_requests"].append({"date": date_str, "value": total_requests})
         trends["daily_errors"].append({"date": date_str, "value": total_errors})
-        trends["daily_avg_latency"].append(
-            {"date": date_str, "value": round(avg_latency, 2)}
-        )
-        trends["daily_p95_latency"].append(
-            {"date": date_str, "value": round(p95_latency, 2)}
-        )
+        trends["daily_avg_latency"].append({"date": date_str, "value": round(avg_latency, 2)})
+        trends["daily_p95_latency"].append({"date": date_str, "value": round(p95_latency, 2)})
 
     return trends
 
@@ -489,7 +481,11 @@ def export_dashboard_html(days: int = 7, output_file: str = "dashboard.html") ->
     # Format most used tools rows
     most_used_rows = ""
     for tool in data["most_used_tools"]:
-        success_rate = (tool['successful_requests'] / tool['total_requests'] * 100) if tool['total_requests'] > 0 else 0
+        success_rate = (
+            (tool["successful_requests"] / tool["total_requests"] * 100)
+            if tool["total_requests"] > 0
+            else 0
+        )
         most_used_rows += f"""
             <tr>
                 <td>{tool['tool_name']}</td>
@@ -528,11 +524,11 @@ if __name__ == "__main__":
     # Test dashboard generation
     print("Testing Dashboard Generation...")
 
-    import tempfile
     import os
+    import tempfile
 
     # Create test data
-    from .monitoring import PerformanceMonitor, PerformanceMetric
+    from .monitoring import PerformanceMetric, PerformanceMonitor
 
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
         test_db = f.name

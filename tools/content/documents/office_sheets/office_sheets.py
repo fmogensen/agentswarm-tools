@@ -2,16 +2,17 @@
 Generate Excel spreadsheets (.xlsx) from structured data.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
+import csv
 import os
 import tempfile
-import csv
-import urllib.request
 import urllib.parse
+import urllib.request
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class OfficeSheetsTool(BaseTool):
@@ -223,7 +224,7 @@ class OfficeSheetsTool(BaseTool):
             try:
                 import openpyxl
                 from openpyxl import Workbook
-                from openpyxl.styles import Font, PatternFill, Alignment
+                from openpyxl.styles import Alignment, Font, PatternFill
                 from openpyxl.utils import get_column_letter
             except ImportError:
                 raise ConfigurationError(
@@ -276,7 +277,7 @@ class OfficeSheetsTool(BaseTool):
         try:
             import openpyxl
             from openpyxl import load_workbook
-            from openpyxl.styles import Font, PatternFill, Alignment
+            from openpyxl.styles import Alignment, Font, PatternFill
             from openpyxl.utils import get_column_letter
 
             # Open existing workbook
@@ -371,7 +372,7 @@ class OfficeSheetsTool(BaseTool):
 
     def _add_headers_to_worksheet(self, ws, row_num: int) -> None:
         """Add headers to worksheet at specified row."""
-        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.styles import Alignment, Font, PatternFill
 
         for col_idx, header in enumerate(self.headers, start=1):
             cell = ws.cell(row=row_num, column=col_idx, value=header)
@@ -417,7 +418,7 @@ class OfficeSheetsTool(BaseTool):
         """Process XLSX format."""
         import openpyxl
         from openpyxl import Workbook
-        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.styles import Alignment, Font, PatternFill
         from openpyxl.utils import get_column_letter
 
         # Create workbook
@@ -461,7 +462,7 @@ class OfficeSheetsTool(BaseTool):
 
     def _populate_worksheet(self, ws, data: List[List[Any]], headers: Optional[List[str]] = None):
         """Populate worksheet with data, headers, formulas, and formatting."""
-        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.styles import Alignment, Font, PatternFill
         from openpyxl.utils import get_column_letter
 
         row_offset = 1
@@ -505,7 +506,7 @@ class OfficeSheetsTool(BaseTool):
 
     def _apply_formatting(self, ws, formatting: Dict[str, Any]):
         """Apply cell formatting rules to worksheet."""
-        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
         # Example formatting rules:
         # {

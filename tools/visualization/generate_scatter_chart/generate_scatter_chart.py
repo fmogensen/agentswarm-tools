@@ -2,16 +2,17 @@
 Generate scatter chart for correlations and relationships
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
-import os
-import uuid
 import base64
 import io
+import os
+import uuid
+from typing import Any, Dict, Optional
+
 import matplotlib.pyplot as plt
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class GenerateScatterChart(BaseTool):

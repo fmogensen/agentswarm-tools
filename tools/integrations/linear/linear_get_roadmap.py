@@ -5,15 +5,16 @@ Retrieves roadmap, projects, milestones, and progress tracking from Linear
 with comprehensive filtering and analytics capabilities.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
-import requests
+import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class LinearGetRoadmap(BaseTool):
@@ -64,50 +65,25 @@ class LinearGetRoadmap(BaseTool):
     tool_category: str = "integrations"
 
     # Optional parameters - filtering
-    team_id: Optional[str] = Field(
-        None,
-        description="Filter projects by team ID"
-    )
+    team_id: Optional[str] = Field(None, description="Filter projects by team ID")
     status_filter: Optional[str] = Field(
-        None,
-        description="Filter by status: planned, started, paused, completed, canceled"
+        None, description="Filter by status: planned, started, paused, completed, canceled"
     )
-    include_archived: bool = Field(
-        False,
-        description="Include archived projects"
-    )
+    include_archived: bool = Field(False, description="Include archived projects")
 
     # Optional parameters - data inclusion
-    include_milestones: bool = Field(
-        True,
-        description="Include milestone information"
-    )
-    include_progress: bool = Field(
-        True,
-        description="Include progress metrics"
-    )
+    include_milestones: bool = Field(True, description="Include milestone information")
+    include_progress: bool = Field(True, description="Include progress metrics")
 
     # Optional parameters - date filtering
     date_range_start: Optional[str] = Field(
-        None,
-        description="Filter by start date (ISO 8601 format)"
+        None, description="Filter by start date (ISO 8601 format)"
     )
-    date_range_end: Optional[str] = Field(
-        None,
-        description="Filter by end date (ISO 8601 format)"
-    )
+    date_range_end: Optional[str] = Field(None, description="Filter by end date (ISO 8601 format)")
 
     # Optional parameters - sorting and pagination
-    sort_by: str = Field(
-        "startDate",
-        description="Sort by: name, startDate, targetDate, progress"
-    )
-    limit: int = Field(
-        50,
-        description="Maximum number of projects to return",
-        ge=1,
-        le=100
-    )
+    sort_by: str = Field("startDate", description="Sort by: name, startDate, targetDate, progress")
+    limit: int = Field(50, description="Maximum number of projects to return", ge=1, le=100)
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the roadmap retrieval."""
@@ -132,13 +108,10 @@ class LinearGetRoadmap(BaseTool):
                     "team_id": self.team_id,
                     "status_filter": self.status_filter,
                     "project_count": len(result["projects"]),
-                }
+                },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to retrieve Linear roadmap: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to retrieve Linear roadmap: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -148,7 +121,7 @@ class LinearGetRoadmap(BaseTool):
             raise ValidationError(
                 f"Invalid status filter. Must be one of: {', '.join(valid_statuses)}",
                 tool_name=self.tool_name,
-                field="status_filter"
+                field="status_filter",
             )
 
         # Validate sort_by
@@ -157,36 +130,34 @@ class LinearGetRoadmap(BaseTool):
             raise ValidationError(
                 f"Invalid sort_by. Must be one of: {', '.join(valid_sorts)}",
                 tool_name=self.tool_name,
-                field="sort_by"
+                field="sort_by",
             )
 
         # Validate limit
         if self.limit < 1 or self.limit > 100:
             raise ValidationError(
-                "Limit must be between 1 and 100",
-                tool_name=self.tool_name,
-                field="limit"
+                "Limit must be between 1 and 100", tool_name=self.tool_name, field="limit"
             )
 
         # Validate dates
         if self.date_range_start:
             try:
-                datetime.fromisoformat(self.date_range_start.replace('Z', '+00:00'))
+                datetime.fromisoformat(self.date_range_start.replace("Z", "+00:00"))
             except (ValueError, AttributeError):
                 raise ValidationError(
                     "Start date must be in ISO 8601 format",
                     tool_name=self.tool_name,
-                    field="date_range_start"
+                    field="date_range_start",
                 )
 
         if self.date_range_end:
             try:
-                datetime.fromisoformat(self.date_range_end.replace('Z', '+00:00'))
+                datetime.fromisoformat(self.date_range_end.replace("Z", "+00:00"))
             except (ValueError, AttributeError):
                 raise ValidationError(
                     "End date must be in ISO 8601 format",
                     tool_name=self.tool_name,
-                    field="date_range_end"
+                    field="date_range_end",
                 )
 
     def _should_use_mock(self) -> bool:
@@ -210,9 +181,19 @@ class LinearGetRoadmap(BaseTool):
                 "issue_count": 23,
                 "completed_issues": 15,
                 "milestones": [
-                    {"id": "milestone_1", "name": "Alpha Release", "date": "2025-11-15", "completed": True},
-                    {"id": "milestone_2", "name": "Beta Release", "date": "2025-12-15", "completed": False}
-                ]
+                    {
+                        "id": "milestone_1",
+                        "name": "Alpha Release",
+                        "date": "2025-11-15",
+                        "completed": True,
+                    },
+                    {
+                        "id": "milestone_2",
+                        "name": "Beta Release",
+                        "date": "2025-12-15",
+                        "completed": False,
+                    },
+                ],
             },
             {
                 "id": "proj_def456",
@@ -228,9 +209,14 @@ class LinearGetRoadmap(BaseTool):
                 "issue_count": 45,
                 "completed_issues": 7,
                 "milestones": [
-                    {"id": "milestone_3", "name": "Design Complete", "date": "2026-02-01", "completed": False}
-                ]
-            }
+                    {
+                        "id": "milestone_3",
+                        "name": "Design Complete",
+                        "date": "2026-02-01",
+                        "completed": False,
+                    }
+                ],
+            },
         ]
 
         # Filter by status if specified
@@ -254,7 +240,9 @@ class LinearGetRoadmap(BaseTool):
                 "atRisk": sum(1 for p in projects if p.get("health") == "atRisk"),
                 "offTrack": sum(1 for p in projects if p.get("health") == "offTrack"),
             },
-            "average_progress": sum(p.get("progress", 0) for p in projects) / len(projects) if projects else 0,
+            "average_progress": (
+                sum(p.get("progress", 0) for p in projects) / len(projects) if projects else 0
+            ),
             "total_issues": sum(p.get("issue_count", 0) for p in projects),
             "completed_issues": sum(p.get("completed_issues", 0) for p in projects),
         }
@@ -262,7 +250,7 @@ class LinearGetRoadmap(BaseTool):
         timeline = {
             "start_date": min((p["start_date"] for p in projects), default="2025-01-01"),
             "end_date": max((p["target_date"] for p in projects), default="2026-12-31"),
-            "quarters": self._generate_timeline_quarters(projects)
+            "quarters": self._generate_timeline_quarters(projects),
         }
 
         return {
@@ -277,7 +265,7 @@ class LinearGetRoadmap(BaseTool):
                 "status_filter": self.status_filter,
                 "project_count": len(projects),
                 "mock_mode": True,
-            }
+            },
         }
 
     def _generate_timeline_quarters(self, projects: List[Dict]) -> List[Dict]:
@@ -285,17 +273,22 @@ class LinearGetRoadmap(BaseTool):
         quarters = []
         for q in range(1, 5):
             quarter_projects = [
-                p for p in projects
-                if f"Q{q}" in p.get("name", "") or
-                (p.get("start_date", "").startswith(f"2025-{q*3-2:02d}") or
-                 p.get("start_date", "").startswith(f"2025-{q*3-1:02d}") or
-                 p.get("start_date", "").startswith(f"2025-{q*3:02d}"))
+                p
+                for p in projects
+                if f"Q{q}" in p.get("name", "")
+                or (
+                    p.get("start_date", "").startswith(f"2025-{q*3-2:02d}")
+                    or p.get("start_date", "").startswith(f"2025-{q*3-1:02d}")
+                    or p.get("start_date", "").startswith(f"2025-{q*3:02d}")
+                )
             ]
-            quarters.append({
-                "quarter": f"Q{q} 2025",
-                "project_count": len(quarter_projects),
-                "projects": [p["name"] for p in quarter_projects]
-            })
+            quarters.append(
+                {
+                    "quarter": f"Q{q} 2025",
+                    "project_count": len(quarter_projects),
+                    "projects": [p["name"] for p in quarter_projects],
+                }
+            )
         return quarters
 
     def _process(self) -> Dict[str, Any]:
@@ -304,8 +297,7 @@ class LinearGetRoadmap(BaseTool):
         api_key = os.getenv("LINEAR_API_KEY")
         if not api_key:
             raise AuthenticationError(
-                "Missing LINEAR_API_KEY environment variable",
-                tool_name=self.tool_name
+                "Missing LINEAR_API_KEY environment variable", tool_name=self.tool_name
             )
 
         # Prepare GraphQL query
@@ -380,18 +372,12 @@ class LinearGetRoadmap(BaseTool):
 
         payload = {
             "query": query,
-            "variables": {
-                "filter": filter_obj if filter_obj else None,
-                "first": self.limit
-            }
+            "variables": {"filter": filter_obj if filter_obj else None, "first": self.limit},
         }
 
         try:
             response = requests.post(
-                "https://api.linear.app/graphql",
-                headers=headers,
-                json=payload,
-                timeout=30
+                "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
             )
             response.raise_for_status()
 
@@ -401,8 +387,7 @@ class LinearGetRoadmap(BaseTool):
             if "errors" in data:
                 error_messages = [e.get("message", str(e)) for e in data["errors"]]
                 raise APIError(
-                    f"GraphQL errors: {'; '.join(error_messages)}",
-                    tool_name=self.tool_name
+                    f"GraphQL errors: {'; '.join(error_messages)}", tool_name=self.tool_name
                 )
 
             # Extract and process projects
@@ -427,18 +412,14 @@ class LinearGetRoadmap(BaseTool):
                 "projects": projects,
                 "milestones": milestones,
                 "roadmap_summary": roadmap_summary,
-                "timeline": timeline
+                "timeline": timeline,
             }
 
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Linear API request failed: {str(e)}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Linear API request failed: {str(e)}", tool_name=self.tool_name)
         except (KeyError, ValueError) as e:
             raise APIError(
-                f"Failed to parse Linear API response: {str(e)}",
-                tool_name=self.tool_name
+                f"Failed to parse Linear API response: {str(e)}", tool_name=self.tool_name
             )
 
     def _process_projects(self, projects_raw: List[Dict]) -> List[Dict]:
@@ -451,8 +432,7 @@ class LinearGetRoadmap(BaseTool):
                 issues = project.get("issues", {}).get("nodes", [])
                 total_issues = len(issues)
                 completed_issues = sum(
-                    1 for issue in issues
-                    if issue.get("state", {}).get("type") == "completed"
+                    1 for issue in issues if issue.get("state", {}).get("type") == "completed"
                 )
                 progress = completed_issues / total_issues if total_issues > 0 else 0
             else:
@@ -472,14 +452,15 @@ class LinearGetRoadmap(BaseTool):
                 "progress": progress,
                 "start_date": project.get("startDate"),
                 "target_date": project.get("targetDate"),
-                "lead": {
-                    "id": project.get("lead", {}).get("id"),
-                    "name": project.get("lead", {}).get("name")
-                } if project.get("lead") else None,
-                "team": {
-                    "id": team.get("id"),
-                    "name": team.get("name")
-                } if team else None,
+                "lead": (
+                    {
+                        "id": project.get("lead", {}).get("id"),
+                        "name": project.get("lead", {}).get("name"),
+                    }
+                    if project.get("lead")
+                    else None
+                ),
+                "team": {"id": team.get("id"), "name": team.get("name")} if team else None,
                 "health": project.get("health"),
                 "issue_count": total_issues,
                 "completed_issues": completed_issues,
@@ -493,7 +474,7 @@ class LinearGetRoadmap(BaseTool):
                         "id": m.get("id"),
                         "name": m.get("name"),
                         "date": m.get("targetDate"),
-                        "sort_order": m.get("sortOrder")
+                        "sort_order": m.get("sortOrder"),
                     }
                     for m in milestones
                 ]
@@ -508,7 +489,7 @@ class LinearGetRoadmap(BaseTool):
             "name": lambda p: p.get("name", ""),
             "startDate": lambda p: p.get("start_date", ""),
             "targetDate": lambda p: p.get("target_date", ""),
-            "progress": lambda p: p.get("progress", 0)
+            "progress": lambda p: p.get("progress", 0),
         }
 
         sort_key = sort_key_map.get(self.sort_by, lambda p: p.get("start_date", ""))
@@ -520,11 +501,9 @@ class LinearGetRoadmap(BaseTool):
         for project in projects:
             project_milestones = project.get("milestones", [])
             for milestone in project_milestones:
-                milestones.append({
-                    **milestone,
-                    "project_id": project["id"],
-                    "project_name": project["name"]
-                })
+                milestones.append(
+                    {**milestone, "project_id": project["id"], "project_name": project["name"]}
+                )
         return sorted(milestones, key=lambda m: m.get("date", ""))
 
     def _calculate_roadmap_summary(self, projects: List[Dict]) -> Dict[str, Any]:
@@ -553,7 +532,7 @@ class LinearGetRoadmap(BaseTool):
             "average_progress": round(avg_progress, 2),
             "total_issues": total_issues,
             "completed_issues": completed_issues,
-            "completion_rate": round(completed_issues / total_issues, 2) if total_issues > 0 else 0
+            "completion_rate": round(completed_issues / total_issues, 2) if total_issues > 0 else 0,
         }
 
     def _generate_timeline(self, projects: List[Dict]) -> Dict[str, Any]:
@@ -575,7 +554,7 @@ class LinearGetRoadmap(BaseTool):
             "start_date": min(dates),
             "end_date": max(dates),
             "project_count": len(projects),
-            "milestones_count": sum(len(p.get("milestones", [])) for p in projects)
+            "milestones_count": sum(len(p.get("milestones", [])) for p in projects),
         }
 
 
@@ -584,6 +563,7 @@ if __name__ == "__main__":
     print("Testing LinearGetRoadmap...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Get all projects
@@ -599,11 +579,7 @@ if __name__ == "__main__":
 
     # Test 2: Filter by status
     print("\n2. Testing status filter...")
-    tool = LinearGetRoadmap(
-        status_filter="started",
-        include_milestones=True,
-        include_progress=True
-    )
+    tool = LinearGetRoadmap(status_filter="started", include_milestones=True, include_progress=True)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -613,10 +589,7 @@ if __name__ == "__main__":
 
     # Test 3: Team-specific roadmap
     print("\n3. Testing team-specific roadmap...")
-    tool = LinearGetRoadmap(
-        team_id="team_xyz",
-        sort_by="progress"
-    )
+    tool = LinearGetRoadmap(team_id="team_xyz", sort_by="progress")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -625,10 +598,7 @@ if __name__ == "__main__":
 
     # Test 4: Limited results
     print("\n4. Testing limited results...")
-    tool = LinearGetRoadmap(
-        limit=10,
-        sort_by="name"
-    )
+    tool = LinearGetRoadmap(limit=10, sort_by="name")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -642,7 +612,7 @@ if __name__ == "__main__":
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")
@@ -654,7 +624,7 @@ if __name__ == "__main__":
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")

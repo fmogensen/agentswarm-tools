@@ -2,10 +2,13 @@
 Unit tests for CreateProfile tool
 """
 
-import pytest
 import os
-from .create_profile import CreateProfile
+
+import pytest
+
 from shared.errors import ValidationError
+
+from .create_profile import CreateProfile
 
 
 @pytest.fixture(autouse=True)

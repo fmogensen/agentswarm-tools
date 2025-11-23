@@ -2,11 +2,12 @@
 Tests for workflow management functionality
 """
 
-import pytest
 import json
 import tempfile
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 from cli.workflow import WorkflowManager
 
@@ -31,12 +32,7 @@ class TestWorkflowManager:
             "name": "test-workflow",
             "description": "Test workflow",
             "created_at": datetime.now().isoformat(),
-            "steps": [
-                {
-                    "tool": "web_search",
-                    "params": {"query": "test", "max_results": 10}
-                }
-            ]
+            "steps": [{"tool": "web_search", "params": {"query": "test", "max_results": 10}}],
         }
 
         # Save workflow
@@ -54,7 +50,7 @@ class TestWorkflowManager:
             "name": "load-test",
             "description": "Load test workflow",
             "created_at": datetime.now().isoformat(),
-            "steps": []
+            "steps": [],
         }
         manager.save_workflow(workflow)
 
@@ -83,7 +79,7 @@ class TestWorkflowManager:
                 "name": f"workflow-{i}",
                 "description": f"Workflow {i}",
                 "created_at": datetime.now().isoformat(),
-                "steps": []
+                "steps": [],
             }
             manager.save_workflow(workflow)
 
@@ -103,7 +99,7 @@ class TestWorkflowManager:
             "name": "delete-test",
             "description": "Delete test",
             "created_at": datetime.now().isoformat(),
-            "steps": []
+            "steps": [],
         }
         manager.save_workflow(workflow)
 
@@ -128,15 +124,11 @@ class TestWorkflowManager:
         """Test parameter resolution with variables."""
         manager = temp_workflows_dir
 
-        params = {
-            "query": "${input.search_term}",
-            "max_results": 10,
-            "url": "${steps[0].result}"
-        }
+        params = {"query": "${input.search_term}", "max_results": 10, "url": "${steps[0].result}"}
 
         context = {
             "input": {"search_term": "AI news"},
-            "steps": [{"result": "https://example.com"}]
+            "steps": [{"result": "https://example.com"}],
         }
 
         resolved = manager._resolve_parameters(params, context)
@@ -149,12 +141,7 @@ class TestWorkflowManager:
         """Test condition evaluation."""
         manager = temp_workflows_dir
 
-        context = {
-            "steps": [
-                {"success": True},
-                {"success": False}
-            ]
-        }
+        context = {"steps": [{"success": True}, {"success": False}]}
 
         # Test successful condition
         result1 = manager._evaluate_condition("${steps[0].success}", context)
@@ -180,19 +167,8 @@ def test_workflow_structure_validation():
         "name": "test",
         "description": "Test workflow",
         "created_at": datetime.now().isoformat(),
-        "variables": {
-            "query": {
-                "type": "string",
-                "description": "Search query",
-                "required": True
-            }
-        },
-        "steps": [
-            {
-                "tool": "web_search",
-                "params": {"query": "${input.query}"}
-            }
-        ]
+        "variables": {"query": {"type": "string", "description": "Search query", "required": True}},
+        "steps": [{"tool": "web_search", "params": {"query": "${input.query}"}}],
     }
 
     # Verify structure

@@ -3,12 +3,13 @@ Comprehensive tests for SupabaseInsertEmbeddings tool.
 Achieves 90%+ code coverage with unit and integration tests.
 """
 
-import pytest
 import os
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.supabase.supabase_insert_embeddings import SupabaseInsertEmbeddings
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 class TestSupabaseInsertEmbeddingsValidation:
@@ -20,9 +21,7 @@ class TestSupabaseInsertEmbeddingsValidation:
 
     def test_valid_parameters(self):
         """Test with valid parameters."""
-        embeddings = [
-            {"id": "doc_1", "embedding": [0.1] * 768, "content": "Test document"}
-        ]
+        embeddings = [{"id": "doc_1", "embedding": [0.1] * 768, "content": "Test document"}]
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
             embeddings=embeddings,
@@ -134,11 +133,13 @@ class TestSupabaseInsertEmbeddingsMockMode:
         """Test batch embedding insert."""
         embeddings = []
         for i in range(150):
-            embeddings.append({
-                "id": f"doc_{i}",
-                "embedding": [0.1 * i] * 768,
-                "content": f"Document {i}",
-            })
+            embeddings.append(
+                {
+                    "id": f"doc_{i}",
+                    "embedding": [0.1 * i] * 768,
+                    "content": f"Document {i}",
+                }
+            )
 
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
@@ -153,9 +154,7 @@ class TestSupabaseInsertEmbeddingsMockMode:
 
     def test_mock_upsert(self):
         """Test upsert mode."""
-        embeddings = [
-            {"id": "doc_1", "embedding": [0.1] * 768, "content": "Updated content"}
-        ]
+        embeddings = [{"id": "doc_1", "embedding": [0.1] * 768, "content": "Updated content"}]
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
             embeddings=embeddings,
@@ -197,11 +196,13 @@ class TestSupabaseInsertEmbeddingsBatchProcessing:
         """Test with batch size smaller than total."""
         embeddings = []
         for i in range(25):
-            embeddings.append({
-                "id": f"doc_{i}",
-                "embedding": [0.1] * 384,
-                "content": f"Doc {i}",
-            })
+            embeddings.append(
+                {
+                    "id": f"doc_{i}",
+                    "embedding": [0.1] * 384,
+                    "content": f"Doc {i}",
+                }
+            )
 
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
@@ -216,9 +217,7 @@ class TestSupabaseInsertEmbeddingsBatchProcessing:
 
     def test_large_batch(self):
         """Test with batch size larger than total."""
-        embeddings = [
-            {"id": "doc_1", "embedding": [0.1] * 768, "content": "Doc"}
-        ]
+        embeddings = [{"id": "doc_1", "embedding": [0.1] * 768, "content": "Doc"}]
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
             embeddings=embeddings,
@@ -233,11 +232,13 @@ class TestSupabaseInsertEmbeddingsBatchProcessing:
         """Test with maximum batch size."""
         embeddings = []
         for i in range(1000):
-            embeddings.append({
-                "id": f"doc_{i}",
-                "embedding": [0.1] * 128,
-                "content": f"Doc {i}",
-            })
+            embeddings.append(
+                {
+                    "id": f"doc_{i}",
+                    "embedding": [0.1] * 128,
+                    "content": f"Doc {i}",
+                }
+            )
 
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
@@ -262,9 +263,7 @@ class TestSupabaseInsertEmbeddingsDimensions:
         dims = [384, 512, 768, 1024, 1536, 3072]
 
         for dim in dims:
-            embeddings = [
-                {"id": f"doc_{dim}", "embedding": [0.1] * dim, "content": f"Doc {dim}"}
-            ]
+            embeddings = [{"id": f"doc_{dim}", "embedding": [0.1] * dim, "content": f"Doc {dim}"}]
             tool = SupabaseInsertEmbeddings(
                 table_name="documents",
                 embeddings=embeddings,
@@ -318,9 +317,7 @@ class TestSupabaseInsertEmbeddingsMetadata:
 
     def test_without_metadata(self):
         """Test embeddings without metadata."""
-        embeddings = [
-            {"id": "doc_1", "embedding": [0.1] * 768, "content": "Just content"}
-        ]
+        embeddings = [{"id": "doc_1", "embedding": [0.1] * 768, "content": "Just content"}]
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
             embeddings=embeddings,
@@ -358,9 +355,7 @@ class TestSupabaseInsertEmbeddingsEdgeCases:
 
     def test_single_dimension_embedding(self):
         """Test with single dimension embedding."""
-        embeddings = [
-            {"id": "doc_1", "embedding": [0.5], "content": "Single dimension"}
-        ]
+        embeddings = [{"id": "doc_1", "embedding": [0.5], "content": "Single dimension"}]
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
             embeddings=embeddings,
@@ -370,9 +365,7 @@ class TestSupabaseInsertEmbeddingsEdgeCases:
 
     def test_very_large_embedding(self):
         """Test with very large embedding."""
-        embeddings = [
-            {"id": "doc_1", "embedding": [0.001] * 4096, "content": "Large embedding"}
-        ]
+        embeddings = [{"id": "doc_1", "embedding": [0.001] * 4096, "content": "Large embedding"}]
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
             embeddings=embeddings,
@@ -382,9 +375,7 @@ class TestSupabaseInsertEmbeddingsEdgeCases:
 
     def test_zero_values_embedding(self):
         """Test with all-zero embedding."""
-        embeddings = [
-            {"id": "doc_1", "embedding": [0.0] * 768, "content": "Zero embedding"}
-        ]
+        embeddings = [{"id": "doc_1", "embedding": [0.0] * 768, "content": "Zero embedding"}]
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
             embeddings=embeddings,
@@ -445,11 +436,13 @@ def test_insert_embeddings_benchmark(benchmark):
     def run_insert():
         embeddings = []
         for i in range(100):
-            embeddings.append({
-                "id": f"doc_{i}",
-                "embedding": [0.1 * i] * 768,
-                "content": f"Document {i}",
-            })
+            embeddings.append(
+                {
+                    "id": f"doc_{i}",
+                    "embedding": [0.1 * i] * 768,
+                    "content": f"Document {i}",
+                }
+            )
 
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
@@ -464,4 +457,11 @@ def test_insert_embeddings_benchmark(benchmark):
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--cov=tools.integrations.supabase.supabase_insert_embeddings", "--cov-report=term-missing"])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--cov=tools.integrations.supabase.supabase_insert_embeddings",
+            "--cov-report=term-missing",
+        ]
+    )

@@ -10,10 +10,12 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
+from abc import abstractmethod
+
 # Mock the BaseTool to avoid agency_swarm import issues
 from typing import Any, Dict
+
 from pydantic import BaseModel
-from abc import abstractmethod
 
 
 class BaseTool(BaseModel):

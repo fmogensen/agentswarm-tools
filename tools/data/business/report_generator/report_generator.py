@@ -2,14 +2,15 @@
 Generate business reports from structured data.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-import os
 import json
+import os
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class ReportGenerator(BaseTool):
@@ -43,27 +44,16 @@ class ReportGenerator(BaseTool):
     tool_category: str = "data"
 
     # Parameters
-    data: Dict[str, Any] = Field(
-        ...,
-        description="Data to include in the report"
-    )
+    data: Dict[str, Any] = Field(..., description="Data to include in the report")
     report_type: str = Field(
-        ...,
-        description="Type of report: summary, detailed, executive, analytics"
+        ..., description="Type of report: summary, detailed, executive, analytics"
     )
-    title: str = Field(
-        ...,
-        description="Report title",
-        min_length=1
-    )
+    title: str = Field(..., description="Report title", min_length=1)
     sections: Optional[List[str]] = Field(
         None,
-        description="Optional list of sections to include (e.g., ['overview', 'metrics', 'recommendations'])"
+        description="Optional list of sections to include (e.g., ['overview', 'metrics', 'recommendations'])",
     )
-    format: str = Field(
-        "json",
-        description="Output format: json, markdown, html"
-    )
+    format: str = Field("json", description="Output format: json, markdown, html")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute report generation."""
@@ -86,8 +76,8 @@ class ReportGenerator(BaseTool):
                     "report_type": self.report_type,
                     "format": self.format,
                     "generated_at": datetime.utcnow().isoformat(),
-                    "tool_version": "1.0.0"
-                }
+                    "tool_version": "1.0.0",
+                },
             }
         except Exception as e:
             raise APIError(f"Report generation failed: {e}", tool_name=self.tool_name)
@@ -101,28 +91,20 @@ class ReportGenerator(BaseTool):
             raise ValidationError(
                 f"report_type must be one of {valid_types}",
                 tool_name=self.tool_name,
-                field="report_type"
+                field="report_type",
             )
 
         if self.format not in valid_formats:
             raise ValidationError(
-                f"format must be one of {valid_formats}",
-                tool_name=self.tool_name,
-                field="format"
+                f"format must be one of {valid_formats}", tool_name=self.tool_name, field="format"
             )
 
         if not self.title.strip():
-            raise ValidationError(
-                "title cannot be empty",
-                tool_name=self.tool_name,
-                field="title"
-            )
+            raise ValidationError("title cannot be empty", tool_name=self.tool_name, field="title")
 
         if not isinstance(self.data, dict):
             raise ValidationError(
-                "data must be a dictionary",
-                tool_name=self.tool_name,
-                field="data"
+                "data must be a dictionary", tool_name=self.tool_name, field="data"
             )
 
     def _should_use_mock(self) -> bool:
@@ -135,7 +117,7 @@ class ReportGenerator(BaseTool):
             {
                 "overview": "This is a mock report overview.",
                 "metrics": {"total": 100, "average": 50},
-                "summary": "Mock summary of key findings."
+                "summary": "Mock summary of key findings.",
             }
         )
 
@@ -147,13 +129,13 @@ class ReportGenerator(BaseTool):
                 "content": mock_content,
                 "format": self.format,
                 "sections_included": self.sections or ["overview", "metrics", "summary"],
-                "data_points": len(self.data)
+                "data_points": len(self.data),
             },
             "metadata": {
                 "mock_mode": True,
                 "tool_name": self.tool_name,
-                "generated_at": datetime.utcnow().isoformat()
-            }
+                "generated_at": datetime.utcnow().isoformat(),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -165,9 +147,20 @@ class ReportGenerator(BaseTool):
             # Default sections based on report type
             sections_map = {
                 "summary": ["overview", "key_metrics", "summary"],
-                "detailed": ["overview", "detailed_analysis", "metrics", "trends", "recommendations"],
+                "detailed": [
+                    "overview",
+                    "detailed_analysis",
+                    "metrics",
+                    "trends",
+                    "recommendations",
+                ],
                 "executive": ["executive_summary", "key_findings", "action_items"],
-                "analytics": ["data_overview", "statistical_analysis", "insights", "visualizations"]
+                "analytics": [
+                    "data_overview",
+                    "statistical_analysis",
+                    "insights",
+                    "visualizations",
+                ],
             }
             sections_to_include = sections_map.get(self.report_type, ["overview", "data"])
 
@@ -184,7 +177,7 @@ class ReportGenerator(BaseTool):
             "format": self.format,
             "sections_included": sections_to_include,
             "data_points": len(self.data),
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.utcnow().isoformat(),
         }
 
     def _build_report_content(self, sections: List[str]) -> Dict[str, Any]:
@@ -258,7 +251,7 @@ class ReportGenerator(BaseTool):
             "Review all data points for accuracy",
             "Consider additional data sources",
             "Monitor trends over time",
-            "Update report periodically"
+            "Update report periodically",
         ]
 
     def _format_report_content(self, content: Dict[str, Any]) -> str:
@@ -313,10 +306,10 @@ if __name__ == "__main__":
         data={"revenue": 100000, "expenses": 60000, "profit": 40000},
         report_type="summary",
         title="Q4 Financial Report",
-        format="markdown"
+        format="markdown",
     )
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
-    assert result.get('success') == True
+    assert result.get("success") == True
     print("ReportGenerator test passed!")

@@ -5,13 +5,14 @@ Creates a recurring subscription for a customer using Stripe's Subscription API.
 Supports multiple plans, trial periods, and billing intervals.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class StripeCreateSubscription(BaseTool):
@@ -62,17 +63,11 @@ class StripeCreateSubscription(BaseTool):
         description="Stripe customer ID (cus_xxx) or email to create customer",
         min_length=1,
     )
-    price_id: str = Field(
-        ..., description="Stripe price ID for subscription", min_length=1
-    )
+    price_id: str = Field(..., description="Stripe price ID for subscription", min_length=1)
 
     # Optional parameters
-    payment_method_id: Optional[str] = Field(
-        None, description="Payment method ID (pm_xxx)"
-    )
-    trial_period_days: int = Field(
-        0, description="Number of days for trial period", ge=0, le=730
-    )
+    payment_method_id: Optional[str] = Field(None, description="Payment method ID (pm_xxx)")
+    trial_period_days: int = Field(0, description="Number of days for trial period", ge=0, le=730)
     billing_interval: str = Field(
         "monthly",
         description="Billing interval: monthly, yearly, weekly",
@@ -108,9 +103,7 @@ class StripeCreateSubscription(BaseTool):
                 },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to create subscription: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to create subscription: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -124,14 +117,10 @@ class StripeCreateSubscription(BaseTool):
 
         # Validate customer ID format (if it's an ID)
         if self.customer_id.startswith("cus_") and len(self.customer_id) < 10:
-            raise ValidationError(
-                "Invalid customer ID format", tool_name=self.tool_name
-            )
+            raise ValidationError("Invalid customer ID format", tool_name=self.tool_name)
 
         # Validate price ID format
-        if not self.price_id.startswith("price_") and not self.price_id.startswith(
-            "plan_"
-        ):
+        if not self.price_id.startswith("price_") and not self.price_id.startswith("plan_"):
             raise ValidationError("Invalid price ID format", tool_name=self.tool_name)
 
     def _should_use_mock(self) -> bool:
@@ -144,18 +133,16 @@ class StripeCreateSubscription(BaseTool):
 
         current_time = int(time.time())
         trial_end = (
-            current_time + (self.trial_period_days * 86400)
-            if self.trial_period_days > 0
-            else None
+            current_time + (self.trial_period_days * 86400) if self.trial_period_days > 0 else None
         )
         period_end = current_time + 2592000  # 30 days
 
         return {
             "success": True,
             "subscription_id": "sub_mock_1234567890abcdef",
-            "customer_id": self.customer_id
-            if self.customer_id.startswith("cus_")
-            else "cus_mock_created",
+            "customer_id": (
+                self.customer_id if self.customer_id.startswith("cus_") else "cus_mock_created"
+            ),
             "status": "trialing" if self.trial_period_days > 0 else "active",
             "current_period_end": period_end,
             "trial_end": trial_end,
@@ -196,9 +183,7 @@ class StripeCreateSubscription(BaseTool):
                 customer = stripe.Customer.create(email=customer_id)
                 customer_id = customer.id
             except Exception as e:
-                raise APIError(
-                    f"Failed to create customer: {e}", tool_name=self.tool_name
-                )
+                raise APIError(f"Failed to create customer: {e}", tool_name=self.tool_name)
 
         # Prepare subscription data
         subscription_data = {
@@ -221,13 +206,9 @@ class StripeCreateSubscription(BaseTool):
             subscription = stripe.Subscription.create(**subscription_data)
             return subscription
         except stripe.error.InvalidRequestError as e:
-            raise ValidationError(
-                f"Invalid request: {str(e)}", tool_name=self.tool_name
-            )
+            raise ValidationError(f"Invalid request: {str(e)}", tool_name=self.tool_name)
         except stripe.error.AuthenticationError as e:
-            raise AuthenticationError(
-                f"Authentication failed: {str(e)}", tool_name=self.tool_name
-            )
+            raise AuthenticationError(f"Authentication failed: {str(e)}", tool_name=self.tool_name)
         except stripe.error.StripeError as e:
             raise APIError(f"Stripe error: {str(e)}", tool_name=self.tool_name)
 
@@ -242,9 +223,7 @@ if __name__ == "__main__":
 
     # Test 1: Basic monthly subscription
     print("\n1. Testing basic monthly subscription...")
-    tool = StripeCreateSubscription(
-        customer_id="cus_1234567890", price_id="price_monthly_premium"
-    )
+    tool = StripeCreateSubscription(customer_id="cus_1234567890", price_id="price_monthly_premium")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")

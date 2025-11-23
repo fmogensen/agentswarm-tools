@@ -2,14 +2,15 @@
 Generate word cloud for word frequency visualization
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-import os
 import base64
 import io
+import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 try:
     from wordcloud import WordCloud

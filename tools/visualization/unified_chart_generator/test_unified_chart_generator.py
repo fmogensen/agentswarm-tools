@@ -3,14 +3,15 @@ Tests for UnifiedChartGenerator
 """
 
 import os
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 # Set mock mode before importing
 os.environ["USE_MOCK_APIS"] = "true"
 
-from tools.visualization.unified_chart_generator import UnifiedChartGenerator
 from shared.errors import ValidationError
+from tools.visualization.unified_chart_generator import UnifiedChartGenerator
 
 
 class TestUnifiedChartGenerator:

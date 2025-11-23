@@ -6,10 +6,12 @@ custom properties, list management, and error handling.
 """
 
 import os
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.hubspot.hubspot_create_contact import HubSpotCreateContact
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 class TestHubSpotCreateContact:
@@ -153,8 +155,7 @@ class TestHubSpotCreateContact:
     def test_batch_size_limit(self):
         """Test batch size cannot exceed 10 contacts."""
         large_batch = [
-            {"email": f"user{i}@example.com", "firstname": f"User{i}"}
-            for i in range(11)
+            {"email": f"user{i}@example.com", "firstname": f"User{i}"} for i in range(11)
         ]
 
         with pytest.raises(Exception) as exc_info:
@@ -289,9 +290,9 @@ class TestHubSpotCreateContact:
         mock_response.content = b'{"message": "Unauthorized"}'
         mock_response.json.return_value = {"message": "Unauthorized"}
         mock_requests.post.return_value = mock_response
-        mock_requests.post.return_value.raise_for_status.side_effect = (
-            __import__("requests").exceptions.HTTPError(response=mock_response)
-        )
+        mock_requests.post.return_value.raise_for_status.side_effect = __import__(
+            "requests"
+        ).exceptions.HTTPError(response=mock_response)
 
         tool = HubSpotCreateContact(
             email="test@example.com",

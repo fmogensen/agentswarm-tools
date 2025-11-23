@@ -5,16 +5,17 @@ Bi-directional sync between Linear and GitHub for issues, pull requests, and
 project management with conflict resolution and automated workflows.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
-import requests
+import os
 import re
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class LinearSyncGitHub(BaseTool):
@@ -73,66 +74,40 @@ class LinearSyncGitHub(BaseTool):
 
     # Required parameters
     sync_direction: str = Field(
-        ...,
-        description="Sync direction: linear_to_github, github_to_linear, bidirectional"
+        ..., description="Sync direction: linear_to_github, github_to_linear, bidirectional"
     )
-    github_repo: str = Field(
-        ...,
-        description="GitHub repository in format: owner/repo"
-    )
+    github_repo: str = Field(..., description="GitHub repository in format: owner/repo")
 
     # Optional parameters - sync targets
     linear_issue_id: Optional[str] = Field(
-        None,
-        description="Linear issue ID to sync (for single sync)"
+        None, description="Linear issue ID to sync (for single sync)"
     )
-    github_issue_number: Optional[int] = Field(
-        None,
-        description="GitHub issue number to sync"
-    )
+    github_issue_number: Optional[int] = Field(None, description="GitHub issue number to sync")
     github_pr_number: Optional[int] = Field(
-        None,
-        description="GitHub PR number to link to Linear issue"
+        None, description="GitHub PR number to link to Linear issue"
     )
 
     # Optional parameters - sync options
-    sync_comments: bool = Field(
-        True,
-        description="Sync comments between platforms"
-    )
-    sync_labels: bool = Field(
-        True,
-        description="Sync labels between platforms"
-    )
-    sync_status: bool = Field(
-        True,
-        description="Sync status/state changes"
-    )
-    create_branch: bool = Field(
-        False,
-        description="Auto-create GitHub branch for Linear issue"
-    )
+    sync_comments: bool = Field(True, description="Sync comments between platforms")
+    sync_labels: bool = Field(True, description="Sync labels between platforms")
+    sync_status: bool = Field(True, description="Sync status/state changes")
+    create_branch: bool = Field(False, description="Auto-create GitHub branch for Linear issue")
 
     # Optional parameters - conflict handling
     conflict_resolution: str = Field(
-        "linear_wins",
-        description="Conflict resolution: linear_wins, github_wins, manual"
+        "linear_wins", description="Conflict resolution: linear_wins, github_wins, manual"
     )
 
     # Optional parameters - customization
     label_mapping: Optional[Dict[str, str]] = Field(
-        None,
-        description="Custom label mapping: {linear_label: github_label}"
+        None, description="Custom label mapping: {linear_label: github_label}"
     )
 
     # Optional parameters - batch operations
-    batch_sync: bool = Field(
-        False,
-        description="Sync multiple issues in batch"
-    )
+    batch_sync: bool = Field(False, description="Sync multiple issues in batch")
     batch_filters: Optional[Dict[str, Any]] = Field(
         None,
-        description="Filters for batch sync (e.g., {team_id: 'team_xyz', state: 'In Progress'})"
+        description="Filters for batch sync (e.g., {team_id: 'team_xyz', state: 'In Progress'})",
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -157,13 +132,10 @@ class LinearSyncGitHub(BaseTool):
                     "tool_name": self.tool_name,
                     "sync_direction": self.sync_direction,
                     "github_repo": self.github_repo,
-                }
+                },
             }
         except Exception as e:
-            raise APIError(
-                f"Failed to sync Linear with GitHub: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to sync Linear with GitHub: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
@@ -173,15 +145,15 @@ class LinearSyncGitHub(BaseTool):
             raise ValidationError(
                 f"Invalid sync direction. Must be one of: {', '.join(valid_directions)}",
                 tool_name=self.tool_name,
-                field="sync_direction"
+                field="sync_direction",
             )
 
         # Validate github_repo format
-        if not re.match(r'^[\w\-\.]+/[\w\-\.]+$', self.github_repo):
+        if not re.match(r"^[\w\-\.]+/[\w\-\.]+$", self.github_repo):
             raise ValidationError(
                 "GitHub repo must be in format: owner/repo",
                 tool_name=self.tool_name,
-                field="github_repo"
+                field="github_repo",
             )
 
         # Validate conflict_resolution
@@ -190,7 +162,7 @@ class LinearSyncGitHub(BaseTool):
             raise ValidationError(
                 f"Invalid conflict resolution. Must be one of: {', '.join(valid_resolutions)}",
                 tool_name=self.tool_name,
-                field="conflict_resolution"
+                field="conflict_resolution",
             )
 
         # For non-batch sync, require at least one ID
@@ -198,7 +170,7 @@ class LinearSyncGitHub(BaseTool):
             if not self.linear_issue_id and not self.github_issue_number:
                 raise ValidationError(
                     "Must provide either linear_issue_id or github_issue_number for single sync",
-                    tool_name=self.tool_name
+                    tool_name=self.tool_name,
                 )
 
         # For batch sync, require filters
@@ -206,7 +178,7 @@ class LinearSyncGitHub(BaseTool):
             raise ValidationError(
                 "Must provide batch_filters for batch sync",
                 tool_name=self.tool_name,
-                field="batch_filters"
+                field="batch_filters",
             )
 
     def _should_use_mock(self) -> bool:
@@ -220,25 +192,29 @@ class LinearSyncGitHub(BaseTool):
         if self.batch_sync:
             # Mock batch sync
             for i in range(3):
-                sync_details.append({
-                    "linear_issue_id": f"issue_batch_{i}",
-                    "linear_identifier": f"ENG-{100 + i}",
-                    "github_issue_number": 100 + i,
-                    "sync_direction": self.sync_direction,
-                    "changes_synced": ["title", "description", "labels", "status"],
-                    "conflicts": []
-                })
+                sync_details.append(
+                    {
+                        "linear_issue_id": f"issue_batch_{i}",
+                        "linear_identifier": f"ENG-{100 + i}",
+                        "github_issue_number": 100 + i,
+                        "sync_direction": self.sync_direction,
+                        "changes_synced": ["title", "description", "labels", "status"],
+                        "conflicts": [],
+                    }
+                )
         else:
             # Mock single sync
-            sync_details.append({
-                "linear_issue_id": self.linear_issue_id or "issue_mock_123",
-                "linear_identifier": "ENG-123",
-                "github_issue_number": self.github_issue_number or 42,
-                "github_url": f"https://github.com/{self.github_repo}/issues/{self.github_issue_number or 42}",
-                "sync_direction": self.sync_direction,
-                "changes_synced": ["title", "description"],
-                "conflicts": []
-            })
+            sync_details.append(
+                {
+                    "linear_issue_id": self.linear_issue_id or "issue_mock_123",
+                    "linear_identifier": "ENG-123",
+                    "github_issue_number": self.github_issue_number or 42,
+                    "github_url": f"https://github.com/{self.github_repo}/issues/{self.github_issue_number or 42}",
+                    "sync_direction": self.sync_direction,
+                    "changes_synced": ["title", "description"],
+                    "conflicts": [],
+                }
+            )
 
             if self.sync_labels:
                 sync_details[0]["changes_synced"].append("labels")
@@ -254,7 +230,9 @@ class LinearSyncGitHub(BaseTool):
             created_items["branch"] = f"linear/ENG-123-issue-title"
 
         if self.github_pr_number:
-            created_items["pr_link"] = f"https://github.com/{self.github_repo}/pull/{self.github_pr_number}"
+            created_items["pr_link"] = (
+                f"https://github.com/{self.github_repo}/pull/{self.github_pr_number}"
+            )
 
         return {
             "success": True,
@@ -267,7 +245,7 @@ class LinearSyncGitHub(BaseTool):
                 "sync_direction": self.sync_direction,
                 "github_repo": self.github_repo,
                 "mock_mode": True,
-            }
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -278,14 +256,12 @@ class LinearSyncGitHub(BaseTool):
 
         if not linear_api_key:
             raise AuthenticationError(
-                "Missing LINEAR_API_KEY environment variable",
-                tool_name=self.tool_name
+                "Missing LINEAR_API_KEY environment variable", tool_name=self.tool_name
             )
 
         if not github_token:
             raise AuthenticationError(
-                "Missing GITHUB_TOKEN environment variable",
-                tool_name=self.tool_name
+                "Missing GITHUB_TOKEN environment variable", tool_name=self.tool_name
             )
 
         sync_details = []
@@ -296,22 +272,14 @@ class LinearSyncGitHub(BaseTool):
             # Batch sync
             linear_issues = self._get_linear_issues_batch(linear_api_key)
             for issue in linear_issues:
-                detail = self._sync_single_issue(
-                    linear_api_key,
-                    github_token,
-                    issue["id"],
-                    None
-                )
+                detail = self._sync_single_issue(linear_api_key, github_token, issue["id"], None)
                 sync_details.append(detail)
                 if detail.get("conflicts"):
                     conflicts.extend(detail["conflicts"])
         else:
             # Single sync
             detail = self._sync_single_issue(
-                linear_api_key,
-                github_token,
-                self.linear_issue_id,
-                self.github_issue_number
+                linear_api_key, github_token, self.linear_issue_id, self.github_issue_number
             )
             sync_details.append(detail)
             if detail.get("conflicts"):
@@ -320,18 +288,14 @@ class LinearSyncGitHub(BaseTool):
             # Create branch if requested
             if self.create_branch and self.linear_issue_id:
                 branch_name = self._create_github_branch(
-                    github_token,
-                    detail.get("linear_identifier", "issue")
+                    github_token, detail.get("linear_identifier", "issue")
                 )
                 created_items["branch"] = branch_name
 
             # Link PR if provided
             if self.github_pr_number:
                 pr_link = self._link_pull_request(
-                    linear_api_key,
-                    github_token,
-                    self.linear_issue_id,
-                    self.github_pr_number
+                    linear_api_key, github_token, self.linear_issue_id, self.github_pr_number
                 )
                 created_items["pr_link"] = pr_link
 
@@ -339,7 +303,7 @@ class LinearSyncGitHub(BaseTool):
             "synced_count": len(sync_details),
             "sync_details": sync_details,
             "conflicts": conflicts,
-            "created_items": created_items
+            "created_items": created_items,
         }
 
     def _get_linear_issues_batch(self, api_key: str) -> List[Dict]:
@@ -370,16 +334,10 @@ class LinearSyncGitHub(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": query,
-            "variables": {"filter": self.batch_filters or {}}
-        }
+        payload = {"query": query, "variables": {"filter": self.batch_filters or {}}}
 
         response = requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
+            "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
 
@@ -391,7 +349,7 @@ class LinearSyncGitHub(BaseTool):
         linear_api_key: str,
         github_token: str,
         linear_issue_id: Optional[str],
-        github_issue_number: Optional[int]
+        github_issue_number: Optional[int],
     ) -> Dict[str, Any]:
         """Sync a single issue between Linear and GitHub."""
         changes_synced = []
@@ -416,10 +374,7 @@ class LinearSyncGitHub(BaseTool):
                 changes_synced.append("created_github_issue")
             else:
                 updated = self._update_github_from_linear(
-                    github_token,
-                    github_issue_number,
-                    linear_issue,
-                    github_issue
+                    github_token, github_issue_number, linear_issue, github_issue
                 )
                 changes_synced.extend(updated)
 
@@ -431,10 +386,7 @@ class LinearSyncGitHub(BaseTool):
                 changes_synced.append("created_linear_issue")
             else:
                 updated = self._update_linear_from_github(
-                    linear_api_key,
-                    linear_issue_id,
-                    github_issue,
-                    linear_issue
+                    linear_api_key, linear_issue_id, github_issue, linear_issue
                 )
                 changes_synced.extend(updated)
 
@@ -448,44 +400,38 @@ class LinearSyncGitHub(BaseTool):
                     # Resolve conflicts
                     if self.conflict_resolution == "linear_wins":
                         updated = self._update_github_from_linear(
-                            github_token,
-                            github_issue_number,
-                            linear_issue,
-                            github_issue
+                            github_token, github_issue_number, linear_issue, github_issue
                         )
                         changes_synced.extend(updated)
                     elif self.conflict_resolution == "github_wins":
                         updated = self._update_linear_from_github(
-                            linear_api_key,
-                            linear_issue_id,
-                            github_issue,
-                            linear_issue
+                            linear_api_key, linear_issue_id, github_issue, linear_issue
                         )
                         changes_synced.extend(updated)
                 else:
                     # No conflicts, sync both ways
                     gh_updated = self._update_github_from_linear(
-                        github_token,
-                        github_issue_number,
-                        linear_issue,
-                        github_issue
+                        github_token, github_issue_number, linear_issue, github_issue
                     )
                     lin_updated = self._update_linear_from_github(
-                        linear_api_key,
-                        linear_issue_id,
-                        github_issue,
-                        linear_issue
+                        linear_api_key, linear_issue_id, github_issue, linear_issue
                     )
                     changes_synced.extend(gh_updated + lin_updated)
 
         return {
-            "linear_issue_id": linear_issue_id or (linear_issue.get("id") if linear_issue else None),
+            "linear_issue_id": linear_issue_id
+            or (linear_issue.get("id") if linear_issue else None),
             "linear_identifier": linear_issue.get("identifier") if linear_issue else None,
-            "github_issue_number": github_issue_number or (github_issue.get("number") if github_issue else None),
-            "github_url": f"https://github.com/{self.github_repo}/issues/{github_issue_number}" if github_issue_number else None,
+            "github_issue_number": github_issue_number
+            or (github_issue.get("number") if github_issue else None),
+            "github_url": (
+                f"https://github.com/{self.github_repo}/issues/{github_issue_number}"
+                if github_issue_number
+                else None
+            ),
             "sync_direction": self.sync_direction,
             "changes_synced": changes_synced,
-            "conflicts": conflicts
+            "conflicts": conflicts,
         }
 
     def _get_linear_issue(self, api_key: str, issue_id: str) -> Dict[str, Any]:
@@ -515,16 +461,10 @@ class LinearSyncGitHub(BaseTool):
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": query,
-            "variables": {"id": issue_id}
-        }
+        payload = {"query": query, "variables": {"id": issue_id}}
 
         response = requests.post(
-            "https://api.linear.app/graphql",
-            headers=headers,
-            json=payload,
-            timeout=30
+            "https://api.linear.app/graphql", headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
 
@@ -541,7 +481,7 @@ class LinearSyncGitHub(BaseTool):
         response = requests.get(
             f"https://api.github.com/repos/{self.github_repo}/issues/{issue_number}",
             headers=headers,
-            timeout=30
+            timeout=30,
         )
         response.raise_for_status()
 
@@ -556,7 +496,7 @@ class LinearSyncGitHub(BaseTool):
 
         body = {
             "title": linear_issue["title"],
-            "body": f"{linear_issue.get('description', '')}\n\n---\n*Synced from Linear: {linear_issue['identifier']}*"
+            "body": f"{linear_issue.get('description', '')}\n\n---\n*Synced from Linear: {linear_issue['identifier']}*",
         }
 
         if self.sync_labels:
@@ -567,7 +507,7 @@ class LinearSyncGitHub(BaseTool):
             f"https://api.github.com/repos/{self.github_repo}/issues",
             headers=headers,
             json=body,
-            timeout=30
+            timeout=30,
         )
         response.raise_for_status()
 
@@ -580,15 +520,11 @@ class LinearSyncGitHub(BaseTool):
         return {
             "id": f"issue_from_gh_{github_issue['number']}",
             "identifier": f"GH-{github_issue['number']}",
-            "title": github_issue["title"]
+            "title": github_issue["title"],
         }
 
     def _update_github_from_linear(
-        self,
-        token: str,
-        issue_number: int,
-        linear_issue: Dict,
-        github_issue: Dict
+        self, token: str, issue_number: int, linear_issue: Dict, github_issue: Dict
     ) -> List[str]:
         """Update GitHub issue from Linear issue."""
         updates = []
@@ -601,8 +537,9 @@ class LinearSyncGitHub(BaseTool):
         if self.sync_status:
             linear_state = linear_issue.get("state", {}).get("name", "")
             github_state = "closed" if github_issue["state"] == "closed" else "open"
-            if (linear_state in ["Done", "Completed"] and github_state == "open") or \
-               (linear_state not in ["Done", "Completed"] and github_state == "closed"):
+            if (linear_state in ["Done", "Completed"] and github_state == "open") or (
+                linear_state not in ["Done", "Completed"] and github_state == "closed"
+            ):
                 body["state"] = "closed" if linear_state in ["Done", "Completed"] else "open"
                 updates.append("status")
 
@@ -616,17 +553,13 @@ class LinearSyncGitHub(BaseTool):
                 f"https://api.github.com/repos/{self.github_repo}/issues/{issue_number}",
                 headers=headers,
                 json=body,
-                timeout=30
+                timeout=30,
             )
 
         return updates
 
     def _update_linear_from_github(
-        self,
-        api_key: str,
-        issue_id: str,
-        github_issue: Dict,
-        linear_issue: Dict
+        self, api_key: str, issue_id: str, github_issue: Dict, linear_issue: Dict
     ) -> List[str]:
         """Update Linear issue from GitHub issue."""
         updates = []
@@ -639,11 +572,13 @@ class LinearSyncGitHub(BaseTool):
 
         # Check title conflicts
         if linear_issue["title"] != github_issue["title"]:
-            conflicts.append({
-                "field": "title",
-                "linear_value": linear_issue["title"],
-                "github_value": github_issue["title"]
-            })
+            conflicts.append(
+                {
+                    "field": "title",
+                    "linear_value": linear_issue["title"],
+                    "github_value": github_issue["title"],
+                }
+            )
 
         return conflicts
 
@@ -661,11 +596,7 @@ class LinearSyncGitHub(BaseTool):
         return branch_name
 
     def _link_pull_request(
-        self,
-        linear_api_key: str,
-        github_token: str,
-        issue_id: str,
-        pr_number: int
+        self, linear_api_key: str, github_token: str, issue_id: str, pr_number: int
     ) -> str:
         """Link GitHub PR to Linear issue."""
         pr_url = f"https://github.com/{self.github_repo}/pull/{pr_number}"
@@ -678,6 +609,7 @@ if __name__ == "__main__":
     print("Testing LinearSyncGitHub...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Linear to GitHub sync
@@ -687,7 +619,7 @@ if __name__ == "__main__":
         linear_issue_id="issue_abc123",
         github_repo="company/project",
         sync_comments=True,
-        sync_labels=True
+        sync_labels=True,
     )
     result = tool.run()
 
@@ -704,7 +636,7 @@ if __name__ == "__main__":
         linear_issue_id="issue_abc123",
         github_repo="company/project",
         github_issue_number=42,
-        conflict_resolution="linear_wins"
+        conflict_resolution="linear_wins",
     )
     result = tool.run()
 
@@ -718,7 +650,7 @@ if __name__ == "__main__":
         sync_direction="linear_to_github",
         github_repo="company/project",
         batch_sync=True,
-        batch_filters={"team_id": "team_xyz", "state": "In Progress"}
+        batch_filters={"team_id": "team_xyz", "state": "In Progress"},
     )
     result = tool.run()
 
@@ -733,7 +665,7 @@ if __name__ == "__main__":
         sync_direction="linear_to_github",
         linear_issue_id="issue_abc123",
         github_repo="company/project",
-        create_branch=True
+        create_branch=True,
     )
     result = tool.run()
 
@@ -745,14 +677,11 @@ if __name__ == "__main__":
     # Test 5: Error handling - invalid direction
     print("\n5. Testing error handling (invalid direction)...")
     try:
-        tool = LinearSyncGitHub(
-            sync_direction="invalid_direction",
-            github_repo="company/project"
-        )
+        tool = LinearSyncGitHub(sync_direction="invalid_direction", github_repo="company/project")
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")
@@ -763,12 +692,12 @@ if __name__ == "__main__":
         tool = LinearSyncGitHub(
             sync_direction="linear_to_github",
             github_repo="invalid-repo-format",
-            linear_issue_id="issue_123"
+            linear_issue_id="issue_123",
         )
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except Exception as e:
-        if hasattr(e, 'error_code'):
+        if hasattr(e, "error_code"):
             print(f"Correctly caught error: {e.message}")
         else:
             print(f"Caught error in run(): {e}")

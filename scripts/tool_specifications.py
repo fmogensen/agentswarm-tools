@@ -10,7 +10,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 # Tool list from orchestrator
 ALL_TOOLS = [

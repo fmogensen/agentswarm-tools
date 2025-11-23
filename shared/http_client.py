@@ -5,10 +5,11 @@ Provides a singleton HTTP client with connection pooling, retry logic,
 and standardized error handling.
 """
 
+import logging
 import os
 import time
-import logging
 from typing import Any, Dict, Optional
+
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry

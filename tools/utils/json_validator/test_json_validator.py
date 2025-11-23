@@ -1,9 +1,12 @@
 """Test cases for JsonValidator tool."""
 
 import os
+
 import pytest
-from .json_validator import JsonValidator
+
 from shared.errors import ValidationError
+
+from .json_validator import JsonValidator
 
 
 class TestJsonValidator:

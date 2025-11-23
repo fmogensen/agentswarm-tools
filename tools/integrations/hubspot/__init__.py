@@ -23,10 +23,10 @@ Example:
 """
 
 from .hubspot_create_contact import HubSpotCreateContact
-from .hubspot_track_deal import HubSpotTrackDeal
-from .hubspot_send_email import HubSpotSendEmail
 from .hubspot_get_analytics import HubSpotGetAnalytics
+from .hubspot_send_email import HubSpotSendEmail
 from .hubspot_sync_calendar import HubSpotSyncCalendar
+from .hubspot_track_deal import HubSpotTrackDeal
 
 __all__ = [
     "HubSpotCreateContact",

@@ -2,14 +2,15 @@
 Process multiple items in batch operations.
 """
 
-from typing import Any, Dict, List, Optional, Callable
-from pydantic import Field
 import os
 import time
+from typing import Any, Callable, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
-from shared.batch import parallel_process, DefaultProgressCallback, ExecutorType
+from shared.batch import DefaultProgressCallback, ExecutorType, parallel_process
+from shared.errors import APIError, ValidationError
 
 
 class BatchProcessor(BaseTool):
@@ -54,9 +55,7 @@ class BatchProcessor(BaseTool):
     continue_on_error: bool = Field(
         True, description="Whether to continue processing if an item fails"
     )
-    max_workers: int = Field(
-        10, description="Maximum number of parallel workers", ge=1, le=50
-    )
+    max_workers: int = Field(10, description="Maximum number of parallel workers", ge=1, le=50)
     use_parallel: bool = Field(
         True, description="Whether to use parallel processing (vs sequential)"
     )

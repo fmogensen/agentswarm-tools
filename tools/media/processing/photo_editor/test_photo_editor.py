@@ -2,14 +2,15 @@
 Unit tests for PhotoEditorTool
 """
 
-import pytest
-import os
-from unittest.mock import patch, MagicMock
-from PIL import Image
 import io
+import os
+from unittest.mock import MagicMock, patch
 
+import pytest
+from PIL import Image
+
+from shared.errors import MediaError, ValidationError
 from tools.media_processing.photo_editor.photo_editor import PhotoEditorTool
-from shared.errors import ValidationError, MediaError
 
 
 class TestPhotoEditorTool:

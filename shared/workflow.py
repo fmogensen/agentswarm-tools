@@ -36,18 +36,18 @@ Example:
     ```
 """
 
+import json
+import logging
+import os
 import re
 import time
-import logging
-from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
 from enum import Enum
-import json
-import os
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
+from .errors import TimeoutError, ToolError, ValidationError
 from .registry import tool_registry
-from .errors import ToolError, ValidationError, TimeoutError
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -55,6 +55,7 @@ logger = logging.getLogger(__name__)
 
 class StepStatus(Enum):
     """Status of workflow step execution."""
+
     PENDING = "pending"
     RUNNING = "running"
     SUCCESS = "success"
@@ -80,7 +81,7 @@ class WorkflowContext:
         self.steps[step_id] = {
             "result": result,
             "success": success,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def get_step_result(self, step_id: str) -> Optional[Dict[str, Any]]:
@@ -114,7 +115,7 @@ class WorkflowContext:
     def _interpolate_string(self, text: str) -> Any:
         """Interpolate string with variable references."""
         # Find all ${...} patterns
-        pattern = r'\$\{([^}]+)\}'
+        pattern = r"\$\{([^}]+)\}"
         matches = re.finditer(pattern, text)
 
         # If no matches, return as-is
@@ -146,12 +147,12 @@ class WorkflowContext:
         - steps.search.success -> self.steps['search']['success']
         - env.API_KEY -> os.environ['API_KEY']
         """
-        parts = ref.split('.')
+        parts = ref.split(".")
 
-        if parts[0] == 'vars':
+        if parts[0] == "vars":
             obj = self.variables
             parts = parts[1:]
-        elif parts[0] == 'steps':
+        elif parts[0] == "steps":
             if len(parts) < 2:
                 raise ValidationError(f"Invalid step reference: {ref}")
             step_id = parts[1]
@@ -159,7 +160,7 @@ class WorkflowContext:
                 raise ValidationError(f"Step '{step_id}' not found in context")
             obj = self.steps[step_id]
             parts = parts[2:]
-        elif parts[0] == 'env':
+        elif parts[0] == "env":
             obj = self.env
             parts = parts[1:]
         else:
@@ -173,7 +174,7 @@ class WorkflowContext:
                 obj = obj[part]
             elif isinstance(obj, list):
                 # Handle array indexing like [0] or [*]
-                if part == '*':
+                if part == "*":
                     # Return entire array for operations like ${steps.search.result[*].url}
                     return obj
                 try:
@@ -211,30 +212,30 @@ class WorkflowContext:
         # If it's a string, try to evaluate as expression
         if isinstance(interpolated, str):
             # Simple comparison operators
-            for op in ['>=', '<=', '==', '!=', '>', '<']:
+            for op in [">=", "<=", "==", "!=", ">", "<"]:
                 if op in interpolated:
                     left, right = interpolated.split(op, 1)
                     left_val = self._parse_value(left.strip())
                     right_val = self._parse_value(right.strip())
 
-                    if op == '>':
+                    if op == ">":
                         return left_val > right_val
-                    elif op == '<':
+                    elif op == "<":
                         return left_val < right_val
-                    elif op == '>=':
+                    elif op == ">=":
                         return left_val >= right_val
-                    elif op == '<=':
+                    elif op == "<=":
                         return left_val <= right_val
-                    elif op == '==':
+                    elif op == "==":
                         return left_val == right_val
-                    elif op == '!=':
+                    elif op == "!=":
                         return left_val != right_val
 
             # Try to parse as boolean
             lower = interpolated.lower()
-            if lower in ('true', 'yes', '1'):
+            if lower in ("true", "yes", "1"):
                 return True
-            elif lower in ('false', 'no', '0', ''):
+            elif lower in ("false", "no", "0", ""):
                 return False
 
         # Default to truthy evaluation
@@ -246,7 +247,7 @@ class WorkflowContext:
 
         # Try to parse as number
         try:
-            if '.' in value:
+            if "." in value:
                 return float(value)
             return int(value)
         except ValueError:
@@ -302,17 +303,17 @@ class WorkflowEngine:
             context: Optional execution context (for resuming)
         """
         self.workflow = workflow
-        self.context = context or WorkflowContext(workflow.get('variables', {}))
-        self.name = workflow.get('name', 'unnamed-workflow')
-        self.description = workflow.get('description', '')
-        self.steps = workflow.get('steps', [])
-        self.error_handling = workflow.get('error_handling', {})
+        self.context = context or WorkflowContext(workflow.get("variables", {}))
+        self.name = workflow.get("name", "unnamed-workflow")
+        self.description = workflow.get("description", "")
+        self.steps = workflow.get("steps", [])
+        self.error_handling = workflow.get("error_handling", {})
 
         # Execution settings
-        self.max_retries = self.error_handling.get('max_retries', 3)
-        self.retry_on_failure = self.error_handling.get('retry_on_failure', True)
-        self.continue_on_error = self.error_handling.get('continue_on_error', False)
-        self.timeout = workflow.get('timeout', 3600)  # 1 hour default
+        self.max_retries = self.error_handling.get("max_retries", 3)
+        self.retry_on_failure = self.error_handling.get("retry_on_failure", True)
+        self.continue_on_error = self.error_handling.get("continue_on_error", False)
+        self.timeout = workflow.get("timeout", 3600)  # 1 hour default
 
         # State
         self.step_status: Dict[str, StepStatus] = {}
@@ -344,8 +345,7 @@ class WorkflowEngine:
                 # Check timeout
                 if time.time() - self.start_time > self.timeout:
                     raise TimeoutError(
-                        f"Workflow exceeded timeout of {self.timeout}s",
-                        timeout=self.timeout
+                        f"Workflow exceeded timeout of {self.timeout}s", timeout=self.timeout
                     )
 
                 # Execute step
@@ -366,29 +366,29 @@ class WorkflowEngine:
 
     def _execute_step(self, step: Dict[str, Any]) -> None:
         """Execute a single workflow step."""
-        step_id = step.get('id', f"step_{len(self.step_status)}")
-        step_type = step.get('type', 'tool')  # 'tool', 'foreach', 'parallel', 'condition'
+        step_id = step.get("id", f"step_{len(self.step_status)}")
+        step_type = step.get("type", "tool")  # 'tool', 'foreach', 'parallel', 'condition'
 
         logger.info(f"Executing step: {step_id} (type={step_type})")
         self.step_status[step_id] = StepStatus.RUNNING
 
         try:
             # Check condition
-            if 'condition' in step:
-                condition = step['condition']
+            if "condition" in step:
+                condition = step["condition"]
                 if not self.context.evaluate_condition(condition):
                     logger.info(f"Step {step_id} skipped (condition not met)")
                     self.step_status[step_id] = StepStatus.SKIPPED
                     return
 
             # Execute based on type
-            if step_type == 'tool':
+            if step_type == "tool":
                 result = self._execute_tool_step(step)
-            elif step_type == 'foreach':
+            elif step_type == "foreach":
                 result = self._execute_foreach_step(step)
-            elif step_type == 'parallel':
+            elif step_type == "parallel":
                 result = self._execute_parallel_step(step)
-            elif step_type == 'condition':
+            elif step_type == "condition":
                 result = self._execute_condition_step(step)
             else:
                 raise ValidationError(f"Unknown step type: {step_type}")
@@ -411,8 +411,8 @@ class WorkflowEngine:
 
     def _execute_tool_step(self, step: Dict[str, Any]) -> Any:
         """Execute a tool step with retry logic."""
-        tool_name = step['tool']
-        params = step.get('params', {})
+        tool_name = step["tool"]
+        params = step.get("params", {})
 
         # Interpolate parameters
         interpolated_params = self.context.interpolate(params)
@@ -436,7 +436,7 @@ class WorkflowEngine:
             except Exception as e:
                 last_error = e
                 if attempt < self.max_retries - 1 and self.retry_on_failure:
-                    retry_delay = 2 ** attempt  # Exponential backoff
+                    retry_delay = 2**attempt  # Exponential backoff
                     logger.warning(f"Retry {attempt + 1}/{self.max_retries} after {retry_delay}s")
                     time.sleep(retry_delay)
                 else:
@@ -459,8 +459,8 @@ class WorkflowEngine:
                 }
             }
         """
-        items = self.context.interpolate(step['items'])
-        inner_step = step['step']
+        items = self.context.interpolate(step["items"])
+        inner_step = step["step"]
         results = []
 
         if not isinstance(items, list):
@@ -468,35 +468,35 @@ class WorkflowEngine:
 
         for index, item in enumerate(items):
             # Add item to context
-            original_item = self.context.variables.get('item')
-            original_index = self.context.variables.get('index')
+            original_item = self.context.variables.get("item")
+            original_index = self.context.variables.get("index")
 
-            self.context.variables['item'] = item
-            self.context.variables['index'] = index
+            self.context.variables["item"] = item
+            self.context.variables["index"] = index
 
             try:
                 # Execute inner step
-                if inner_step.get('type') == 'tool' or 'tool' in inner_step:
+                if inner_step.get("type") == "tool" or "tool" in inner_step:
                     result = self._execute_tool_step(inner_step)
                     results.append(result)
                 else:
                     # Recursive step execution
                     self._execute_step(inner_step)
-                    step_id = inner_step.get('id', f"foreach_{index}")
+                    step_id = inner_step.get("id", f"foreach_{index}")
                     step_result = self.context.get_step_result(step_id)
                     if step_result:
-                        results.append(step_result['result'])
+                        results.append(step_result["result"])
             finally:
                 # Restore context
                 if original_item is not None:
-                    self.context.variables['item'] = original_item
+                    self.context.variables["item"] = original_item
                 else:
-                    self.context.variables.pop('item', None)
+                    self.context.variables.pop("item", None)
 
                 if original_index is not None:
-                    self.context.variables['index'] = original_index
+                    self.context.variables["index"] = original_index
                 else:
-                    self.context.variables.pop('index', None)
+                    self.context.variables.pop("index", None)
 
         return results
 
@@ -507,20 +507,20 @@ class WorkflowEngine:
         Note: True parallel execution would require threading/async.
         For now, executes sequentially.
         """
-        substeps = step.get('steps', [])
+        substeps = step.get("steps", [])
         results = []
 
         for substep in substeps:
-            if substep.get('type') == 'tool' or 'tool' in substep:
+            if substep.get("type") == "tool" or "tool" in substep:
                 result = self._execute_tool_step(substep)
                 results.append(result)
             else:
                 self._execute_step(substep)
-                step_id = substep.get('id')
+                step_id = substep.get("id")
                 if step_id:
                     step_result = self.context.get_step_result(step_id)
                     if step_result:
-                        results.append(step_result['result'])
+                        results.append(step_result["result"])
 
         return results
 
@@ -536,16 +536,16 @@ class WorkflowEngine:
                 "else": {"tool": "fallback", ...}
             }
         """
-        condition = step['condition']
-        then_step = step.get('then')
-        else_step = step.get('else')
+        condition = step["condition"]
+        then_step = step.get("then")
+        else_step = step.get("else")
 
         if self.context.evaluate_condition(condition):
             if then_step:
-                return self._execute_tool_step(then_step) if 'tool' in then_step else None
+                return self._execute_tool_step(then_step) if "tool" in then_step else None
         else:
             if else_step:
-                return self._execute_tool_step(else_step) if 'tool' in else_step else None
+                return self._execute_tool_step(else_step) if "tool" in else_step else None
 
         return None
 
@@ -553,26 +553,25 @@ class WorkflowEngine:
         """Build final workflow result."""
         duration_ms = (self.end_time - self.start_time) * 1000 if self.end_time else 0
 
-        steps_executed = sum(1 for s in self.step_status.values()
-                           if s in (StepStatus.SUCCESS, StepStatus.FAILED))
+        steps_executed = sum(
+            1 for s in self.step_status.values() if s in (StepStatus.SUCCESS, StepStatus.FAILED)
+        )
         steps_failed = sum(1 for s in self.step_status.values() if s == StepStatus.FAILED)
 
         return {
             "success": success,
             "workflow_name": self.name,
-            "results": {step_id: data['result']
-                       for step_id, data in self.context.steps.items()},
-            "step_status": {step_id: status.value
-                          for step_id, status in self.step_status.items()},
+            "results": {step_id: data["result"] for step_id, data in self.context.steps.items()},
+            "step_status": {step_id: status.value for step_id, status in self.step_status.items()},
             "duration_ms": duration_ms,
             "steps_executed": steps_executed,
             "steps_failed": steps_failed,
             "error": error,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     @classmethod
-    def from_file(cls, filepath: Union[str, Path]) -> 'WorkflowEngine':
+    def from_file(cls, filepath: Union[str, Path]) -> "WorkflowEngine":
         """
         Load workflow from JSON file.
 
@@ -583,12 +582,12 @@ class WorkflowEngine:
             WorkflowEngine instance
         """
         filepath = Path(filepath)
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             workflow = json.load(f)
         return cls(workflow)
 
     @classmethod
-    def from_dict(cls, workflow: Dict[str, Any]) -> 'WorkflowEngine':
+    def from_dict(cls, workflow: Dict[str, Any]) -> "WorkflowEngine":
         """Create workflow from dictionary."""
         return cls(workflow)
 

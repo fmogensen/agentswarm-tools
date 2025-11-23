@@ -2,12 +2,13 @@
 Deep analysis of images, audio, and video with custom requirements
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class AnalyzeMediaContent(BaseTool):

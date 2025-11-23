@@ -24,14 +24,14 @@ Example:
     >>> print(results.successes)  # ["A", "B", "C"]
 """
 
-from typing import Any, Callable, List, Optional, Dict, Union
-from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from enum import Enum
-import time
 import logging
 import os
+import time
 from abc import ABC, abstractmethod
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Union
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -239,7 +239,9 @@ def parallel_process(
     progress_callback.on_start(len(items))
 
     # Select executor
-    ExecutorClass = ThreadPoolExecutor if executor_type == ExecutorType.THREAD else ProcessPoolExecutor
+    ExecutorClass = (
+        ThreadPoolExecutor if executor_type == ExecutorType.THREAD else ProcessPoolExecutor
+    )
 
     try:
         with ExecutorClass(max_workers=max_workers) as executor:
@@ -402,7 +404,9 @@ def _retry_items(
         # Update remaining items to only failed ones
         if batch_result.failed_count > 0:
             failed_indices = [f["item_index"] for f in batch_result.failures]
-            remaining_items = [remaining_items[i] for i in range(len(remaining_items)) if i in failed_indices]
+            remaining_items = [
+                remaining_items[i] for i in range(len(remaining_items)) if i in failed_indices
+            ]
             retry_result.failures = batch_result.failures
             retry_result.failed_count = len(remaining_items)
         else:

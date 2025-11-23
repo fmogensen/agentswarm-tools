@@ -2,14 +2,15 @@
 Merge multiple audio clips into one file with positioning and effects
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-import os
 import json
+import os
 from io import BytesIO
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 try:
     from pydub import AudioSegment
@@ -190,8 +191,8 @@ class MergeAudio(BaseTool):
 if __name__ == "__main__":
     print("Testing MergeAudio...")
 
-    import os
     import json
+    import os
 
     os.environ["USE_MOCK_APIS"] = "true"
 

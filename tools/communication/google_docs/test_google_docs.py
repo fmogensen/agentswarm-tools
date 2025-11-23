@@ -2,12 +2,14 @@
 Unit tests for GoogleDocs tool
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 from .google_docs import GoogleDocs
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 class TestGoogleDocs:

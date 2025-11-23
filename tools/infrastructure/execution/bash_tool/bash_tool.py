@@ -2,13 +2,14 @@
 Execute bash commands in sandboxed Linux environment
 """
 
-from typing import Any, Dict
-from pydantic import Field
 import os
 import subprocess
+from typing import Any, Dict
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class BashTool(BaseTool):

@@ -2,14 +2,15 @@
 Read and process OneDrive/SharePoint files, answer questions about content
 """
 
-from typing import Any, Dict
-from pydantic import Field
-import os
 import base64
 import json
+import os
+from typing import Any, Dict
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class OnedriveFileRead(BaseTool):
@@ -196,8 +197,8 @@ if __name__ == "__main__":
     # Test the tool
     print("Testing OnedriveFileRead...")
 
-    import os
     import json
+    import os
 
     os.environ["USE_MOCK_APIS"] = "true"
 

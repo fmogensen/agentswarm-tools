@@ -2,12 +2,13 @@
 Tests for TextToSpeechAdvanced tool
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.media_generation.text_to_speech_advanced import TextToSpeechAdvanced
-from shared.errors import ValidationError, APIError
 
 
 class TestTextToSpeechAdvanced:

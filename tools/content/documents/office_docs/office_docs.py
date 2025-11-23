@@ -2,25 +2,26 @@
 Generate professional Word documents (.docx) from structured content
 """
 
-from typing import Any, Dict, Optional, ClassVar, List
-from pydantic import Field
 import os
-import tempfile
 import re
-from datetime import datetime
-import urllib.request
+import tempfile
 import urllib.parse
+import urllib.request
+from datetime import datetime
+from typing import Any, ClassVar, Dict, List, Optional
+
+from pydantic import Field
 
 try:
     from docx import Document
-    from docx.shared import Pt, Inches, RGBColor
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.enum.style import WD_STYLE_TYPE
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.shared import Inches, Pt, RGBColor
 except ImportError:
     Document = None
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class OfficeDocsTool(BaseTool):

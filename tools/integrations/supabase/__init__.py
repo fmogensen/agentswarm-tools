@@ -37,11 +37,11 @@ Example:
     >>> result = insert.run()
 """
 
-from .supabase_vector_search import SupabaseVectorSearch
-from .supabase_insert_embeddings import SupabaseInsertEmbeddings
 from .supabase_auth import SupabaseAuth
+from .supabase_insert_embeddings import SupabaseInsertEmbeddings
 from .supabase_realtime import SupabaseRealtime
 from .supabase_storage import SupabaseStorage
+from .supabase_vector_search import SupabaseVectorSearch
 
 __all__ = [
     "SupabaseVectorSearch",

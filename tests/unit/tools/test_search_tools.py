@@ -12,22 +12,21 @@ Tests all 8 search tools:
 - stock_price
 """
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
-from tools.data.search.web_search.web_search import WebSearch
-from tools.data.search.scholar_search.scholar_search import ScholarSearch
-from tools.data.search.image_search.image_search import ImageSearch
-from tools.data.search.video_search.video_search import VideoSearch
-from tools.data.search.product_search.product_search import ProductSearch
-from tools.data.search.google_product_search.google_product_search import GoogleProductSearch
+from shared.errors import APIError, AuthenticationError, RateLimitError, ValidationError
 from tools.data.search.financial_report.financial_report import FinancialReport
+from tools.data.search.google_product_search.google_product_search import GoogleProductSearch
+from tools.data.search.image_search.image_search import ImageSearch
+from tools.data.search.product_search.product_search import ProductSearch
+from tools.data.search.scholar_search.scholar_search import ScholarSearch
 from tools.data.search.stock_price.stock_price import StockPrice
-
-from shared.errors import ValidationError, APIError, AuthenticationError, RateLimitError
-
+from tools.data.search.video_search.video_search import VideoSearch
+from tools.data.search.web_search.web_search import WebSearch
 
 # ========== WebSearch Tests ==========
 

@@ -2,15 +2,16 @@
 Perform multiple sequential edits to a single file atomically
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-import os
 import json
-import tempfile
+import os
 import shutil
+import tempfile
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class MultieditTool(BaseTool):
@@ -198,8 +199,8 @@ class MultieditTool(BaseTool):
 if __name__ == "__main__":
     print("Testing MultieditTool...")
 
-    import os
     import json
+    import os
 
     os.environ["USE_MOCK_APIS"] = "true"
 

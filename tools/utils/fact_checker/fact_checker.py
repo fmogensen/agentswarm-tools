@@ -5,15 +5,16 @@ This tool searches for evidence to support or contradict a given claim,
 analyzes source credibility, and provides a confidence score.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
-import requests
 import re
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
+import requests
+from pydantic import Field
+
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class FactChecker(BaseTool):

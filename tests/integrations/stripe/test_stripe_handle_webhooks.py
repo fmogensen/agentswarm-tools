@@ -2,16 +2,20 @@
 Tests for Stripe Handle Webhooks Tool
 """
 
-import pytest
-import os
-import json
-import time
-import hmac
 import hashlib
+import hmac
+import json
+import os
+import time
 from unittest.mock import Mock, patch
 
-from tools.integrations.stripe.stripe_handle_webhooks import StripeHandleWebhooks, STRIPE_EVENT_TYPES
-from shared.errors import ValidationError, APIError, AuthenticationError, SecurityError
+import pytest
+
+from shared.errors import APIError, AuthenticationError, SecurityError, ValidationError
+from tools.integrations.stripe.stripe_handle_webhooks import (
+    STRIPE_EVENT_TYPES,
+    StripeHandleWebhooks,
+)
 
 
 @pytest.fixture
@@ -33,12 +37,12 @@ def valid_webhook_event():
                 "id": "pi_test_123",
                 "amount": 2000,
                 "currency": "usd",
-                "status": "succeeded"
+                "status": "succeeded",
             }
         },
         "created": int(time.time()),
         "livemode": False,
-        "api_version": "2023-10-16"
+        "api_version": "2023-10-16",
     }
 
 
@@ -55,9 +59,7 @@ def create_valid_signature(payload: str, secret: str, timestamp: int = None) -> 
 
     signed_payload = f"{timestamp}.{payload}"
     signature = hmac.new(
-        secret.encode('utf-8'),
-        signed_payload.encode('utf-8'),
-        hashlib.sha256
+        secret.encode("utf-8"), signed_payload.encode("utf-8"), hashlib.sha256
     ).hexdigest()
 
     return f"t={timestamp},v1={signature}"
@@ -71,7 +73,7 @@ class TestStripeHandleWebhooks:
         tool = StripeHandleWebhooks(
             payload=json.dumps(valid_webhook_event),
             signature_header="t=123,v1=sig",
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         assert tool.tool_name == "stripe_handle_webhooks"
         assert tool.tool_category == "integrations"
@@ -81,7 +83,7 @@ class TestStripeHandleWebhooks:
         tool = StripeHandleWebhooks(
             payload=json.dumps(valid_webhook_event),
             signature_header="t=123,v1=sig",
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
 
@@ -96,20 +98,15 @@ class TestStripeHandleWebhooks:
         event = {
             "id": "evt_test_456",
             "type": "customer.created",
-            "data": {
-                "object": {
-                    "id": "cus_test_123",
-                    "email": "newcustomer@example.com"
-                }
-            },
+            "data": {"object": {"id": "cus_test_123", "email": "newcustomer@example.com"}},
             "created": int(time.time()),
-            "livemode": False
+            "livemode": False,
         }
 
         tool = StripeHandleWebhooks(
             payload=json.dumps(event),
             signature_header="t=123,v1=sig",
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
 
@@ -121,20 +118,15 @@ class TestStripeHandleWebhooks:
         event = {
             "id": "evt_test_789",
             "type": "invoice.paid",
-            "data": {
-                "object": {
-                    "id": "in_test_123",
-                    "amount_paid": 2000
-                }
-            },
+            "data": {"object": {"id": "in_test_123", "amount_paid": 2000}},
             "created": int(time.time()),
-            "livemode": False
+            "livemode": False,
         }
 
         tool = StripeHandleWebhooks(
             payload=json.dumps(event),
             signature_header="t=123,v1=sig",
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
 
@@ -147,7 +139,7 @@ class TestStripeHandleWebhooks:
             payload=json.dumps(valid_webhook_event),
             signature_header="t=123,v1=sig",
             event_types=["payment_intent.succeeded", "customer.created"],
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
 
@@ -160,7 +152,7 @@ class TestStripeHandleWebhooks:
             "type": "invoice.paid",
             "data": {"object": {}},
             "created": int(time.time()),
-            "livemode": False
+            "livemode": False,
         }
 
         with pytest.raises(ValidationError) as exc_info:
@@ -168,7 +160,7 @@ class TestStripeHandleWebhooks:
                 payload=json.dumps(event),
                 signature_header="t=123,v1=sig",
                 event_types=["payment_intent.succeeded"],  # invoice.paid not allowed
-                skip_signature_validation=True
+                skip_signature_validation=True,
             )
             tool.run()
 
@@ -180,7 +172,7 @@ class TestStripeHandleWebhooks:
             tool = StripeHandleWebhooks(
                 payload="invalid json {",
                 signature_header="t=123,v1=sig",
-                skip_signature_validation=True
+                skip_signature_validation=True,
             )
             tool.run()
 
@@ -197,7 +189,7 @@ class TestStripeHandleWebhooks:
             tool = StripeHandleWebhooks(
                 payload=json.dumps(invalid_event),
                 signature_header="t=123,v1=sig",
-                skip_signature_validation=True
+                skip_signature_validation=True,
             )
             tool.run()
 
@@ -209,14 +201,14 @@ class TestStripeHandleWebhooks:
             "id": "invalid_id",  # Should start with evt_
             "type": "payment_intent.succeeded",
             "data": {"object": {}},
-            "created": int(time.time())
+            "created": int(time.time()),
         }
 
         with pytest.raises(ValidationError) as exc_info:
             tool = StripeHandleWebhooks(
                 payload=json.dumps(invalid_event),
                 signature_header="t=123,v1=sig",
-                skip_signature_validation=True
+                skip_signature_validation=True,
             )
             tool.run()
 
@@ -228,14 +220,14 @@ class TestStripeHandleWebhooks:
             "id": "evt_test_999",
             "type": "payment_intent.succeeded",
             "data": "not_a_dict",  # Should be a dict
-            "created": int(time.time())
+            "created": int(time.time()),
         }
 
         with pytest.raises(ValidationError) as exc_info:
             tool = StripeHandleWebhooks(
                 payload=json.dumps(invalid_event),
                 signature_header="t=123,v1=sig",
-                skip_signature_validation=True
+                skip_signature_validation=True,
             )
             tool.run()
 
@@ -250,9 +242,7 @@ class TestStripeHandleWebhooks:
         sig_header = create_valid_signature(payload_str, webhook_secret, timestamp)
 
         tool = StripeHandleWebhooks(
-            payload=payload_str,
-            signature_header=sig_header,
-            skip_signature_validation=False
+            payload=payload_str, signature_header=sig_header, skip_signature_validation=False
         )
         result = tool.run()
 
@@ -273,7 +263,7 @@ class TestStripeHandleWebhooks:
             tool = StripeHandleWebhooks(
                 payload=payload_str,
                 signature_header=invalid_sig_header,
-                skip_signature_validation=False
+                skip_signature_validation=False,
             )
             tool.run()
 
@@ -282,7 +272,9 @@ class TestStripeHandleWebhooks:
         # Cleanup
         os.environ.pop("STRIPE_WEBHOOK_SECRET", None)
 
-    def test_signature_verification_replay_attack_protection(self, valid_webhook_event, webhook_secret):
+    def test_signature_verification_replay_attack_protection(
+        self, valid_webhook_event, webhook_secret
+    ):
         """Test replay attack protection (old timestamp)"""
         os.environ["STRIPE_WEBHOOK_SECRET"] = webhook_secret
 
@@ -295,7 +287,7 @@ class TestStripeHandleWebhooks:
                 payload=payload_str,
                 signature_header=sig_header,
                 skip_signature_validation=False,
-                tolerance=300
+                tolerance=300,
             )
             tool.run()
 
@@ -318,7 +310,7 @@ class TestStripeHandleWebhooks:
                 payload=payload_str,
                 signature_header=sig_header,
                 skip_signature_validation=False,
-                tolerance=300
+                tolerance=300,
             )
             tool.run()
 
@@ -327,7 +319,7 @@ class TestStripeHandleWebhooks:
             payload=payload_str,
             signature_header=sig_header,
             skip_signature_validation=False,
-            tolerance=600
+            tolerance=600,
         )
         result = tool.run()
         assert result["success"] is True
@@ -335,7 +327,9 @@ class TestStripeHandleWebhooks:
         # Cleanup
         os.environ.pop("STRIPE_WEBHOOK_SECRET", None)
 
-    def test_signature_verification_invalid_header_format(self, valid_webhook_event, webhook_secret):
+    def test_signature_verification_invalid_header_format(
+        self, valid_webhook_event, webhook_secret
+    ):
         """Test invalid signature header format"""
         os.environ["STRIPE_WEBHOOK_SECRET"] = webhook_secret
 
@@ -345,7 +339,7 @@ class TestStripeHandleWebhooks:
             tool = StripeHandleWebhooks(
                 payload=payload_str,
                 signature_header="invalid_format",
-                skip_signature_validation=False
+                skip_signature_validation=False,
             )
             tool.run()
 
@@ -365,7 +359,7 @@ class TestStripeHandleWebhooks:
             tool = StripeHandleWebhooks(
                 payload=payload_str,
                 signature_header=invalid_sig_header,
-                skip_signature_validation=False
+                skip_signature_validation=False,
             )
             tool.run()
 
@@ -384,7 +378,7 @@ class TestStripeHandleWebhooks:
             tool = StripeHandleWebhooks(
                 payload=payload_str,
                 signature_header="t=123,v1=sig",
-                skip_signature_validation=False
+                skip_signature_validation=False,
             )
             tool.run()
 
@@ -401,7 +395,7 @@ class TestStripeHandleWebhooks:
             payload=payload_str,
             signature_header=sig_header,
             webhook_secret=secret,
-            skip_signature_validation=False
+            skip_signature_validation=False,
         )
         result = tool.run()
 
@@ -412,7 +406,7 @@ class TestStripeHandleWebhooks:
         tool = StripeHandleWebhooks(
             payload=json.dumps(valid_webhook_event),
             signature_header="t=123,v1=sig",
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
 
@@ -433,12 +427,12 @@ class TestStripeHandleWebhooks:
 
     def test_bytes_payload(self, valid_webhook_event):
         """Test handling bytes payload"""
-        payload_bytes = json.dumps(valid_webhook_event).encode('utf-8')
+        payload_bytes = json.dumps(valid_webhook_event).encode("utf-8")
 
         tool = StripeHandleWebhooks(
-            payload=payload_bytes.decode('utf-8'),
+            payload=payload_bytes.decode("utf-8"),
             signature_header="t=123,v1=sig",
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
 
@@ -450,7 +444,7 @@ class TestStripeHandleWebhooks:
             tool = StripeHandleWebhooks(
                 payload=json.dumps(valid_webhook_event),
                 signature_header="t=123,v1=sig",
-                skip_signature_validation=True
+                skip_signature_validation=True,
             )
 
     def test_tolerance_edge_cases(self, valid_webhook_event, webhook_secret):
@@ -466,7 +460,7 @@ class TestStripeHandleWebhooks:
             payload=payload_str,
             signature_header=sig_header,
             skip_signature_validation=False,
-            tolerance=0
+            tolerance=0,
         )
         result = tool.run()
         assert result["success"] is True
@@ -480,16 +474,14 @@ class TestStripeHandleWebhooks:
 
         with pytest.raises(ValueError):
             StripeHandleWebhooks(
-                payload=json.dumps(event),
-                signature_header="t=123,v1=sig",
-                tolerance=-1  # Negative
+                payload=json.dumps(event), signature_header="t=123,v1=sig", tolerance=-1  # Negative
             )
 
         with pytest.raises(ValueError):
             StripeHandleWebhooks(
                 payload=json.dumps(event),
                 signature_header="t=123,v1=sig",
-                tolerance=3601  # Too large
+                tolerance=3601,  # Too large
             )
 
 

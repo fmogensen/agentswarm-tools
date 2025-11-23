@@ -2,13 +2,14 @@
 Transcribe meeting audio and generate structured notes with action items
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, List, Optional
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class MeetingNotesAgent(BaseTool):

@@ -1,12 +1,13 @@
 """Tests for video_generation tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock
 import time
+from unittest.mock import MagicMock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.media_generation.video_generation import VideoGeneration
-from shared.errors import ValidationError, APIError
 
 
 class TestVideoGeneration:

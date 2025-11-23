@@ -1,12 +1,13 @@
 """Tests for web_search tool."""
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.search.web_search import WebSearch
-from shared.errors import ValidationError, APIError
 
 
 class TestWebSearch:
@@ -40,9 +41,7 @@ class TestWebSearch:
 
     def test_execute_success(self, tool: WebSearch):
         """Test successful execution."""
-        with patch.object(
-            tool, "_process", return_value=tool._generate_mock_results()["result"]
-        ):
+        with patch.object(tool, "_process", return_value=tool._generate_mock_results()["result"]):
             result = tool.run()
             assert result["success"] is True
             assert "result" in result
@@ -117,9 +116,7 @@ class TestWebSearch:
             ("test", 101, False),  # Max_results too high
         ],
     )
-    def test_parameter_validation(
-        self, query: str, max_results: int, expected_valid: bool
-    ):
+    def test_parameter_validation(self, query: str, max_results: int, expected_valid: bool):
         """Test parameter validation with various inputs."""
         if expected_valid:
             tool = WebSearch(query=query, max_results=max_results)

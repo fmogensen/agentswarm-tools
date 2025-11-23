@@ -6,10 +6,11 @@ Uses Claude Sonnet to generate comprehensive pytest tests
 with 80%+ coverage.
 """
 
-import os
 import json
+import os
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
+
 from openai import OpenAI
 
 

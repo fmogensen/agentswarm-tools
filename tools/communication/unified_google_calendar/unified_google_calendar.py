@@ -3,18 +3,18 @@ Unified Google Calendar operations (list, create, update, delete).
 Consolidates 4 separate calendar tools into a single action-based interface.
 """
 
-from typing import Any, Dict, Optional, Literal, List
-from pydantic import Field
-import os
 import json
+import os
 from datetime import datetime
-
-from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError, ResourceNotFoundError
+from typing import Any, Dict, List, Literal, Optional
 
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from pydantic import Field
+
+from shared.base import BaseTool
+from shared.errors import APIError, AuthenticationError, ResourceNotFoundError, ValidationError
 
 
 class UnifiedGoogleCalendar(BaseTool):

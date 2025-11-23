@@ -2,9 +2,10 @@
 Async version of understand_images - read and analyze image content with non-blocking I/O
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
 import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 try:
     import httpx
@@ -12,7 +13,7 @@ except ImportError:
     httpx = None
 
 from shared.async_base import AsyncBaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class AsyncUnderstandImages(AsyncBaseTool):
@@ -57,9 +58,7 @@ class AsyncUnderstandImages(AsyncBaseTool):
 
     # Parameters
     media_urls: List[str] = Field(..., description="List of media URLs to analyze")
-    instruction: Optional[str] = Field(
-        None, description="What to analyze or extract from images"
-    )
+    instruction: Optional[str] = Field(None, description="What to analyze or extract from images")
 
     async def _execute(self) -> Dict[str, Any]:
         """
@@ -164,6 +163,7 @@ class AsyncUnderstandImages(AsyncBaseTool):
 
         # Process all images concurrently
         import asyncio
+
         tasks = [self._analyze_single_image(url) for url in self.media_urls]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -171,11 +171,13 @@ class AsyncUnderstandImages(AsyncBaseTool):
         processed_results = []
         for i, result in enumerate(results):
             if isinstance(result, Exception):
-                processed_results.append({
-                    "media_url": self.media_urls[i],
-                    "error": str(result),
-                    "success": False,
-                })
+                processed_results.append(
+                    {
+                        "media_url": self.media_urls[i],
+                        "error": str(result),
+                        "success": False,
+                    }
+                )
             else:
                 processed_results.append(result)
 
@@ -252,7 +254,9 @@ if __name__ == "__main__":
 
         print(f"  Success: {result.get('success')}")
         print(f"  Images analyzed: {len(result.get('result', []))}")
-        print(f"  First result: {result.get('result', [{}])[0] if result.get('result') else 'None'}")
+        print(
+            f"  First result: {result.get('result', [{}])[0] if result.get('result') else 'None'}"
+        )
         assert result.get("success") == True
         assert len(result.get("result", [])) == 2
         print("  ✓ Async execution test passed")
@@ -266,8 +270,7 @@ if __name__ == "__main__":
         # Create multiple analysis tasks
         tools = [
             AsyncUnderstandImages(
-                media_urls=[f"https://example.com/image{i}.jpg"],
-                instruction="Analyze this image"
+                media_urls=[f"https://example.com/image{i}.jpg"], instruction="Analyze this image"
             )
             for i in range(5)
         ]
@@ -279,7 +282,7 @@ if __name__ == "__main__":
 
         print(f"  Completed {len(results)} analyses in {duration:.3f}s")
         print(f"  All successful: {all(r.get('success') for r in results)}")
-        assert all(r.get('success') for r in results)
+        assert all(r.get("success") for r in results)
         print("  ✓ Concurrent analysis test passed")
 
     async def test_batch_images():
@@ -288,14 +291,10 @@ if __name__ == "__main__":
 
         os.environ["USE_MOCK_APIS"] = "true"
 
-        image_urls = [
-            f"https://example.com/batch/image{i}.jpg"
-            for i in range(10)
-        ]
+        image_urls = [f"https://example.com/batch/image{i}.jpg" for i in range(10)]
 
         tool = AsyncUnderstandImages(
-            media_urls=image_urls,
-            instruction="Extract text from these images"
+            media_urls=image_urls, instruction="Extract text from these images"
         )
 
         start = time.time()
@@ -305,8 +304,8 @@ if __name__ == "__main__":
         print(f"  Analyzed {len(image_urls)} images in {duration:.3f}s")
         print(f"  Success: {result.get('success')}")
         print(f"  Results: {len(result.get('result', []))}")
-        assert result.get('success') == True
-        assert len(result.get('result', [])) == 10
+        assert result.get("success") == True
+        assert len(result.get("result", [])) == 10
         print("  ✓ Batch analysis test passed")
 
     def test_sync_wrapper():
@@ -316,14 +315,13 @@ if __name__ == "__main__":
         os.environ["USE_MOCK_APIS"] = "true"
 
         tool = AsyncUnderstandImages(
-            media_urls=["https://example.com/sync-test.jpg"],
-            instruction="Sync wrapper test"
+            media_urls=["https://example.com/sync-test.jpg"], instruction="Sync wrapper test"
         )
         result = tool.run()  # Sync wrapper
 
         print(f"  Success: {result.get('success')}")
         print(f"  Results: {len(result.get('result', []))}")
-        assert result.get('success') == True
+        assert result.get("success") == True
         print("  ✓ Sync wrapper test passed")
 
     async def test_with_batch_processor():
@@ -335,23 +333,14 @@ if __name__ == "__main__":
         from shared.async_batch import AsyncBatchProcessor
 
         async def analyze_image(url: str) -> Dict[str, Any]:
-            tool = AsyncUnderstandImages(
-                media_urls=[url],
-                instruction="Analyze this image"
-            )
+            tool = AsyncUnderstandImages(media_urls=[url], instruction="Analyze this image")
             return await tool.run_async()
 
-        processor = AsyncBatchProcessor(
-            max_concurrency=3,
-            rate_limit=5,
-            rate_limit_per=1.0
-        )
+        processor = AsyncBatchProcessor(max_concurrency=3, rate_limit=5, rate_limit_per=1.0)
 
         urls = [f"https://example.com/batch-proc/img{i}.jpg" for i in range(8)]
         batch_result = await processor.process(
-            items=urls,
-            operation=analyze_image,
-            description="Batch image analysis"
+            items=urls, operation=analyze_image, description="Batch image analysis"
         )
 
         print(f"  Successful: {batch_result.successful_count}/{len(urls)}")

@@ -6,10 +6,10 @@ Initializes PostgreSQL database schema for analytics and metrics.
 Creates tables and sets up initial data.
 """
 
-import os
-import sys
 import asyncio
 import logging
+import os
+import sys
 from datetime import datetime
 
 try:

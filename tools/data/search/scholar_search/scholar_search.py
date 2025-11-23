@@ -2,13 +2,14 @@
 Search scholarly articles, academic papers, and research publications
 """
 
-from typing import Any, Dict, List
-from pydantic import Field
 import os
+from typing import Any, Dict, List
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class ScholarSearch(BaseTool):
@@ -40,12 +41,8 @@ class ScholarSearch(BaseTool):
     cache_key_params: list = ["query", "max_results"]
 
     # Parameters
-    query: str = Field(
-        ..., description="Search query string", min_length=1, max_length=500
-    )
-    max_results: int = Field(
-        10, description="Maximum number of results to return", ge=1, le=100
-    )
+    query: str = Field(..., description="Search query string", min_length=1, max_length=500)
+    max_results: int = Field(10, description="Maximum number of results to return", ge=1, le=100)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -119,9 +116,9 @@ class ScholarSearch(BaseTool):
                 params={
                     "query": self.query,
                     "limit": min(self.max_results, 100),  # API max is 100
-                    "fields": "paperId,title,abstract,authors,year,url"
+                    "fields": "paperId,title,abstract,authors,year,url",
                 },
-                timeout=30
+                timeout=30,
             )
             response.raise_for_status()
             data = response.json()
@@ -130,15 +127,17 @@ class ScholarSearch(BaseTool):
             papers = data.get("data", [])
             results = []
             for paper in papers:
-                results.append({
-                    "id": paper.get("paperId", ""),
-                    "title": paper.get("title", ""),
-                    "abstract": paper.get("abstract", "No abstract available"),
-                    "authors": [author.get("name", "") for author in paper.get("authors", [])],
-                    "year": paper.get("year"),
-                    "url": paper.get("url", ""),
-                    "source": "semanticscholar"
-                })
+                results.append(
+                    {
+                        "id": paper.get("paperId", ""),
+                        "title": paper.get("title", ""),
+                        "abstract": paper.get("abstract", "No abstract available"),
+                        "authors": [author.get("name", "") for author in paper.get("authors", [])],
+                        "year": paper.get("year"),
+                        "url": paper.get("url", ""),
+                        "source": "semanticscholar",
+                    }
+                )
 
             return results
         except requests.RequestException as e:
@@ -151,6 +150,7 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = ScholarSearch(query="machine learning", max_results=5)
@@ -158,4 +158,6 @@ if __name__ == "__main__":
 
     print(f"Success: {result.get('success')}")
     print(f"Results: {len(result.get('result', []))} articles")
-    print(f"First article: {result.get('result', [{}])[0].get('title') if result.get('result') else 'None'}")
+    print(
+        f"First article: {result.get('result', [{}])[0].get('title') if result.get('result') else 'None'}"
+    )

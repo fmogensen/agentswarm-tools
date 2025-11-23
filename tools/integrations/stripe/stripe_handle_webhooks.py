@@ -5,15 +5,16 @@ Validates and processes Stripe webhook events with signature verification
 and support for all Stripe event types.
 """
 
-from typing import Any, Dict, Optional, List, Callable
-from pydantic import Field
-import os
-import json
-import hmac
 import hashlib
+import hmac
+import json
+import os
+from typing import Any, Callable, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError, SecurityError
+from shared.errors import APIError, AuthenticationError, SecurityError, ValidationError
 
 
 class StripeHandleWebhooks(BaseTool):
@@ -70,16 +71,15 @@ class StripeHandleWebhooks(BaseTool):
     tool_category: str = "integrations"
 
     # Required parameters
-    payload: str = Field(
-        ..., description="Raw webhook payload (JSON string)", min_length=1
-    )
+    payload: str = Field(..., description="Raw webhook payload (JSON string)", min_length=1)
     signature_header: str = Field(
         ..., description="Stripe-Signature header from request", min_length=1
     )
 
     # Optional parameters
     webhook_secret: Optional[str] = Field(
-        None, description="Stripe webhook signing secret (reads from STRIPE_WEBHOOK_SECRET if not provided)"
+        None,
+        description="Stripe webhook signing secret (reads from STRIPE_WEBHOOK_SECRET if not provided)",
     )
     event_types: Optional[List[str]] = Field(
         None, description="Whitelist of event types to process (processes all if None)"
@@ -106,16 +106,19 @@ class StripeHandleWebhooks(BaseTool):
         else:
             # Log warning about skipping validation
             import logging
+
             logger = logging.getLogger(f"agentswarm.tools.{self.tool_name}")
             logger.warning("⚠️  SKIPPING WEBHOOK SIGNATURE VALIDATION - ONLY USE IN TESTING!")
 
         # 4. PARSE EVENT
         try:
-            event = json.loads(self.payload) if isinstance(self.payload, str) else json.loads(self.payload.decode('utf-8'))
-        except json.JSONDecodeError as e:
-            raise ValidationError(
-                f"Invalid JSON payload: {e}", tool_name=self.tool_name
+            event = (
+                json.loads(self.payload)
+                if isinstance(self.payload, str)
+                else json.loads(self.payload.decode("utf-8"))
             )
+        except json.JSONDecodeError as e:
+            raise ValidationError(f"Invalid JSON payload: {e}", tool_name=self.tool_name)
 
         # 5. VALIDATE EVENT STRUCTURE
         self._validate_event_structure(event)
@@ -147,6 +150,7 @@ class StripeHandleWebhooks(BaseTool):
         # Warn if skipping signature validation (security risk)
         if self.skip_signature_validation:
             import warnings
+
             warnings.warn(
                 "⚠️  Webhook signature validation is disabled! Only use this in testing.",
                 SecurityWarning,
@@ -172,7 +176,11 @@ class StripeHandleWebhooks(BaseTool):
 
         # Parse payload to determine event type (or use default)
         try:
-            event = json.loads(self.payload) if isinstance(self.payload, str) else json.loads(self.payload.decode('utf-8'))
+            event = (
+                json.loads(self.payload)
+                if isinstance(self.payload, str)
+                else json.loads(self.payload.decode("utf-8"))
+            )
             event_type = event.get("type", "payment_intent.succeeded")
         except:
             event_type = "payment_intent.succeeded"
@@ -266,6 +274,7 @@ class StripeHandleWebhooks(BaseTool):
             )
 
         import time
+
         current_time = int(time.time())
         if abs(current_time - timestamp_int) > self.tolerance:
             raise SecurityError(
@@ -275,13 +284,11 @@ class StripeHandleWebhooks(BaseTool):
             )
 
         # Compute expected signature
-        payload_bytes = self.payload.encode('utf-8') if isinstance(self.payload, str) else self.payload
-        signed_payload = f"{timestamp}.".encode('utf-8') + payload_bytes
-        expected_sig = hmac.new(
-            secret.encode('utf-8'),
-            signed_payload,
-            hashlib.sha256
-        ).hexdigest()
+        payload_bytes = (
+            self.payload.encode("utf-8") if isinstance(self.payload, str) else self.payload
+        )
+        signed_payload = f"{timestamp}.".encode("utf-8") + payload_bytes
+        expected_sig = hmac.new(secret.encode("utf-8"), signed_payload, hashlib.sha256).hexdigest()
 
         # Compare signatures using constant-time comparison
         if not hmac.compare_digest(expected_sig, signatures):
@@ -324,33 +331,27 @@ STRIPE_EVENT_TYPES = {
     "payment_intent.payment_failed": "Payment failed",
     "payment_intent.created": "Payment intent created",
     "payment_intent.canceled": "Payment intent canceled",
-
     # Customers
     "customer.created": "Customer created",
     "customer.updated": "Customer updated",
     "customer.deleted": "Customer deleted",
-
     # Subscriptions
     "customer.subscription.created": "Subscription created",
     "customer.subscription.updated": "Subscription updated",
     "customer.subscription.deleted": "Subscription canceled",
     "customer.subscription.trial_will_end": "Trial ending soon",
-
     # Invoices
     "invoice.created": "Invoice created",
     "invoice.finalized": "Invoice finalized",
     "invoice.paid": "Invoice paid",
     "invoice.payment_failed": "Invoice payment failed",
-
     # Charges
     "charge.succeeded": "Charge succeeded",
     "charge.failed": "Charge failed",
     "charge.refunded": "Charge refunded",
-
     # Disputes
     "charge.dispute.created": "Dispute created",
     "charge.dispute.closed": "Dispute closed",
-
     # Checkout
     "checkout.session.completed": "Checkout completed",
     "checkout.session.expired": "Checkout expired",
@@ -361,9 +362,9 @@ if __name__ == "__main__":
     # Test the tool
     print("Testing StripeHandleWebhooks...")
 
+    import json
     import os
     import time
-    import json
 
     os.environ["USE_MOCK_APIS"] = "true"
 
@@ -378,18 +379,18 @@ if __name__ == "__main__":
                 "id": "pi_test_123",
                 "amount": 2000,
                 "currency": "usd",
-                "status": "succeeded"
+                "status": "succeeded",
             }
         },
         "created": int(time.time()),
         "livemode": False,
-        "api_version": "2023-10-16"
+        "api_version": "2023-10-16",
     }
 
     tool = StripeHandleWebhooks(
         payload=json.dumps(mock_event),
         signature_header="t=1234567890,v1=mocksignature",
-        skip_signature_validation=True
+        skip_signature_validation=True,
     )
     result = tool.run()
 
@@ -409,17 +410,17 @@ if __name__ == "__main__":
             "object": {
                 "id": "cus_test_123",
                 "email": "newcustomer@example.com",
-                "name": "New Customer"
+                "name": "New Customer",
             }
         },
         "created": int(time.time()),
-        "livemode": False
+        "livemode": False,
     }
 
     tool = StripeHandleWebhooks(
         payload=json.dumps(customer_event),
         signature_header="t=1234567890,v1=mocksignature",
-        skip_signature_validation=True
+        skip_signature_validation=True,
     )
     result = tool.run()
 
@@ -440,17 +441,17 @@ if __name__ == "__main__":
                 "id": "in_test_123",
                 "customer": "cus_test_123",
                 "amount_paid": 2000,
-                "status": "paid"
+                "status": "paid",
             }
         },
         "created": int(time.time()),
-        "livemode": False
+        "livemode": False,
     }
 
     tool = StripeHandleWebhooks(
         payload=json.dumps(invoice_event),
         signature_header="t=1234567890,v1=mocksignature",
-        skip_signature_validation=True
+        skip_signature_validation=True,
     )
     result = tool.run()
 
@@ -466,7 +467,7 @@ if __name__ == "__main__":
         payload=json.dumps(mock_event),
         signature_header="t=1234567890,v1=mocksignature",
         event_types=["payment_intent.succeeded", "customer.created"],
-        skip_signature_validation=True
+        skip_signature_validation=True,
     )
     result = tool.run()
 
@@ -481,7 +482,7 @@ if __name__ == "__main__":
             payload=json.dumps(invoice_event),
             signature_header="t=1234567890,v1=mocksignature",
             event_types=["payment_intent.succeeded"],  # invoice.paid not in list
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
@@ -495,7 +496,7 @@ if __name__ == "__main__":
         tool = StripeHandleWebhooks(
             payload="invalid json {",
             signature_header="t=1234567890,v1=mocksignature",
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
@@ -514,7 +515,7 @@ if __name__ == "__main__":
         tool = StripeHandleWebhooks(
             payload=json.dumps(invalid_event),
             signature_header="t=1234567890,v1=mocksignature",
-            skip_signature_validation=True
+            skip_signature_validation=True,
         )
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
@@ -532,12 +533,11 @@ if __name__ == "__main__":
     payload_str = json.dumps(mock_event)
     signed_payload = f"{timestamp}.{payload_str}"
 
-    import hmac
     import hashlib
+    import hmac
+
     signature = hmac.new(
-        webhook_secret.encode('utf-8'),
-        signed_payload.encode('utf-8'),
-        hashlib.sha256
+        webhook_secret.encode("utf-8"), signed_payload.encode("utf-8"), hashlib.sha256
     ).hexdigest()
 
     sig_header = f"t={timestamp},v1={signature}"
@@ -545,7 +545,7 @@ if __name__ == "__main__":
     tool = StripeHandleWebhooks(
         payload=payload_str,
         signature_header=sig_header,
-        skip_signature_validation=False  # Enable signature validation
+        skip_signature_validation=False,  # Enable signature validation
     )
     result = tool.run()
 
@@ -560,7 +560,7 @@ if __name__ == "__main__":
         tool = StripeHandleWebhooks(
             payload=payload_str,
             signature_header=f"t={timestamp},v1=invalidsignature123",
-            skip_signature_validation=False
+            skip_signature_validation=False,
         )
         result = tool.run()
         print("ERROR: Should have raised SecurityError")
@@ -573,9 +573,7 @@ if __name__ == "__main__":
     old_timestamp = timestamp - 400  # More than 5 minutes (300s tolerance)
     old_signed_payload = f"{old_timestamp}.{payload_str}"
     old_signature = hmac.new(
-        webhook_secret.encode('utf-8'),
-        old_signed_payload.encode('utf-8'),
-        hashlib.sha256
+        webhook_secret.encode("utf-8"), old_signed_payload.encode("utf-8"), hashlib.sha256
     ).hexdigest()
 
     try:
@@ -583,7 +581,7 @@ if __name__ == "__main__":
             payload=payload_str,
             signature_header=f"t={old_timestamp},v1={old_signature}",
             skip_signature_validation=False,
-            tolerance=300
+            tolerance=300,
         )
         result = tool.run()
         print("ERROR: Should have raised SecurityError")

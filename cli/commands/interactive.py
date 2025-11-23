@@ -5,6 +5,7 @@ Launches the enhanced interactive mode.
 """
 
 import sys
+
 from ..interactive import launch_interactive_mode
 
 

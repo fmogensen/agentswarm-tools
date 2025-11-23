@@ -1,14 +1,14 @@
 """Tests for summarize_large_document tool."""
 
-import pytest
-from unittest.mock import patch
+from typing import Any, Dict
 from unittest.mock import Mock, patch
-from typing import Dict, Any
-from requests.exceptions import RequestException
-from pydantic import ValidationError as PydanticValidationError
 
+import pytest
+from pydantic import ValidationError as PydanticValidationError
+from requests.exceptions import RequestException
+
+from shared.errors import APIError, ValidationError
 from tools.web_content.summarize_large_document import SummarizeLargeDocument
-from shared.errors import ValidationError, APIError
 
 
 class TestSummarizeLargeDocument:

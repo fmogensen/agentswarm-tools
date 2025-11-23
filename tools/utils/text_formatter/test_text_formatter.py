@@ -1,9 +1,12 @@
 """Test cases for TextFormatter tool."""
 
 import os
+
 import pytest
-from .text_formatter import TextFormatter
+
 from shared.errors import ValidationError
+
+from .text_formatter import TextFormatter
 
 
 class TestTextFormatter:

@@ -3,31 +3,27 @@ Comprehensive tests for shared.security module.
 Target coverage: 95%+
 """
 
-import pytest
 import os
 import time
-from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import AuthenticationError, RateLimitError, SecurityError, ValidationError
 from shared.security import (
     APIKeyManager,
     InputValidator,
     RateLimiter,
     get_rate_limiter,
-    require_api_key,
-    rate_limit,
     hash_user_id,
-    validate_api_keys
+    rate_limit,
+    require_api_key,
+    validate_api_keys,
 )
-from shared.errors import (
-    AuthenticationError,
-    RateLimitError,
-    SecurityError,
-    ValidationError
-)
-
 
 # Fixtures
+
 
 @pytest.fixture
 def clean_env():
@@ -49,6 +45,7 @@ def rate_limiter():
 
 
 # Test APIKeyManager
+
 
 def test_api_key_manager_get_key_present(clean_env):
     """Test getting API key that exists."""
@@ -165,6 +162,7 @@ def test_api_key_manager_mask_key_none():
 
 # Test InputValidator
 
+
 def test_input_validator_validate_pattern_email_valid():
     """Test email pattern validation with valid email."""
     assert InputValidator.validate_pattern("test@example.com", "email") is True
@@ -264,10 +262,7 @@ def test_input_validator_validate_url_invalid_scheme():
 
 def test_input_validator_validate_url_custom_schemes():
     """Test URL validation with custom allowed schemes."""
-    result = InputValidator.validate_url(
-        "ftp://example.com",
-        allowed_schemes=["ftp"]
-    )
+    result = InputValidator.validate_url("ftp://example.com", allowed_schemes=["ftp"])
 
     assert result == "ftp://example.com"
 
@@ -305,10 +300,7 @@ def test_input_validator_validate_file_path_absolute():
 
 def test_input_validator_validate_file_path_allowed_extension():
     """Test file path validation with allowed extensions."""
-    result = InputValidator.validate_file_path(
-        "file.pdf",
-        allowed_extensions=["pdf", "txt"]
-    )
+    result = InputValidator.validate_file_path("file.pdf", allowed_extensions=["pdf", "txt"])
 
     assert result == "file.pdf"
 
@@ -316,20 +308,18 @@ def test_input_validator_validate_file_path_allowed_extension():
 def test_input_validator_validate_file_path_disallowed_extension():
     """Test file path validation with disallowed extension."""
     with pytest.raises(ValidationError) as exc_info:
-        InputValidator.validate_file_path(
-            "file.exe",
-            allowed_extensions=["pdf", "txt"]
-        )
+        InputValidator.validate_file_path("file.exe", allowed_extensions=["pdf", "txt"])
 
     assert "File extension .exe not allowed" in str(exc_info.value)
 
 
 # Test RateLimiter
 
+
 def test_rate_limiter_init(rate_limiter):
     """Test RateLimiter initialization."""
-    assert hasattr(rate_limiter, '_buckets')
-    assert hasattr(rate_limiter, '_limits')
+    assert hasattr(rate_limiter, "_buckets")
+    assert hasattr(rate_limiter, "_limits")
     assert rate_limiter._limits["default"] == 60
 
 
@@ -435,6 +425,7 @@ def test_rate_limiter_get_remaining_new_key(rate_limiter):
 
 # Test Global Functions
 
+
 def test_get_rate_limiter():
     """Test getting global rate limiter."""
     limiter = get_rate_limiter()
@@ -452,6 +443,7 @@ def test_get_rate_limiter_singleton():
 
 # Test Decorators
 
+
 def test_require_api_key_decorator(clean_env):
     """Test require_api_key decorator."""
     os.environ["TEST_KEY"] = "value"
@@ -467,6 +459,7 @@ def test_require_api_key_decorator(clean_env):
 
 def test_require_api_key_decorator_missing(clean_env):
     """Test require_api_key decorator with missing key."""
+
     @require_api_key("MISSING_KEY")
     def test_func():
         return "success"
@@ -477,6 +470,7 @@ def test_require_api_key_decorator_missing(clean_env):
 
 def test_rate_limit_decorator():
     """Test rate_limit decorator."""
+
     class TestTool:
         tool_name = "test_tool"
 
@@ -510,6 +504,7 @@ def test_rate_limit_decorator_exceeded():
 
 
 # Test Utility Functions
+
 
 def test_hash_user_id():
     """Test user ID hashing."""
@@ -559,6 +554,7 @@ def test_validate_api_keys_category(clean_env):
 
 # Test Edge Cases
 
+
 def test_rate_limiter_high_cost(rate_limiter):
     """Test rate limiter with high cost request."""
     rate_limiter.set_limit("test", 100)
@@ -588,7 +584,7 @@ def test_input_validator_patterns_coverage():
         "domain": ("example.com", True),
         "phone": ("1234567890", True),
         "alpha": ("abcABC", True),
-        "alphanumeric": ("abc123", True)
+        "alphanumeric": ("abc123", True),
     }
 
     for pattern_name, (value, expected) in patterns.items():

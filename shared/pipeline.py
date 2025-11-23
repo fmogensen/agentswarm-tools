@@ -32,16 +32,16 @@ Example:
     ```
 """
 
-import logging
-from typing import Any, Callable, Dict, List, Optional, Union
-from functools import wraps
-from datetime import datetime
-import time
 import inspect
+import logging
+import time
+from datetime import datetime
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Union
 
-from .registry import tool_registry
 from .base import BaseTool
 from .errors import ToolError, ValidationError
+from .registry import tool_registry
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -97,8 +97,8 @@ class PipelineStep:
             # If function accepts 'data' parameter, pass previous result
             if callable(self.func) and previous_result is not None:
                 sig = inspect.signature(self.func)
-                if 'data' in sig.parameters:
-                    exec_params['data'] = previous_result
+                if "data" in sig.parameters:
+                    exec_params["data"] = previous_result
 
             # Execute based on type
             if isinstance(self.func, str):
@@ -147,10 +147,7 @@ class PipelineStep:
         sig = inspect.signature(func)
 
         # Filter params to only include those accepted by function
-        filtered_params = {
-            k: v for k, v in params.items()
-            if k in sig.parameters
-        }
+        filtered_params = {k: v for k, v in params.items() if k in sig.parameters}
 
         return func(**filtered_params)
 
@@ -199,8 +196,8 @@ class Pipeline:
         name: str,
         func: Union[Callable, type, str],
         transform: Optional[Callable] = None,
-        **params
-    ) -> 'Pipeline':
+        **params,
+    ) -> "Pipeline":
         """
         Add a step to the pipeline.
 
@@ -223,7 +220,7 @@ class Pipeline:
         self.steps.append(step)
         return self
 
-    def add_tool(self, name: str, tool_name: str, **params) -> 'Pipeline':
+    def add_tool(self, name: str, tool_name: str, **params) -> "Pipeline":
         """
         Add a tool step by name.
 
@@ -242,12 +239,7 @@ class Pipeline:
         """
         return self.add_step(name, tool_name, **params)
 
-    def add_function(
-        self,
-        name: str,
-        func: Callable,
-        **params
-    ) -> 'Pipeline':
+    def add_function(self, name: str, func: Callable, **params) -> "Pipeline":
         """
         Add a function step.
 
@@ -266,12 +258,7 @@ class Pipeline:
         """
         return self.add_step(name, func, **params)
 
-    def map(
-        self,
-        name: str,
-        func: Callable,
-        **params
-    ) -> 'Pipeline':
+    def map(self, name: str, func: Callable, **params) -> "Pipeline":
         """
         Map a function over previous results (if list).
 
@@ -288,6 +275,7 @@ class Pipeline:
             pipeline.map("extract_urls", lambda item: item['url'])
             ```
         """
+
         def mapper(data):
             if isinstance(data, list):
                 return [func(item, **params) for item in data]
@@ -300,7 +288,7 @@ class Pipeline:
         self,
         name: str,
         predicate: Callable,
-    ) -> 'Pipeline':
+    ) -> "Pipeline":
         """
         Filter previous results (if list).
 
@@ -316,6 +304,7 @@ class Pipeline:
             pipeline.filter("high_score", lambda item: item['score'] > 0.8)
             ```
         """
+
         def filterer(data):
             if isinstance(data, list):
                 return [item for item in data if predicate(item)]
@@ -329,7 +318,7 @@ class Pipeline:
         name: str,
         func: Callable,
         initial: Any = None,
-    ) -> 'Pipeline':
+    ) -> "Pipeline":
         """
         Reduce previous results (if list).
 
@@ -346,9 +335,11 @@ class Pipeline:
             pipeline.reduce("combine", lambda acc, item: acc + item, initial=[])
             ```
         """
+
         def reducer(data):
             if isinstance(data, list):
                 from functools import reduce as py_reduce
+
                 return py_reduce(func, data, initial)
             else:
                 return data
@@ -361,7 +352,7 @@ class Pipeline:
         condition: Callable,
         then_step: Callable,
         else_step: Optional[Callable] = None,
-    ) -> 'Pipeline':
+    ) -> "Pipeline":
         """
         Add conditional step.
 
@@ -384,6 +375,7 @@ class Pipeline:
             )
             ```
         """
+
         def conditional_func(data):
             if condition(data):
                 return then_step(data)
@@ -394,7 +386,7 @@ class Pipeline:
 
         return self.add_step(name, conditional_func)
 
-    def on_error(self, handler: Callable) -> 'Pipeline':
+    def on_error(self, handler: Callable) -> "Pipeline":
         """
         Add error handler.
 
@@ -412,7 +404,7 @@ class Pipeline:
         self.error_handlers.append(handler)
         return self
 
-    def continue_on_error_mode(self, enabled: bool = True) -> 'Pipeline':
+    def continue_on_error_mode(self, enabled: bool = True) -> "Pipeline":
         """
         Enable/disable continue on error mode.
 
@@ -457,22 +449,26 @@ class Pipeline:
                     current_data = step.execute(current_data)
 
                     # Track result
-                    step_results.append({
-                        "name": step.name,
-                        "success": True,
-                        "duration_ms": step.duration_ms,
-                    })
+                    step_results.append(
+                        {
+                            "name": step.name,
+                            "success": True,
+                            "duration_ms": step.duration_ms,
+                        }
+                    )
 
                 except Exception as e:
                     logger.error(f"Step {step.name} failed: {e}")
 
                     # Track error
-                    step_results.append({
-                        "name": step.name,
-                        "success": False,
-                        "error": str(e),
-                        "duration_ms": step.duration_ms,
-                    })
+                    step_results.append(
+                        {
+                            "name": step.name,
+                            "success": False,
+                            "error": str(e),
+                            "duration_ms": step.duration_ms,
+                        }
+                    )
 
                     # Call error handlers
                     for handler in self.error_handlers:
@@ -487,19 +483,11 @@ class Pipeline:
 
             # Success
             self.end_time = time.time()
-            return self._build_result(
-                success=True,
-                result=current_data,
-                step_results=step_results
-            )
+            return self._build_result(success=True, result=current_data, step_results=step_results)
 
         except Exception as e:
             self.end_time = time.time()
-            return self._build_result(
-                success=False,
-                error=str(e),
-                step_results=step_results
-            )
+            return self._build_result(success=False, error=str(e), step_results=step_results)
 
     def _build_result(
         self,
@@ -518,7 +506,7 @@ class Pipeline:
             "error": error,
             "steps": step_results or [],
             "total_steps": len(self.steps),
-            "steps_completed": sum(1 for s in step_results or [] if s.get('success')),
+            "steps_completed": sum(1 for s in step_results or [] if s.get("success")),
             "duration_ms": duration_ms,
             "timestamp": datetime.utcnow().isoformat(),
         }
@@ -556,6 +544,7 @@ def pipeline_builder(func: Callable) -> Callable:
         result = research_pipeline("AI trends")
         ```
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         pipeline_name = func.__name__
@@ -605,7 +594,7 @@ class ParallelPipeline:
         self.name = name
         self.pipelines: List[Pipeline] = []
 
-    def add_pipeline(self, pipeline: Pipeline) -> 'ParallelPipeline':
+    def add_pipeline(self, pipeline: Pipeline) -> "ParallelPipeline":
         """Add a pipeline to execute in parallel."""
         self.pipelines.append(pipeline)
         return self
@@ -629,20 +618,16 @@ class ParallelPipeline:
                 results.append(result)
             except Exception as e:
                 logger.error(f"Parallel pipeline {pipeline.name} failed: {e}")
-                results.append({
-                    "success": False,
-                    "pipeline_name": pipeline.name,
-                    "error": str(e)
-                })
+                results.append({"success": False, "pipeline_name": pipeline.name, "error": str(e)})
 
         duration_ms = (time.time() - start_time) * 1000
 
         return {
-            "success": all(r.get('success', False) for r in results),
+            "success": all(r.get("success", False) for r in results),
             "parallel_pipeline_name": self.name,
             "results": results,
             "total_pipelines": len(self.pipelines),
-            "successful_pipelines": sum(1 for r in results if r.get('success')),
+            "successful_pipelines": sum(1 for r in results if r.get("success")),
             "duration_ms": duration_ms,
             "timestamp": datetime.utcnow().isoformat(),
         }
@@ -660,11 +645,11 @@ if __name__ == "__main__":
                 {"url": "https://example.com/1", "score": 0.9},
                 {"url": "https://example.com/2", "score": 0.7},
                 {"url": "https://example.com/3", "score": 0.5},
-            ]
+            ],
         }
 
     def mock_process(data: Dict[str, Any]) -> List[str]:
-        return [item['url'] for item in data.get('results', [])]
+        return [item["url"] for item in data.get("results", [])]
 
     # Test basic pipeline
     pipeline = (
@@ -674,22 +659,22 @@ if __name__ == "__main__":
     )
 
     result = pipeline.execute()
-    assert result['success'], "Pipeline should succeed"
-    assert len(result['result']) == 3, "Should have 3 URLs"
+    assert result["success"], "Pipeline should succeed"
+    assert len(result["result"]) == 3, "Should have 3 URLs"
     print(f"Basic pipeline: {result}")
 
     # Test map/filter/reduce
     pipeline2 = (
         Pipeline("transform-pipeline")
         .add_step("search", mock_search, query="test")
-        .add_function("extract", lambda data: data['results'])
-        .filter("high_score", lambda item: item['score'] > 0.6)
-        .map("get_urls", lambda item: item['url'])
+        .add_function("extract", lambda data: data["results"])
+        .filter("high_score", lambda item: item["score"] > 0.6)
+        .map("get_urls", lambda item: item["url"])
     )
 
     result2 = pipeline2.execute()
-    assert result2['success'], "Transform pipeline should succeed"
-    assert len(result2['result']) == 2, "Should have 2 high-score URLs"
+    assert result2["success"], "Transform pipeline should succeed"
+    assert len(result2["result"]) == 2, "Should have 2 high-score URLs"
     print(f"Transform pipeline: {result2}")
 
     # Test error handling
@@ -705,7 +690,7 @@ if __name__ == "__main__":
     )
 
     result3 = pipeline3.execute()
-    assert not result3['success'], "Error pipeline should fail"
+    assert not result3["success"], "Error pipeline should fail"
     print(f"Error pipeline: {result3}")
 
     # Test decorator
@@ -716,7 +701,7 @@ if __name__ == "__main__":
         return urls
 
     result4 = my_workflow("test query")
-    assert result4['success'], "Decorator pipeline should succeed"
+    assert result4["success"], "Decorator pipeline should succeed"
     print(f"Decorator pipeline: {result4}")
 
     print("\nAll Pipeline tests passed!")

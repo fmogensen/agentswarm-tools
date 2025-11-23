@@ -5,7 +5,7 @@ Functions for interactive parameter prompting.
 """
 
 import sys
-from typing import Dict, Any, Type, get_type_hints, get_origin, get_args
+from typing import Any, Dict, Type, get_args, get_origin, get_type_hints
 
 
 def prompt_for_params(tool_class: Type) -> Dict[str, Any]:

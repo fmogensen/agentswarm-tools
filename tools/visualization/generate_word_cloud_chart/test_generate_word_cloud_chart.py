@@ -1,12 +1,13 @@
 """Tests for generate_word_cloud_chart tool."""
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.visualization.generate_word_cloud_chart import GenerateWordCloudChart
-from shared.errors import ValidationError, APIError
 
 
 # Disable rate limiting for all tests in this module

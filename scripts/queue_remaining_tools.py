@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Queue all remaining tools to appropriate teams."""
 
-import redis
 import json
 import os
 from datetime import datetime, timezone
+
+import redis
 
 # Additional tools for teams 5, 6, 7
 MORE_TOOLS = [

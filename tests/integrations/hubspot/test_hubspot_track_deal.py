@@ -6,10 +6,12 @@ stage transitions, forecasting, and batch operations.
 """
 
 import os
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.integrations.hubspot.hubspot_track_deal import HubSpotTrackDeal
-from shared.errors import ValidationError, APIError
 
 
 class TestHubSpotTrackDeal:
@@ -256,10 +258,7 @@ class TestHubSpotTrackDeal:
 
     def test_batch_size_limit(self):
         """Test batch size cannot exceed 10 deals."""
-        large_batch = [
-            {"dealname": f"Deal {i}", "amount": 1000 * i}
-            for i in range(11)
-        ]
+        large_batch = [{"dealname": f"Deal {i}", "amount": 1000 * i} for i in range(11)]
 
         with pytest.raises(Exception) as exc_info:
             tool = HubSpotTrackDeal(batch_deals=large_batch)

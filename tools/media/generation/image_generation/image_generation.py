@@ -2,14 +2,15 @@
 Generate new images from text descriptions or reference images using LiteLLM
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
 import os
+from typing import Any, Dict, Optional
 
+from pydantic import Field
+
+from shared.analytics import AnalyticsEvent, EventType, record_event
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
-from shared.llm_client import get_llm_client, LLMResponse
-from shared.analytics import record_event, AnalyticsEvent, EventType
+from shared.errors import APIError, ValidationError
+from shared.llm_client import LLMResponse, get_llm_client
 
 
 class ImageGeneration(BaseTool):

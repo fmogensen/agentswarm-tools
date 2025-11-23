@@ -1,12 +1,13 @@
 """Tests for ask_for_clarification tool."""
 
-import pytest
+from typing import Any, Dict
 from unittest.mock import patch
-from typing import Dict, Any
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.utils.ask_for_clarification import AskForClarification
-from shared.errors import ValidationError, APIError
 
 
 class TestAskForClarification:

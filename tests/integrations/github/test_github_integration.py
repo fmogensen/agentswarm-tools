@@ -3,16 +3,17 @@ Comprehensive tests for GitHub integration tools.
 Tests all 5 GitHub tools with 90%+ coverage.
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 # Import all GitHub tools
 from tools.integrations.github.github_create_pr import GitHubCreatePR
-from tools.integrations.github.github_review_code import GitHubReviewCode, ReviewEvent
 from tools.integrations.github.github_manage_issues import GitHubManageIssues, IssueAction
-from tools.integrations.github.github_run_actions import GitHubRunActions
 from tools.integrations.github.github_repo_analytics import GitHubRepoAnalytics
+from tools.integrations.github.github_review_code import GitHubReviewCode, ReviewEvent
+from tools.integrations.github.github_run_actions import GitHubRunActions
 
 
 class TestGitHubCreatePR:
@@ -153,9 +154,7 @@ class TestGitHubReviewCode:
             pr_number=123,
             event=ReviewEvent.COMMENT,
             body="Some observations.",
-            comments=[
-                {"path": "README.md", "position": 5, "body": "Add more examples"}
-            ],
+            comments=[{"path": "README.md", "position": 5, "body": "Add more examples"}],
         )
         result = tool.run()
 

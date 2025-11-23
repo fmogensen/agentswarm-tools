@@ -1,12 +1,13 @@
 """Tests for email_draft tool."""
 
-import pytest
+from typing import Any, Dict
 from unittest.mock import patch
-from typing import Dict, Any
+
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.communication.email_draft import EmailDraft
-from shared.errors import ValidationError, APIError
 
 
 class TestEmailDraft:

@@ -2,14 +2,14 @@
 Extract transcript from YouTube videos with timestamps
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
+import re
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
-
-import re
+from shared.errors import APIError, ValidationError
 
 try:
     import requests

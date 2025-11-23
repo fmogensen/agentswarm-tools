@@ -4,18 +4,18 @@ Performance command implementation.
 Show performance metrics, reports, and dashboards for all tools.
 """
 
-import sys
-import json
 import csv
-from typing import Optional
+import json
+import sys
 from pathlib import Path
+from typing import Optional
 
-from ...shared.monitoring import get_monitor
 from ...shared.dashboard import (
-    generate_dashboard_data,
-    export_dashboard_json,
     export_dashboard_html,
+    export_dashboard_json,
+    generate_dashboard_data,
 )
+from ...shared.monitoring import get_monitor
 
 
 def execute(args) -> int:
@@ -62,9 +62,7 @@ def _show_overview(monitor, args) -> int:
 
     # Calculate weighted average latency
     if total_requests > 0:
-        weighted_latency = sum(
-            m.avg_latency_ms * m.total_requests for m in all_metrics.values()
-        )
+        weighted_latency = sum(m.avg_latency_ms * m.total_requests for m in all_metrics.values())
         avg_latency = weighted_latency / total_requests
     else:
         avg_latency = 0.0
@@ -120,9 +118,7 @@ def _show_report(monitor, args) -> int:
     print(f"\n=== Performance Report (Last {days} Days) ===\n")
 
     # Sort by total requests
-    sorted_tools = sorted(
-        all_metrics.items(), key=lambda x: x[1].total_requests, reverse=True
-    )
+    sorted_tools = sorted(all_metrics.items(), key=lambda x: x[1].total_requests, reverse=True)
 
     # Print table header
     print(
@@ -231,7 +227,9 @@ def _show_tool_metrics(monitor, args) -> int:
     print(f"  Max:              {metrics.max_latency_ms:.2f}ms")
 
     print("\nPerformance:")
-    print(f"  Slow Queries:     {metrics.slow_queries} ({metrics.slow_queries/metrics.total_requests*100:.1f}%)")
+    print(
+        f"  Slow Queries:     {metrics.slow_queries} ({metrics.slow_queries/metrics.total_requests*100:.1f}%)"
+    )
     print(f"  Throughput:       {metrics.requests_per_minute:.2f} req/min")
 
     if metrics.avg_memory_mb:

@@ -2,14 +2,15 @@
 Process multiple YouTube videos to answer specific questions efficiently
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
 import re
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
-from shared.batch import parallel_process, DefaultProgressCallback
+from shared.batch import DefaultProgressCallback, parallel_process
+from shared.errors import APIError, ValidationError
 
 
 class BatchUnderstandVideos(BaseTool):

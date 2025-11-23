@@ -2,17 +2,17 @@
 Read specific email from Gmail by ID and process content
 """
 
-from typing import Any, Dict, Optional
-from pydantic import Field
-import os
 import base64
-
-from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+import os
+from typing import Any, Dict, Optional
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from pydantic import Field
+
+from shared.base import BaseTool
+from shared.errors import APIError, ValidationError
 
 
 class GmailRead(BaseTool):

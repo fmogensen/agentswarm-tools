@@ -1,8 +1,10 @@
 """Tests for SlackSendMessage tool."""
 
-import pytest
 import os
+
+import pytest
 from slack_send_message import SlackSendMessage
+
 from shared.errors import ValidationError
 
 

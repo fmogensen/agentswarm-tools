@@ -4,10 +4,13 @@ Consolidates rendering logic for fishbone, flow, mind map, and organization char
 """
 
 from typing import Any, Dict, List, Optional
-import matplotlib.pyplot as plt
+
 import matplotlib.patches as mpatches
-from .base_renderer import BaseRenderer
+import matplotlib.pyplot as plt
+
 from shared.errors import ValidationError
+
+from .base_renderer import BaseRenderer
 
 
 class FishboneDiagramRenderer(BaseRenderer):

@@ -4,7 +4,7 @@ Default configuration values
 Default settings for AgentSwarm Tools.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Default configuration
 DEFAULT_CONFIG: Dict[str, Any] = {

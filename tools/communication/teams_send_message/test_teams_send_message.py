@@ -1,8 +1,10 @@
 """Tests for TeamsSendMessage tool."""
 
-import pytest
 import os
+
+import pytest
 from teams_send_message import TeamsSendMessage
+
 from shared.errors import ValidationError
 
 

@@ -8,16 +8,17 @@ This atomic tool handles:
 4. Metadata extraction
 """
 
-from typing import Any, Dict, List, Literal, Optional
-from pydantic import Field
-import os
 import hashlib
-import requests
+import os
 import time
 from datetime import datetime
+from typing import Any, Dict, List, Literal, Optional
+
+import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class ResearchWebSearch(BaseTool):
@@ -63,33 +64,25 @@ class ResearchWebSearch(BaseTool):
 
     # Required parameters
     query: str = Field(
-        ...,
-        description="Research query or question to search for",
-        min_length=3,
-        max_length=500
+        ..., description="Research query or question to search for", min_length=3, max_length=500
     )
 
     # Optional parameters
     max_results: int = Field(
-        20,
-        description="Maximum number of search results to return",
-        ge=5,
-        le=100
+        20, description="Maximum number of search results to return", ge=5, le=100
     )
 
     crawl_content: bool = Field(
-        False,
-        description="Whether to crawl full page content from URLs (slower but more complete)"
+        False, description="Whether to crawl full page content from URLs (slower but more complete)"
     )
 
     filter_duplicates: bool = Field(
-        True,
-        description="Remove duplicate URLs and near-duplicate content"
+        True, description="Remove duplicate URLs and near-duplicate content"
     )
 
     rank_by: Literal["relevance", "recency", "authority"] = Field(
         "relevance",
-        description="Ranking criteria: relevance (default), recency (newest first), authority (trusted sources)"
+        description="Ranking criteria: relevance (default), recency (newest first), authority (trusted sources)",
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -116,8 +109,8 @@ class ResearchWebSearch(BaseTool):
                     "crawl_content": self.crawl_content,
                     "rank_by": self.rank_by,
                     "duration_seconds": result["duration_seconds"],
-                    "timestamp": datetime.utcnow().isoformat()
-                }
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
             }
         except Exception as e:
             raise APIError(f"Web search failed: {e}", tool_name=self.tool_name)
@@ -125,17 +118,11 @@ class ResearchWebSearch(BaseTool):
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
         if not self.query.strip():
-            raise ValidationError(
-                "Query cannot be empty",
-                field="query",
-                tool_name=self.tool_name
-            )
+            raise ValidationError("Query cannot be empty", field="query", tool_name=self.tool_name)
 
         if len(self.query) < 3:
             raise ValidationError(
-                "Query must be at least 3 characters",
-                field="query",
-                tool_name=self.tool_name
+                "Query must be at least 3 characters", field="query", tool_name=self.tool_name
             )
 
     def _should_use_mock(self) -> bool:
@@ -148,19 +135,22 @@ class ResearchWebSearch(BaseTool):
 
         for i in range(self.max_results):
             query_hash = hashlib.md5(f"{self.query}{i}".encode()).hexdigest()[:8]
-            mock_sources.append({
-                "type": "web",
-                "title": f"Research Article {i+1}: {self.query[:50]}",
-                "url": f"https://example.com/article/{query_hash}",
-                "snippet": f"This article discusses {self.query.lower()} with comprehensive analysis and recent findings. " * 2,
-                "content": f"Full content for {self.query}..." if self.crawl_content else None,
-                "author": f"Author {i+1}",
-                "published_date": "2024-01-15",
-                "domain": "example.com",
-                "relevance_score": round(1.0 - (i * 0.03), 2),
-                "authority_score": round(0.85 - (i * 0.02), 2),
-                "word_count": 1200 + (i * 50) if self.crawl_content else None
-            })
+            mock_sources.append(
+                {
+                    "type": "web",
+                    "title": f"Research Article {i+1}: {self.query[:50]}",
+                    "url": f"https://example.com/article/{query_hash}",
+                    "snippet": f"This article discusses {self.query.lower()} with comprehensive analysis and recent findings. "
+                    * 2,
+                    "content": f"Full content for {self.query}..." if self.crawl_content else None,
+                    "author": f"Author {i+1}",
+                    "published_date": "2024-01-15",
+                    "domain": "example.com",
+                    "relevance_score": round(1.0 - (i * 0.03), 2),
+                    "authority_score": round(0.85 - (i * 0.02), 2),
+                    "word_count": 1200 + (i * 50) if self.crawl_content else None,
+                }
+            )
 
         return {
             "success": True,
@@ -174,8 +164,8 @@ class ResearchWebSearch(BaseTool):
                 "crawl_content": self.crawl_content,
                 "rank_by": self.rank_by,
                 "duration_seconds": 0.3,
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -203,14 +193,14 @@ class ResearchWebSearch(BaseTool):
         ranked_sources = self._rank_sources(filtered_results)
 
         # Step 5: Limit to max_results
-        final_sources = ranked_sources[:self.max_results]
+        final_sources = ranked_sources[: self.max_results]
 
         duration = time.time() - start_time
 
         return {
             "sources": final_sources,
             "total_found": len(raw_results),
-            "duration_seconds": round(duration, 2)
+            "duration_seconds": round(duration, 2),
         }
 
     def _perform_web_search(self) -> List[Dict[str, Any]]:
@@ -230,16 +220,18 @@ class ResearchWebSearch(BaseTool):
             if web_result.get("success"):
                 sources = []
                 for item in web_result.get("result", []):
-                    sources.append({
-                        "type": "web",
-                        "title": item.get("title", ""),
-                        "url": item.get("link", ""),
-                        "snippet": item.get("snippet", ""),
-                        "domain": self._extract_domain(item.get("link", "")),
-                        "relevance_score": 0.8,  # Will be re-ranked
-                        "published_date": None,  # Will be extracted if crawled
-                        "content": None
-                    })
+                    sources.append(
+                        {
+                            "type": "web",
+                            "title": item.get("title", ""),
+                            "url": item.get("link", ""),
+                            "snippet": item.get("snippet", ""),
+                            "domain": self._extract_domain(item.get("link", "")),
+                            "relevance_score": 0.8,  # Will be re-ranked
+                            "published_date": None,  # Will be extracted if crawled
+                            "content": None,
+                        }
+                    )
                 return sources
         except ImportError:
             self._logger.warning("WebSearch tool not available")
@@ -294,9 +286,9 @@ class ResearchWebSearch(BaseTool):
 
             try:
                 # Fetch page content
-                response = requests.get(url, timeout=10, headers={
-                    "User-Agent": "Mozilla/5.0 (ResearchBot/1.0)"
-                })
+                response = requests.get(
+                    url, timeout=10, headers={"User-Agent": "Mozilla/5.0 (ResearchBot/1.0)"}
+                )
                 response.raise_for_status()
 
                 # Extract text content (simplified - in production would use BeautifulSoup)
@@ -323,6 +315,7 @@ class ResearchWebSearch(BaseTool):
         Returns:
             Ranked list of sources
         """
+
         def rank_key(source):
             if self.rank_by == "relevance":
                 return source.get("relevance_score", 0.5)
@@ -332,9 +325,7 @@ class ResearchWebSearch(BaseTool):
             elif self.rank_by == "authority":
                 # Check for trusted domains
                 domain = source.get("domain", "")
-                authority_bonus = 0.2 if any(
-                    d in domain for d in [".edu", ".gov", ".org"]
-                ) else 0.0
+                authority_bonus = 0.2 if any(d in domain for d in [".edu", ".gov", ".org"]) else 0.0
                 return source.get("relevance_score", 0.5) + authority_bonus
             else:
                 return source.get("relevance_score", 0.5)
@@ -344,6 +335,7 @@ class ResearchWebSearch(BaseTool):
     def _extract_domain(self, url: str) -> str:
         """Extract domain from URL."""
         from urllib.parse import urlparse
+
         try:
             parsed = urlparse(url)
             return parsed.netloc
@@ -356,15 +348,13 @@ if __name__ == "__main__":
     print("Testing ResearchWebSearch tool...\n")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Basic web search
     print("Test 1: Basic web search")
     print("-" * 50)
-    tool = ResearchWebSearch(
-        query="artificial intelligence in healthcare",
-        max_results=10
-    )
+    tool = ResearchWebSearch(query="artificial intelligence in healthcare", max_results=10)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -377,10 +367,7 @@ if __name__ == "__main__":
     print("\n\nTest 2: Web search with content crawling")
     print("-" * 50)
     tool2 = ResearchWebSearch(
-        query="quantum computing algorithms",
-        max_results=5,
-        crawl_content=True,
-        rank_by="authority"
+        query="quantum computing algorithms", max_results=5, crawl_content=True, rank_by="authority"
     )
     result2 = tool2.run()
 
@@ -391,11 +378,7 @@ if __name__ == "__main__":
     # Test 3: Ranking by recency
     print("\n\nTest 3: Rank by recency")
     print("-" * 50)
-    tool3 = ResearchWebSearch(
-        query="latest AI developments",
-        max_results=15,
-        rank_by="recency"
-    )
+    tool3 = ResearchWebSearch(query="latest AI developments", max_results=15, rank_by="recency")
     result3 = tool3.run()
 
     print(f"Success: {result3.get('success')}")

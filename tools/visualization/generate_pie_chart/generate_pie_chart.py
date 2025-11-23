@@ -2,16 +2,17 @@
 Generate pie chart for proportions and parts of whole
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-import os
-import json
-from io import BytesIO
 import base64
+import json
+import os
+from io import BytesIO
+from typing import Any, Dict, List, Optional
+
 import matplotlib.pyplot as plt
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class GeneratePieChart(BaseTool):

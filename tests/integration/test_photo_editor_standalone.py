@@ -9,9 +9,10 @@ import sys
 # Mock the agency-swarm import to avoid Python 3.14 compatibility issue
 sys.path.insert(0, os.path.dirname(__file__))
 
+from abc import ABC, abstractmethod
+
 # Create a mock BaseTool class
 from pydantic import BaseModel
-from abc import ABC, abstractmethod
 
 
 class MockAgencyBaseTool(BaseModel, ABC):

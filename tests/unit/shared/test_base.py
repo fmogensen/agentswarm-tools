@@ -3,20 +3,21 @@ Comprehensive tests for shared.base module.
 Target coverage: 95%+
 """
 
-import pytest
+import logging
 import os
 import time
-import logging
 from typing import Any, Dict
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from pydantic import Field
 
-from shared.base import BaseTool, SimpleBaseTool, create_simple_tool
-from shared.errors import ToolError, ValidationError, RateLimitError
 from shared.analytics import EventType
-
+from shared.base import BaseTool, SimpleBaseTool, create_simple_tool
+from shared.errors import RateLimitError, ToolError, ValidationError
 
 # Test Tool Implementations
+
 
 class TestTool(BaseTool):
     """Test tool for unit testing."""
@@ -76,6 +77,7 @@ class NoExecuteTool(BaseTool):
 
 # Fixtures
 
+
 @pytest.fixture
 def mock_env_clean():
     """Clean environment for testing."""
@@ -110,6 +112,7 @@ def disable_analytics():
 
 
 # Test BaseTool Initialization
+
 
 def test_base_tool_init():
     """Test BaseTool initialization."""
@@ -147,6 +150,7 @@ def test_base_tool_metadata():
 
 # Test _execute() Abstract Method
 
+
 def test_execute_not_implemented():
     """Test that _execute() must be implemented."""
     tool = NoExecuteTool()
@@ -159,7 +163,7 @@ def test_execute_called_by_run():
     """Test that run() calls _execute()."""
     tool = TestTool(test_param="test")
 
-    with patch.object(tool, '_execute', return_value={"success": True}) as mock_execute:
+    with patch.object(tool, "_execute", return_value={"success": True}) as mock_execute:
         result = tool.run()
 
         mock_execute.assert_called_once()
@@ -167,6 +171,7 @@ def test_execute_called_by_run():
 
 
 # Test run() Method
+
 
 def test_run_success():
     """Test successful tool execution."""
@@ -211,7 +216,7 @@ def test_run_with_unexpected_error():
     """Test run() with unexpected exception."""
     tool = TestTool(test_param="test")
 
-    with patch.object(tool, '_execute', side_effect=Exception("Unexpected!")):
+    with patch.object(tool, "_execute", side_effect=Exception("Unexpected!")):
         result = tool.run()
 
         assert result["success"] is False
@@ -220,6 +225,7 @@ def test_run_with_unexpected_error():
 
 
 # Test Retry Logic
+
 
 def test_execute_with_retry_success_on_first_try():
     """Test successful execution on first try."""
@@ -269,6 +275,7 @@ def test_execute_with_retry_exponential_backoff():
 
 # Test Rate Limiting
 
+
 def test_check_rate_limit_in_mock_mode(mock_mode):
     """Test rate limiting is skipped in mock mode."""
     tool = TestTool(test_param="test")
@@ -282,7 +289,7 @@ def test_check_rate_limit_called_during_run(mock_env_clean):
     """Test that run() checks rate limit."""
     tool = TestTool(test_param="test")
 
-    with patch.object(tool, '_check_rate_limit') as mock_check:
+    with patch.object(tool, "_check_rate_limit") as mock_check:
         tool.run()
         mock_check.assert_called_once()
 
@@ -291,7 +298,7 @@ def test_check_rate_limit_with_rate_limit_error(mock_env_clean):
     """Test handling of rate limit errors."""
     tool = TestTool(test_param="test")
 
-    with patch('shared.base.get_rate_limiter') as mock_limiter:
+    with patch("shared.base.get_rate_limiter") as mock_limiter:
         mock_limiter.return_value.check_rate_limit.side_effect = RateLimitError()
 
         with pytest.raises(RateLimitError):
@@ -300,11 +307,12 @@ def test_check_rate_limit_with_rate_limit_error(mock_env_clean):
 
 # Test Analytics
 
+
 def test_record_event_on_success(mock_env_clean):
     """Test analytics event recording on success."""
     tool = TestTool(test_param="test")
 
-    with patch('shared.base.record_event') as mock_record:
+    with patch("shared.base.record_event") as mock_record:
         tool.run()
 
         # Should record start and success events
@@ -325,7 +333,7 @@ def test_record_event_on_error(mock_env_clean):
     """Test analytics event recording on error."""
     tool = FailingTool(error_type="tool")
 
-    with patch('shared.base.record_event') as mock_record:
+    with patch("shared.base.record_event") as mock_record:
         tool.run()
 
         # Should record start and error events
@@ -342,7 +350,7 @@ def test_analytics_disabled(disable_analytics):
     tool = TestTool(test_param="test")
     tool._enable_analytics = False
 
-    with patch('shared.base.record_event') as mock_record:
+    with patch("shared.base.record_event") as mock_record:
         tool.run()
 
         # Should not record any events
@@ -350,6 +358,7 @@ def test_analytics_disabled(disable_analytics):
 
 
 # Test Logging
+
 
 def test_log_start(caplog):
     """Test logging at start."""
@@ -389,13 +398,14 @@ def test_logging_disabled():
     tool = TestTool(test_param="test")
     tool._enable_logging = False
 
-    with patch.object(tool._logger, 'info') as mock_log:
+    with patch.object(tool._logger, "info") as mock_log:
         tool.run()
 
         mock_log.assert_not_called()
 
 
 # Test Error Formatting
+
 
 def test_format_error_response():
     """Test error response formatting."""
@@ -405,7 +415,7 @@ def test_format_error_response():
         tool_name="test_tool",
         error_code="TEST_ERROR",
         retry_after=60,
-        details={"key": "value"}
+        details={"key": "value"},
     )
 
     result = tool._format_error_response(error)
@@ -420,6 +430,7 @@ def test_format_error_response():
 
 
 # Test Utility Methods
+
 
 def test_get_metadata():
     """Test _get_metadata() method."""
@@ -462,8 +473,10 @@ def test_should_use_mock_case_insensitive():
 
 # Test SimpleBaseTool
 
+
 def test_simple_base_tool():
     """Test SimpleBaseTool configuration."""
+
     class SimpleTest(SimpleBaseTool):
         tool_name: str = "simple_test"
         test_param: str = Field(..., description="Test")
@@ -479,6 +492,7 @@ def test_simple_base_tool():
 
 def test_simple_base_tool_no_retries():
     """Test that SimpleBaseTool doesn't retry."""
+
     class SimpleFailTool(SimpleBaseTool):
         tool_name: str = "simple_fail"
         _attempts: int = 0
@@ -496,8 +510,10 @@ def test_simple_base_tool_no_retries():
 
 # Test create_simple_tool
 
+
 def test_create_simple_tool():
     """Test create_simple_tool() utility."""
+
     def upper_func(tool_instance):
         return tool_instance.text.upper()
 
@@ -509,20 +525,23 @@ def test_create_simple_tool():
 
 def test_create_simple_tool_execution():
     """Test execution of dynamically created tool."""
+
     def reverse_func(tool_instance):
         return tool_instance.text[::-1]
 
     ReverseTool = create_simple_tool("reverse_tool", reverse_func, "Reverses text")
 
     # Can't instantiate without fields, so we test the class structure
-    assert hasattr(ReverseTool, '_execute')
+    assert hasattr(ReverseTool, "_execute")
     assert ReverseTool.tool_name == "reverse_tool"
 
 
 # Test Edge Cases
 
+
 def test_run_with_none_return():
     """Test handling of None return from _execute."""
+
     class NoneTool(BaseTool):
         tool_name: str = "none_tool"
 
@@ -537,6 +556,7 @@ def test_run_with_none_return():
 
 def test_run_with_string_return():
     """Test handling of string return from _execute."""
+
     class StringTool(BaseTool):
         tool_name: str = "string_tool"
 
@@ -551,6 +571,7 @@ def test_run_with_string_return():
 
 def test_run_with_list_return():
     """Test handling of list return from _execute."""
+
     class ListTool(BaseTool):
         tool_name: str = "list_tool"
 
@@ -590,6 +611,7 @@ def test_concurrent_tool_instances():
 
 # Test Performance
 
+
 def test_run_performance():
     """Test that run() overhead is minimal."""
     tool = TestTool(test_param="test")
@@ -606,7 +628,7 @@ def test_record_event_measures_duration():
     """Test that events include duration measurement."""
     tool = TestTool(test_param="test")
 
-    with patch('shared.base.record_event') as mock_record:
+    with patch("shared.base.record_event") as mock_record:
         tool.run()
 
         success_event = mock_record.call_args_list[1][0][0]
@@ -615,6 +637,7 @@ def test_record_event_measures_duration():
 
 
 # Test Agency Swarm Compatibility
+
 
 def test_agency_swarm_import_fallback():
     """Test fallback BaseTool when agency_swarm not installed."""

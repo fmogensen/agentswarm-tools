@@ -2,8 +2,9 @@
 Tests for shell completion functionality
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 from cli.completion import CompletionManager
 

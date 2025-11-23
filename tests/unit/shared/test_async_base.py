@@ -2,13 +2,14 @@
 Unit tests for AsyncBaseTool class.
 """
 
-import pytest
 import asyncio
 import os
-from typing import Dict, Any
+from typing import Any, Dict
+
+import pytest
 
 from shared.async_base import AsyncBaseTool, SimpleAsyncBaseTool, create_simple_async_tool
-from shared.errors import ValidationError, ToolError
+from shared.errors import ToolError, ValidationError
 
 
 class TestAsyncTool(AsyncBaseTool):
@@ -31,7 +32,7 @@ class TestAsyncToolWithValidation(AsyncBaseTool):
 
     async def _execute(self) -> Dict[str, Any]:
         """Execute with validation."""
-        if not hasattr(self, 'value') or not self.value:
+        if not hasattr(self, "value") or not self.value:
             raise ValidationError("value is required", tool_name=self.tool_name)
         return {"success": True, "value": self.value}
 
@@ -154,9 +155,7 @@ class TestAsyncBaseTool:
             return {"dynamic": True}
 
         DynamicTool = create_simple_async_tool(
-            "dynamic_async_tool",
-            my_async_func,
-            "Dynamic async tool test"
+            "dynamic_async_tool", my_async_func, "Dynamic async tool test"
         )
 
         tool = DynamicTool()
@@ -199,6 +198,7 @@ class TestAsyncBaseTool:
         tool = TestAsyncTool()
 
         import time
+
         start = time.time()
         result = await tool.run_async()
         duration = time.time() - start
@@ -265,15 +265,10 @@ class TestAsyncBatchProcessing:
             await asyncio.sleep(0.01)
             return n * 2
 
-        processor = AsyncBatchProcessor(
-            max_concurrency=3,
-            max_retries=2
-        )
+        processor = AsyncBatchProcessor(max_concurrency=3, max_retries=2)
 
         result = await processor.process(
-            items=list(range(10)),
-            operation=process_item,
-            description="Test batch"
+            items=list(range(10)), operation=process_item, description="Test batch"
         )
 
         assert result.success == True
@@ -288,17 +283,11 @@ class TestAsyncBatchProcessing:
             tool = TestAsyncTool()
             return await tool.run_async()
 
-        processor = AsyncBatchProcessor(
-            max_concurrency=3,
-            rate_limit=5,
-            rate_limit_per=1.0
-        )
+        processor = AsyncBatchProcessor(max_concurrency=3, rate_limit=5, rate_limit_per=1.0)
 
         queries = [f"query_{i}" for i in range(8)]
         result = await processor.process(
-            items=queries,
-            operation=run_tool,
-            description="Test with rate limit"
+            items=queries, operation=run_tool, description="Test with rate limit"
         )
 
         assert result.successful_count == len(queries)

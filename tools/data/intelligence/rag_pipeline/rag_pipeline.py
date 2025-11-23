@@ -5,13 +5,14 @@ Supports: Pinecone, Chroma, Weaviate, Qdrant, and Milvus vector databases.
 Enables semantic search, keyword search, and hybrid search with optional reranking.
 """
 
-from typing import Any, Dict, List, Optional, Literal
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, ConfigurationError
+from shared.errors import APIError, ConfigurationError, ValidationError
 
 
 class RAGPipeline(BaseTool):
@@ -54,39 +55,27 @@ class RAGPipeline(BaseTool):
 
     # Parameters
     query: str = Field(
-        ...,
-        description="Search query for retrieving relevant documents",
-        min_length=1
+        ..., description="Search query for retrieving relevant documents", min_length=1
     )
     vector_db: Literal["pinecone", "chroma", "weaviate", "qdrant", "milvus"] = Field(
-        ...,
-        description="Vector database to use for search"
+        ..., description="Vector database to use for search"
     )
     collection_name: str = Field(
-        "default",
-        description="Collection/index/namespace name in the vector database"
+        "default", description="Collection/index/namespace name in the vector database"
     )
-    top_k: int = Field(
-        5,
-        description="Number of top results to return",
-        ge=1,
-        le=100
-    )
+    top_k: int = Field(5, description="Number of top results to return", ge=1, le=100)
     embedding_model: str = Field(
         "text-embedding-3-small",
-        description="OpenAI embedding model (text-embedding-3-small/large, text-embedding-ada-002)"
+        description="OpenAI embedding model (text-embedding-3-small/large, text-embedding-ada-002)",
     )
     search_type: Literal["semantic", "keyword", "hybrid"] = Field(
-        "semantic",
-        description="Search type: semantic (vector), keyword (BM25), or hybrid (both)"
+        "semantic", description="Search type: semantic (vector), keyword (BM25), or hybrid (both)"
     )
     metadata_filter: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Optional metadata filters as key-value pairs"
+        None, description="Optional metadata filters as key-value pairs"
     )
     rerank: bool = Field(
-        False,
-        description="Enable reranking for improved relevance (requires additional API)"
+        False, description="Enable reranking for improved relevance (requires additional API)"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -115,9 +104,9 @@ class RAGPipeline(BaseTool):
                     "vector_db": self.vector_db,
                     "collection_name": self.collection_name,
                     "search_type": self.search_type,
-                    "embedding_model": self.embedding_model
+                    "embedding_model": self.embedding_model,
                 },
-                "total_found": results["total_found"]
+                "total_found": results["total_found"],
             }
         except Exception as e:
             raise APIError(f"RAG pipeline failed: {e}", tool_name=self.tool_name)
@@ -134,12 +123,12 @@ class RAGPipeline(BaseTool):
         valid_models = [
             "text-embedding-3-small",
             "text-embedding-3-large",
-            "text-embedding-ada-002"
+            "text-embedding-ada-002",
         ]
         if self.embedding_model not in valid_models:
             raise ValidationError(
                 f"Invalid embedding model. Must be one of: {', '.join(valid_models)}",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
     def _should_use_mock(self) -> bool:
@@ -152,14 +141,14 @@ class RAGPipeline(BaseTool):
             {
                 "id": f"doc_{i}",
                 "text": f"This is a mock document chunk {i} about {self.query}. "
-                        f"It contains relevant information for testing purposes.",
+                f"It contains relevant information for testing purposes.",
                 "score": 0.95 - (i * 0.1),
                 "metadata": {
                     "source": f"mock_source_{i}.pdf",
                     "page": i + 1,
                     "timestamp": "2024-01-15T10:00:00Z",
-                    "category": "mock_data"
-                }
+                    "category": "mock_data",
+                },
             }
             for i in range(min(self.top_k, 5))
         ]
@@ -171,9 +160,9 @@ class RAGPipeline(BaseTool):
                 "mock_mode": True,
                 "vector_db": self.vector_db,
                 "collection_name": self.collection_name,
-                "search_type": self.search_type
+                "search_type": self.search_type,
             },
-            "total_found": len(mock_chunks)
+            "total_found": len(mock_chunks),
         }
 
     def _process(self) -> Dict[str, Any]:
@@ -194,18 +183,14 @@ class RAGPipeline(BaseTool):
             chunks = self._search_milvus(query_embedding)
         else:
             raise ValidationError(
-                f"Unsupported vector database: {self.vector_db}",
-                tool_name=self.tool_name
+                f"Unsupported vector database: {self.vector_db}", tool_name=self.tool_name
             )
 
         # Apply reranking if enabled
         if self.rerank and chunks:
             chunks = self._rerank_results(chunks)
 
-        return {
-            "chunks": chunks,
-            "total_found": len(chunks)
-        }
+        return {"chunks": chunks, "total_found": len(chunks)}
 
     def _get_embedding(self, text: str) -> List[float]:
         """Generate embedding using OpenAI API."""
@@ -213,29 +198,21 @@ class RAGPipeline(BaseTool):
             import openai
         except ImportError:
             raise ConfigurationError(
-                "OpenAI package not installed. Run: pip install openai",
-                tool_name=self.tool_name
+                "OpenAI package not installed. Run: pip install openai", tool_name=self.tool_name
             )
 
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ConfigurationError(
-                "Missing OPENAI_API_KEY environment variable",
-                tool_name=self.tool_name
+                "Missing OPENAI_API_KEY environment variable", tool_name=self.tool_name
             )
 
         try:
             client = openai.OpenAI(api_key=api_key)
-            response = client.embeddings.create(
-                model=self.embedding_model,
-                input=text
-            )
+            response = client.embeddings.create(model=self.embedding_model, input=text)
             return response.data[0].embedding
         except Exception as e:
-            raise APIError(
-                f"Failed to generate embedding: {e}",
-                tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to generate embedding: {e}", tool_name=self.tool_name)
 
     def _search_pinecone(self, query_embedding: List[float]) -> List[Dict[str, Any]]:
         """Search using Pinecone vector database."""
@@ -244,14 +221,13 @@ class RAGPipeline(BaseTool):
         except ImportError:
             raise ConfigurationError(
                 "Pinecone package not installed. Run: pip install pinecone-client",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         api_key = os.getenv("PINECONE_API_KEY")
         if not api_key:
             raise ConfigurationError(
-                "Missing PINECONE_API_KEY environment variable",
-                tool_name=self.tool_name
+                "Missing PINECONE_API_KEY environment variable", tool_name=self.tool_name
             )
 
         try:
@@ -262,7 +238,7 @@ class RAGPipeline(BaseTool):
             query_params = {
                 "vector": query_embedding,
                 "top_k": self.top_k,
-                "include_metadata": True
+                "include_metadata": True,
             }
 
             if self.metadata_filter:
@@ -275,7 +251,7 @@ class RAGPipeline(BaseTool):
                     "id": match["id"],
                     "text": match["metadata"].get("text", ""),
                     "score": match["score"],
-                    "metadata": match["metadata"]
+                    "metadata": match["metadata"],
                 }
                 for match in results["matches"]
             ]
@@ -289,7 +265,7 @@ class RAGPipeline(BaseTool):
         except ImportError:
             raise ConfigurationError(
                 "ChromaDB package not installed. Run: pip install chromadb",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         try:
@@ -302,10 +278,7 @@ class RAGPipeline(BaseTool):
             collection = client.get_collection(name=self.collection_name)
 
             # Build query parameters
-            query_params = {
-                "query_embeddings": [query_embedding],
-                "n_results": self.top_k
-            }
+            query_params = {"query_embeddings": [query_embedding], "n_results": self.top_k}
 
             if self.metadata_filter:
                 query_params["where"] = self.metadata_filter
@@ -314,12 +287,14 @@ class RAGPipeline(BaseTool):
 
             chunks = []
             for i in range(len(results["ids"][0])):
-                chunks.append({
-                    "id": results["ids"][0][i],
-                    "text": results["documents"][0][i] if results["documents"] else "",
-                    "score": 1.0 - results["distances"][0][i],  # Convert distance to similarity
-                    "metadata": results["metadatas"][0][i] if results["metadatas"] else {}
-                })
+                chunks.append(
+                    {
+                        "id": results["ids"][0][i],
+                        "text": results["documents"][0][i] if results["documents"] else "",
+                        "score": 1.0 - results["distances"][0][i],  # Convert distance to similarity
+                        "metadata": results["metadatas"][0][i] if results["metadatas"] else {},
+                    }
+                )
 
             return chunks
         except Exception as e:
@@ -332,14 +307,13 @@ class RAGPipeline(BaseTool):
         except ImportError:
             raise ConfigurationError(
                 "Weaviate package not installed. Run: pip install weaviate-client",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         weaviate_url = os.getenv("WEAVIATE_URL")
         if not weaviate_url:
             raise ConfigurationError(
-                "Missing WEAVIATE_URL environment variable",
-                tool_name=self.tool_name
+                "Missing WEAVIATE_URL environment variable", tool_name=self.tool_name
             )
 
         try:
@@ -349,15 +323,14 @@ class RAGPipeline(BaseTool):
             if weaviate_api_key:
                 client = weaviate.Client(
                     url=weaviate_url,
-                    auth_client_secret=weaviate.AuthApiKey(api_key=weaviate_api_key)
+                    auth_client_secret=weaviate.AuthApiKey(api_key=weaviate_api_key),
                 )
             else:
                 client = weaviate.Client(url=weaviate_url)
 
             # Build query
             query_builder = (
-                client.query
-                .get(self.collection_name, ["text", "metadata"])
+                client.query.get(self.collection_name, ["text", "metadata"])
                 .with_near_vector({"vector": query_embedding})
                 .with_limit(self.top_k)
                 .with_additional(["distance", "id"])
@@ -372,12 +345,14 @@ class RAGPipeline(BaseTool):
             chunks = []
             if results.get("data", {}).get("Get", {}).get(self.collection_name):
                 for item in results["data"]["Get"][self.collection_name]:
-                    chunks.append({
-                        "id": item["_additional"]["id"],
-                        "text": item.get("text", ""),
-                        "score": 1.0 - item["_additional"]["distance"],
-                        "metadata": json.loads(item.get("metadata", "{}"))
-                    })
+                    chunks.append(
+                        {
+                            "id": item["_additional"]["id"],
+                            "text": item.get("text", ""),
+                            "score": 1.0 - item["_additional"]["distance"],
+                            "metadata": json.loads(item.get("metadata", "{}")),
+                        }
+                    )
 
             return chunks
         except Exception as e:
@@ -391,7 +366,7 @@ class RAGPipeline(BaseTool):
         except ImportError:
             raise ConfigurationError(
                 "Qdrant package not installed. Run: pip install qdrant-client",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         qdrant_url = os.getenv("QDRANT_URL", "localhost")
@@ -401,11 +376,7 @@ class RAGPipeline(BaseTool):
         try:
             # Connect to Qdrant
             if qdrant_api_key:
-                client = QdrantClient(
-                    url=qdrant_url,
-                    port=qdrant_port,
-                    api_key=qdrant_api_key
-                )
+                client = QdrantClient(url=qdrant_url, port=qdrant_port, api_key=qdrant_api_key)
             else:
                 client = QdrantClient(host=qdrant_url, port=qdrant_port)
 
@@ -413,7 +384,7 @@ class RAGPipeline(BaseTool):
             search_params = {
                 "collection_name": self.collection_name,
                 "query_vector": query_embedding,
-                "limit": self.top_k
+                "limit": self.top_k,
             }
 
             # Add metadata filter if provided
@@ -427,7 +398,7 @@ class RAGPipeline(BaseTool):
                     "id": str(result.id),
                     "text": result.payload.get("text", ""),
                     "score": result.score,
-                    "metadata": result.payload
+                    "metadata": result.payload,
                 }
                 for result in results
             ]
@@ -437,11 +408,10 @@ class RAGPipeline(BaseTool):
     def _search_milvus(self, query_embedding: List[float]) -> List[Dict[str, Any]]:
         """Search using Milvus vector database."""
         try:
-            from pymilvus import connections, Collection
+            from pymilvus import Collection, connections
         except ImportError:
             raise ConfigurationError(
-                "Milvus package not installed. Run: pip install pymilvus",
-                tool_name=self.tool_name
+                "Milvus package not installed. Run: pip install pymilvus", tool_name=self.tool_name
             )
 
         milvus_host = os.getenv("MILVUS_HOST", "localhost")
@@ -456,7 +426,7 @@ class RAGPipeline(BaseTool):
                 host=milvus_host,
                 port=milvus_port,
                 user=milvus_user,
-                password=milvus_password
+                password=milvus_password,
             )
 
             # Get collection
@@ -464,10 +434,7 @@ class RAGPipeline(BaseTool):
             collection.load()
 
             # Build search parameters
-            search_params = {
-                "metric_type": "COSINE",
-                "params": {"nprobe": 10}
-            }
+            search_params = {"metric_type": "COSINE", "params": {"nprobe": 10}}
 
             # Build filter expression
             expr = None
@@ -482,18 +449,20 @@ class RAGPipeline(BaseTool):
                 param=search_params,
                 limit=self.top_k,
                 expr=expr,
-                output_fields=["text", "metadata"]
+                output_fields=["text", "metadata"],
             )
 
             chunks = []
             for hits in results:
                 for hit in hits:
-                    chunks.append({
-                        "id": str(hit.id),
-                        "text": hit.entity.get("text", ""),
-                        "score": hit.score,
-                        "metadata": hit.entity.get("metadata", {})
-                    })
+                    chunks.append(
+                        {
+                            "id": str(hit.id),
+                            "text": hit.entity.get("text", ""),
+                            "score": hit.score,
+                            "metadata": hit.entity.get("metadata", {}),
+                        }
+                    )
 
             return chunks
         except Exception as e:
@@ -508,7 +477,7 @@ class RAGPipeline(BaseTool):
         except ImportError:
             raise ConfigurationError(
                 "Cohere package not installed for reranking. Run: pip install cohere",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         cohere_api_key = os.getenv("COHERE_API_KEY")
@@ -525,10 +494,7 @@ class RAGPipeline(BaseTool):
 
             # Rerank
             rerank_results = co.rerank(
-                query=self.query,
-                documents=documents,
-                top_n=self.top_k,
-                model="rerank-english-v2.0"
+                query=self.query, documents=documents, top_n=self.top_k, model="rerank-english-v2.0"
             )
 
             # Reorder chunks based on reranking scores
@@ -552,6 +518,7 @@ if __name__ == "__main__":
 
     # Enable mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     # Test 1: Pinecone with semantic search
@@ -563,13 +530,13 @@ if __name__ == "__main__":
         vector_db="pinecone",
         collection_name="knowledge_base",
         top_k=3,
-        search_type="semantic"
+        search_type="semantic",
     )
     result1 = tool1.run()
     print(f"Success: {result1.get('success')}")
     print(f"Total found: {result1.get('total_found')}")
     print(f"Results: {len(result1.get('results', []))}")
-    if result1.get('results'):
+    if result1.get("results"):
         print(f"First result score: {result1['results'][0]['score']}")
     print()
 
@@ -583,7 +550,7 @@ if __name__ == "__main__":
         collection_name="tutorials",
         top_k=5,
         metadata_filter={"category": "programming"},
-        search_type="semantic"
+        search_type="semantic",
     )
     result2 = tool2.run()
     print(f"Success: {result2.get('success')}")
@@ -601,7 +568,7 @@ if __name__ == "__main__":
         collection_name="research_papers",
         top_k=5,
         embedding_model="text-embedding-3-large",
-        search_type="semantic"
+        search_type="semantic",
     )
     result3 = tool3.run()
     print(f"Success: {result3.get('success')}")
@@ -618,7 +585,7 @@ if __name__ == "__main__":
         collection_name="nlp_docs",
         top_k=5,
         rerank=True,
-        search_type="semantic"
+        search_type="semantic",
     )
     result4 = tool4.run()
     print(f"Success: {result4.get('success')}")
@@ -634,7 +601,7 @@ if __name__ == "__main__":
         vector_db="milvus",
         collection_name="cv_library",
         top_k=10,
-        search_type="hybrid"
+        search_type="hybrid",
     )
     result5 = tool5.run()
     print(f"Success: {result5.get('success')}")
@@ -647,12 +614,7 @@ if __name__ == "__main__":
     print("Test 6: Error Handling - Empty Query")
     print("=" * 60)
     try:
-        tool6 = RAGPipeline(
-            query="",
-            vector_db="pinecone",
-            collection_name="test",
-            top_k=5
-        )
+        tool6 = RAGPipeline(query="", vector_db="pinecone", collection_name="test", top_k=5)
         result6 = tool6.run()
         print(f"Should have failed but got: {result6}")
     except Exception as e:

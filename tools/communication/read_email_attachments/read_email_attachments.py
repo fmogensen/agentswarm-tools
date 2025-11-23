@@ -2,14 +2,15 @@
 Read email attachments efficiently (checks cache first)
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-import os
 import hashlib
 import json
+import os
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class ReadEmailAttachments(BaseTool):
@@ -167,8 +168,8 @@ class ReadEmailAttachments(BaseTool):
 if __name__ == "__main__":
     print("Testing ReadEmailAttachments...")
 
-    import os
     import json
+    import os
 
     os.environ["USE_MOCK_APIS"] = "true"
 

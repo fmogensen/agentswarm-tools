@@ -5,13 +5,14 @@ DEPRECATED: This tool is now a compatibility wrapper.
 Use UnifiedChartGenerator with chart_type="line" instead.
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
 import os
 import warnings
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class GenerateLineChart(BaseTool):

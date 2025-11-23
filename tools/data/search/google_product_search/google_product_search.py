@@ -2,13 +2,14 @@
 Search products using Google Shopping for price comparison
 """
 
-from typing import Any, Dict, List
-from pydantic import Field
 import os
+from typing import Any, Dict, List
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class GoogleProductSearch(BaseTool):
@@ -37,12 +38,8 @@ class GoogleProductSearch(BaseTool):
 
     # Parameters
     query: str = Field(..., description="Product search query", min_length=1)
-    num: int = Field(
-        100, description="Number of results to return", ge=1, le=100
-    )
-    page: int = Field(
-        0, description="Page number for pagination", ge=0
-    )
+    num: int = Field(100, description="Number of results to return", ge=1, le=100)
+    page: int = Field(0, description="Page number for pagination", ge=0)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -76,7 +73,9 @@ class GoogleProductSearch(BaseTool):
             raise ValidationError("Query cannot be empty", tool_name=self.tool_name)
 
         if self.num < 1 or self.num > 100:
-            raise ValidationError("Number of results must be between 1 and 100", tool_name=self.tool_name)
+            raise ValidationError(
+                "Number of results must be between 1 and 100", tool_name=self.tool_name
+            )
 
         if self.page < 0:
             raise ValidationError("Page number must be non-negative", tool_name=self.tool_name)
@@ -124,7 +123,7 @@ class GoogleProductSearch(BaseTool):
             if not api_key or not search_engine_id:
                 raise APIError(
                     "Missing API credentials. Set GOOGLE_SHOPPING_API_KEY and GOOGLE_SHOPPING_ENGINE_ID",
-                    tool_name=self.tool_name
+                    tool_name=self.tool_name,
                 )
 
             # Calculate start index based on page
@@ -218,8 +217,8 @@ if __name__ == "__main__":
 
     print(f"Success: {result.get('success')}")
     print(f"Total results: {len(result.get('result', {}).get('products', []))} items")
-    if result.get('result', {}).get('products'):
-        first_product = result['result']['products'][0]
+    if result.get("result", {}).get("products"):
+        first_product = result["result"]["products"][0]
         print(f"\nFirst product:")
         print(f"  Name: {first_product.get('product_name')}")
         print(f"  Price: {first_product.get('price')}")
@@ -252,7 +251,7 @@ if __name__ == "__main__":
         tool = GoogleProductSearch(query="", num=5)
         result = tool.run()
         print(f"Success: {result.get('success')}")
-        if not result.get('success'):
+        if not result.get("success"):
             print(f"Error: {result.get('error', {}).get('message')}")
     except Exception as e:
         print(f"Exception caught: {type(e).__name__}: {e}")

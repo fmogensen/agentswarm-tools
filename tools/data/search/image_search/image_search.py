@@ -2,13 +2,14 @@
 Search for existing images on the internet
 """
 
-from typing import Any, Dict, List
-from pydantic import Field
 import os
+from typing import Any, Dict, List
+
 import requests
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class ImageSearch(BaseTool):
@@ -41,9 +42,7 @@ class ImageSearch(BaseTool):
 
     # Parameters
     query: str = Field(..., description="Image search terms", min_length=1, max_length=500)
-    max_results: int = Field(
-        10, description="Maximum number of results to return", ge=1, le=100
-    )
+    max_results: int = Field(10, description="Maximum number of results to return", ge=1, le=100)
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -121,8 +120,7 @@ class ImageSearch(BaseTool):
             api_key = os.getenv("SERPAPI_KEY")
             if not api_key:
                 raise APIError(
-                    "SERPAPI_KEY not found in environment variables",
-                    tool_name=self.tool_name
+                    "SERPAPI_KEY not found in environment variables", tool_name=self.tool_name
                 )
 
             # Simulated API call
@@ -151,6 +149,7 @@ if __name__ == "__main__":
 
     # Test with mock mode
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = ImageSearch(query="sunset landscape", max_results=5)

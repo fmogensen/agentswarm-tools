@@ -9,13 +9,14 @@ Comprehensive test suite covering:
 - Edge cases
 """
 
-import pytest
 import os
-from unittest.mock import patch, MagicMock
 from datetime import datetime
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.linear.linear_create_issue import LinearCreateIssue
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 class TestLinearCreateIssue:
@@ -34,10 +35,7 @@ class TestLinearCreateIssue:
 
     def test_basic_issue_creation(self):
         """Test creating a basic issue with minimal fields."""
-        tool = LinearCreateIssue(
-            title="Test issue",
-            team_id="team_abc123"
-        )
+        tool = LinearCreateIssue(title="Test issue", team_id="team_abc123")
         result = tool.run()
 
         assert result["success"] is True
@@ -58,7 +56,7 @@ class TestLinearCreateIssue:
             labels=["label_feature", "label_urgent"],
             estimate=5.0,
             due_date="2025-12-31",
-            cycle_id="cycle_123"
+            cycle_id="cycle_123",
         )
         result = tool.run()
 
@@ -69,9 +67,7 @@ class TestLinearCreateIssue:
     def test_sub_issue_creation(self):
         """Test creating a sub-issue with parent."""
         tool = LinearCreateIssue(
-            title="Sub-task",
-            team_id="team_abc123",
-            parent_id="parent_issue_xyz"
+            title="Sub-task", team_id="team_abc123", parent_id="parent_issue_xyz"
         )
         result = tool.run()
 
@@ -83,10 +79,7 @@ class TestLinearCreateIssue:
     def test_validation_empty_title(self):
         """Test validation fails for empty title."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearCreateIssue(
-                title="",
-                team_id="team_abc123"
-            )
+            tool = LinearCreateIssue(title="", team_id="team_abc123")
             tool.run()
 
         # Error is caught and returned in run() or raised
@@ -95,10 +88,7 @@ class TestLinearCreateIssue:
     def test_validation_empty_team_id(self):
         """Test validation fails for empty team_id."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearCreateIssue(
-                title="Test",
-                team_id=""
-            )
+            tool = LinearCreateIssue(title="Test", team_id="")
             tool.run()
 
         assert "team" in str(exc_info.value).lower() or "empty" in str(exc_info.value).lower()
@@ -106,11 +96,7 @@ class TestLinearCreateIssue:
     def test_validation_invalid_priority(self):
         """Test validation fails for invalid priority."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearCreateIssue(
-                title="Test",
-                team_id="team_abc123",
-                priority=10
-            )
+            tool = LinearCreateIssue(title="Test", team_id="team_abc123", priority=10)
             tool.run()
 
         assert "priority" in str(exc_info.value).lower()
@@ -118,11 +104,7 @@ class TestLinearCreateIssue:
     def test_validation_negative_estimate(self):
         """Test validation fails for negative estimate."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearCreateIssue(
-                title="Test",
-                team_id="team_abc123",
-                estimate=-5.0
-            )
+            tool = LinearCreateIssue(title="Test", team_id="team_abc123", estimate=-5.0)
             tool.run()
 
         assert "estimate" in str(exc_info.value).lower()
@@ -130,11 +112,7 @@ class TestLinearCreateIssue:
     def test_validation_invalid_due_date(self):
         """Test validation fails for invalid due date format."""
         with pytest.raises(Exception) as exc_info:
-            tool = LinearCreateIssue(
-                title="Test",
-                team_id="team_abc123",
-                due_date="invalid-date"
-            )
+            tool = LinearCreateIssue(title="Test", team_id="team_abc123", due_date="invalid-date")
             tool.run()
 
         assert "date" in str(exc_info.value).lower()
@@ -143,22 +121,14 @@ class TestLinearCreateIssue:
 
     def test_priority_urgent(self):
         """Test creating issue with urgent priority."""
-        tool = LinearCreateIssue(
-            title="Critical bug",
-            team_id="team_abc123",
-            priority=1
-        )
+        tool = LinearCreateIssue(title="Critical bug", team_id="team_abc123", priority=1)
         result = tool.run()
 
         assert result["success"] is True
 
     def test_priority_none(self):
         """Test creating issue with no priority."""
-        tool = LinearCreateIssue(
-            title="Backlog item",
-            team_id="team_abc123",
-            priority=0
-        )
+        tool = LinearCreateIssue(title="Backlog item", team_id="team_abc123", priority=0)
         result = tool.run()
 
         assert result["success"] is True
@@ -170,7 +140,7 @@ class TestLinearCreateIssue:
         tool = LinearCreateIssue(
             title="Multi-label issue",
             team_id="team_abc123",
-            labels=["label_bug", "label_urgent", "label_backend"]
+            labels=["label_bug", "label_urgent", "label_backend"],
         )
         result = tool.run()
 
@@ -179,9 +149,7 @@ class TestLinearCreateIssue:
     def test_single_label(self):
         """Test creating issue with single label."""
         tool = LinearCreateIssue(
-            title="Single-label issue",
-            team_id="team_abc123",
-            labels=["label_feature"]
+            title="Single-label issue", team_id="team_abc123", labels=["label_feature"]
         )
         result = tool.run()
 
@@ -205,9 +173,7 @@ class TestLinearCreateIssue:
         ```
         """
         tool = LinearCreateIssue(
-            title="Feature with docs",
-            team_id="team_abc123",
-            description=description
+            title="Feature with docs", team_id="team_abc123", description=description
         )
         result = tool.run()
 
@@ -217,9 +183,7 @@ class TestLinearCreateIssue:
         """Test creating issue with very long description."""
         long_desc = "A" * 10000  # 10k characters
         tool = LinearCreateIssue(
-            title="Issue with long description",
-            team_id="team_abc123",
-            description=long_desc
+            title="Issue with long description", team_id="team_abc123", description=long_desc
         )
         result = tool.run()
 
@@ -232,7 +196,7 @@ class TestLinearCreateIssue:
         tool = LinearCreateIssue(
             title="Issue with custom fields",
             team_id="team_abc123",
-            custom_fields={"field1": "value1", "field2": 42}
+            custom_fields={"field1": "value1", "field2": 42},
         )
         result = tool.run()
 
@@ -245,7 +209,7 @@ class TestLinearCreateIssue:
         tool = LinearCreateIssue(
             title="Team collaboration issue",
             team_id="team_abc123",
-            subscriber_ids=["user_1", "user_2", "user_3"]
+            subscriber_ids=["user_1", "user_2", "user_3"],
         )
         result = tool.run()
 
@@ -255,22 +219,14 @@ class TestLinearCreateIssue:
 
     def test_fractional_estimate(self):
         """Test creating issue with fractional estimate."""
-        tool = LinearCreateIssue(
-            title="Half-day task",
-            team_id="team_abc123",
-            estimate=0.5
-        )
+        tool = LinearCreateIssue(title="Half-day task", team_id="team_abc123", estimate=0.5)
         result = tool.run()
 
         assert result["success"] is True
 
     def test_large_estimate(self):
         """Test creating issue with large estimate."""
-        tool = LinearCreateIssue(
-            title="Long-term project",
-            team_id="team_abc123",
-            estimate=100.0
-        )
+        tool = LinearCreateIssue(title="Long-term project", team_id="team_abc123", estimate=100.0)
         result = tool.run()
 
         assert result["success"] is True
@@ -279,16 +235,10 @@ class TestLinearCreateIssue:
 
     def test_various_date_formats(self):
         """Test creating issues with various valid date formats."""
-        dates = [
-            "2025-12-31",
-            "2025-01-01",
-            "2026-06-15"
-        ]
+        dates = ["2025-12-31", "2025-01-01", "2026-06-15"]
         for date in dates:
             tool = LinearCreateIssue(
-                title=f"Issue due {date}",
-                team_id="team_abc123",
-                due_date=date
+                title=f"Issue due {date}", team_id="team_abc123", due_date=date
             )
             result = tool.run()
             assert result["success"] is True
@@ -297,21 +247,14 @@ class TestLinearCreateIssue:
 
     def test_tool_metadata(self):
         """Test that tool metadata is correctly set."""
-        tool = LinearCreateIssue(
-            title="Test",
-            team_id="team_abc123"
-        )
+        tool = LinearCreateIssue(title="Test", team_id="team_abc123")
 
         assert tool.tool_name == "linear_create_issue"
         assert tool.tool_category == "integrations"
 
     def test_result_metadata(self):
         """Test that result includes proper metadata."""
-        tool = LinearCreateIssue(
-            title="Test",
-            team_id="team_abc123",
-            project_id="proj_123"
-        )
+        tool = LinearCreateIssue(title="Test", team_id="team_abc123", project_id="proj_123")
         result = tool.run()
 
         assert "metadata" in result
@@ -323,10 +266,7 @@ class TestLinearCreateIssue:
 
     def test_mock_mode_enabled(self):
         """Test that mock mode is properly enabled."""
-        tool = LinearCreateIssue(
-            title="Test",
-            team_id="team_abc123"
-        )
+        tool = LinearCreateIssue(title="Test", team_id="team_abc123")
         result = tool.run()
 
         assert result["metadata"]["mock_mode"] is True
@@ -337,10 +277,7 @@ class TestLinearCreateIssue:
     def test_very_long_title(self):
         """Test creating issue with maximum length title."""
         long_title = "A" * 255
-        tool = LinearCreateIssue(
-            title=long_title,
-            team_id="team_abc123"
-        )
+        tool = LinearCreateIssue(title=long_title, team_id="team_abc123")
         result = tool.run()
 
         assert result["success"] is True
@@ -348,8 +285,7 @@ class TestLinearCreateIssue:
     def test_special_characters_in_title(self):
         """Test creating issue with special characters in title."""
         tool = LinearCreateIssue(
-            title="Bug: User can't access @mentions & #hashtags",
-            team_id="team_abc123"
+            title="Bug: User can't access @mentions & #hashtags", team_id="team_abc123"
         )
         result = tool.run()
 
@@ -360,7 +296,7 @@ class TestLinearCreateIssue:
         tool = LinearCreateIssue(
             title="International support",
             team_id="team_abc123",
-            description="支持中文 • Поддержка русского • 日本語サポート"
+            description="支持中文 • Поддержка русского • 日本語サポート",
         )
         result = tool.run()
 
@@ -369,7 +305,7 @@ class TestLinearCreateIssue:
     # Integration tests
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "LINEAR_API_KEY": "test_key"})
-    @patch('requests.post')
+    @patch("requests.post")
     def test_real_api_call_structure(self, mock_post):
         """Test that real API calls are structured correctly."""
         mock_response = MagicMock()
@@ -382,17 +318,14 @@ class TestLinearCreateIssue:
                         "identifier": "ENG-456",
                         "title": "Test issue",
                         "url": "https://linear.app/workspace/issue/ENG-456",
-                        "state": {"id": "state_123", "name": "Todo"}
-                    }
+                        "state": {"id": "state_123", "name": "Todo"},
+                    },
                 }
             }
         }
         mock_post.return_value = mock_response
 
-        tool = LinearCreateIssue(
-            title="Test issue",
-            team_id="team_abc123"
-        )
+        tool = LinearCreateIssue(title="Test issue", team_id="team_abc123")
         result = tool.run()
 
         # Verify API was called
@@ -405,21 +338,14 @@ class TestLinearCreateIssue:
         assert "input" in call_args[1]["json"]["variables"]
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "LINEAR_API_KEY": "test_key"})
-    @patch('requests.post')
+    @patch("requests.post")
     def test_graphql_error_handling(self, mock_post):
         """Test handling of GraphQL errors."""
         mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "errors": [
-                {"message": "Invalid team ID"}
-            ]
-        }
+        mock_response.json.return_value = {"errors": [{"message": "Invalid team ID"}]}
         mock_post.return_value = mock_response
 
-        tool = LinearCreateIssue(
-            title="Test issue",
-            team_id="invalid_team"
-        )
+        tool = LinearCreateIssue(title="Test issue", team_id="invalid_team")
         result = tool.run()
 
         assert result["success"] is False
@@ -428,10 +354,7 @@ class TestLinearCreateIssue:
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_missing_api_key(self):
         """Test error when API key is missing."""
-        tool = LinearCreateIssue(
-            title="Test issue",
-            team_id="team_abc123"
-        )
+        tool = LinearCreateIssue(title="Test issue", team_id="team_abc123")
         result = tool.run()
 
         assert result["success"] is False

@@ -6,13 +6,13 @@ Monitors for completed tools and runs automated tests.
 Ensures all tools meet quality standards before marking as complete.
 """
 
+import asyncio
+import json
+import logging
 import os
 import sys
-import asyncio
-import logging
-import json
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 try:
     import redis.asyncio as redis

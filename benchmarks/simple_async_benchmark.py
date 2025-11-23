@@ -120,7 +120,7 @@ def benchmark_sync_sequential(operations: int, delay: float = 0.1) -> BenchmarkR
             "tool": "SyncTestTool",
             "execution": "sequential",
             "delay": delay,
-        }
+        },
     )
 
     print_result(result)
@@ -128,9 +128,7 @@ def benchmark_sync_sequential(operations: int, delay: float = 0.1) -> BenchmarkR
 
 
 async def benchmark_async_concurrent(
-    operations: int,
-    delay: float = 0.1,
-    concurrency: int = 10
+    operations: int, delay: float = 0.1, concurrency: int = 10
 ) -> BenchmarkResult:
     """
     Benchmark async tools running concurrently.
@@ -159,8 +157,7 @@ async def benchmark_async_concurrent(
     # Create batches to show progress
     batch_size = min(concurrency, operations)
     batches = [
-        list(range(i, min(i + batch_size, operations)))
-        for i in range(0, operations, batch_size)
+        list(range(i, min(i + batch_size, operations))) for i in range(0, operations, batch_size)
     ]
 
     for batch_idx, batch in enumerate(batches):
@@ -191,7 +188,7 @@ async def benchmark_async_concurrent(
             "execution": "concurrent",
             "max_concurrency": concurrency,
             "delay": delay,
-        }
+        },
     )
 
     print_result(result)
@@ -199,9 +196,7 @@ async def benchmark_async_concurrent(
 
 
 async def benchmark_batch_processor(
-    operations: int,
-    delay: float = 0.1,
-    concurrency: int = 10
+    operations: int, delay: float = 0.1, concurrency: int = 10
 ) -> BenchmarkResult:
     """
     Benchmark using AsyncBatchProcessor.
@@ -232,9 +227,7 @@ async def benchmark_batch_processor(
 
     start_time = time.time()
     batch_result = await processor.process(
-        items=items,
-        operation=process_item,
-        description="Batch processing"
+        items=items, operation=process_item, description="Batch processing"
     )
     total_time = time.time() - start_time
 
@@ -254,7 +247,7 @@ async def benchmark_batch_processor(
             "max_concurrency": concurrency,
             "delay": delay,
             "failed_count": batch_result.failed_count,
-        }
+        },
     )
 
     print_result(result)
@@ -267,7 +260,9 @@ def print_result(result: BenchmarkResult) -> None:
     print(f"  Total Time: {result.total_time:.3f}s")
     print(f"  Avg Time/Op: {result.avg_time_per_op*1000:.2f}ms")
     print(f"  Throughput: {result.ops_per_second:.2f} ops/sec")
-    print(f"  Success Rate: {result.success_count}/{result.operation_count} ({100*result.success_count/result.operation_count:.1f}%)")
+    print(
+        f"  Success Rate: {result.success_count}/{result.operation_count} ({100*result.success_count/result.operation_count:.1f}%)"
+    )
 
 
 def print_comparison(results: List[BenchmarkResult]) -> None:
@@ -293,7 +288,9 @@ def print_comparison(results: List[BenchmarkResult]) -> None:
         speedup = baseline_time / result.total_time
         speedup_str = f"{speedup:.2f}x" if speedup > 1 else "-"
 
-        print(f"{result.name:<25} {result.total_time:>10.3f}s {result.ops_per_second:>10.2f} {speedup_str:>10}")
+        print(
+            f"{result.name:<25} {result.total_time:>10.3f}s {result.ops_per_second:>10.2f} {speedup_str:>10}"
+        )
 
     # Print detailed comparison
     sync_result = next((r for r in results if "Sync" in r.name), None)
@@ -307,15 +304,19 @@ def print_comparison(results: List[BenchmarkResult]) -> None:
         print("KEY FINDINGS")
         print(f"{'='*70}")
         print(f"Async is {speedup:.2f}x faster than sync")
-        print(f"Time saved: {time_saved:.2f}s ({100*time_saved/sync_result.total_time:.1f}% reduction)")
-        print(f"Throughput improvement: {async_result.ops_per_second/sync_result.ops_per_second:.2f}x")
+        print(
+            f"Time saved: {time_saved:.2f}s ({100*time_saved/sync_result.total_time:.1f}% reduction)"
+        )
+        print(
+            f"Throughput improvement: {async_result.ops_per_second/sync_result.ops_per_second:.2f}x"
+        )
 
 
 async def run_benchmarks():
     """Run all benchmarks."""
-    print("="*70)
+    print("=" * 70)
     print("ASYNC VS SYNC PERFORMANCE BENCHMARK")
-    print("="*70)
+    print("=" * 70)
     print("\nSimulating I/O-bound operations with 100ms delay each")
     print("Mock mode: Enabled (no actual API calls)")
     print()
@@ -343,7 +344,9 @@ async def run_benchmarks():
     print("LARGE SCALE TEST (100 operations)")
     print(f"{'='*70}")
 
-    result_large_async = await benchmark_async_concurrent(operations=100, delay=delay, concurrency=20)
+    result_large_async = await benchmark_async_concurrent(
+        operations=100, delay=delay, concurrency=20
+    )
     print(f"\nProjected sync time: {100 * delay:.2f}s")
     print(f"Actual async time: {result_large_async.total_time:.2f}s")
     print(f"Speedup: {(100 * delay) / result_large_async.total_time:.2f}x")
@@ -356,9 +359,9 @@ def main():
     # Run async benchmarks
     asyncio.run(run_benchmarks())
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("BENCHMARK COMPLETE")
-    print("="*70)
+    print("=" * 70)
     print("\nConclusion:")
     print("✓ Async tools provide significant speedup for I/O-bound operations")
     print("✓ Concurrent execution scales well with operation count")

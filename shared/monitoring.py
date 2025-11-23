@@ -10,21 +10,22 @@ Provides:
 - SQLite-based persistent storage with minimal overhead
 """
 
-from typing import Optional, Dict, Any, List, Callable
-from datetime import datetime, timedelta
-from dataclasses import dataclass, field, asdict
-from functools import wraps
-import time
+import json
 import os
 import sqlite3
-import threading
-from pathlib import Path
-import json
 import statistics
+import threading
+import time
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta
+from functools import wraps
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional
 
 # Try to import psutil, but make it optional
 try:
     import psutil
+
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
@@ -169,9 +170,7 @@ class PerformanceMonitor:
         cutoff_str = cutoff.isoformat()
 
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                "DELETE FROM performance_metrics WHERE timestamp < ?", (cutoff_str,)
-            )
+            conn.execute("DELETE FROM performance_metrics WHERE timestamp < ?", (cutoff_str,))
             conn.commit()
 
     def record_metric(self, metric: PerformanceMetric) -> None:
@@ -304,14 +303,14 @@ class PerformanceMonitor:
             min_latency_ms=min(durations),
             max_latency_ms=max(durations),
             total_duration_ms=sum(durations),
-            error_rate_percent=(failed_requests / total_requests * 100)
-            if total_requests > 0
-            else 0.0,
+            error_rate_percent=(
+                (failed_requests / total_requests * 100) if total_requests > 0 else 0.0
+            ),
             avg_memory_mb=statistics.mean(memories) if memories else None,
             avg_cpu_percent=statistics.mean(cpus) if cpus else None,
-            cache_hit_rate_percent=(sum(cache_hits) / len(cache_hits) * 100)
-            if cache_hits
-            else None,
+            cache_hit_rate_percent=(
+                (sum(cache_hits) / len(cache_hits) * 100) if cache_hits else None
+            ),
             error_types=error_type_counts,
             slow_queries=slow_queries,
             requests_per_minute=requests_per_minute,
@@ -358,9 +357,7 @@ class PerformanceMonitor:
             List of AggregatedMetrics sorted by avg_latency_ms descending
         """
         all_metrics = self.get_all_metrics(days)
-        sorted_metrics = sorted(
-            all_metrics.values(), key=lambda m: m.avg_latency_ms, reverse=True
-        )
+        sorted_metrics = sorted(all_metrics.values(), key=lambda m: m.avg_latency_ms, reverse=True)
         return sorted_metrics[:limit]
 
     def get_most_used_tools(self, days: int = 7, limit: int = 10) -> List[AggregatedMetrics]:
@@ -375,9 +372,7 @@ class PerformanceMonitor:
             List of AggregatedMetrics sorted by total_requests descending
         """
         all_metrics = self.get_all_metrics(days)
-        sorted_metrics = sorted(
-            all_metrics.values(), key=lambda m: m.total_requests, reverse=True
-        )
+        sorted_metrics = sorted(all_metrics.values(), key=lambda m: m.total_requests, reverse=True)
         return sorted_metrics[:limit]
 
     def detect_alerts(self, days: int = 1) -> List[Dict[str, Any]]:
@@ -409,7 +404,7 @@ class PerformanceMonitor:
 
             # Slow queries alert
             if metrics.slow_queries > 0:
-                slow_query_rate = (metrics.slow_queries / metrics.total_requests * 100)
+                slow_query_rate = metrics.slow_queries / metrics.total_requests * 100
                 if slow_query_rate > 10:  # More than 10% slow queries
                     alerts.append(
                         {
@@ -478,10 +473,8 @@ class PerformanceMonitor:
 
         for tool_name, metrics in all_metrics.items():
             # Request count
-            lines.append(
-                f'# HELP agentswarm_tool_requests_total Total requests for tool'
-            )
-            lines.append(f'# TYPE agentswarm_tool_requests_total counter')
+            lines.append(f"# HELP agentswarm_tool_requests_total Total requests for tool")
+            lines.append(f"# TYPE agentswarm_tool_requests_total counter")
             lines.append(
                 f'agentswarm_tool_requests_total{{tool="{tool_name}"}} {metrics.total_requests}'
             )
@@ -497,8 +490,8 @@ class PerformanceMonitor:
             )
 
             # Latency metrics
-            lines.append(f'# HELP agentswarm_tool_latency_ms Tool latency in milliseconds')
-            lines.append(f'# TYPE agentswarm_tool_latency_ms summary')
+            lines.append(f"# HELP agentswarm_tool_latency_ms Tool latency in milliseconds")
+            lines.append(f"# TYPE agentswarm_tool_latency_ms summary")
             lines.append(
                 f'agentswarm_tool_latency_ms{{tool="{tool_name}",quantile="0.5"}} {metrics.p50_latency_ms}'
             )
@@ -510,8 +503,8 @@ class PerformanceMonitor:
             )
 
             # Error rate
-            lines.append(f'# HELP agentswarm_tool_error_rate Error rate percentage')
-            lines.append(f'# TYPE agentswarm_tool_error_rate gauge')
+            lines.append(f"# HELP agentswarm_tool_error_rate Error rate percentage")
+            lines.append(f"# TYPE agentswarm_tool_error_rate gauge")
             lines.append(
                 f'agentswarm_tool_error_rate{{tool="{tool_name}"}} {metrics.error_rate_percent}'
             )

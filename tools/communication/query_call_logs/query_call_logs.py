@@ -2,17 +2,18 @@
 Query and filter call logs from Twilio based on criteria
 """
 
-from typing import Any, Dict, List, Optional
-from pydantic import Field
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 try:
-    from twilio.rest import Client
     from twilio.base.exceptions import TwilioRestException
+    from twilio.rest import Client
 except ImportError:
     Client = None
     TwilioRestException = Exception

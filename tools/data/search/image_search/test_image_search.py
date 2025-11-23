@@ -1,12 +1,13 @@
 """Tests for image_search tool."""
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.search.image_search import ImageSearch
-from shared.errors import ValidationError, APIError
 
 
 class TestImageSearch:
@@ -41,16 +42,14 @@ class TestImageSearch:
                 }
                 for i in range(1, 11)
             ],
-            "total_count": 10
+            "total_count": 10,
         }
 
     # ========== HAPPY PATH ==========
 
     def test_execute_success(self, tool: ImageSearch, mock_results: Dict[str, Any]):
         """Test successful execution."""
-        with patch.object(
-            tool, "_process", return_value=mock_results
-        ):
+        with patch.object(tool, "_process", return_value=mock_results):
             result = tool.run()
         assert result["success"] is True
         assert "result" in result
@@ -67,6 +66,7 @@ class TestImageSearch:
     def test_validation_error_empty_query(self):
         """Test validation error with empty query."""
         from pydantic import ValidationError as PydanticValidationError
+
         with pytest.raises(PydanticValidationError):
             ImageSearch(query="", max_results=10)
 
@@ -82,7 +82,11 @@ class TestImageSearch:
         with patch.object(tool, "_process", side_effect=Exception("API failed")):
             result = tool.run()
         assert result["success"] is False
-        error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+        error_msg = (
+            result.get("error", {}).get("message", "")
+            if isinstance(result.get("error"), dict)
+            else str(result.get("error", ""))
+        )
         assert len(error_msg) > 0
 
     # ========== MOCK MODE ==========
@@ -145,9 +149,7 @@ class TestImageSearch:
             ("test", -1, False),  # Negative max_results
         ],
     )
-    def test_parameter_validation(
-        self, query: str, max_results: int, expected_valid: bool
-    ):
+    def test_parameter_validation(self, query: str, max_results: int, expected_valid: bool):
         """Test parameter validation with various inputs."""
         if expected_valid:
             tool = ImageSearch(query=query, max_results=max_results)

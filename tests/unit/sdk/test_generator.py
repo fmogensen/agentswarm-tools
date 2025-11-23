@@ -2,11 +2,12 @@
 Tests for ToolGenerator
 """
 
-import pytest
 import os
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
+
+import pytest
 
 from sdk.generator import ToolGenerator
 

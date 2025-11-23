@@ -2,12 +2,13 @@
 Tests for AudioEffects tool
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.media_analysis.audio_effects import AudioEffects
-from shared.errors import ValidationError, APIError
 
 
 class TestAudioEffects:

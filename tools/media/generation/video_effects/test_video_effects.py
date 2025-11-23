@@ -2,12 +2,13 @@
 Tests for VideoEffects tool
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.media_generation.video_effects import VideoEffects
-from shared.errors import ValidationError, APIError
 
 
 class TestVideoEffects:

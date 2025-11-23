@@ -1,15 +1,15 @@
 """Tests for webpage_capture_screen tool."""
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.chrome.options import Options
-from typing import Dict, Any
-
 from pydantic import ValidationError as PydanticValidationError
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.webdriver import WebDriver
 
+from shared.errors import APIError, ValidationError
 from tools.web_content.webpage_capture_screen import WebpageCaptureScreen
-from shared.errors import ValidationError, APIError
 
 
 class TestWebpageCaptureScreen:

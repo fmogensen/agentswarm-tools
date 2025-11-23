@@ -2,12 +2,13 @@
 Request additional information from user when needed
 """
 
-from typing import Any, Dict
-from pydantic import Field
 import os
+from typing import Any, Dict
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class AskForClarification(BaseTool):

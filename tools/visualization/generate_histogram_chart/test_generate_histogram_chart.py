@@ -1,14 +1,14 @@
 """Tests for generate_histogram_chart tool."""
 
-import pytest
 import os
 from unittest.mock import patch
-import numpy as np
 
+import numpy as np
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.visualization.generate_histogram_chart import GenerateHistogramChart
-from shared.errors import ValidationError, APIError
 
 
 class TestGenerateHistogramChart:

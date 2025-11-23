@@ -1,15 +1,14 @@
 """Tests for notion_read tool."""
 
-import pytest
-from unittest.mock import patch
-from unittest.mock import Mock, patch, MagicMock
-from typing import Dict, Any
 import os
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.workspace.notion_read import NotionRead
-from shared.errors import ValidationError, APIError
 
 
 class TestNotionRead:

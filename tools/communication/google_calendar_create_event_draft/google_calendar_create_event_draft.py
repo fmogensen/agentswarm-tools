@@ -5,10 +5,11 @@ DEPRECATED: This tool is deprecated. Use UnifiedGoogleCalendar with action="crea
 This wrapper maintains backward compatibility and will be removed in a future version.
 """
 
-from typing import Any, Dict
-from pydantic import Field
 import json
 import warnings
+from typing import Any, Dict
+
+from pydantic import Field
 
 from shared.base import BaseTool
 from shared.errors import ValidationError
@@ -127,8 +128,8 @@ class GoogleCalendarCreateEventDraft(BaseTool):
 if __name__ == "__main__":
     print("Testing GoogleCalendarCreateEventDraft...")
 
-    import os
     import json
+    import os
 
     os.environ["USE_MOCK_APIS"] = "true"
 

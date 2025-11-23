@@ -1,13 +1,13 @@
 """Tests for gmail_search tool."""
 
-import pytest
-from unittest.mock import patch
 import os
-from unittest.mock import Mock, patch, MagicMock
-from typing import Dict, Any
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.communication.gmail_search import GmailSearch
-from shared.errors import ValidationError, APIError
 
 
 class TestGmailSearch:

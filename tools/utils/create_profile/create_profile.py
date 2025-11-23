@@ -2,14 +2,15 @@
 Create Profile Tool - Create and manage user/agent profiles with customizable attributes
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class CreateProfile(BaseTool):

@@ -2,12 +2,13 @@
 Unit tests for MCP Configuration
 """
 
-import pytest
 import json
-import tempfile
 import os
-from pathlib import Path
 import sys
+import tempfile
+from pathlib import Path
+
+import pytest
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
@@ -40,7 +41,7 @@ class TestMCPConfig:
             max_tools=50,
             enable_analytics=False,
             enable_caching=False,
-            log_level="DEBUG"
+            log_level="DEBUG",
         )
 
         assert config.server_name == "custom-server"
@@ -82,7 +83,7 @@ class TestMCPConfig:
             "max_tools": 25,
             "enable_analytics": False,
             "enable_caching": True,
-            "log_level": "WARNING"
+            "log_level": "WARNING",
         }
 
         config = MCPConfig.from_dict(data)
@@ -94,15 +95,13 @@ class TestMCPConfig:
 
     def test_save_and_load(self):
         """Test saving and loading configuration."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             config_path = f.name
 
         try:
             # Create and save config
             config1 = MCPConfig(
-                server_name="test-server",
-                enabled_categories=["data"],
-                max_tools=10
+                server_name="test-server", enabled_categories=["data"], max_tools=10
             )
             config1.save_to_file(config_path)
 
@@ -128,7 +127,7 @@ class TestMCPConfig:
 
     def test_load_invalid_json(self):
         """Test loading invalid JSON returns default config."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             f.write("invalid json content {{{")
             config_path = f.name
 

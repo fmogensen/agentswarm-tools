@@ -5,14 +5,15 @@ Retrieves analytics and metrics from HubSpot including contacts, deals,
 emails, conversions, and custom reporting data.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class HubSpotGetAnalytics(BaseTool):
@@ -107,20 +108,16 @@ class HubSpotGetAnalytics(BaseTool):
     report_type: str = Field(
         ...,
         description="Type of analytics report (contacts, deals, emails, conversions, "
-                    "pipeline, revenue, engagement, custom)"
+        "pipeline, revenue, engagement, custom)",
     )
 
     # Time range
-    start_date: Optional[str] = Field(
-        None, description="Start date (YYYY-MM-DD format)"
-    )
-    end_date: Optional[str] = Field(
-        None, description="End date (YYYY-MM-DD format)"
-    )
+    start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD format)")
+    end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD format)")
     time_period: Optional[str] = Field(
         None,
         description="Predefined time period (today, yesterday, last_7_days, "
-                    "last_30_days, this_month, last_month, this_quarter, this_year)"
+        "last_30_days, this_month, last_month, this_quarter, this_year)",
     )
 
     # Filters
@@ -133,18 +130,14 @@ class HubSpotGetAnalytics(BaseTool):
     owner_id: Optional[str] = Field(None, description="Filter by owner/user ID")
 
     # Metrics
-    metrics: Optional[List[str]] = Field(
-        None, description="Specific metrics to retrieve"
-    )
+    metrics: Optional[List[str]] = Field(None, description="Specific metrics to retrieve")
     group_by: Optional[str] = Field(
         None, description="Group results by field (day, week, month, owner, pipeline, source)"
     )
 
     # Custom reporting
     custom_report_id: Optional[str] = Field(None, description="Custom report ID")
-    properties: Optional[List[str]] = Field(
-        None, description="Properties to include in results"
-    )
+    properties: Optional[List[str]] = Field(None, description="Properties to include in results")
 
     # Options
     include_details: bool = Field(False, description="Include detailed breakdown")
@@ -164,16 +157,20 @@ class HubSpotGetAnalytics(BaseTool):
             result = self._process()
             return result
         except Exception as e:
-            raise APIError(
-                f"Failed to get analytics: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to get analytics: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
         # Validate report type
         valid_report_types = [
-            "contacts", "deals", "emails", "conversions",
-            "pipeline", "revenue", "engagement", "custom"
+            "contacts",
+            "deals",
+            "emails",
+            "conversions",
+            "pipeline",
+            "revenue",
+            "engagement",
+            "custom",
         ]
         if self.report_type.lower() not in valid_report_types:
             raise ValidationError(
@@ -201,8 +198,14 @@ class HubSpotGetAnalytics(BaseTool):
         # Validate time period
         if self.time_period:
             valid_periods = [
-                "today", "yesterday", "last_7_days", "last_30_days",
-                "this_month", "last_month", "this_quarter", "this_year"
+                "today",
+                "yesterday",
+                "last_7_days",
+                "last_30_days",
+                "this_month",
+                "last_month",
+                "this_quarter",
+                "this_year",
             ]
             if self.time_period.lower() not in valid_periods:
                 raise ValidationError(
@@ -431,38 +434,48 @@ class HubSpotGetAnalytics(BaseTool):
             current = start
 
             while current <= end:
-                data.append({
-                    "date": current.strftime("%Y-%m-%d"),
-                    "value": 100 + (hash(str(current)) % 50),
-                    "count": 10 + (hash(str(current)) % 20),
-                })
+                data.append(
+                    {
+                        "date": current.strftime("%Y-%m-%d"),
+                        "value": 100 + (hash(str(current)) % 50),
+                        "count": 10 + (hash(str(current)) % 20),
+                    }
+                )
                 current += timedelta(days=1)
 
         elif self.group_by == "stage":
             # Generate by stage
             if report_type == "deals":
                 stages = [
-                    "appointmentscheduled", "qualifiedtobuy",
-                    "presentationscheduled", "decisionmakerboughtin",
-                    "contractsent", "closedwon", "closedlost"
+                    "appointmentscheduled",
+                    "qualifiedtobuy",
+                    "presentationscheduled",
+                    "decisionmakerboughtin",
+                    "contractsent",
+                    "closedwon",
+                    "closedlost",
                 ]
                 for stage in stages:
-                    data.append({
-                        "stage": stage,
-                        "count": 10 + (hash(stage) % 40),
-                        "value": 50000 + (hash(stage) % 200000),
-                    })
+                    data.append(
+                        {
+                            "stage": stage,
+                            "count": 10 + (hash(stage) % 40),
+                            "value": 50000 + (hash(stage) % 200000),
+                        }
+                    )
 
         else:
             # Generate sample records
             for i in range(min(10, self.limit)):
-                data.append({
-                    "id": f"record_{i}",
-                    "value": 1000 + (i * 100),
-                    "timestamp": datetime.now().isoformat(),
-                })
+                data.append(
+                    {
+                        "id": f"record_{i}",
+                        "value": 1000 + (i * 100),
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
 
-        return data[:self.limit]
+        return data[: self.limit]
 
     def _generate_mock_summary(self, metrics: Dict[str, Any]) -> Dict[str, Any]:
         """Generate summary statistics."""
@@ -553,18 +566,14 @@ class HubSpotGetAnalytics(BaseTool):
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                raise AuthenticationError(
-                    "Invalid HubSpot API key", tool_name=self.tool_name
-                )
+                raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 404:
                 raise APIError(
                     f"Analytics report not found: {self.report_type}",
                     tool_name=self.tool_name,
                 )
             elif e.response.status_code == 429:
-                raise APIError(
-                    "Rate limit exceeded. Try again later.", tool_name=self.tool_name
-                )
+                raise APIError("Rate limit exceeded. Try again later.", tool_name=self.tool_name)
             else:
                 error_detail = e.response.json() if e.response.content else {}
                 raise APIError(
@@ -572,9 +581,7 @@ class HubSpotGetAnalytics(BaseTool):
                     tool_name=self.tool_name,
                 )
         except requests.exceptions.RequestException as e:
-            raise APIError(
-                f"Network error: {str(e)}", tool_name=self.tool_name
-            )
+            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _parse_api_response(self, api_data: Dict[str, Any]) -> Dict[str, Any]:
         """Parse API response into standardized metrics."""

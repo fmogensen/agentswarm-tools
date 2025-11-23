@@ -2,12 +2,13 @@
 Tests for BatchVideoAnalysis tool
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import APIError, ValidationError
 from tools.media_analysis.batch_video_analysis import BatchVideoAnalysis
-from shared.errors import ValidationError, APIError
 
 
 class TestBatchVideoAnalysis:

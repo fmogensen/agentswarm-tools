@@ -1,8 +1,10 @@
 """Tests for EmailSend tool."""
 
-import pytest
 import os
+
+import pytest
 from email_send import EmailSend
+
 from shared.errors import ValidationError
 
 

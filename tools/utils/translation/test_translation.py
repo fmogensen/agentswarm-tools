@@ -2,10 +2,12 @@
 Tests for Translation Tool
 """
 
-import pytest
 import os
+
+import pytest
 from translation import Translation
-from shared.errors import ValidationError, ConfigurationError
+
+from shared.errors import ConfigurationError, ValidationError
 
 
 class TestTranslation:

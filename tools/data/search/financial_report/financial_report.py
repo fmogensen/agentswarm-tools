@@ -2,12 +2,13 @@
 Search official financial reports, earnings, statements for public companies
 """
 
-from typing import Any, Dict
-from pydantic import Field
 import os
+from typing import Any, Dict
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError
+from shared.errors import APIError, ValidationError
 
 
 class FinancialReport(BaseTool):
@@ -37,10 +38,12 @@ class FinancialReport(BaseTool):
     )
 
     # Parameters
-    ticker: str = Field(..., description="Stock ticker symbol (e.g., AAPL, GOOGL)", min_length=1, max_length=10)
+    ticker: str = Field(
+        ..., description="Stock ticker symbol (e.g., AAPL, GOOGL)", min_length=1, max_length=10
+    )
     report_type: str = Field(
         "income_statement",
-        description="Type of financial report: income_statement, balance_sheet, cash_flow, or earnings"
+        description="Type of financial report: income_statement, balance_sheet, cash_flow, or earnings",
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -106,11 +109,7 @@ class FinancialReport(BaseTool):
             "report_type": self.report_type,
             "report": f"Mock {self.report_type.replace('_', ' ').title()}",
             "year": 2023,
-            "data": {
-                "revenue": 1000000,
-                "expenses": 600000,
-                "net_income": 400000
-            }
+            "data": {"revenue": 1000000, "expenses": 600000, "net_income": 400000},
         }
 
         return {
@@ -137,17 +136,11 @@ class FinancialReport(BaseTool):
                 "report_type": self.report_type,
                 "report": f"{self.report_type.replace('_', ' ').title()}",
                 "year": 2023,
-                "data": {
-                    "revenue": 1000000,
-                    "expenses": 600000,
-                    "net_income": 400000
-                }
+                "data": {"revenue": 1000000, "expenses": 600000, "net_income": 400000},
             }
             return results
         except Exception as e:
-            raise APIError(
-                f"Error fetching financial report: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Error fetching financial report: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":
@@ -155,6 +148,7 @@ if __name__ == "__main__":
     print("Testing FinancialReport...")
 
     import os
+
     os.environ["USE_MOCK_APIS"] = "true"
 
     tool = FinancialReport(ticker="AAPL", report_type="income_statement")
@@ -162,7 +156,7 @@ if __name__ == "__main__":
 
     print(f"Success: {result.get('success')}")
     print(f"Result: {result.get('result')}")
-    assert result.get('success') == True
-    assert result.get('result', {}).get('ticker') == "AAPL"
-    assert result.get('result', {}).get('report_type') == "income_statement"
+    assert result.get("success") == True
+    assert result.get("result", {}).get("ticker") == "AAPL"
+    assert result.get("result", {}).get("report_type") == "income_statement"
     print("All tests passed!")

@@ -5,13 +5,14 @@ Inserts vector embeddings into Supabase with metadata support.
 Supports batch inserts, upserts, and automatic index optimization.
 """
 
-from typing import Any, Dict, List, Optional, Literal
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class SupabaseInsertEmbeddings(BaseTool):
@@ -289,7 +290,7 @@ class SupabaseInsertEmbeddings(BaseTool):
 
         # Import Supabase client
         try:
-            from supabase import create_client, Client
+            from supabase import Client, create_client
         except ImportError:
             raise APIError(
                 "Supabase SDK not installed. Run: pip install supabase",
@@ -414,9 +415,7 @@ if __name__ == "__main__":
         },
     ]
 
-    tool = SupabaseInsertEmbeddings(
-        table_name="documents", embeddings=embeddings, batch_size=100
-    )
+    tool = SupabaseInsertEmbeddings(table_name="documents", embeddings=embeddings, batch_size=100)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -461,9 +460,7 @@ if __name__ == "__main__":
             }
         )
 
-    tool = SupabaseInsertEmbeddings(
-        table_name="documents", embeddings=large_batch, batch_size=50
-    )
+    tool = SupabaseInsertEmbeddings(table_name="documents", embeddings=large_batch, batch_size=50)
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -513,9 +510,7 @@ if __name__ == "__main__":
     # Test 6: Error handling - missing required field
     print("\n6. Testing error handling (missing id field)...")
     try:
-        embeddings = [
-            {"embedding": [0.1] * 768, "content": "Missing ID"}  # No 'id' field
-        ]
+        embeddings = [{"embedding": [0.1] * 768, "content": "Missing ID"}]  # No 'id' field
         tool = SupabaseInsertEmbeddings(table_name="documents", embeddings=embeddings)
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
@@ -526,9 +521,7 @@ if __name__ == "__main__":
     print("\n7. Testing different embedding dimensions...")
     dims = [384, 768, 1536]
     for dim in dims:
-        embeddings = [
-            {"id": f"doc_{dim}_1", "embedding": [0.1] * dim, "content": f"Doc {dim}"}
-        ]
+        embeddings = [{"id": f"doc_{dim}_1", "embedding": [0.1] * dim, "content": f"Doc {dim}"}]
         tool = SupabaseInsertEmbeddings(
             table_name="documents",
             embeddings=embeddings,

@@ -3,13 +3,14 @@ Unit tests for OfficeSlidesTool.
 Tests all functionality including parameter validation, mock mode, and presentation generation.
 """
 
-import pytest
 import os
 import tempfile
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from shared.errors import ConfigurationError, ValidationError
 from tools.document_creation.office_slides.office_slides import OfficeSlidesTool
-from shared.errors import ValidationError, ConfigurationError
 
 
 class TestOfficeSlidesValidation:

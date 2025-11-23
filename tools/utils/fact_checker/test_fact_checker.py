@@ -2,9 +2,11 @@
 Tests for FactChecker Tool
 """
 
-import pytest
 import os
+
+import pytest
 from fact_checker import FactChecker
+
 from shared.errors import ValidationError
 
 

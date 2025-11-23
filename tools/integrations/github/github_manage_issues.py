@@ -5,14 +5,15 @@ Create, update, close, and manage GitHub issues using GraphQL API.
 Supports labels, assignees, milestones, and issue templates.
 """
 
-from typing import Any, Dict, Optional, List
-from pydantic import Field
-import os
 import json
+import os
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class IssueAction(str, Enum):
@@ -83,12 +84,8 @@ class GitHubManageIssues(BaseTool):
         min_length=1,
         max_length=100,
     )
-    repo_name: str = Field(
-        ..., description="Repository name", min_length=1, max_length=100
-    )
-    action: IssueAction = Field(
-        ..., description="Action to perform on issue"
-    )
+    repo_name: str = Field(..., description="Repository name", min_length=1, max_length=100)
+    action: IssueAction = Field(..., description="Action to perform on issue")
 
     # Conditional parameters
     issue_number: Optional[int] = Field(
@@ -97,16 +94,10 @@ class GitHubManageIssues(BaseTool):
     title: Optional[str] = Field(
         None, description="Issue title (required for create)", max_length=256
     )
-    body: Optional[str] = Field(
-        None, description="Issue description (markdown supported)"
-    )
+    body: Optional[str] = Field(None, description="Issue description (markdown supported)")
     labels: Optional[List[str]] = Field(None, description="Label names to add/remove")
-    assignees: Optional[List[str]] = Field(
-        None, description="GitHub usernames to assign/unassign"
-    )
-    milestone: Optional[int] = Field(
-        None, description="Milestone number to associate"
-    )
+    assignees: Optional[List[str]] = Field(None, description="GitHub usernames to assign/unassign")
+    milestone: Optional[int] = Field(None, description="Milestone number to associate")
     state_reason: Optional[str] = Field(
         None,
         description="Reason for closing (completed, not_planned, reopened)",
@@ -126,9 +117,7 @@ class GitHubManageIssues(BaseTool):
             result = self._perform_action()
             return result
         except Exception as e:
-            raise APIError(
-                f"Failed to {self.action.value} issue: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to {self.action.value} issue: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
         """Validate input parameters based on action."""
@@ -213,9 +202,7 @@ class GitHubManageIssues(BaseTool):
 
         handler = action_map.get(self.action)
         if not handler:
-            raise ValidationError(
-                f"Unknown action: {self.action}", tool_name=self.tool_name
-            )
+            raise ValidationError(f"Unknown action: {self.action}", tool_name=self.tool_name)
 
         return handler(token)
 
@@ -251,9 +238,7 @@ class GitHubManageIssues(BaseTool):
             variables["input"]["labelIds"] = [lid for lid in label_ids if lid]
 
         if self.assignees:
-            assignee_ids = [
-                self._get_user_id(token, user) for user in self.assignees
-            ]
+            assignee_ids = [self._get_user_id(token, user) for user in self.assignees]
             variables["input"]["assigneeIds"] = [aid for aid in assignee_ids if aid]
 
         if self.milestone:
@@ -310,9 +295,7 @@ class GitHubManageIssues(BaseTool):
             label_ids = [self._get_label_id(token, label) for label in self.labels]
             variables["input"]["labelIds"] = [lid for lid in label_ids if lid]
         if self.assignees:
-            assignee_ids = [
-                self._get_user_id(token, user) for user in self.assignees
-            ]
+            assignee_ids = [self._get_user_id(token, user) for user in self.assignees]
             variables["input"]["assigneeIds"] = [aid for aid in assignee_ids if aid]
         if self.milestone:
             milestone_id = self._get_milestone_id(token, self.milestone)
@@ -526,9 +509,7 @@ class GitHubManageIssues(BaseTool):
         }
         """
 
-        variables = {
-            "input": {"assignableId": issue_id, "assigneeIds": assignee_ids}
-        }
+        variables = {"input": {"assignableId": issue_id, "assigneeIds": assignee_ids}}
 
         response = self._execute_graphql(token, mutation, variables)
 
@@ -569,9 +550,7 @@ class GitHubManageIssues(BaseTool):
         }
         """
 
-        variables = {
-            "input": {"assignableId": issue_id, "assigneeIds": assignee_ids}
-        }
+        variables = {"input": {"assignableId": issue_id, "assigneeIds": assignee_ids}}
 
         response = self._execute_graphql(token, mutation, variables)
 
@@ -708,9 +687,7 @@ class GitHubManageIssues(BaseTool):
         milestone = response.get("data", {}).get("repository", {}).get("milestone")
         return milestone["id"] if milestone else None
 
-    def _execute_graphql(
-        self, token: str, query: str, variables: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _execute_graphql(self, token: str, query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
         """Execute GraphQL query/mutation."""
         import requests
 

@@ -4,15 +4,16 @@ Tool validation for AgentSwarm Tools Framework.
 Validates tools against Agency Swarm standards and best practices.
 """
 
-import os
 import ast
+import os
 import re
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
+from rich.table import Table
 
 console = Console()
 

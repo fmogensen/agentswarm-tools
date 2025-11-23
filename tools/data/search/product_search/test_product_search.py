@@ -1,12 +1,13 @@
 """Tests for product_search tool."""
 
+from typing import Any, Dict
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from typing import Dict, Any
 from pydantic import ValidationError as PydanticValidationError
 
+from shared.errors import APIError, ValidationError
 from tools.search.product_search import ProductSearch
-from shared.errors import ValidationError, APIError
 
 
 class TestProductSearch:
@@ -48,11 +49,11 @@ class TestProductSearch:
                     "review_count": 1000 + i * 100,
                     "images": [f"https://example.com/image{i}.jpg"],
                     "availability": "In Stock",
-                    "prime": True
+                    "prime": True,
                 }
                 for i in range(1, 6)
             ],
-            "total_results": 5
+            "total_results": 5,
         }
 
     @pytest.fixture
@@ -64,33 +65,22 @@ class TestProductSearch:
             "price": "$49.99",
             "rating": 4.5,
             "review_count": 2500,
-            "images": [
-                "https://example.com/image1.jpg",
-                "https://example.com/image2.jpg"
-            ],
+            "images": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
             "availability": "In Stock",
             "prime": True,
             "description": "This is a detailed mock product description.",
-            "specifications": {
-                "Brand": "Mock Brand",
-                "Color": "Black",
-                "Weight": "1.5 pounds"
-            },
+            "specifications": {"Brand": "Mock Brand", "Color": "Black", "Weight": "1.5 pounds"},
             "customer_reviews": [
                 {
                     "rating": 5,
                     "title": "Great product!",
                     "text": "Mock review text.",
-                    "verified": True
+                    "verified": True,
                 }
             ],
             "related_products": [
-                {
-                    "ASIN": "B08RELATED1",
-                    "title": "Related Product 1",
-                    "price": "$39.99"
-                }
-            ]
+                {"ASIN": "B08RELATED1", "title": "Related Product 1", "price": "$39.99"}
+            ],
         }
 
     # ========== HAPPY PATH ==========
@@ -148,7 +138,11 @@ class TestProductSearch:
         with patch.object(search_tool, "_process", side_effect=Exception("API failed")):
             result = search_tool.run()
             assert result["success"] is False
-            error_msg = result.get("error", {}).get("message", "") if isinstance(result.get("error"), dict) else str(result.get("error", ""))
+            error_msg = (
+                result.get("error", {}).get("message", "")
+                if isinstance(result.get("error"), dict)
+                else str(result.get("error", ""))
+            )
             assert len(error_msg) > 0
 
     # ========== MOCK MODE ==========
@@ -177,7 +171,7 @@ class TestProductSearch:
     def test_unicode_query(self, mock_search_results: Dict[str, Any]):
         """Test Unicode characters in query."""
         tool = ProductSearch(type="product_search", query="无线耳机")
-        
+
         result = tool.run()
         assert result["success"] is True
 
@@ -186,17 +180,13 @@ class TestProductSearch:
         """Test special characters in query."""
         special_query = "headphones @#$% special"
         tool = ProductSearch(type="product_search", query=special_query)
-        
+
         result = tool.run()
         assert result["success"] is True
 
     def test_location_domain_parameter(self, mock_search_results: Dict[str, Any]):
         """Test location_domain parameter."""
-        tool = ProductSearch(
-            type="product_search",
-            query="test",
-            location_domain="co.uk"
-        )
+        tool = ProductSearch(type="product_search", query="test", location_domain="co.uk")
         with patch.object(tool, "_process", return_value=mock_search_results):
             result = tool.run()
         assert result["success"] is True
@@ -237,11 +227,9 @@ class TestProductSearch:
     def test_full_workflow_search(self, mock_search_results: Dict[str, Any]):
         """Test complete workflow for product search."""
         tool = ProductSearch(
-            type="product_search",
-            query="bluetooth speaker",
-            location_domain="com"
+            type="product_search", query="bluetooth speaker", location_domain="com"
         )
-        
+
         result = tool.run()
         assert result["success"] is True
         assert "products" in result["result"]
@@ -250,12 +238,8 @@ class TestProductSearch:
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_full_workflow_detail(self, mock_detail_results: Dict[str, Any]):
         """Test complete workflow for product detail."""
-        tool = ProductSearch(
-            type="product_detail",
-            ASIN="B08N5WRWNW",
-            location_domain="com"
-        )
-        
+        tool = ProductSearch(type="product_detail", ASIN="B08N5WRWNW", location_domain="com")
+
         result = tool.run()
         assert result["success"] is True
         assert result["result"]["ASIN"] == "B08N5WRWNW"

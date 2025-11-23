@@ -5,22 +5,23 @@ Provides built-in error handling, analytics, security, and logging.
 This class extends Agency Swarm's BaseTool while maintaining 100% compatibility.
 """
 
-from typing import Any, Optional, Dict
-from datetime import datetime
-from abc import abstractmethod
-import time
 import logging
+import os
+import time
 import uuid
 import warnings
-import os
+from abc import abstractmethod
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 # Import from Agency Swarm
 try:
     from agency_swarm.tools.base_tool import BaseTool as AgencyBaseTool
 except ImportError:
     # Fallback for development/testing without agency-swarm installed
-    from pydantic import BaseModel
     from abc import ABC
+
+    from pydantic import BaseModel
 
     class AgencyBaseTool(BaseModel, ABC):
         """Fallback BaseTool for development."""
@@ -30,12 +31,11 @@ except ImportError:
             pass
 
 
-from .errors import ToolError, ValidationError
-from .analytics import record_event, AnalyticsEvent, EventType
-from .security import get_rate_limiter
+from .analytics import AnalyticsEvent, EventType, record_event
 from .cache import get_global_cache_manager, make_cache_key
+from .errors import ToolError, ValidationError
 from .monitoring import record_performance_metric
-
+from .security import get_rate_limiter
 
 # Configure logging
 logging.basicConfig(
@@ -427,7 +427,8 @@ class BaseTool(AgencyBaseTool):
             params = {
                 k: v
                 for k, v in self.__dict__.items()
-                if not k.startswith("_") and k not in ["enable_cache", "cache_ttl", "cache_key_params"]
+                if not k.startswith("_")
+                and k not in ["enable_cache", "cache_ttl", "cache_key_params"]
             }
 
         # Create cache key
@@ -448,9 +449,7 @@ class BaseTool(AgencyBaseTool):
             result = self._cache_manager.get(cache_key)
 
             if result is not None and self._enable_logging:
-                self._logger.info(
-                    f"Cache HIT for {self.tool_name} [request_id={self._request_id}]"
-                )
+                self._logger.info(f"Cache HIT for {self.tool_name} [request_id={self._request_id}]")
 
             return result
         except Exception as e:
@@ -473,9 +472,7 @@ class BaseTool(AgencyBaseTool):
             self._cache_manager.set(cache_key, result, ttl=self.cache_ttl)
 
             if self._enable_logging:
-                self._logger.debug(
-                    f"Cached result for {self.tool_name} with TTL={self.cache_ttl}s"
-                )
+                self._logger.debug(f"Cached result for {self.tool_name} with TTL={self.cache_ttl}s")
         except Exception as e:
             if self._enable_logging:
                 self._logger.warning(f"Cache write error: {e}")

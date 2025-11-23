@@ -3,13 +3,14 @@ Comprehensive tests for SupabaseVectorSearch tool.
 Achieves 90%+ code coverage with unit and integration tests.
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.supabase.supabase_vector_search import SupabaseVectorSearch
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 class TestSupabaseVectorSearchValidation:
@@ -482,4 +483,11 @@ def test_vector_search_benchmark(benchmark):
 
 if __name__ == "__main__":
     # Run tests with coverage
-    pytest.main([__file__, "-v", "--cov=tools.integrations.supabase.supabase_vector_search", "--cov-report=term-missing"])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--cov=tools.integrations.supabase.supabase_vector_search",
+            "--cov-report=term-missing",
+        ]
+    )

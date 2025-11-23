@@ -6,11 +6,11 @@ Manages command history viewing, replay, and analysis.
 
 import sys
 from pathlib import Path
+
 from rich.console import Console
 from rich.prompt import Confirm
 
 from ..history import CommandHistory
-
 
 console = Console()
 
@@ -86,6 +86,7 @@ def _replay_command(history: CommandHistory, args) -> int:
 
     if command_info.get("params"):
         import json
+
         console.print(f"Parameters: {json.dumps(command_info['params'], indent=2)}")
 
     # Confirm replay
@@ -98,6 +99,7 @@ def _replay_command(history: CommandHistory, args) -> int:
 
     if command == "run":
         from .run import run_tool_by_name
+
         tool_name = command_info["tool"]
         params = command_info.get("params", {})
 
@@ -119,14 +121,12 @@ def _replay_command(history: CommandHistory, args) -> int:
             return 1
 
     elif command == "workflow":
-        from .workflow import execute as workflow_execute
         from argparse import Namespace
 
+        from .workflow import execute as workflow_execute
+
         workflow_args = Namespace(
-            action="run",
-            name=command_info["tool"],
-            params=command_info.get("params"),
-            output=None
+            action="run", name=command_info["tool"], params=command_info.get("params"), output=None
         )
 
         return workflow_execute(workflow_args)
@@ -169,16 +169,13 @@ def run_tool_by_name(tool_name: str, params: dict):
     # This is a placeholder - actual implementation would load and run the tool
     # For now, we'll import from run.py if it exists
     try:
-        from .run import execute as run_execute
-        from argparse import Namespace
         import json
+        from argparse import Namespace
+
+        from .run import execute as run_execute
 
         args = Namespace(
-            tool=tool_name,
-            params=json.dumps(params),
-            interactive=False,
-            output=None,
-            format="json"
+            tool=tool_name, params=json.dumps(params), interactive=False, output=None, format="json"
         )
 
         run_execute(args)
@@ -194,9 +191,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Manage command history")
     parser.add_argument(
-        "action",
-        choices=["list", "replay", "clear", "stats"],
-        help="History action"
+        "action", choices=["list", "replay", "clear", "stats"], help="History action"
     )
     parser.add_argument("id", nargs="?", help="Entry ID (for replay)")
     parser.add_argument("-l", "--limit", type=int, default=20, help="Number of entries to show")

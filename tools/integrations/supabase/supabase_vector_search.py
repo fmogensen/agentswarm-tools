@@ -5,13 +5,14 @@ Performs semantic similarity search using pgvector extension in Supabase.
 Supports cosine similarity, L2 distance, and inner product metrics with filtering.
 """
 
-from typing import Any, Dict, List, Optional, Literal
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class SupabaseVectorSearch(BaseTool):
@@ -242,7 +243,7 @@ class SupabaseVectorSearch(BaseTool):
 
         # Import Supabase client
         try:
-            from supabase import create_client, Client
+            from supabase import Client, create_client
         except ImportError:
             raise APIError(
                 "Supabase SDK not installed. Run: pip install supabase",

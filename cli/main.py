@@ -5,23 +5,26 @@ AgentSwarm Tools CLI
 Main entry point for the command-line interface.
 """
 
-import sys
 import argparse
+import sys
 from typing import Optional
-from .version import __version__
+
 from .commands import (
+    completion_tool,
+    config_tool,
+    history_tool,
+    info_tool,
+    interactive_tool,
     list_tools,
+)
+from .commands import performance as performance_cmd
+from .commands import (
     run_tool,
     test_tool,
     validate_tool,
-    config_tool,
-    info_tool,
-    interactive_tool,
     workflow_tool,
-    history_tool,
-    completion_tool,
-    performance as performance_cmd,
 )
+from .version import __version__
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -114,22 +117,16 @@ For more information, visit: https://github.com/agency-ai-solutions/agentswarm-t
     # Workflow command
     workflow_parser = subparsers.add_parser("workflow", help="Manage workflows")
     workflow_parser.add_argument(
-        "action",
-        choices=["create", "run", "list", "delete"],
-        help="Workflow action"
+        "action", choices=["create", "run", "list", "delete"], help="Workflow action"
     )
     workflow_parser.add_argument("name", nargs="?", help="Workflow name")
-    workflow_parser.add_argument(
-        "-p", "--params", help="Input parameters as JSON or @file.json"
-    )
+    workflow_parser.add_argument("-p", "--params", help="Input parameters as JSON or @file.json")
     workflow_parser.add_argument("-o", "--output", help="Output file for results")
 
     # History command
     history_parser = subparsers.add_parser("history", help="View and manage command history")
     history_parser.add_argument(
-        "action",
-        choices=["list", "replay", "clear", "stats"],
-        help="History action"
+        "action", choices=["list", "replay", "clear", "stats"], help="History action"
     )
     history_parser.add_argument("id", nargs="?", help="Entry ID (for replay)")
     history_parser.add_argument(
@@ -139,15 +136,9 @@ For more information, visit: https://github.com/agency-ai-solutions/agentswarm-t
 
     # Completion command
     completion_parser = subparsers.add_parser("completion", help="Manage shell auto-completion")
+    completion_parser.add_argument("action", choices=["install", "show"], help="Completion action")
     completion_parser.add_argument(
-        "action",
-        choices=["install", "show"],
-        help="Completion action"
-    )
-    completion_parser.add_argument(
-        "--shell",
-        choices=["bash", "zsh", "fish"],
-        help="Shell type (auto-detect if not specified)"
+        "--shell", choices=["bash", "zsh", "fish"], help="Shell type (auto-detect if not specified)"
     )
 
     # Performance command
@@ -211,7 +202,10 @@ For more information, visit: https://github.com/agency-ai-solutions/agentswarm-t
         "-d", "--days", type=int, default=7, help="Number of days to analyze (default: 7)"
     )
     dashboard_parser.add_argument(
-        "-o", "--output", default="dashboard.html", help="Output file path (default: dashboard.html)"
+        "-o",
+        "--output",
+        default="dashboard.html",
+        help="Output file path (default: dashboard.html)",
     )
 
     # Default args for performance (show overview)

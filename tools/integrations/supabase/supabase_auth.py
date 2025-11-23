@@ -5,13 +5,14 @@ Handles user authentication with Supabase Auth including sign up, sign in,
 JWT validation, and session management.
 """
 
-from typing import Any, Dict, List, Optional, Literal
-from pydantic import Field
-import os
 import json
+import os
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class SupabaseAuth(BaseTool):
@@ -261,7 +262,7 @@ class SupabaseAuth(BaseTool):
 
         # Import Supabase client
         try:
-            from supabase import create_client, Client
+            from supabase import Client, create_client
         except ImportError:
             raise APIError(
                 "Supabase SDK not installed. Run: pip install supabase",
@@ -352,9 +353,7 @@ class SupabaseAuth(BaseTool):
             )
             return {
                 "user": (
-                    response.user.__dict__
-                    if hasattr(response.user, "__dict__")
-                    else response.user
+                    response.user.__dict__ if hasattr(response.user, "__dict__") else response.user
                 ),
                 "session": (
                     response.session.__dict__
@@ -397,9 +396,7 @@ class SupabaseAuth(BaseTool):
         session = supabase.auth.get_session()
 
         return {
-            "session": (
-                session.__dict__ if hasattr(session, "__dict__") else session
-            ),
+            "session": (session.__dict__ if hasattr(session, "__dict__") else session),
             "user": supabase.auth.get_user().user,
         }
 
@@ -434,9 +431,7 @@ if __name__ == "__main__":
 
     # Test 2: Sign in existing user
     print("\n2. Testing sign in...")
-    tool = SupabaseAuth(
-        action="sign_in", email="user@example.com", password="SecurePass123!"
-    )
+    tool = SupabaseAuth(action="sign_in", email="user@example.com", password="SecurePass123!")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -503,9 +498,7 @@ if __name__ == "__main__":
     # Test 8: Error handling - invalid email
     print("\n8. Testing error handling (invalid email)...")
     try:
-        tool = SupabaseAuth(
-            action="sign_up", email="invalid-email", password="SecurePass123!"
-        )
+        tool = SupabaseAuth(action="sign_up", email="invalid-email", password="SecurePass123!")
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except ValidationError as e:

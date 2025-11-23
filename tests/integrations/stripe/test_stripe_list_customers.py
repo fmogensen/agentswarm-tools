@@ -2,13 +2,14 @@
 Tests for Stripe List Customers Tool
 """
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
 import time
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.stripe.stripe_list_customers import StripeListCustomers
-from shared.errors import ValidationError, APIError, AuthenticationError
 
 
 @pytest.fixture
@@ -73,9 +74,7 @@ class TestStripeListCustomers:
 
     def test_mock_mode_metadata_filtering(self, mock_env):
         """Test metadata filtering"""
-        tool = StripeListCustomers(
-            metadata_filters={"tier": "premium"}, limit=10
-        )
+        tool = StripeListCustomers(metadata_filters={"tier": "premium"}, limit=10)
         result = tool.run()
 
         assert result["success"] is True
@@ -103,9 +102,7 @@ class TestStripeListCustomers:
     def test_validation_conflicting_pagination(self):
         """Test validation for conflicting pagination parameters"""
         with pytest.raises(ValidationError) as exc_info:
-            tool = StripeListCustomers(
-                starting_after="cus_123", ending_before="cus_456", limit=10
-            )
+            tool = StripeListCustomers(starting_after="cus_123", ending_before="cus_456", limit=10)
             tool.run()
 
         assert "Cannot specify both" in str(exc_info.value)
@@ -241,7 +238,10 @@ class TestStripeListCustomers:
         mock_response = Mock()
         mock_response.data = [mock_customer_1]
         mock_response.has_more = False
-        mock_response.get = lambda key, default=None: {"data": [mock_customer_1], "has_more": False}.get(key, default)
+        mock_response.get = lambda key, default=None: {
+            "data": [mock_customer_1],
+            "has_more": False,
+        }.get(key, default)
 
         mock_stripe.Customer.list.return_value = mock_response
 
@@ -265,7 +265,9 @@ class TestStripeListCustomers:
         mock_response = Mock()
         mock_response.data = []
         mock_response.has_more = False
-        mock_response.get = lambda key, default=None: {"data": [], "has_more": False}.get(key, default)
+        mock_response.get = lambda key, default=None: {"data": [], "has_more": False}.get(
+            key, default
+        )
 
         mock_stripe.Customer.list.return_value = mock_response
 
@@ -290,8 +292,7 @@ class TestStripeListCustomers:
         import stripe as stripe_module
 
         mock_stripe.Customer.list.side_effect = stripe_module.error.InvalidRequestError(
-            message="Invalid parameter",
-            param="limit"
+            message="Invalid parameter", param="limit"
         )
 
         with pytest.raises(ValidationError) as exc_info:

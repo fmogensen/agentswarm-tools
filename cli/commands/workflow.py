@@ -4,15 +4,15 @@ Workflow command implementation
 Manages workflow creation, execution, and management.
 """
 
-import sys
 import json
-from typing import Optional
+import sys
 from pathlib import Path
+from typing import Optional
+
 from rich.console import Console
 from rich.prompt import Confirm
 
 from ..workflow import WorkflowManager
-
 
 console = Console()
 
@@ -109,6 +109,7 @@ def _run_workflow(manager: WorkflowManager, args) -> int:
             var_desc = var_info.get("description", "")
 
             from rich.prompt import Prompt
+
             value = Prompt.ask(f"{var_name} ({var_type}): {var_desc}")
 
             # Simple type conversion
@@ -157,14 +158,14 @@ def _list_workflows(manager: WorkflowManager) -> int:
         console.print("\nCreate a workflow with: agentswarm workflow create")
         return 0
 
-    from rich.table import Table
     from rich import box
+    from rich.table import Table
 
     table = Table(
         title=f"Workflows ({len(workflows)} total)",
         show_header=True,
         header_style="bold magenta",
-        box=box.ROUNDED
+        box=box.ROUNDED,
     )
 
     table.add_column("Name", style="cyan", width=25)
@@ -184,6 +185,7 @@ def _list_workflows(manager: WorkflowManager) -> int:
         # Format timestamp
         try:
             from datetime import datetime
+
             dt = datetime.fromisoformat(created)
             created = dt.strftime("%Y-%m-%d %H:%M")
         except Exception:
@@ -222,9 +224,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Manage workflows")
     parser.add_argument(
-        "action",
-        choices=["create", "run", "list", "delete"],
-        help="Workflow action"
+        "action", choices=["create", "run", "list", "delete"], help="Workflow action"
     )
     parser.add_argument("name", nargs="?", help="Workflow name")
     parser.add_argument("-p", "--params", help="Input parameters as JSON or @file.json")

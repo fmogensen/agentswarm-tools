@@ -35,7 +35,7 @@ jobs:
         env:
           USE_MOCK_APIS: "true"
         run: |
-          pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing
+          pytest tests/unit/tools/ tests/integration/ tests/integrations/ -v --cov=. --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -51,7 +51,7 @@ jobs:
         env:
           USE_MOCK_APIS: "true"
         run: |
-          python -c "from tools.search.web_search import WebSearch; print('Tool import successful')"
+          python -c "from tools.data.search.web_search.web_search import WebSearch; print('Tool import successful')"
 
   integration-test:
     name: Integration Tests

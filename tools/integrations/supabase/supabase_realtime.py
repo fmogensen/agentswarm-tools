@@ -5,14 +5,15 @@ Subscribe to realtime database changes using Supabase Realtime.
 Supports INSERT, UPDATE, DELETE events with filtering and custom callbacks.
 """
 
-from typing import Any, Dict, List, Optional, Literal, Callable
-from pydantic import Field
-import os
 import json
+import os
 import time
+from typing import Any, Callable, Dict, List, Literal, Optional
+
+from pydantic import Field
 
 from shared.base import BaseTool
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 
 
 class SupabaseRealtime(BaseTool):
@@ -258,7 +259,7 @@ class SupabaseRealtime(BaseTool):
 
         # Import Supabase client
         try:
-            from supabase import create_client, Client
+            from supabase import Client, create_client
         except ImportError:
             raise APIError(
                 "Supabase SDK not installed. Run: pip install supabase",
@@ -325,7 +326,9 @@ class SupabaseRealtime(BaseTool):
             channel = supabase.channel(subscription_id)
 
             # Add event listeners
-            event_types = self.events if "ALL" not in self.events else ["INSERT", "UPDATE", "DELETE"]
+            event_types = (
+                self.events if "ALL" not in self.events else ["INSERT", "UPDATE", "DELETE"]
+            )
             for event_type in event_types:
                 channel.on_postgres_changes(
                     event=event_type,
@@ -468,9 +471,7 @@ if __name__ == "__main__":
 
     # Test 5: Unsubscribe
     print("\n5. Testing unsubscribe...")
-    tool = SupabaseRealtime(
-        action="unsubscribe", subscription_id="sub_mock_messages_12345"
-    )
+    tool = SupabaseRealtime(action="unsubscribe", subscription_id="sub_mock_messages_12345")
     result = tool.run()
 
     print(f"Success: {result.get('success')}")
@@ -500,9 +501,7 @@ if __name__ == "__main__":
     # Test 8: Error handling - invalid filter
     print("\n8. Testing error handling (invalid filter)...")
     try:
-        tool = SupabaseRealtime(
-            action="subscribe", table_name="messages", filter="invalid_filter"
-        )
+        tool = SupabaseRealtime(action="subscribe", table_name="messages", filter="invalid_filter")
         result = tool.run()
         print("ERROR: Should have raised ValidationError")
     except ValidationError as e:
