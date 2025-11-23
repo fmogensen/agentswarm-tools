@@ -10,6 +10,9 @@ from pydantic import Field
 
 from shared.base import BaseTool
 from shared.errors import APIError, ValidationError
+from shared.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class VideoSearch(BaseTool):
@@ -224,7 +227,7 @@ class VideoSearch(BaseTool):
 
         except Exception as e:
             # Log error but don't fail the whole request
-            print(f"Warning: Failed to get video details: {e}")
+            logger.error(f"Warning: Failed to get video details: {e}")
             return {}
 
     def _parse_duration(self, duration: str) -> str:

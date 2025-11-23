@@ -3,6 +3,10 @@ Script to create backward compatibility wrappers for deprecated chart tools.
 Run this to update all old chart tools to delegate to UnifiedChartGenerator or UnifiedDiagramGenerator.
 """
 
+from shared.logging import get_logger
+
+logger = get_logger(__name__)
+
 CHART_TOOL_MAPPINGS = {
     # Chart tools -> UnifiedChartGenerator
     "generate_bar_chart": {
@@ -189,8 +193,8 @@ def get_description(tool_name, chart_type):
     return descriptions.get(chart_type, f"Generate {chart_type} visualization")
 
 
-print("Backward Compatibility Wrapper Mappings:")
-print("=" * 80)
+logger.info("Backward Compatibility Wrapper Mappings:")
+logger.info("=" * 80)
 for tool_name, config in CHART_TOOL_MAPPINGS.items():
     class_name = to_class_name(tool_name)
     chart_type = config["chart_type"]
@@ -203,11 +207,11 @@ for tool_name, config in CHART_TOOL_MAPPINGS.items():
 
     description = get_description(tool_name, chart_type)
 
-    print(f"\n{tool_name}:")
-    print(f"  Class: {class_name}")
-    print(f"  Delegates to: {unified_class}({param_type}='{chart_type}')")
-    print(f"  Import: from {unified_import} import {unified_class}")
+    logger.info(f"\n{tool_name}:")
+    logger.info(f"  Class: {class_name}")
+    logger.info(f"  Delegates to: {unified_class}({param_type}='{chart_type}')")
+    logger.info(f"  Import: from {unified_import} import {unified_class}")
 
-print("\n" + "=" * 80)
-print("\nTo apply wrappers, manually update each tool file using the template above.")
-print("The template is available in WRAPPER_TEMPLATE_CHART variable.")
+logger.info("\n" + "=" * 80)
+logger.info("\nTo apply wrappers, manually update each tool file using the template above.")
+logger.info("The template is available in WRAPPER_TEMPLATE_CHART variable.")

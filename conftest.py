@@ -9,7 +9,14 @@ from typing import Any, Dict, Generator
 from unittest.mock import MagicMock, Mock
 
 import pytest
-import redis
+
+# Optional redis import - gracefully handle if not installed
+try:
+    import redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    redis = None
+    REDIS_AVAILABLE = False
 
 # ========== PYTEST CONFIGURATION ==========
 
@@ -41,7 +48,11 @@ def test_environment():
 @pytest.fixture
 def mock_redis() -> Mock:
     """Mock Redis client for testing."""
-    mock = Mock(spec=redis.Redis)
+    if REDIS_AVAILABLE:
+        mock = Mock(spec=redis.Redis)
+    else:
+        mock = Mock()  # Generic mock if redis not available
+
     mock.get.return_value = None
     mock.set.return_value = True
     mock.hget.return_value = None

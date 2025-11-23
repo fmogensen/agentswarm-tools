@@ -14,6 +14,9 @@ except ImportError:
 
 from shared.async_base import AsyncBaseTool
 from shared.errors import APIError, ValidationError
+from shared.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class AsyncWebSearch(AsyncBaseTool):
@@ -207,21 +210,21 @@ if __name__ == "__main__":
 
     def test_sync_wrapper():
         """Test sync wrapper."""
-        print("\n3. Testing sync wrapper...")
+        logger.info("\n3. Testing sync wrapper...")
 
         os.environ["USE_MOCK_APIS"] = "true"
 
         tool = AsyncWebSearch(query="Sync wrapper test", max_results=2)
         result = tool.run()  # Sync wrapper
 
-        print(f"  Success: {result.get('success')}")
-        print(f"  Results: {len(result.get('result', []))} items")
+        logger.info(f"  Success: {result.get('success')}")
+        logger.info(f"  Results: {len(result.get('result', []))} items")
         assert result.get("success") == True
-        print("  ✓ Sync wrapper test passed")
+        logger.info("  ✓ Sync wrapper test passed")
 
     async def test_batch_processing():
         """Test batch processing with rate limiting."""
-        print("\n4. Testing batch processing...")
+        logger.info("\n4. Testing batch processing...")
 
         os.environ["USE_MOCK_APIS"] = "true"
 
@@ -238,10 +241,10 @@ if __name__ == "__main__":
             items=queries, operation=search_query, description="Batch web searches"
         )
 
-        print(f"  Successful: {batch_result.successful_count}/{len(queries)}")
-        print(f"  Duration: {batch_result.duration_ms:.2f}ms")
+        logger.info(f"  Successful: {batch_result.successful_count}/{len(queries)}")
+        logger.info(f"  Duration: {batch_result.duration_ms:.2f}ms")
         assert batch_result.successful_count == len(queries)
-        print("  ✓ Batch processing test passed")
+        logger.info("  ✓ Batch processing test passed")
 
     # Run tests
     async def main():
@@ -249,6 +252,6 @@ if __name__ == "__main__":
         await test_concurrent()
         test_sync_wrapper()
         await test_batch_processing()
-        print("\n✓ All AsyncWebSearch tests passed!")
+        logger.info("\n✓ All AsyncWebSearch tests passed!")
 
     asyncio.run(main())
