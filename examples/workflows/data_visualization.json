@@ -1,0 +1,77 @@
+{
+  "name": "data-visualization",
+  "description": "Aggregate data and generate interactive visualizations",
+  "variables": {
+    "data_source": "sales_data.csv",
+    "chart_type": "line"
+  },
+  "steps": [
+    {
+      "id": "read_data",
+      "tool": "Read",
+      "params": {
+        "file_path": "${vars.data_source}"
+      }
+    },
+    {
+      "id": "parse_data",
+      "type": "tool",
+      "tool": "Bash",
+      "params": {
+        "command": "python -c \"import json; import csv; data = list(csv.DictReader(open('${vars.data_source}'))); print(json.dumps(data))\""
+      },
+      "condition": "${steps.read_data.success}"
+    },
+    {
+      "id": "aggregate_by_month",
+      "type": "tool",
+      "tool": "Bash",
+      "params": {
+        "command": "python -c \"import json; data = ${steps.parse_data.result}; aggregated = {}; [aggregated.update({item['month']: aggregated.get(item['month'], 0) + float(item['sales'])}) for item in data]; print(json.dumps([{'month': k, 'sales': v} for k, v in sorted(aggregated.items())]))\""
+      },
+      "condition": "${steps.parse_data.success}"
+    },
+    {
+      "id": "generate_chart",
+      "type": "condition",
+      "condition": "${vars.chart_type} == 'line'",
+      "then": {
+        "tool": "generate_line_chart",
+        "params": {
+          "data": "${steps.aggregate_by_month.result}",
+          "title": "Sales Trends Over Time",
+          "axisXTitle": "Month",
+          "axisYTitle": "Sales ($)",
+          "width": 800,
+          "height": 600
+        }
+      },
+      "else": {
+        "tool": "generate_bar_chart",
+        "params": {
+          "data": "${steps.aggregate_by_month.result}",
+          "title": "Sales by Month",
+          "axisXTitle": "Month",
+          "axisYTitle": "Sales ($)",
+          "width": 800,
+          "height": 600
+        }
+      }
+    },
+    {
+      "id": "save_chart",
+      "tool": "Write",
+      "params": {
+        "file_path": "/mnt/user-data/outputs/sales_chart.html",
+        "content": "${steps.generate_chart.result.html}"
+      },
+      "condition": "${steps.generate_chart.success}"
+    }
+  ],
+  "error_handling": {
+    "retry_on_failure": true,
+    "max_retries": 2,
+    "continue_on_error": false
+  },
+  "timeout": 600
+}

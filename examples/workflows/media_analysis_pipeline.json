@@ -1,0 +1,73 @@
+{
+  "name": "media-analysis-pipeline",
+  "description": "Download media from AI Drive, analyze it, and generate a report",
+  "variables": {
+    "folder_path": "/research/videos",
+    "report_title": "Media Analysis Report"
+  },
+  "steps": [
+    {
+      "id": "list_files",
+      "tool": "aidrive_tool",
+      "params": {
+        "action": "list_directory",
+        "path": "${vars.folder_path}"
+      }
+    },
+    {
+      "id": "download_videos",
+      "type": "foreach",
+      "items": "${steps.list_files.result.files}",
+      "step": {
+        "tool": "aidrive_tool",
+        "params": {
+          "action": "get_readable_url",
+          "path": "${item.path}"
+        }
+      },
+      "condition": "${steps.list_files.success}"
+    },
+    {
+      "id": "analyze_videos",
+      "tool": "batch_understand_videos",
+      "params": {
+        "video_urls": "${steps.download_videos.result}",
+        "instruction": "Analyze the content and identify key themes, objects, and activities"
+      },
+      "condition": "${steps.download_videos.success}"
+    },
+    {
+      "id": "transcribe_audio",
+      "type": "foreach",
+      "items": "${steps.download_videos.result}",
+      "step": {
+        "tool": "audio_transcribe",
+        "params": {
+          "audio_url": "${item.url}",
+          "language": "en"
+        }
+      },
+      "condition": "${steps.analyze_videos.success}"
+    },
+    {
+      "id": "generate_report",
+      "tool": "create_agent",
+      "params": {
+        "agent_type": "docs",
+        "title": "${vars.report_title}",
+        "content": {
+          "video_analysis": "${steps.analyze_videos.result}",
+          "transcriptions": "${steps.transcribe_audio.result}"
+        },
+        "task_summary": "Create a comprehensive analysis report of the media files"
+      },
+      "condition": "${steps.transcribe_audio.success}"
+    }
+  ],
+  "error_handling": {
+    "retry_on_failure": true,
+    "max_retries": 2,
+    "continue_on_error": true
+  },
+  "timeout": 3600
+}

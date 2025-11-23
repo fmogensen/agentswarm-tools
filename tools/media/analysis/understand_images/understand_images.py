@@ -1,5 +1,5 @@
 """
-Read and analyze image content from URLs or AI Drive paths
+Read and analyze image content from URLs or AI Drive paths using LiteLLM vision models
 """
 
 from typing import Any, Dict, Optional
@@ -13,6 +13,8 @@ except ImportError:
 
 from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
+from shared.llm_client import get_llm_client, LLMResponse
+from shared.analytics import record_event, AnalyticsEvent, EventType
 
 
 class UnderstandImages(BaseTool):
@@ -39,6 +41,12 @@ class UnderstandImages(BaseTool):
 
     media_url: str = Field(..., description="URL of media to analyze")
     instruction: Optional[str] = Field(default=None, description="What to analyze or extract")
+    model: Optional[str] = Field(
+        None, description="Vision model to use (e.g., 'gpt-4-turbo', 'claude-3-opus')"
+    )
+    fallback_models: Optional[list] = Field(
+        None, description="List of fallback vision models if primary fails"
+    )
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -119,46 +127,66 @@ class UnderstandImages(BaseTool):
 
     def _process(self) -> Any:
         """
-        Main processing logic.
+        Main processing logic using LiteLLM vision models.
 
-        Attempts to fetch the image and return basic metadata.
+        Analyzes image using AI vision capabilities.
 
         Raises:
             APIError: If the image cannot be retrieved or processed
         """
-        if requests is None:
-            raise APIError(
-                "requests library is required. Install with: pip install requests",
-                tool_name=self.tool_name,
+        try:
+            # Get LiteLLM client
+            client = get_llm_client()
+
+            # Determine model to use
+            model = self.model or os.getenv("LITELLM_DEFAULT_VISION_MODEL", "gpt-4-turbo")
+            fallback = self.fallback_models or ["claude-3-opus-20240229", "gemini-pro-vision"]
+
+            # Build instruction prompt
+            instruction = self.instruction or "Describe this image in detail, including objects, people, text, colors, and composition."
+
+            # Prepare messages for vision API
+            messages = [{"role": "user", "content": instruction}]
+
+            # Call vision completion
+            response: LLMResponse = client.vision_completion(
+                messages=messages,
+                image_urls=[self.media_url],
+                model=model,
+                fallback_models=fallback,
+                max_tokens=1000,
             )
 
-        try:
-            # Simple retrieval for demonstration
-            if self.media_url.startswith("aidrive://"):
-                # Placeholder for AI Drive logic
-                # Real implementation would interface with the AI Drive system
-                image_bytes = b"FAKE_AIDRIVE_IMAGE_DATA"
-            else:
-                response = requests.get(self.media_url, timeout=10)
-                if response.status_code != 200:
-                    raise APIError(
-                        f"Failed to fetch image from URL: HTTP {response.status_code}",
-                        tool_name=self.tool_name,
-                    )
-                image_bytes = response.content
-
-            size_bytes = len(image_bytes)
+            # Record cost event for analytics
+            record_event(
+                AnalyticsEvent(
+                    event_type=EventType.LLM_COST,
+                    tool_name=self.tool_name,
+                    success=True,
+                    metadata={
+                        "model": response.model,
+                        "provider": response.provider,
+                        "cost": response.cost,
+                        "total_tokens": response.usage.get("total_tokens", 0),
+                        "task_type": "image_understanding",
+                    },
+                )
+            )
 
             analysis = {
-                "image_size_bytes": size_bytes,
-                "instruction_applied": bool(self.instruction),
-                "instruction": self.instruction or "No instruction provided",
+                "description": response.content,
+                "instruction_applied": self.instruction,
+                "model_used": response.model,
+                "provider": response.provider,
+                "cost": response.cost,
+                "latency_ms": response.latency_ms,
+                "tokens_used": response.usage.get("total_tokens", 0),
             }
 
             return analysis
 
         except Exception as e:
-            raise APIError(f"Error retrieving or analyzing image: {e}", tool_name=self.tool_name)
+            raise APIError(f"Error analyzing image: {e}", tool_name=self.tool_name)
 
 
 if __name__ == "__main__":

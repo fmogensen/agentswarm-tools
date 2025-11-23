@@ -9,6 +9,7 @@ import time
 
 from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
+from shared.batch import parallel_process, DefaultProgressCallback, ExecutorType
 
 
 class BatchProcessor(BaseTool):
@@ -42,7 +43,7 @@ class BatchProcessor(BaseTool):
     tool_category: str = "utils"
 
     # Parameters
-    items: List[Any] = Field(..., description="List of items to process", min_items=1)
+    items: List[Any] = Field(..., description="List of items to process", min_length=1)
     operation: str = Field(
         ..., description="Operation to perform: transform, filter, validate, aggregate, count"
     )
@@ -53,6 +54,13 @@ class BatchProcessor(BaseTool):
     continue_on_error: bool = Field(
         True, description="Whether to continue processing if an item fails"
     )
+    max_workers: int = Field(
+        10, description="Maximum number of parallel workers", ge=1, le=50
+    )
+    use_parallel: bool = Field(
+        True, description="Whether to use parallel processing (vs sequential)"
+    )
+    show_progress: bool = Field(True, description="Whether to show progress information")
 
     def _execute(self) -> Dict[str, Any]:
         """Execute batch processing."""
@@ -121,7 +129,47 @@ class BatchProcessor(BaseTool):
         }
 
     def _process(self) -> Dict[str, Any]:
-        """Process items in batches."""
+        """Process items in batches with optional parallel execution."""
+        if self.use_parallel:
+            return self._process_parallel()
+        else:
+            return self._process_sequential()
+
+    def _process_parallel(self) -> Dict[str, Any]:
+        """Process items using parallel execution."""
+        progress_callback = (
+            DefaultProgressCallback(verbose=self.show_progress)
+            if self.show_progress
+            else DefaultProgressCallback(verbose=False)
+        )
+
+        # Use parallel processing from shared.batch
+        batch_result = parallel_process(
+            items=self.items,
+            processor=self._process_item,
+            max_workers=self.max_workers,
+            executor_type=ExecutorType.THREAD,  # I/O-bound operations
+            progress_callback=progress_callback,
+            continue_on_error=self.continue_on_error,
+        )
+
+        return {
+            "processed_items": batch_result.successes,
+            "total_processed": batch_result.successful_count,
+            "successful": batch_result.successful_count,
+            "failed": batch_result.failed_count,
+            "failed_items": [f["item"] for f in batch_result.failures],
+            "errors": batch_result.failures,
+            "batches_completed": 1,  # Parallel processes all at once
+            "total_batches": 1,
+            "processing_time_ms": round(batch_result.processing_time_ms, 2),
+            "parallel_execution": True,
+            "max_workers": self.max_workers,
+            "success_rate": batch_result.success_rate,
+        }
+
+    def _process_sequential(self) -> Dict[str, Any]:
+        """Process items sequentially in batches (original implementation)."""
         start_time = time.time()
 
         processed_items = []
@@ -158,6 +206,7 @@ class BatchProcessor(BaseTool):
             "batches_completed": min(batch_idx + 1, num_batches),
             "total_batches": num_batches,
             "processing_time_ms": round(processing_time_ms, 2),
+            "parallel_execution": False,
         }
 
     def _process_batch(self, batch: List[Any], start_idx: int) -> Dict[str, Any]:

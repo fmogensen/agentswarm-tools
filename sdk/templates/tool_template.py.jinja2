@@ -1,0 +1,135 @@
+"""
+{{ description }}
+"""
+
+from typing import Any, Dict{% if has_list_param %}, List{% endif %}{% if has_optional_params %}, Optional{% endif %}
+from pydantic import Field
+import os
+{% if requires_requests %}import requests
+{% endif %}
+from shared.base import BaseTool
+from shared.errors import ValidationError, APIError
+
+
+class {{ class_name }}(BaseTool):
+    """
+    {{ description }}
+
+    Args:
+{% for param in parameters %}
+        {{ param.name }}: {{ param.description }}
+{% endfor %}
+
+    Returns:
+        Dict containing:
+        - success: Boolean indicating success
+        - result: Tool-specific results
+        - metadata: Additional information
+
+    Example:
+        >>> tool = {{ class_name }}({% for param in parameters %}{{ param.name }}="{{ param.example }}"{% if not loop.last %}, {% endif %}{% endfor %})
+        >>> result = tool.run()
+    """
+
+    # Tool metadata
+    tool_name: str = "{{ tool_name }}"
+    tool_category: str = "{{ category }}"
+
+    # Parameters
+{% for param in parameters %}
+    {{ param.name }}: {{ param.type }} = Field(
+        {{ param.default }},
+        description="{{ param.description }}"{% if param.constraints %},
+        {{ param.constraints }}{% endif %}
+    )
+{% endfor %}
+
+    def _execute(self) -> Dict[str, Any]:
+        """
+        Execute the {{ tool_name }} tool.
+
+        Returns:
+            Dict with results
+        """
+        # 1. VALIDATE
+        self._validate_parameters()
+
+        # 2. CHECK MOCK MODE
+        if self._should_use_mock():
+            return self._generate_mock_results()
+
+        # 3. EXECUTE
+        try:
+            result = self._process()
+
+            return {
+                "success": True,
+                "result": result,
+                "metadata": {"tool_name": self.tool_name},
+            }
+        except Exception as e:
+            raise APIError(f"Failed: {e}", tool_name=self.tool_name)
+
+    def _validate_parameters(self) -> None:
+        """Validate input parameters."""
+{% for param in parameters %}
+{% if param.validation %}
+        {{ param.validation }}
+{% endif %}
+{% endfor %}
+        pass
+
+    def _should_use_mock(self) -> bool:
+        """Check if mock mode enabled."""
+        return os.getenv("USE_MOCK_APIS", "false").lower() == "true"
+
+    def _generate_mock_results(self) -> Dict[str, Any]:
+        """Generate mock results for testing."""
+        return {
+            "success": True,
+            "result": {{ mock_result }},
+            "metadata": {"mock_mode": True},
+        }
+
+    def _process(self) -> {{ return_type }}:
+        """Main processing logic."""
+{% if requires_api_key %}
+        # Get API credentials from environment
+        api_key = os.getenv("{{ api_key_env_var }}")
+        if not api_key:
+            raise APIError(
+                "Missing {{ api_key_env_var }} environment variable",
+                tool_name=self.tool_name
+            )
+
+{% endif %}
+        # TODO: Implement your tool logic here
+        # Example:
+        # response = requests.get(
+        #     "https://api.example.com/endpoint",
+        #     params={"key": api_key},
+        #     timeout=30,
+        # )
+        # response.raise_for_status()
+        # return response.json()
+
+        raise NotImplementedError("Tool logic not yet implemented")
+
+
+if __name__ == "__main__":
+    # Test the {{ tool_name }} tool
+    print("Testing {{ class_name }} tool...")
+
+    # Test with mock mode
+    import os
+    os.environ["USE_MOCK_APIS"] = "true"
+
+    tool = {{ class_name }}({% for param in parameters %}{{ param.name }}={{ param.test_value }}{% if not loop.last %}, {% endif %}{% endfor %})
+    result = tool.run()
+
+    print(f"Success: {result.get('success')}")
+    print(f"Result: {result.get('result')}")
+    {% if has_assertions %}
+    # Assertions
+    assert result.get('success') == True
+    {% endif %}

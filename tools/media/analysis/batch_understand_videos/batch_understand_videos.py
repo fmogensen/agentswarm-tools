@@ -9,6 +9,7 @@ import re
 
 from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
+from shared.batch import parallel_process, DefaultProgressCallback
 
 
 class BatchUnderstandVideos(BaseTool):
@@ -37,6 +38,10 @@ class BatchUnderstandVideos(BaseTool):
     # Parameters
     media_url: str = Field(..., description="URL of media to analyze")
     instruction: Optional[str] = Field(default=None, description="What to analyze or extract")
+    max_workers: int = Field(
+        5, description="Maximum number of parallel workers for processing", ge=1, le=20
+    )
+    show_progress: bool = Field(True, description="Whether to show progress information")
 
     def _execute(self) -> Dict[str, Any]:
         """
@@ -127,35 +132,68 @@ class BatchUnderstandVideos(BaseTool):
         }
 
     def _process(self) -> Any:
-        """Main processing logic."""
+        """Main processing logic with parallel execution."""
         urls = [u.strip() for u in self.media_url.split(",") if u.strip()]
-        results: List[Dict[str, Any]] = []
 
-        for url in urls:
-            try:
-                video_id = self._extract_video_id(url)
-                summary = f"Processed summary for video ID {video_id}"
-                extracted = (
-                    f"Extracted information based on instruction: {self.instruction}"
-                    if self.instruction
-                    else "No instruction provided"
-                )
+        # Process videos in parallel
+        progress_callback = (
+            DefaultProgressCallback(verbose=self.show_progress)
+            if self.show_progress
+            else DefaultProgressCallback(verbose=False)
+        )
 
-                results.append(
-                    {
-                        "video_url": url,
-                        "video_id": video_id,
-                        "summary": summary,
-                        "extracted_info": extracted,
-                    }
-                )
-            except Exception as e:
-                raise APIError(
-                    f"Failed to analyze video: {url}. Error: {e}",
-                    tool_name=self.tool_name,
-                )
+        batch_result = parallel_process(
+            items=urls,
+            processor=self._process_single_video,
+            max_workers=self.max_workers,
+            progress_callback=progress_callback,
+            continue_on_error=True,
+        )
 
-        return {"videos": results, "instruction_used": self.instruction}
+        # Prepare response with both successes and failures
+        return {
+            "videos": batch_result.successes,
+            "instruction_used": self.instruction,
+            "total_processed": batch_result.successful_count,
+            "total_failed": batch_result.failed_count,
+            "failures": batch_result.failures if batch_result.failed_count > 0 else [],
+            "processing_time_ms": batch_result.processing_time_ms,
+            "success_rate": batch_result.success_rate,
+        }
+
+    def _process_single_video(self, url: str) -> Dict[str, Any]:
+        """
+        Process a single video URL.
+
+        Args:
+            url: YouTube video URL
+
+        Returns:
+            Dict with video analysis results
+
+        Raises:
+            APIError: If video processing fails
+        """
+        try:
+            video_id = self._extract_video_id(url)
+            summary = f"Processed summary for video ID {video_id}"
+            extracted = (
+                f"Extracted information based on instruction: {self.instruction}"
+                if self.instruction
+                else "No instruction provided"
+            )
+
+            return {
+                "video_url": url,
+                "video_id": video_id,
+                "summary": summary,
+                "extracted_info": extracted,
+            }
+        except Exception as e:
+            raise APIError(
+                f"Failed to analyze video: {url}. Error: {e}",
+                tool_name=self.tool_name,
+            )
 
     def _extract_video_id(self, url: str) -> str:
         """Extract YouTube video ID from URL."""

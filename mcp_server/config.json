@@ -1,0 +1,17 @@
+{
+  "server_name": "agentswarm-tools",
+  "server_version": "1.0.0",
+  "enabled_categories": [
+    "data",
+    "communication",
+    "media",
+    "visualization",
+    "content",
+    "infrastructure",
+    "utils"
+  ],
+  "max_tools": 0,
+  "enable_analytics": true,
+  "enable_caching": true,
+  "log_level": "INFO"
+}

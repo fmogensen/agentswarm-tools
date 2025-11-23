@@ -1,5 +1,5 @@
 """
-Generate new images from text descriptions or reference images
+Generate new images from text descriptions or reference images using LiteLLM
 """
 
 from typing import Any, Dict, Optional
@@ -8,6 +8,8 @@ import os
 
 from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
+from shared.llm_client import get_llm_client, LLMResponse
+from shared.analytics import record_event, AnalyticsEvent, EventType
 
 
 class ImageGeneration(BaseTool):
@@ -42,6 +44,12 @@ class ImageGeneration(BaseTool):
     prompt: str = Field(..., description="Description of what to generate", min_length=1)
     params: Dict[str, Any] = Field(
         default_factory=dict, description="Additional generation parameters"
+    )
+    model: Optional[str] = Field(
+        None, description="Model to use (e.g., 'dall-e-3', 'stable-diffusion-xl')"
+    )
+    fallback_models: Optional[list] = Field(
+        None, description="List of fallback models if primary fails"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -136,7 +144,7 @@ class ImageGeneration(BaseTool):
 
     def _process(self) -> Any:
         """
-        Actual image-generation logic.
+        Actual image-generation logic using LiteLLM.
 
         Returns:
             The payload returned by the image generation API.
@@ -145,15 +153,49 @@ class ImageGeneration(BaseTool):
             APIError: If the API request fails
         """
         try:
-            # Placeholder implementation
-            # In a real tool, this would call an external image generation API.
-            # Example:
-            # response = requests.post("https://api.example.com/generate", json={...})
-            # return response.json()
+            # Get LiteLLM client
+            client = get_llm_client()
+
+            # Determine model to use
+            model = self.model or os.getenv("LITELLM_DEFAULT_IMAGE_MODEL", "dall-e-3")
+            fallback = self.fallback_models or []
+
+            # Extract image parameters
+            size = self.params.get("size", "1024x1024")
+            quality = self.params.get("quality", "standard")
+
+            # Generate image using LiteLLM
+            response: LLMResponse = client.generate_image(
+                prompt=self.prompt,
+                model=model,
+                fallback_models=fallback,
+                size=size,
+                quality=quality,
+            )
+
+            # Record cost event for analytics
+            record_event(
+                AnalyticsEvent(
+                    event_type=EventType.LLM_COST,
+                    tool_name=self.tool_name,
+                    success=True,
+                    metadata={
+                        "model": response.model,
+                        "provider": response.provider,
+                        "cost": response.cost,
+                        "total_tokens": 0,  # Image generation doesn't use tokens
+                        "task_type": "image_generation",
+                    },
+                )
+            )
 
             return {
-                "image_url": "https://example.com/generated_image.png",
+                "image_url": response.content,
                 "prompt": self.prompt,
+                "model_used": response.model,
+                "provider": response.provider,
+                "cost": response.cost,
+                "latency_ms": response.latency_ms,
                 "parameters_used": self.params,
             }
 

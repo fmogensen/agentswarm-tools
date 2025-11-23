@@ -9,7 +9,19 @@ import sys
 import argparse
 from typing import Optional
 from .version import __version__
-from .commands import list_tools, run_tool, test_tool, validate_tool, config_tool, info_tool
+from .commands import (
+    list_tools,
+    run_tool,
+    test_tool,
+    validate_tool,
+    config_tool,
+    info_tool,
+    interactive_tool,
+    workflow_tool,
+    history_tool,
+    completion_tool,
+    performance as performance_cmd,
+)
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -20,14 +32,19 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  agentswarm interactive                   # Launch interactive mode
   agentswarm list                          # List all available tools
   agentswarm list --category search        # List tools in search category
   agentswarm info web_search               # Show detailed info about a tool
   agentswarm run web_search                # Run a tool interactively
   agentswarm test web_search               # Test a tool with mock data
-  agentswarm validate                      # Validate all tools
+  agentswarm workflow create               # Create new workflow
+  agentswarm workflow run research         # Run workflow named 'research'
+  agentswarm history list                  # Show command history
+  agentswarm history replay 42             # Replay command #42
+  agentswarm completion install            # Install shell auto-completion
   agentswarm config --show                 # Show current configuration
-  agentswarm config --set GENSPARK_API_KEY=your_key  # Set API key
+  agentswarm performance                   # Show performance overview
 
 For more information, visit: https://github.com/agency-ai-solutions/agentswarm-tools
         """,
@@ -36,6 +53,11 @@ For more information, visit: https://github.com/agency-ai-solutions/agentswarm-t
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Interactive command
+    interactive_parser = subparsers.add_parser(
+        "interactive", help="Launch interactive mode with menu-driven interface"
+    )
 
     # List command
     list_parser = subparsers.add_parser("list", help="List available tools")
@@ -89,6 +111,114 @@ For more information, visit: https://github.com/agency-ai-solutions/agentswarm-t
     )
     config_parser.add_argument("--validate", action="store_true", help="Validate configuration")
 
+    # Workflow command
+    workflow_parser = subparsers.add_parser("workflow", help="Manage workflows")
+    workflow_parser.add_argument(
+        "action",
+        choices=["create", "run", "list", "delete"],
+        help="Workflow action"
+    )
+    workflow_parser.add_argument("name", nargs="?", help="Workflow name")
+    workflow_parser.add_argument(
+        "-p", "--params", help="Input parameters as JSON or @file.json"
+    )
+    workflow_parser.add_argument("-o", "--output", help="Output file for results")
+
+    # History command
+    history_parser = subparsers.add_parser("history", help="View and manage command history")
+    history_parser.add_argument(
+        "action",
+        choices=["list", "replay", "clear", "stats"],
+        help="History action"
+    )
+    history_parser.add_argument("id", nargs="?", help="Entry ID (for replay)")
+    history_parser.add_argument(
+        "-l", "--limit", type=int, default=20, help="Number of entries to show"
+    )
+    history_parser.add_argument("-f", "--filter", help="Filter by command type")
+
+    # Completion command
+    completion_parser = subparsers.add_parser("completion", help="Manage shell auto-completion")
+    completion_parser.add_argument(
+        "action",
+        choices=["install", "show"],
+        help="Completion action"
+    )
+    completion_parser.add_argument(
+        "--shell",
+        choices=["bash", "zsh", "fish"],
+        help="Shell type (auto-detect if not specified)"
+    )
+
+    # Performance command
+    perf_parser = subparsers.add_parser("performance", help="Show performance metrics and reports")
+    perf_subparsers = perf_parser.add_subparsers(dest="subcommand", help="Performance subcommands")
+
+    # performance report
+    report_parser = perf_subparsers.add_parser("report", help="Show detailed performance report")
+    report_parser.add_argument(
+        "-d", "--days", type=int, default=7, help="Number of days to analyze (default: 7)"
+    )
+
+    # performance slowest
+    slowest_parser = perf_subparsers.add_parser("slowest", help="Show slowest tools")
+    slowest_parser.add_argument(
+        "-d", "--days", type=int, default=7, help="Number of days to analyze (default: 7)"
+    )
+    slowest_parser.add_argument(
+        "-n", "--limit", type=int, default=10, help="Number of tools to show (default: 10)"
+    )
+
+    # performance most-used
+    most_used_parser = perf_subparsers.add_parser("most-used", help="Show most used tools")
+    most_used_parser.add_argument(
+        "-d", "--days", type=int, default=7, help="Number of days to analyze (default: 7)"
+    )
+    most_used_parser.add_argument(
+        "-n", "--limit", type=int, default=10, help="Number of tools to show (default: 10)"
+    )
+
+    # performance tool
+    tool_parser = perf_subparsers.add_parser("tool", help="Show metrics for a specific tool")
+    tool_parser.add_argument("tool", help="Tool name")
+    tool_parser.add_argument(
+        "-d", "--days", type=int, default=7, help="Number of days to analyze (default: 7)"
+    )
+
+    # performance alerts
+    alerts_parser = perf_subparsers.add_parser("alerts", help="Show performance alerts")
+    alerts_parser.add_argument(
+        "-d", "--days", type=int, default=1, help="Number of days to analyze (default: 1)"
+    )
+
+    # performance export
+    export_parser = perf_subparsers.add_parser("export", help="Export metrics to file")
+    export_parser.add_argument(
+        "-d", "--days", type=int, default=7, help="Number of days to export (default: 7)"
+    )
+    export_parser.add_argument(
+        "-f",
+        "--format",
+        choices=["json", "csv", "prometheus"],
+        default="json",
+        help="Export format (default: json)",
+    )
+    export_parser.add_argument("-o", "--output", help="Output file path")
+
+    # performance dashboard
+    dashboard_parser = perf_subparsers.add_parser("dashboard", help="Generate HTML dashboard")
+    dashboard_parser.add_argument(
+        "-d", "--days", type=int, default=7, help="Number of days to analyze (default: 7)"
+    )
+    dashboard_parser.add_argument(
+        "-o", "--output", default="dashboard.html", help="Output file path (default: dashboard.html)"
+    )
+
+    # Default args for performance (show overview)
+    perf_parser.add_argument(
+        "-d", "--days", type=int, default=7, help="Number of days to analyze (default: 7)"
+    )
+
     return parser
 
 
@@ -102,7 +232,9 @@ def main(argv: Optional[list] = None) -> int:
         return 0
 
     try:
-        if args.command == "list":
+        if args.command == "interactive":
+            return interactive_tool.execute(args)
+        elif args.command == "list":
             return list_tools.execute(args)
         elif args.command == "info":
             return info_tool.execute(args)
@@ -114,6 +246,14 @@ def main(argv: Optional[list] = None) -> int:
             return validate_tool.execute(args)
         elif args.command == "config":
             return config_tool.execute(args)
+        elif args.command == "workflow":
+            return workflow_tool.execute(args)
+        elif args.command == "history":
+            return history_tool.execute(args)
+        elif args.command == "completion":
+            return completion_tool.execute(args)
+        elif args.command == "performance":
+            return performance_cmd.execute(args)
         else:
             parser.print_help()
             return 1

@@ -1,0 +1,68 @@
+{
+  "name": "email-automation",
+  "description": "Search emails, process attachments, and create summary report",
+  "variables": {
+    "search_query": "subject:report date:last_week",
+    "max_emails": 20
+  },
+  "steps": [
+    {
+      "id": "search_emails",
+      "tool": "gmail_search",
+      "params": {
+        "query": "${vars.search_query}",
+        "max_results": "${vars.max_emails}"
+      }
+    },
+    {
+      "id": "read_emails",
+      "type": "foreach",
+      "items": "${steps.search_emails.result.emails}",
+      "step": {
+        "tool": "gmail_read",
+        "params": {
+          "message_id": "${item.id}"
+        }
+      },
+      "condition": "${steps.search_emails.success}"
+    },
+    {
+      "id": "extract_attachments",
+      "type": "foreach",
+      "items": "${steps.read_emails.result}",
+      "step": {
+        "tool": "read_email_attachments",
+        "params": {
+          "message_id": "${item.message_id}"
+        }
+      },
+      "condition": "${steps.read_emails.success}"
+    },
+    {
+      "id": "analyze_content",
+      "tool": "summarize_large_document",
+      "params": {
+        "content": "${steps.read_emails.result}",
+        "max_length": 1000
+      },
+      "condition": "${steps.read_emails.success}"
+    },
+    {
+      "id": "draft_summary",
+      "tool": "email_draft",
+      "params": {
+        "to": "manager@company.com",
+        "subject": "Weekly Email Summary",
+        "body": "${steps.analyze_content.result.summary}",
+        "attachments": []
+      },
+      "condition": "${steps.analyze_content.success}"
+    }
+  ],
+  "error_handling": {
+    "retry_on_failure": true,
+    "max_retries": 2,
+    "continue_on_error": true
+  },
+  "timeout": 900
+}

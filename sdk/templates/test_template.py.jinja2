@@ -1,0 +1,94 @@
+"""
+Tests for {{ class_name }} tool
+"""
+
+import pytest
+import os
+from {{ import_path }} import {{ class_name }}
+
+
+class Test{{ class_name }}:
+    """Test cases for {{ class_name }} tool"""
+
+    def setup_method(self):
+        """Set up test environment"""
+        os.environ["USE_MOCK_APIS"] = "true"
+
+    def teardown_method(self):
+        """Clean up test environment"""
+        if "USE_MOCK_APIS" in os.environ:
+            del os.environ["USE_MOCK_APIS"]
+
+    def test_basic_execution(self):
+        """Test basic tool execution with mock data"""
+        tool = {{ class_name }}(
+{% for param in parameters %}
+            {{ param.name }}={{ param.test_value }}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+        )
+        result = tool.run()
+
+        assert result is not None
+        assert result.get("success") == True
+        assert "result" in result
+        assert "metadata" in result
+
+    def test_validation_errors(self):
+        """Test parameter validation"""
+{% for param in parameters %}
+{% if param.required %}
+        # Test missing {{ param.name }}
+        with pytest.raises(Exception):
+            tool = {{ class_name }}(
+{% for p in parameters %}
+{% if p.name != param.name %}
+                {{ p.name }}={{ p.test_value }}{% if not loop.last %},{% endif %}
+
+{% endif %}
+{% endfor %}
+            )
+{% endif %}
+{% endfor %}
+
+{% for param in parameters %}
+{% if param.validation_test %}
+    def test_{{ param.name }}_validation(self):
+        """Test {{ param.name }} validation"""
+        {{ param.validation_test }}
+{% endif %}
+{% endfor %}
+
+    def test_mock_mode(self):
+        """Test mock mode returns expected structure"""
+        os.environ["USE_MOCK_APIS"] = "true"
+
+        tool = {{ class_name }}(
+{% for param in parameters %}
+            {{ param.name }}={{ param.test_value }}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+        )
+        result = tool.run()
+
+        assert result.get("success") == True
+        assert result.get("metadata", {}).get("mock_mode") == True
+
+    def test_error_handling(self):
+        """Test error handling"""
+        # This would test with real API (disabled by default)
+        # os.environ["USE_MOCK_APIS"] = "false"
+        # Test error scenarios here
+        pass
+
+{% if edge_case_tests %}
+{% for test in edge_case_tests %}
+    def test_{{ test.name }}(self):
+        """{{ test.description }}"""
+        {{ test.code }}
+{% endfor %}
+{% endif %}
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

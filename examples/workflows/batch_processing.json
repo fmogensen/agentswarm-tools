@@ -1,0 +1,98 @@
+{
+  "name": "batch-processing",
+  "description": "Batch search multiple topics, aggregate results, and export to storage",
+  "variables": {
+    "topics": ["AI", "Machine Learning", "Deep Learning", "Neural Networks"],
+    "results_per_topic": 5,
+    "export_format": "json"
+  },
+  "steps": [
+    {
+      "id": "batch_search",
+      "type": "foreach",
+      "items": "${vars.topics}",
+      "step": {
+        "tool": "web_search",
+        "params": {
+          "query": "${item}",
+          "max_results": "${vars.results_per_topic}"
+        }
+      }
+    },
+    {
+      "id": "aggregate_results",
+      "type": "tool",
+      "tool": "Bash",
+      "params": {
+        "command": "python -c \"import json; results = ${steps.batch_search.result}; combined = [{'topic': '${vars.topics[index]}', 'results': r['results']} for index, r in enumerate(results) if r.get('success')]; print(json.dumps(combined))\""
+      },
+      "condition": "${steps.batch_search.success}"
+    },
+    {
+      "id": "filter_high_quality",
+      "type": "tool",
+      "tool": "Bash",
+      "params": {
+        "command": "python -c \"import json; data = ${steps.aggregate_results.result}; filtered = [{'topic': item['topic'], 'results': [r for r in item['results'] if r.get('relevance_score', 0) > 0.7]} for item in data]; print(json.dumps(filtered))\""
+      },
+      "condition": "${steps.aggregate_results.success}"
+    },
+    {
+      "id": "generate_summary",
+      "tool": "create_agent",
+      "params": {
+        "agent_type": "docs",
+        "title": "Batch Research Summary",
+        "content": "${steps.filter_high_quality.result}",
+        "task_summary": "Create a summary document of all research results across topics"
+      },
+      "condition": "${steps.filter_high_quality.success}"
+    },
+    {
+      "id": "export_to_aidrive",
+      "tool": "aidrive_tool",
+      "params": {
+        "action": "upload_file",
+        "local_path": "${steps.generate_summary.result.document_path}",
+        "remote_path": "/research/batch_results_${timestamp}.pdf"
+      },
+      "condition": "${steps.generate_summary.success}"
+    },
+    {
+      "id": "create_visualization",
+      "tool": "generate_bar_chart",
+      "params": {
+        "data": [
+          {
+            "topic": "${vars.topics[0]}",
+            "count": "${steps.filter_high_quality.result[0].results.length}"
+          },
+          {
+            "topic": "${vars.topics[1]}",
+            "count": "${steps.filter_high_quality.result[1].results.length}"
+          },
+          {
+            "topic": "${vars.topics[2]}",
+            "count": "${steps.filter_high_quality.result[2].results.length}"
+          },
+          {
+            "topic": "${vars.topics[3]}",
+            "count": "${steps.filter_high_quality.result[3].results.length}"
+          }
+        ],
+        "title": "High-Quality Results by Topic",
+        "axisXTitle": "Topic",
+        "axisYTitle": "Number of Results",
+        "width": 800,
+        "height": 600
+      },
+      "condition": "${steps.filter_high_quality.success}"
+    }
+  ],
+  "error_handling": {
+    "retry_on_failure": true,
+    "max_retries": 2,
+    "continue_on_error": true
+  },
+  "timeout": 1800
+}

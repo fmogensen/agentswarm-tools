@@ -1,0 +1,57 @@
+{
+  "name": "research-to-document",
+  "description": "Research a topic and create a comprehensive document",
+  "variables": {
+    "topic": "AI trends 2024",
+    "max_results": 10
+  },
+  "steps": [
+    {
+      "id": "search",
+      "tool": "web_search",
+      "params": {
+        "query": "${vars.topic}",
+        "max_results": "${vars.max_results}"
+      }
+    },
+    {
+      "id": "crawl_content",
+      "type": "foreach",
+      "items": "${steps.search.result.results}",
+      "step": {
+        "tool": "crawler",
+        "params": {
+          "url": "${item.url}",
+          "max_depth": 1
+        }
+      },
+      "condition": "${steps.search.success}"
+    },
+    {
+      "id": "summarize",
+      "tool": "summarize_large_document",
+      "params": {
+        "content": "${steps.crawl_content.result}",
+        "max_length": 2000
+      },
+      "condition": "${steps.crawl_content.success}"
+    },
+    {
+      "id": "create_document",
+      "tool": "create_agent",
+      "params": {
+        "agent_type": "docs",
+        "title": "Research Report: ${vars.topic}",
+        "content": "${steps.summarize.result.summary}",
+        "task_summary": "Create a comprehensive research report on ${vars.topic}"
+      },
+      "condition": "${steps.summarize.success}"
+    }
+  ],
+  "error_handling": {
+    "retry_on_failure": true,
+    "max_retries": 3,
+    "continue_on_error": false
+  },
+  "timeout": 1800
+}

@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import threading
 from collections import defaultdict
+import statistics
 
 
 class EventType(Enum):
@@ -23,6 +24,8 @@ class EventType(Enum):
     API_CALL = "api_call"
     RATE_LIMIT = "rate_limit"
     VALIDATION_ERROR = "validation_error"
+    LLM_CALL = "llm_call"  # LiteLLM API call
+    LLM_COST = "llm_cost"  # LiteLLM cost tracking
 
 
 @dataclass
@@ -59,9 +62,14 @@ class ToolMetrics:
     total_duration_ms: float = 0.0
     min_duration_ms: Optional[float] = None
     max_duration_ms: Optional[float] = None
+    p50_duration_ms: Optional[float] = None  # Median
+    p95_duration_ms: Optional[float] = None  # 95th percentile
+    p99_duration_ms: Optional[float] = None  # 99th percentile
     error_count_by_code: Dict[str, int] = field(default_factory=lambda: defaultdict(int))
     last_success: Optional[datetime] = None
     last_error: Optional[datetime] = None
+    slow_queries: int = 0  # Requests exceeding slow query threshold
+    _duration_samples: List[float] = field(default_factory=list, repr=False)  # For percentile calculation
 
     @property
     def avg_duration_ms(self) -> float:
@@ -82,6 +90,24 @@ class ToolMetrics:
         """Error rate percentage."""
         return 100.0 - self.success_rate
 
+    def calculate_percentiles(self) -> None:
+        """Calculate percentile metrics from duration samples."""
+        if not self._duration_samples:
+            return
+
+        sorted_durations = sorted(self._duration_samples)
+        self.p50_duration_ms = self._percentile(sorted_durations, 50)
+        self.p95_duration_ms = self._percentile(sorted_durations, 95)
+        self.p99_duration_ms = self._percentile(sorted_durations, 99)
+
+    @staticmethod
+    def _percentile(data: List[float], percentile: float) -> float:
+        """Calculate percentile of a sorted list."""
+        if not data:
+            return 0.0
+        index = int(len(data) * percentile / 100)
+        return data[min(index, len(data) - 1)]
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -92,9 +118,13 @@ class ToolMetrics:
             "avg_duration_ms": round(self.avg_duration_ms, 2),
             "min_duration_ms": self.min_duration_ms,
             "max_duration_ms": self.max_duration_ms,
+            "p50_duration_ms": round(self.p50_duration_ms, 2) if self.p50_duration_ms else None,
+            "p95_duration_ms": round(self.p95_duration_ms, 2) if self.p95_duration_ms else None,
+            "p99_duration_ms": round(self.p99_duration_ms, 2) if self.p99_duration_ms else None,
             "success_rate": round(self.success_rate, 2),
             "error_rate": round(self.error_rate, 2),
             "error_count_by_code": dict(self.error_count_by_code),
+            "slow_queries": self.slow_queries,
             "last_success": self.last_success.isoformat() if self.last_success else None,
             "last_error": self.last_error.isoformat() if self.last_error else None,
         }
@@ -136,6 +166,7 @@ class InMemoryBackend(AnalyticsBackend):
         ]
 
         metrics = ToolMetrics(tool_name=tool_name)
+        slow_query_threshold = int(os.getenv("SLOW_QUERY_THRESHOLD_MS", "1000"))
 
         for event in relevant_events:
             if event.event_type == EventType.TOOL_SUCCESS:
@@ -145,6 +176,8 @@ class InMemoryBackend(AnalyticsBackend):
 
                 if event.duration_ms:
                     metrics.total_duration_ms += event.duration_ms
+                    metrics._duration_samples.append(event.duration_ms)
+
                     if (
                         metrics.min_duration_ms is None
                         or event.duration_ms < metrics.min_duration_ms
@@ -156,12 +189,19 @@ class InMemoryBackend(AnalyticsBackend):
                     ):
                         metrics.max_duration_ms = event.duration_ms
 
+                    # Track slow queries
+                    if event.duration_ms > slow_query_threshold:
+                        metrics.slow_queries += 1
+
             elif event.event_type == EventType.TOOL_ERROR:
                 metrics.failed_requests += 1
                 metrics.total_requests += 1
                 metrics.last_error = event.timestamp
                 if event.error_code:
                     metrics.error_count_by_code[event.error_code] += 1
+
+        # Calculate percentiles
+        metrics.calculate_percentiles()
 
         return metrics
 
@@ -194,6 +234,7 @@ class FileBackend(AnalyticsBackend):
         """Calculate metrics from log files."""
         metrics = ToolMetrics(tool_name=tool_name)
         cutoff = datetime.utcnow() - timedelta(days=days)
+        slow_query_threshold = int(os.getenv("SLOW_QUERY_THRESHOLD_MS", "1000"))
 
         # Read events from daily log files
         for i in range(days):
@@ -224,6 +265,8 @@ class FileBackend(AnalyticsBackend):
                             if data.get("duration_ms"):
                                 duration = data["duration_ms"]
                                 metrics.total_duration_ms += duration
+                                metrics._duration_samples.append(duration)
+
                                 if (
                                     metrics.min_duration_ms is None
                                     or duration < metrics.min_duration_ms
@@ -235,6 +278,10 @@ class FileBackend(AnalyticsBackend):
                                 ):
                                     metrics.max_duration_ms = duration
 
+                                # Track slow queries
+                                if duration > slow_query_threshold:
+                                    metrics.slow_queries += 1
+
                         elif event_type == EventType.TOOL_ERROR:
                             metrics.failed_requests += 1
                             metrics.total_requests += 1
@@ -244,6 +291,9 @@ class FileBackend(AnalyticsBackend):
 
                     except (json.JSONDecodeError, KeyError):
                         continue
+
+        # Calculate percentiles
+        metrics.calculate_percentiles()
 
         return metrics
 
@@ -337,3 +387,118 @@ def print_metrics(tool_name: Optional[str] = None, days: int = 7) -> None:
                 f"  Requests: {metrics.total_requests}, Success Rate: {metrics.success_rate:.2f}%"
             )
             print(f"  Avg Duration: {metrics.avg_duration_ms:.2f}ms")
+
+
+def get_llm_costs(days: int = 7) -> Dict[str, Any]:
+    """
+    Get LiteLLM cost metrics for the specified period.
+
+    Args:
+        days: Number of days to look back
+
+    Returns:
+        Dict containing cost metrics by model and provider
+    """
+    backend = get_backend()
+    cutoff = datetime.utcnow() - timedelta(days=days)
+
+    total_cost = 0.0
+    cost_by_model = defaultdict(float)
+    cost_by_provider = defaultdict(float)
+    total_tokens = 0
+    calls_by_model = defaultdict(int)
+
+    # Read cost events from backend
+    if isinstance(backend, FileBackend):
+        for i in range(days):
+            date = datetime.utcnow() - timedelta(days=i)
+            log_file = backend._get_log_file(date)
+
+            if not log_file.exists():
+                continue
+
+            with open(log_file, "r") as f:
+                for line in f:
+                    try:
+                        data = json.loads(line)
+                        event_type = EventType(data.get("event_type", ""))
+
+                        if event_type != EventType.LLM_COST:
+                            continue
+
+                        event_time = datetime.fromisoformat(data["timestamp"])
+                        if event_time < cutoff:
+                            continue
+
+                        metadata = data.get("metadata", {})
+                        cost = metadata.get("cost", 0.0)
+                        model = metadata.get("model", "unknown")
+                        provider = metadata.get("provider", "unknown")
+                        tokens = metadata.get("total_tokens", 0)
+
+                        total_cost += cost
+                        cost_by_model[model] += cost
+                        cost_by_provider[provider] += cost
+                        total_tokens += tokens
+                        calls_by_model[model] += 1
+
+                    except (json.JSONDecodeError, KeyError, ValueError):
+                        continue
+
+    elif isinstance(backend, InMemoryBackend):
+        for event in backend.events:
+            if event.event_type != EventType.LLM_COST:
+                continue
+            if event.timestamp < cutoff:
+                continue
+
+            metadata = event.metadata
+            cost = metadata.get("cost", 0.0)
+            model = metadata.get("model", "unknown")
+            provider = metadata.get("provider", "unknown")
+            tokens = metadata.get("total_tokens", 0)
+
+            total_cost += cost
+            cost_by_model[model] += cost
+            cost_by_provider[provider] += cost
+            total_tokens += tokens
+            calls_by_model[model] += 1
+
+    return {
+        "total_cost": round(total_cost, 6),
+        "total_tokens": total_tokens,
+        "cost_by_model": {k: round(v, 6) for k, v in cost_by_model.items()},
+        "cost_by_provider": {k: round(v, 6) for k, v in cost_by_provider.items()},
+        "calls_by_model": dict(calls_by_model),
+        "avg_cost_per_call": (
+            round(total_cost / sum(calls_by_model.values()), 6)
+            if calls_by_model
+            else 0.0
+        ),
+    }
+
+
+def print_llm_costs(days: int = 7) -> None:
+    """Print LiteLLM cost metrics in a formatted way."""
+    costs = get_llm_costs(days)
+
+    print(f"\n=== LiteLLM Cost Metrics (last {days} days) ===")
+    print(f"Total Cost: ${costs['total_cost']:.6f}")
+    print(f"Total Tokens: {costs['total_tokens']:,}")
+    print(f"Average Cost per Call: ${costs['avg_cost_per_call']:.6f}")
+
+    if costs["cost_by_provider"]:
+        print("\nCost by Provider:")
+        for provider, cost in sorted(
+            costs["cost_by_provider"].items(), key=lambda x: x[1], reverse=True
+        ):
+            print(f"  {provider}: ${cost:.6f}")
+
+    if costs["cost_by_model"]:
+        print("\nCost by Model:")
+        for model, cost in sorted(
+            costs["cost_by_model"].items(), key=lambda x: x[1], reverse=True
+        ):
+            calls = costs["calls_by_model"].get(model, 0)
+            avg = cost / calls if calls > 0 else 0
+            print(f"  {model}: ${cost:.6f} ({calls} calls, ${avg:.6f}/call)")

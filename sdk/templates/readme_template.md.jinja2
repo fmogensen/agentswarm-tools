@@ -1,0 +1,202 @@
+# {{ class_name }}
+
+{{ description }}
+
+## Category
+
+**{{ category }}**
+
+## Description
+
+{{ long_description }}
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+{% for param in parameters %}
+| `{{ param.name }}` | {{ param.type }} | {{ 'Yes' if param.required else 'No' }} | {{ param.default if not param.required else '-' }} | {{ param.description }} |
+{% endfor %}
+
+## Returns
+
+```python
+{
+    "success": bool,          # Whether the operation succeeded
+    "result": {{ return_type }},     # Tool-specific results
+    "metadata": {             # Additional metadata
+        "tool_name": str,
+        ...
+    }
+}
+```
+
+## Usage Example
+
+### Basic Usage
+
+```python
+from {{ import_path }} import {{ class_name }}
+
+# Create tool instance
+tool = {{ class_name }}(
+{% for param in parameters %}
+    {{ param.name }}={{ param.example }}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+)
+
+# Execute tool
+result = tool.run()
+
+print(f"Success: {result['success']}")
+print(f"Result: {result['result']}")
+```
+
+### With Error Handling
+
+```python
+from {{ import_path }} import {{ class_name }}
+from shared.errors import ToolError
+
+try:
+    tool = {{ class_name }}({{ parameters[0].name }}={{ parameters[0].example }})
+    result = tool.run()
+
+    if result['success']:
+        print(f"Result: {result['result']}")
+    else:
+        print(f"Error: {result['error']['message']}")
+
+except ToolError as e:
+    print(f"Tool error: {e.message}")
+```
+
+## Environment Variables
+
+{% if requires_api_key %}
+This tool requires the following environment variables:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `{{ api_key_env_var }}` | API key for {{ service_name }} | Yes |
+{% if additional_env_vars %}
+{% for env_var in additional_env_vars %}
+| `{{ env_var.name }}` | {{ env_var.description }} | {{ 'Yes' if env_var.required else 'No' }} |
+{% endfor %}
+{% endif %}
+
+### Setting Environment Variables
+
+```bash
+export {{ api_key_env_var }}="your-api-key-here"
+{% if additional_env_vars %}
+{% for env_var in additional_env_vars %}
+export {{ env_var.name }}="{{ env_var.example }}"
+{% endfor %}
+{% endif %}
+```
+
+Or use a `.env` file:
+
+```env
+{{ api_key_env_var }}=your-api-key-here
+{% if additional_env_vars %}
+{% for env_var in additional_env_vars %}
+{{ env_var.name }}={{ env_var.example }}
+{% endfor %}
+{% endif %}
+```
+{% else %}
+This tool does not require any environment variables.
+{% endif %}
+
+## Error Handling
+
+The tool may raise the following errors:
+
+- `ValidationError`: Invalid input parameters
+- `APIError`: External API failures
+{% if additional_errors %}
+{% for error in additional_errors %}
+- `{{ error.type }}`: {{ error.description }}
+{% endfor %}
+{% endif %}
+
+## Testing
+
+### Run Tests
+
+```bash
+# Run all tests for this tool
+pytest {{ test_file_path }} -v
+
+# Run specific test
+pytest {{ test_file_path }}::Test{{ class_name }}::test_basic_execution -v
+
+# Run with coverage
+pytest {{ test_file_path }} --cov={{ import_path }} --cov-report=html
+```
+
+### Mock Mode
+
+For testing without API calls:
+
+```python
+import os
+os.environ["USE_MOCK_APIS"] = "true"
+
+tool = {{ class_name }}({{ parameters[0].name }}={{ parameters[0].example }})
+result = tool.run()  # Uses mock data
+```
+
+## Development
+
+### File Structure
+
+```
+{{ tool_path }}/
+├── {{ tool_name }}.py           # Main tool implementation
+├── test_{{ tool_name }}.py      # Test suite
+├── __init__.py                  # Package initialization
+└── README.md                    # This file
+```
+
+### Contributing
+
+When modifying this tool:
+
+1. Follow Agency Swarm tool development standards
+2. Maintain all 5 required methods: `_execute()`, `_validate_parameters()`, `_should_use_mock()`, `_generate_mock_results()`, `_process()`
+3. Add tests for new functionality
+4. Update this README with new parameters or behavior
+5. Run tests before committing: `pytest {{ test_file_path }}`
+
+## Related Tools
+
+{% if related_tools %}
+{% for tool in related_tools %}
+- **{{ tool.name }}**: {{ tool.description }}
+{% endfor %}
+{% else %}
+No related tools identified.
+{% endif %}
+
+## Version History
+
+- **v1.0.0** ({{ creation_date }}): Initial implementation
+  - {{ description }}
+  {% for param in parameters %}
+  - Added `{{ param.name }}` parameter
+  {% endfor %}
+
+## License
+
+Part of the AgentSwarm Tools Framework. See main repository LICENSE.
+
+## Support
+
+For issues, questions, or contributions:
+- Open an issue in the main repository
+- Refer to the [AgentSwarm Tools Documentation](../../README.md)
+- Check the [SDK Guide](../../../docs/guides/SDK_GUIDE.md)

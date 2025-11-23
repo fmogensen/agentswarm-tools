@@ -33,6 +33,8 @@ except ImportError:
 from .errors import ToolError, ValidationError
 from .analytics import record_event, AnalyticsEvent, EventType
 from .security import get_rate_limiter
+from .cache import get_global_cache_manager, make_cache_key
+from .monitoring import record_performance_metric
 
 
 # Configure logging
@@ -91,6 +93,11 @@ class BaseTool(AgencyBaseTool):
     _enable_analytics: bool = True
     _enable_logging: bool = True
 
+    # Caching configuration
+    enable_cache: bool = False  # Set to True to enable caching for this tool
+    cache_ttl: int = 3600  # Cache TTL in seconds (default: 1 hour)
+    cache_key_params: Optional[list] = None  # List of param names to use for cache key
+
     def __init__(self, **data):
         """Initialize tool with request tracking."""
         super().__init__(**data)
@@ -98,6 +105,8 @@ class BaseTool(AgencyBaseTool):
         self._user_id: Optional[str] = data.get("user_id")
         self._logger = logging.getLogger(f"agentswarm.tools.{self.tool_name}")
         self._start_time: Optional[float] = None
+        self._cache_manager: Optional[CacheManager] = None
+        self._init_cache()
 
     @abstractmethod
     def _execute(self) -> Any:
@@ -116,7 +125,7 @@ class BaseTool(AgencyBaseTool):
 
     def run(self) -> Any:
         """
-        Run the tool with error handling, analytics, and rate limiting.
+        Run the tool with error handling, analytics, rate limiting, caching, and performance monitoring.
 
         This method is called by Agency Swarm and should not be overridden.
 
@@ -127,6 +136,8 @@ class BaseTool(AgencyBaseTool):
             This method wraps _execute() with all the framework features.
         """
         self._start_time = time.time()
+        cache_hit = False
+        error_type = None
 
         try:
             # Log start
@@ -136,11 +147,36 @@ class BaseTool(AgencyBaseTool):
             if self._enable_analytics:
                 self._record_event(EventType.TOOL_START)
 
+            # Try to get from cache first
+            cached_result = self._get_from_cache()
+            if cached_result is not None:
+                cache_hit = True
+                # Log cache hit
+                self._log_success(cached_result)
+                if self._enable_analytics:
+                    self._record_event(
+                        EventType.TOOL_SUCCESS, success=True, metadata={"cache_hit": True}
+                    )
+
+                # Record performance metric for cache hit
+                duration_ms = (time.time() - self._start_time) * 1000
+                record_performance_metric(
+                    tool_name=self.tool_name,
+                    duration_ms=duration_ms,
+                    success=True,
+                    cache_hit=True,
+                )
+
+                return cached_result
+
             # Check rate limit
             self._check_rate_limit()
 
             # Execute with retry logic
             result = self._execute_with_retry()
+
+            # Save to cache if enabled
+            self._save_to_cache(result)
 
             # Log success
             self._log_success(result)
@@ -149,10 +185,20 @@ class BaseTool(AgencyBaseTool):
             if self._enable_analytics:
                 self._record_event(EventType.TOOL_SUCCESS, success=True)
 
+            # Record performance metric for successful execution
+            duration_ms = (time.time() - self._start_time) * 1000
+            record_performance_metric(
+                tool_name=self.tool_name,
+                duration_ms=duration_ms,
+                success=True,
+                cache_hit=False,
+            )
+
             return result
 
         except ToolError as e:
             # Known tool error - handle gracefully
+            error_type = e.error_code
             self._log_error(e)
 
             if self._enable_analytics:
@@ -163,10 +209,20 @@ class BaseTool(AgencyBaseTool):
                     error_message=str(e),
                 )
 
+            # Record performance metric for known error
+            duration_ms = (time.time() - self._start_time) * 1000
+            record_performance_metric(
+                tool_name=self.tool_name,
+                duration_ms=duration_ms,
+                success=False,
+                error_type=error_type,
+            )
+
             return self._format_error_response(e)
 
         except Exception as e:
             # Unexpected error
+            error_type = "UNEXPECTED_ERROR"
             self._log_error(e)
 
             if self._enable_analytics:
@@ -176,6 +232,15 @@ class BaseTool(AgencyBaseTool):
                     error_code="UNEXPECTED_ERROR",
                     error_message=str(e),
                 )
+
+            # Record performance metric for unexpected error
+            duration_ms = (time.time() - self._start_time) * 1000
+            record_performance_metric(
+                tool_name=self.tool_name,
+                duration_ms=duration_ms,
+                success=False,
+                error_type=error_type,
+            )
 
             # Wrap in ToolError
             tool_error = ToolError(
@@ -322,6 +387,98 @@ class BaseTool(AgencyBaseTool):
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled via environment variable."""
         return os.getenv("USE_MOCK_APIS", "false").lower() == "true"
+
+    def _init_cache(self) -> None:
+        """Initialize cache manager based on environment configuration."""
+        if not self.enable_cache:
+            return
+
+        # Check if caching is disabled globally
+        cache_backend = os.getenv("CACHE_BACKEND", "memory").lower()
+        if cache_backend == "none":
+            return
+
+        # Use global cache manager (singleton pattern)
+        try:
+            self._cache_manager = get_global_cache_manager()
+
+            if self._enable_logging:
+                backend_type = type(self._cache_manager.backend).__name__
+                self._logger.debug(
+                    f"Cache initialized for {self.tool_name} with {backend_type} backend"
+                )
+        except Exception as e:
+            if self._enable_logging:
+                self._logger.warning(f"Failed to initialize cache: {e}. Caching disabled.")
+            self._cache_manager = None
+
+    def _get_cache_key(self) -> str:
+        """
+        Generate cache key for current tool execution.
+
+        Returns:
+            Cache key string based on tool name and parameters
+        """
+        # Get parameters to include in cache key
+        if self.cache_key_params:
+            params = {k: getattr(self, k, None) for k in self.cache_key_params}
+        else:
+            # Use all non-private attributes
+            params = {
+                k: v
+                for k, v in self.__dict__.items()
+                if not k.startswith("_") and k not in ["enable_cache", "cache_ttl", "cache_key_params"]
+            }
+
+        # Create cache key
+        return make_cache_key(self.tool_name, str(sorted(params.items())), prefix="agentswarm")
+
+    def _get_from_cache(self) -> Optional[Any]:
+        """
+        Try to retrieve result from cache.
+
+        Returns:
+            Cached result or None if not found or cache disabled
+        """
+        if not self.enable_cache or not self._cache_manager:
+            return None
+
+        try:
+            cache_key = self._get_cache_key()
+            result = self._cache_manager.get(cache_key)
+
+            if result is not None and self._enable_logging:
+                self._logger.info(
+                    f"Cache HIT for {self.tool_name} [request_id={self._request_id}]"
+                )
+
+            return result
+        except Exception as e:
+            if self._enable_logging:
+                self._logger.warning(f"Cache read error: {e}")
+            return None
+
+    def _save_to_cache(self, result: Any) -> None:
+        """
+        Save result to cache.
+
+        Args:
+            result: The result to cache
+        """
+        if not self.enable_cache or not self._cache_manager:
+            return
+
+        try:
+            cache_key = self._get_cache_key()
+            self._cache_manager.set(cache_key, result, ttl=self.cache_ttl)
+
+            if self._enable_logging:
+                self._logger.debug(
+                    f"Cached result for {self.tool_name} with TTL={self.cache_ttl}s"
+                )
+        except Exception as e:
+            if self._enable_logging:
+                self._logger.warning(f"Cache write error: {e}")
 
 
 class SimpleBaseTool(BaseTool):

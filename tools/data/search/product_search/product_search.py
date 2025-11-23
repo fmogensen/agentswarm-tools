@@ -39,6 +39,11 @@ class ProductSearch(BaseTool):
     tool_name: str = "product_search"
     tool_category: str = "data"
 
+    # Caching configuration - product search results cached for 1 hour
+    enable_cache: bool = True
+    cache_ttl: int = 3600  # 1 hour
+    cache_key_params: list = ["type", "query", "ASIN", "location_domain"]
+
     # Parameters
     type: str = Field(
         ...,

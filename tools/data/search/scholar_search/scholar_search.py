@@ -34,6 +34,11 @@ class ScholarSearch(BaseTool):
     tool_name: str = "scholar_search"
     tool_category: str = "data"
 
+    # Caching configuration - academic search results cached for 1 hour
+    enable_cache: bool = True
+    cache_ttl: int = 3600  # 1 hour
+    cache_key_params: list = ["query", "max_results"]
+
     # Parameters
     query: str = Field(
         ..., description="Search query string", min_length=1, max_length=500

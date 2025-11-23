@@ -1,0 +1,49 @@
+{
+  "name": "media-analysis-workflow",
+  "description": "Generate image, analyze it, and create a detailed report",
+  "created_at": "2024-11-23T08:00:00",
+  "variables": {
+    "image_prompt": {
+      "type": "string",
+      "description": "Description of image to generate",
+      "required": true
+    },
+    "analysis_instruction": {
+      "type": "string",
+      "description": "What to analyze in the image",
+      "required": false,
+      "default": "Describe this image in detail"
+    }
+  },
+  "steps": [
+    {
+      "tool": "image_generation",
+      "params": {
+        "model": "flux-pro",
+        "query": "${input.image_prompt}",
+        "aspect_ratio": "16:9",
+        "task_summary": "Generate image for analysis workflow"
+      },
+      "on_error": "stop"
+    },
+    {
+      "tool": "understand_images",
+      "params": {
+        "media_urls": ["${steps[0].result.url}"],
+        "instruction": "${input.analysis_instruction}"
+      },
+      "condition": "${steps[0].success}",
+      "on_error": "stop"
+    },
+    {
+      "tool": "create_agent",
+      "params": {
+        "agent_type": "docs",
+        "title": "Image Analysis Report",
+        "content": "Prompt: ${input.image_prompt}\n\nImage URL: ${steps[0].result.url}\n\nAnalysis: ${steps[1].result.analysis}"
+      },
+      "condition": "${steps[1].success}",
+      "on_error": "stop"
+    }
+  ]
+}

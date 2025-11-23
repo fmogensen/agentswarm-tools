@@ -235,6 +235,63 @@ api_key = os.getenv("MY_API_KEY")
 api_key = "hardcoded_key_here"  # Will be rejected
 ```
 
+### Caching Guidelines
+
+**When to Enable Caching:**
+
+Tools should enable caching when:
+- They make expensive API calls (cost time/money)
+- Results are relatively stable over time
+- Same queries are likely to be repeated
+
+**How to Enable Caching:**
+
+```python
+class MySearchTool(BaseTool):
+    """Search tool with caching."""
+
+    tool_name: str = "my_search"
+    tool_category: str = "data"
+
+    # Enable caching
+    enable_cache: bool = True
+    cache_ttl: int = 3600  # 1 hour in seconds
+    cache_key_params: list = ["query", "max_results"]
+
+    query: str = Field(..., description="Search query")
+    max_results: int = Field(10, description="Max results")
+
+    def _execute(self) -> Dict[str, Any]:
+        # Implementation
+        pass
+```
+
+**TTL Recommendations:**
+
+| Tool Type | Recommended TTL | Reason |
+|-----------|----------------|--------|
+| Web/Scholar Search | 3600s (1 hour) | Content changes moderately |
+| Image Search | 3600s (1 hour) | Results relatively stable |
+| Product Search | 1800s (30 min) | Prices change frequently |
+| Real-time Data | 300s (5 min) | Data changes rapidly |
+| Analytics Reports | 21600s (6 hours) | Expensive, stable data |
+
+**Cache Configuration:**
+
+```bash
+# Development (default)
+CACHE_BACKEND=memory
+
+# Production (recommended)
+CACHE_BACKEND=redis
+REDIS_URL=redis://localhost:6379
+
+# Disable caching
+CACHE_BACKEND=none
+```
+
+**See the complete guide:** [docs/guides/CACHING.md](docs/guides/CACHING.md)
+
 ## Testing
 
 ### Test Requirements

@@ -1,0 +1,56 @@
+{
+  "name": "research-workflow",
+  "description": "Search web, analyze results, and create a comprehensive document",
+  "created_at": "2024-11-23T08:00:00",
+  "variables": {
+    "query": {
+      "type": "string",
+      "description": "Research topic or search query",
+      "required": true
+    },
+    "max_results": {
+      "type": "int",
+      "description": "Maximum number of search results",
+      "required": false,
+      "default": 10
+    }
+  },
+  "steps": [
+    {
+      "tool": "web_search",
+      "params": {
+        "query": "${input.query}",
+        "max_results": "${input.max_results}"
+      },
+      "on_error": "stop"
+    },
+    {
+      "tool": "crawler",
+      "params": {
+        "url": "${steps[0].result.results[0].url}",
+        "max_depth": 1
+      },
+      "condition": "${steps[0].success}",
+      "on_error": "continue"
+    },
+    {
+      "tool": "summarize_large_document",
+      "params": {
+        "content": "${steps[1].result.content}",
+        "max_length": 500
+      },
+      "condition": "${steps[1].success}",
+      "on_error": "continue"
+    },
+    {
+      "tool": "create_agent",
+      "params": {
+        "agent_type": "docs",
+        "title": "Research Report: ${input.query}",
+        "content": "${steps[2].result.summary}"
+      },
+      "condition": "${steps[2].success}",
+      "on_error": "stop"
+    }
+  ]
+}

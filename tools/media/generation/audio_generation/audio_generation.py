@@ -1,5 +1,5 @@
 """
-Generate audio: TTS, sound effects, music, voice cloning, songs
+Generate audio: TTS, sound effects, music, voice cloning, songs using LiteLLM
 """
 
 from typing import Any, Dict, Optional
@@ -9,6 +9,8 @@ import uuid
 
 from shared.base import BaseTool
 from shared.errors import ValidationError, APIError
+from shared.llm_client import get_llm_client, LLMResponse
+from shared.analytics import record_event, AnalyticsEvent, EventType
 
 
 class AudioGeneration(BaseTool):
@@ -39,6 +41,12 @@ class AudioGeneration(BaseTool):
     prompt: str = Field(..., description="Description of what to generate", min_length=1)
     params: Dict[str, Any] = Field(
         default_factory=dict, description="Additional generation parameters"
+    )
+    model: Optional[str] = Field(
+        None, description="TTS model to use (uses LiteLLM for text-to-speech)"
+    )
+    fallback_models: Optional[list] = Field(
+        None, description="List of fallback TTS models if primary fails"
     )
 
     def _execute(self) -> Dict[str, Any]:
@@ -125,9 +133,11 @@ class AudioGeneration(BaseTool):
 
     def _process(self) -> Any:
         """
-        Main processing logic.
+        Main processing logic using LiteLLM for TTS.
 
-        Simulates an audio-generation API call.
+        Note: For TTS, we use chat completion to generate the text,
+        then would integrate with a TTS provider. This is a simplified
+        implementation showing the cost tracking pattern.
 
         Returns:
             Dict with generated audio metadata
@@ -136,7 +146,43 @@ class AudioGeneration(BaseTool):
             APIError: When audio generation fails
         """
         try:
-            # Simulated generation process
+            # Get LiteLLM client
+            client = get_llm_client()
+
+            # For TTS, we might first process the text with an LLM
+            # to optimize it for speech synthesis
+            model = self.model or "gpt-3.5-turbo"
+            fallback = self.fallback_models or ["claude-3-haiku-20240307"]
+
+            # Optimize text for TTS (optional preprocessing)
+            messages = [
+                {
+                    "role": "user",
+                    "content": f"Optimize this text for text-to-speech, ensuring it's clear and natural: {self.prompt}",
+                }
+            ]
+
+            response: LLMResponse = client.chat_completion(
+                messages=messages, model=model, fallback_models=fallback, max_tokens=500
+            )
+
+            # Record cost event for LLM preprocessing
+            record_event(
+                AnalyticsEvent(
+                    event_type=EventType.LLM_COST,
+                    tool_name=self.tool_name,
+                    success=True,
+                    metadata={
+                        "model": response.model,
+                        "provider": response.provider,
+                        "cost": response.cost,
+                        "total_tokens": response.usage.get("total_tokens", 0),
+                        "task_type": "audio_generation_preprocessing",
+                    },
+                )
+            )
+
+            # Simulated TTS API call (in production, would call actual TTS service)
             audio_id = str(uuid.uuid4())
             audio_url = f"https://audio.example.com/generated/{audio_id}.wav"
 
@@ -144,6 +190,9 @@ class AudioGeneration(BaseTool):
                 "audio_id": audio_id,
                 "audio_url": audio_url,
                 "prompt_used": self.prompt,
+                "optimized_text": response.content,
+                "preprocessing_model": response.model,
+                "preprocessing_cost": response.cost,
                 "parameters_used": self.params,
             }
 

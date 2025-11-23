@@ -34,6 +34,11 @@ class ImageSearch(BaseTool):
     tool_name: str = "image_search"
     tool_category: str = "data"
 
+    # Caching configuration - image search results cached for 1 hour
+    enable_cache: bool = True
+    cache_ttl: int = 3600  # 1 hour
+    cache_key_params: list = ["query", "max_results"]
+
     # Parameters
     query: str = Field(..., description="Image search terms", min_length=1, max_length=500)
     max_results: int = Field(

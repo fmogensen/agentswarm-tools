@@ -10,6 +10,7 @@ import hashlib
 import json
 import pickle
 import threading
+import os
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Callable, Dict, Tuple
 from functools import wraps
@@ -475,6 +476,45 @@ class NoOpCache(CacheBackend):
 
     def exists(self, key: str) -> bool:
         return False
+
+
+# Global cache instance (singleton pattern)
+_global_cache_manager: Optional[CacheManager] = None
+
+
+def get_global_cache_manager() -> CacheManager:
+    """
+    Get or create the global cache manager instance (singleton).
+
+    Returns:
+        The global CacheManager instance
+    """
+    global _global_cache_manager
+
+    if _global_cache_manager is None:
+        # Parse configuration from environment
+        cache_backend = os.getenv("CACHE_BACKEND", "memory").lower()
+
+        if cache_backend == "redis":
+            redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+            # Parse Redis URL
+            if redis_url.startswith("redis://"):
+                # Basic parsing (handle auth and db later if needed)
+                url_parts = redis_url.replace("redis://", "").split(":")
+                host = url_parts[0] if len(url_parts) > 0 else "localhost"
+                port = int(url_parts[1]) if len(url_parts) > 1 else 6379
+            else:
+                host = "localhost"
+                port = 6379
+
+            _global_cache_manager = CacheManager(
+                redis_host=host, redis_port=port, fallback_to_memory=True
+            )
+        else:
+            # Use in-memory cache
+            _global_cache_manager = CacheManager(fallback_to_memory=True)
+
+    return _global_cache_manager
 
 
 # Default cache instance (in-memory)

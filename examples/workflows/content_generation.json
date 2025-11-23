@@ -1,0 +1,86 @@
+{
+  "name": "content-generation",
+  "description": "Generate images, create video, and produce podcast episode",
+  "variables": {
+    "theme": "Future of AI",
+    "aspect_ratio": "16:9",
+    "duration": 30
+  },
+  "steps": [
+    {
+      "id": "research_topic",
+      "tool": "web_search",
+      "params": {
+        "query": "${vars.theme} latest developments",
+        "max_results": 10
+      }
+    },
+    {
+      "id": "generate_images",
+      "type": "parallel",
+      "steps": [
+        {
+          "id": "hero_image",
+          "tool": "image_generation",
+          "params": {
+            "model": "flux-pro",
+            "query": "${vars.theme} futuristic technology",
+            "aspect_ratio": "${vars.aspect_ratio}",
+            "task_summary": "Generate hero image for ${vars.theme}"
+          }
+        },
+        {
+          "id": "thumbnail",
+          "tool": "image_generation",
+          "params": {
+            "model": "ideogram/V_3",
+            "query": "${vars.theme} icon style",
+            "aspect_ratio": "1:1",
+            "task_summary": "Generate thumbnail for ${vars.theme}"
+          }
+        }
+      ],
+      "condition": "${steps.research_topic.success}"
+    },
+    {
+      "id": "create_video",
+      "tool": "video_generation",
+      "params": {
+        "model": "gemini/veo3",
+        "query": "Animated visualization of ${vars.theme} with futuristic elements",
+        "duration": "${vars.duration}",
+        "aspect_ratio": "${vars.aspect_ratio}",
+        "task_summary": "Create video about ${vars.theme}"
+      },
+      "condition": "${steps.generate_images.success}"
+    },
+    {
+      "id": "generate_script",
+      "tool": "create_agent",
+      "params": {
+        "agent_type": "docs",
+        "title": "Podcast Script: ${vars.theme}",
+        "content": "${steps.research_topic.result}",
+        "task_summary": "Write engaging podcast script about ${vars.theme}"
+      },
+      "condition": "${steps.research_topic.success}"
+    },
+    {
+      "id": "create_podcast",
+      "tool": "create_agent",
+      "params": {
+        "agent_type": "podcast",
+        "title": "${vars.theme} Discussion",
+        "content": "${steps.generate_script.result}",
+        "task_summary": "Create podcast episode about ${vars.theme}"
+      },
+      "condition": "${steps.generate_script.success}"
+    }
+  ],
+  "error_handling": {
+    "retry_on_failure": true,
+    "max_retries": 2,
+    "continue_on_error": false
+  },
+  "timeout": 3600
+}
