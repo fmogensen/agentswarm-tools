@@ -14,6 +14,9 @@ except ImportError:
 
 from shared.async_base import AsyncBaseTool
 from shared.errors import APIError, ValidationError
+from shared.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class AsyncUnderstandImages(AsyncBaseTool):
@@ -310,7 +313,7 @@ if __name__ == "__main__":
 
     def test_sync_wrapper():
         """Test sync wrapper."""
-        print("\n4. Testing sync wrapper...")
+        logger.info("\n4. Testing sync wrapper...")
 
         os.environ["USE_MOCK_APIS"] = "true"
 
@@ -319,14 +322,14 @@ if __name__ == "__main__":
         )
         result = tool.run()  # Sync wrapper
 
-        print(f"  Success: {result.get('success')}")
-        print(f"  Results: {len(result.get('result', []))}")
+        logger.info(f"  Success: {result.get('success')}")
+        logger.info(f"  Results: {len(result.get('result', []))}")
         assert result.get("success") == True
-        print("  ✓ Sync wrapper test passed")
+        logger.info("  ✓ Sync wrapper test passed")
 
     async def test_with_batch_processor():
         """Test with AsyncBatchProcessor."""
-        print("\n5. Testing with AsyncBatchProcessor...")
+        logger.info("\n5. Testing with AsyncBatchProcessor...")
 
         os.environ["USE_MOCK_APIS"] = "true"
 
@@ -343,10 +346,10 @@ if __name__ == "__main__":
             items=urls, operation=analyze_image, description="Batch image analysis"
         )
 
-        print(f"  Successful: {batch_result.successful_count}/{len(urls)}")
-        print(f"  Duration: {batch_result.duration_ms:.2f}ms")
+        logger.info(f"  Successful: {batch_result.successful_count}/{len(urls)}")
+        logger.info(f"  Duration: {batch_result.duration_ms:.2f}ms")
         assert batch_result.successful_count == len(urls)
-        print("  ✓ AsyncBatchProcessor test passed")
+        logger.info("  ✓ AsyncBatchProcessor test passed")
 
     # Run tests
     async def main():
@@ -355,6 +358,6 @@ if __name__ == "__main__":
         await test_batch_images()
         test_sync_wrapper()
         await test_with_batch_processor()
-        print("\n✓ All AsyncUnderstandImages tests passed!")
+        logger.info("\n✓ All AsyncUnderstandImages tests passed!")
 
     asyncio.run(main())

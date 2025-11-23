@@ -7,13 +7,16 @@ This script demonstrates various use cases and features.
 import os
 
 from tools.media_generation.podcast_generator import PodcastGenerator
+from shared.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def example_1_basic_podcast():
     """Example 1: Basic 2-speaker tech podcast."""
-    print("\n" + "=" * 70)
-    print("Example 1: Basic 2-Speaker Tech Podcast")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.info("Example 1: Basic 2-Speaker Tech Podcast")
+    logger.info("=" * 70)
 
     tool = PodcastGenerator(
         topic="The Impact of AI on Software Development",
@@ -26,23 +29,23 @@ def example_1_basic_podcast():
 
     result = tool.run()
 
-    print(f"✓ Success: {result['success']}")
-    print(f"✓ Podcast URL: {result['podcast_url']}")
+    logger.info(f"✓ Success: {result['success']}")
+    logger.info(f"✓ Podcast URL: {result['podcast_url']}")
     print(
         f"✓ Duration: {result['duration_seconds']} seconds ({result['duration_seconds']//60} minutes)"
     )
-    print(f"✓ Format: {result['metadata']['format'].upper()}")
-    print(f"✓ File Size: {result['metadata']['file_size_mb']} MB")
-    print(f"\nSpeakers:")
+    logger.info(f"✓ Format: {result['metadata']['format'].upper()}")
+    logger.info(f"✓ File Size: {result['metadata']['file_size_mb']} MB")
+    logger.info(f"\nSpeakers:")
     for speaker in result["speakers_used"]:
-        print(f"  - {speaker['personality']} (voice: {speaker['voice_model']})")
+        logger.info(f"  - {speaker['personality']} (voice: {speaker['voice_model']})")
 
 
 def example_2_educational_podcast():
     """Example 2: Educational podcast with 3 speakers."""
-    print("\n" + "=" * 70)
-    print("Example 2: Educational Panel Discussion")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.info("Example 2: Educational Panel Discussion")
+    logger.info("=" * 70)
 
     tool = PodcastGenerator(
         topic="Climate Change and Renewable Energy",
@@ -60,19 +63,19 @@ def example_2_educational_podcast():
 
     result = tool.run()
 
-    print(f"✓ Success: {result['success']}")
-    print(f"✓ Podcast URL: {result['podcast_url']}")
-    print(f"✓ Duration: {result['duration_seconds']//60} minutes")
-    print(f"✓ Music Style: {result['metadata']['music_style']}")
-    print(f"\nTranscript Preview:")
-    print(result["transcript"][:400] + "...")
+    logger.info(f"✓ Success: {result['success']}")
+    logger.info(f"✓ Podcast URL: {result['podcast_url']}")
+    logger.info(f"✓ Duration: {result['duration_seconds']//60} minutes")
+    logger.info(f"✓ Music Style: {result['metadata']['music_style']}")
+    logger.info(f"\nTranscript Preview:")
+    logger.info(result["transcript"][:400] + "...")
 
 
 def example_3_solo_meditation():
     """Example 3: Solo meditation guide podcast."""
-    print("\n" + "=" * 70)
-    print("Example 3: Solo Meditation Guide")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.info("Example 3: Solo Meditation Guide")
+    logger.info("=" * 70)
 
     tool = PodcastGenerator(
         topic="5-Minute Morning Meditation",
@@ -88,19 +91,19 @@ def example_3_solo_meditation():
 
     result = tool.run()
 
-    print(f"✓ Success: {result['success']}")
-    print(f"✓ Podcast URL: {result['podcast_url']}")
-    print(f"✓ Duration: {result['duration_seconds']} seconds")
-    print(f"✓ Format: {result['metadata']['format']}")
-    print(f"✓ Has Intro: {result['metadata']['has_intro']}")
-    print(f"✓ Has Outro: {result['metadata']['has_outro']}")
+    logger.info(f"✓ Success: {result['success']}")
+    logger.info(f"✓ Podcast URL: {result['podcast_url']}")
+    logger.info(f"✓ Duration: {result['duration_seconds']} seconds")
+    logger.info(f"✓ Format: {result['metadata']['format']}")
+    logger.info(f"✓ Has Intro: {result['metadata']['has_intro']}")
+    logger.info(f"✓ Has Outro: {result['metadata']['has_outro']}")
 
 
 def example_4_custom_script():
     """Example 4: Podcast with custom script."""
-    print("\n" + "=" * 70)
-    print("Example 4: Custom Script Interview")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.info("Example 4: Custom Script Interview")
+    logger.info("=" * 70)
 
     custom_script = """
 Speaker 1: Welcome to Founder Stories! Today we have an amazing guest.
@@ -125,18 +128,18 @@ Speaker 2: Persistence and refining our pitch based on feedback.
 
     result = tool.run()
 
-    print(f"✓ Success: {result['success']}")
-    print(f"✓ Podcast URL: {result['podcast_url']}")
-    print(f"✓ Using custom script: Yes")
-    print(f"\nGenerated Transcript:")
-    print(result["transcript"])
+    logger.info(f"✓ Success: {result['success']}")
+    logger.info(f"✓ Podcast URL: {result['podcast_url']}")
+    logger.info(f"✓ Using custom script: Yes")
+    logger.info(f"\nGenerated Transcript:")
+    logger.info(result["transcript"])
 
 
 def example_5_roundtable():
     """Example 5: 4-speaker roundtable discussion."""
-    print("\n" + "=" * 70)
-    print("Example 5: 4-Speaker Roundtable Discussion")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.info("Example 5: 4-Speaker Roundtable Discussion")
+    logger.info("=" * 70)
 
     tool = PodcastGenerator(
         topic="The Future of Remote Work",
@@ -155,25 +158,25 @@ def example_5_roundtable():
 
     result = tool.run()
 
-    print(f"✓ Success: {result['success']}")
-    print(f"✓ Podcast URL: {result['podcast_url']}")
-    print(f"✓ Duration: {result['duration_seconds']//60} minutes")
-    print(f"✓ Background Music: {result['metadata']['music_included']}")
-    print(f"✓ Voice Consistency: Enabled")
-    print(f"\nSpeaker Configuration:")
+    logger.info(f"✓ Success: {result['success']}")
+    logger.info(f"✓ Podcast URL: {result['podcast_url']}")
+    logger.info(f"✓ Duration: {result['duration_seconds']//60} minutes")
+    logger.info(f"✓ Background Music: {result['metadata']['music_included']}")
+    logger.info(f"✓ Voice Consistency: Enabled")
+    logger.info(f"\nSpeaker Configuration:")
     for i, speaker in enumerate(result["speakers_used"], 1):
-        print(f"  Speaker {i}: {speaker['personality']}")
-        print(f"    Voice Model: {speaker['voice_model']}")
-        print(f"    Settings: {speaker['voice_settings']}")
+        logger.info(f"  Speaker {i}: {speaker['personality']}")
+        logger.info(f"    Voice Model: {speaker['voice_model']}")
+        logger.info(f"    Settings: {speaker['voice_settings']}")
 
 
 def example_6_error_handling():
     """Example 6: Demonstrate error handling."""
-    print("\n" + "=" * 70)
-    print("Example 6: Error Handling Demo")
-    print("=" * 70)
+    logger.info("\n" + "=" * 70)
+    logger.error("Example 6: Error Handling Demo")
+    logger.info("=" * 70)
 
-    print("\nAttempting to create podcast with mismatched speaker count...")
+    logger.info("\nAttempting to create podcast with mismatched speaker count...")
     try:
         tool = PodcastGenerator(
             topic="Test",
@@ -183,26 +186,26 @@ def example_6_error_handling():
         )
         result = tool.run()
     except Exception as e:
-        print(f"✓ Caught expected error: {type(e).__name__}")
-        print(f"  Message: {str(e)[:100]}")
+        logger.error(f"✓ Caught expected error: {type(e).__name__}")
+        logger.info(f"  Message: {str(e)[:100]}")
 
-    print("\nAttempting to create podcast with empty topic...")
+    logger.info("\nAttempting to create podcast with empty topic...")
     os.environ["USE_MOCK_APIS"] = "true"
     tool2 = PodcastGenerator(
         topic="   ", duration_minutes=10, num_speakers=1, speaker_personalities=["host"]  # Empty
     )
     result2 = tool2.run()
-    print(f"✓ Error response received: {result2['success']}")
-    print(f"  Error code: {result2['error']['code']}")
+    logger.error(f"✓ Error response received: {result2['success']}")
+    logger.error(f"  Error code: {result2['error']['code']}")
 
 
 def main():
     """Run all examples."""
-    print("\n" + "#" * 70)
-    print("# Podcast Generator Tool - Usage Examples")
-    print("#" * 70)
-    print("\nNote: Running in MOCK mode (USE_MOCK_APIS=true)")
-    print("Set OPENAI_API_KEY environment variable for production use\n")
+    logger.info("\n" + "#" * 70)
+    logger.info("# Podcast Generator Tool - Usage Examples")
+    logger.info("#" * 70)
+    logger.info("\nNote: Running in MOCK mode (USE_MOCK_APIS=true)")
+    logger.info("Set OPENAI_API_KEY environment variable for production use\n")
 
     # Enable mock mode for all examples
     os.environ["USE_MOCK_APIS"] = "true"
@@ -215,14 +218,14 @@ def main():
     example_5_roundtable()
     example_6_error_handling()
 
-    print("\n" + "#" * 70)
-    print("# All examples completed successfully!")
-    print("#" * 70)
-    print("\nNext Steps:")
-    print("1. Set OPENAI_API_KEY environment variable")
-    print("2. Remove USE_MOCK_APIS or set to 'false'")
-    print("3. Run your podcast generation in production mode")
-    print("\nFor more details, see README.md")
+    logger.info("\n" + "#" * 70)
+    logger.info("# All examples completed successfully!")
+    logger.info("#" * 70)
+    logger.info("\nNext Steps:")
+    logger.info("1. Set OPENAI_API_KEY environment variable")
+    logger.info("2. Remove USE_MOCK_APIS or set to 'false'")
+    logger.info("3. Run your podcast generation in production mode")
+    logger.info("\nFor more details, see README.md")
 
 
 if __name__ == "__main__":
