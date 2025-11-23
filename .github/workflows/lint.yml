@@ -25,8 +25,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
           pip install -e ".[dev]"
+          pip install -r requirements.txt --no-deps
 
       - name: Check code formatting with Black
         run: |
