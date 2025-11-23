@@ -33,7 +33,7 @@ class EmailDraft(BaseTool):
     tool_category: str = "communication"
 
     # Parameters
-    input: str = Field(..., description="Primary input parameter")
+    input: str = Field(..., description="Primary input parameter", min_length=1)
 
     def _execute(self) -> Dict[str, Any]:
         """

@@ -34,7 +34,7 @@ class AidriveTool(BaseTool):
     tool_name: str = "aidrive_tool"
     tool_category: str = "infrastructure"
 
-    input: str = Field(..., description="Primary input parameter")
+    input: str = Field(..., description="Primary input parameter", min_length=1)
 
     def _execute(self) -> Dict[str, Any]:
         """

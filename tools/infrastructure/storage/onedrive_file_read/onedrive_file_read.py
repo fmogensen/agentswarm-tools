@@ -37,6 +37,7 @@ class OnedriveFileRead(BaseTool):
     input: str = Field(
         ...,
         description="Primary input parameter. Expected to be a JSON string with fields such as 'file_path', 'drive_id', 'item_id', or 'question'.",
+        min_length=1,
     )
 
     def _execute(self) -> Dict[str, Any]:

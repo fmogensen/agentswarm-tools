@@ -38,7 +38,7 @@ class GmailRead(BaseTool):
     tool_category: str = "communication"
 
     # Parameters
-    input: str = Field(..., description="Gmail message ID to fetch")
+    input: str = Field(..., description="Gmail message ID to fetch", min_length=1)
 
     def _execute(self) -> Dict[str, Any]:
         """

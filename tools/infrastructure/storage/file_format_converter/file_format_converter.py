@@ -38,7 +38,7 @@ class FileFormatConverter(BaseTool):
     tool_category: str = "infrastructure"
     tool_description: str = "Convert files between different formats"
 
-    input: str = Field(..., description="Primary input parameter")
+    input: str = Field(..., description="Primary input parameter", min_length=1)
 
     def _execute(self) -> Dict[str, Any]:
         """

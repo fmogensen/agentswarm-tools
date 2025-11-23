@@ -38,7 +38,7 @@ class GmailSearch(BaseTool):
     tool_category: str = "communication"
 
     # Parameters
-    query: str = Field(..., description="Search query string")
+    query: str = Field(..., description="Search query string", min_length=1)
     max_results: int = Field(10, description="Maximum number of results to return")
 
     def _execute(self) -> Dict[str, Any]:

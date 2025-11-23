@@ -34,7 +34,7 @@ class ReadTool(BaseTool):
     tool_description: str = "Read files from sandboxed environment with line numbers"
 
     # Parameters
-    file_path: str = Field(..., description="Path to the file to read")
+    file_path: str = Field(..., description="Path to the file to read", min_length=1)
 
     def _execute(self) -> Dict[str, Any]:
         """

@@ -54,6 +54,7 @@ class GoogleCalendarCreateEventDraft(BaseTool):
     input: str = Field(
         ...,
         description="JSON string containing event details",
+        min_length=1,
     )
 
     def _execute(self) -> Dict[str, Any]:
