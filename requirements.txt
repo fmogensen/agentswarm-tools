@@ -16,8 +16,10 @@ aiohttp>=3.9.0
 httpx>=0.25.0
 selenium>=4.15.0
 webdriver-manager>=4.0.0
+websocket-client>=1.6.0  # Required by Selenium WebDriver
 beautifulsoup4>=4.12.0
 lxml>=4.9.0
+soupsieve>=2.5  # CSS selector support for BeautifulSoup
 
 # ============================================================================
 # DATA PROCESSING & VISUALIZATION
@@ -27,6 +29,7 @@ numpy>=1.26.0
 matplotlib>=3.8.0
 seaborn>=0.12.0
 plotly>=5.17.0
+pyparsing==3.1.1  # Required by matplotlib - pinned due to circular import bug in 3.2.x
 
 # Database
 redis>=5.0.0
@@ -59,6 +62,8 @@ google-api-python-client>=2.100.0
 google-auth-httplib2>=0.1.1
 google-auth-oauthlib>=1.1.0
 google-auth>=2.23.0
+pyasn1>=0.6.0  # Required by Google Auth for ASN.1 encoding
+cffi>=1.16.0  # Required by cryptography for CFFI bindings
 
 # ============================================================================
 # DOCUMENT CREATION (Office)
