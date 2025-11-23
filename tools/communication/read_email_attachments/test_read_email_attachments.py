@@ -75,8 +75,9 @@ class TestReadEmailAttachments:
 
     @patch.dict("os.environ", {"USE_MOCK_APIS": "false"})
     def test_real_mode(self, tool):
-        with patch("os.path.exists", return_value=False), patch(
-            "builtins.open", new_callable=mock_open
+        with (
+            patch("os.path.exists", return_value=False),
+            patch("builtins.open", new_callable=mock_open),
         ):
             result = tool.run()
             assert result["success"] is True
@@ -110,8 +111,9 @@ class TestReadEmailAttachments:
     def test_unicode_email_id(self):
         input_data = json.dumps({"email_id": "邮箱123"})
         tool = ReadEmailAttachments(input=input_data)
-        with patch("os.path.exists", return_value=False), patch(
-            "builtins.open", new_callable=mock_open
+        with (
+            patch("os.path.exists", return_value=False),
+            patch("builtins.open", new_callable=mock_open),
         ):
             result = tool.run()
             assert result["success"] is True
@@ -119,8 +121,9 @@ class TestReadEmailAttachments:
     def test_special_characters_email_id(self):
         input_data = json.dumps({"email_id": "@#$%^&*()!"})
         tool = ReadEmailAttachments(input=input_data)
-        with patch("os.path.exists", return_value=False), patch(
-            "builtins.open", new_callable=mock_open
+        with (
+            patch("os.path.exists", return_value=False),
+            patch("builtins.open", new_callable=mock_open),
         ):
             result = tool.run()
             assert result["success"] is True
@@ -130,8 +133,9 @@ class TestReadEmailAttachments:
     @pytest.mark.parametrize("email_id", ["a", "long" * 50, "1234567890"])
     def test_various_email_ids(self, email_id):
         tool = ReadEmailAttachments(input=json.dumps({"email_id": email_id}))
-        with patch("os.path.exists", return_value=False), patch(
-            "builtins.open", new_callable=mock_open
+        with (
+            patch("os.path.exists", return_value=False),
+            patch("builtins.open", new_callable=mock_open),
         ):
             result = tool.run()
             assert result["success"] is True
@@ -139,8 +143,9 @@ class TestReadEmailAttachments:
     # ========== INTEGRATION TESTS ==========
 
     def test_integration_base_run(self, tool):
-        with patch("os.path.exists", return_value=False), patch(
-            "builtins.open", new_callable=mock_open
+        with (
+            patch("os.path.exists", return_value=False),
+            patch("builtins.open", new_callable=mock_open),
         ):
             result = tool.run()
             assert "success" in result
