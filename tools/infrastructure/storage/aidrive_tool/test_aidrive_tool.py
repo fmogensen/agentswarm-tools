@@ -61,8 +61,9 @@ class TestAidriveTool:
         (storage / "a.txt").write_text("x")
         (storage / "b.txt").write_text("y")
 
-        with patch("os.path.exists", return_value=True), patch(
-            "os.listdir", return_value=["a.txt", "b.txt"]
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("os.listdir", return_value=["a.txt", "b.txt"]),
         ):
             result = list_tool.run()
 
@@ -73,8 +74,10 @@ class TestAidriveTool:
     def test_upload_operation_success(self, upload_tool: AidriveTool, tmp_path):
         """Test upload writes file."""
         storage = tmp_path / "aidrive_storage"
-        with patch("os.makedirs"), patch("os.listdir", return_value=[]), patch(
-            "builtins.open", create=True
+        with (
+            patch("os.makedirs"),
+            patch("os.listdir", return_value=[]),
+            patch("builtins.open", create=True),
         ):
             result = upload_tool.run()
 
@@ -86,9 +89,11 @@ class TestAidriveTool:
         """Test file download returns base64."""
         mock_data = b"hello"
 
-        with patch("shared.base.get_rate_limiter") as mock_limiter, patch(
-            "os.path.exists", return_value=True
-        ), patch("builtins.open", mock_open(read_data=mock_data)):
+        with (
+            patch("shared.base.get_rate_limiter") as mock_limiter,
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", mock_open(read_data=mock_data)),
+        ):
 
             mock_limiter.return_value.check_rate_limit.return_value = None
             result = download_tool.run()
