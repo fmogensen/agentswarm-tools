@@ -699,7 +699,31 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 3. Implement your tool/feature
 4. Write tests (minimum 90% coverage)
 5. Update documentation
-6. Submit a pull request
+6. **Run pre-push cleanup** (REQUIRED):
+   ```bash
+   ./scripts/pre_push_cleanup.sh
+   ```
+7. Submit a pull request
+
+### Pre-Push Cleanup (REQUIRED)
+
+Before every push to GitHub, run the cleanup script:
+
+```bash
+# Check for issues
+./scripts/pre_push_cleanup.sh
+
+# If checks pass, push
+git push origin your-branch
+```
+
+**What it checks**:
+- ✅ No temporary files in root
+- ✅ Reports in `reports/` directory
+- ✅ Scripts in `scripts/` directory
+- ✅ No sensitive data in commits
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for complete guidelines.
 
 ### Tool Development Template
 

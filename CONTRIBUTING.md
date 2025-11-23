@@ -414,18 +414,49 @@ Every tool needs:
    pytest --cov=agentswarm_tools
    ```
 
-4. **Commit your changes**:
+4. **Clean up before commit** (REQUIRED):
+   ```bash
+   # Check for temporary files in root
+   ls -la | grep -E "\.(tmp|temp|log|coverage|xml|json~)$"
+
+   # Remove any temporary or generated files
+   rm -f coverage.xml test_results.txt tool_readme_audit.json
+   rm -f *.tmp *.temp *.log
+
+   # Ensure reports are in reports/ directory
+   # Ensure scripts are in scripts/ directory
+   # Root should only contain:
+   #   - Config files (pyproject.toml, pytest.ini, setup.py)
+   #   - Documentation (*.md files)
+   #   - Source directories (tools/, shared/, cli/, tests/, etc.)
+   ```
+
+5. **Commit your changes**:
    ```bash
    git add .
    git commit -m "Add: description of your changes"
    ```
 
-5. **Push to your fork**:
+6. **Final pre-push cleanup** (REQUIRED):
+   ```bash
+   # Verify root directory is clean
+   git status
+
+   # Check for untracked files that shouldn't be there
+   git status --porcelain | grep "^??" | grep -v ".venv\|__pycache__\|.pytest_cache\|htmlcov\|test-results"
+
+   # If any suspicious files appear, review and either:
+   #   - Add to .gitignore if they're generated files
+   #   - Move to appropriate directory (reports/, scripts/, etc.)
+   #   - Delete if they're truly temporary
+   ```
+
+7. **Push to your fork**:
    ```bash
    git push origin feature/your-feature-name
    ```
 
-6. **Create Pull Request**:
+8. **Create Pull Request**:
    - Go to GitHub and create a PR from your fork
    - Fill out the PR template
    - Link any related issues
@@ -434,12 +465,36 @@ Every tool needs:
 
 Your PR must:
 
-- Pass all CI tests
-- Maintain or improve test coverage (minimum 90%)
-- Include tests for new functionality
-- Update documentation
-- Follow code style guidelines
-- Include clear commit messages
+- ✅ **Pass all CI tests**
+- ✅ **Maintain or improve test coverage** (minimum 90%)
+- ✅ **Include tests for new functionality**
+- ✅ **Update documentation**
+- ✅ **Follow code style guidelines**
+- ✅ **Include clear commit messages**
+- ✅ **Clean root directory** (no temporary files, organized structure)
+
+### Pre-Push Cleanup Checklist
+
+Before pushing to GitHub, verify:
+
+**Root Directory**:
+- [ ] No `.coverage*`, `coverage.xml`, `*.xml` files
+- [ ] No `test_results.txt`, `tool_readme_audit.json`
+- [ ] No `*.tmp`, `*.temp`, `*.log` files
+- [ ] All reports moved to `reports/` directory
+- [ ] All utility scripts moved to `scripts/` directory
+
+**Organization**:
+- [ ] New tools placed in correct category directory
+- [ ] New tests placed in corresponding test directory
+- [ ] New documentation follows naming conventions
+- [ ] Integration reports saved to `reports/` directory
+
+**Git Hygiene**:
+- [ ] No untracked files except intended new features
+- [ ] `.gitignore` updated if new generated file types exist
+- [ ] Commit messages follow conventional commits format
+- [ ] No sensitive data (API keys, credentials) in commits
 
 ## Code Style
 
