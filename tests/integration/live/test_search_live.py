@@ -38,7 +38,7 @@ class TestWebSearchLive:
 
     def test_basic_search(self, api_key_available):
         """Test basic web search with real API."""
-        from tools.search.web_search import WebSearch
+        from tools.data.search.web_search import WebSearch
 
         tool = WebSearch(query="Python programming", max_results=3)
         result = tool.run()
@@ -50,7 +50,7 @@ class TestWebSearchLive:
 
     def test_search_with_special_characters(self, api_key_available):
         """Test search with special characters."""
-        from tools.search.web_search import WebSearch
+        from tools.data.search.web_search import WebSearch
 
         tool = WebSearch(query="C++ programming language", max_results=3)
         result = tool.run()
@@ -71,7 +71,7 @@ class TestVideoSearchLive:
 
     def test_basic_video_search(self, youtube_api_available):
         """Test basic video search with real API."""
-        from tools.search.video_search import VideoSearch
+        from tools.data.search.video_search import VideoSearch
 
         tool = VideoSearch(query="python tutorial", max_results=3)
         result = tool.run()
@@ -106,7 +106,7 @@ class TestFinancialToolsLive:
 
     def test_stock_price(self):
         """Test stock price retrieval."""
-        from tools.search.stock_price import StockPrice
+        from tools.data.search.stock_price import StockPrice
 
         tool = StockPrice(ticker="AAPL")
         result = tool.run()
@@ -116,7 +116,7 @@ class TestFinancialToolsLive:
 
     def test_financial_report(self):
         """Test financial report retrieval."""
-        from tools.search.financial_report import FinancialReport
+        from tools.data.search.financial_report import FinancialReport
 
         tool = FinancialReport(ticker="AAPL", report_type="annual")
         result = tool.run()

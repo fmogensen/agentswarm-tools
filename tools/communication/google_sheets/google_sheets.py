@@ -109,8 +109,9 @@ class GoogleSheets(BaseTool):
         """
         # Emit deprecation warning
         warnings.warn(
-            "GoogleSheets is deprecated. Use UnifiedGoogleWorkspace with workspace_type='sheets' instead. "
-            "This wrapper will be removed in a future version.",
+            "GoogleSheets is deprecated and will be removed in v3.0.0. "
+            "Use UnifiedGoogleWorkspace with workspace_type='sheets' instead. "
+            "See docs/guides/MIGRATION_GUIDE.md for migration instructions.",
             DeprecationWarning,
             stacklevel=2,
         )

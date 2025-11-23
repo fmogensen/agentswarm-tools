@@ -55,7 +55,9 @@ class GenerateLineChart(BaseTool):
         """
         # Emit deprecation warning
         warnings.warn(
-            "GenerateLineChart is deprecated. Use UnifiedChartGenerator with chart_type='line' instead.",
+            "GenerateLineChart is deprecated and will be removed in v3.0.0. "
+            "Use UnifiedChartGenerator with chart_type='line' instead. "
+            "See tools/visualization/MIGRATION_GUIDE.md for migration examples.",
             DeprecationWarning,
             stacklevel=2,
         )

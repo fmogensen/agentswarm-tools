@@ -55,8 +55,9 @@ class GoogleCalendarList(BaseTool):
         """
         # Emit deprecation warning
         warnings.warn(
-            "GoogleCalendarList is deprecated. Use UnifiedGoogleCalendar with action='list' instead. "
-            "This wrapper will be removed in a future version.",
+            "GoogleCalendarList is deprecated and will be removed in v3.0.0. "
+            "Use UnifiedGoogleCalendar with action='list' instead. "
+            "See docs/guides/MIGRATION_GUIDE.md for migration instructions.",
             DeprecationWarning,
             stacklevel=2,
         )

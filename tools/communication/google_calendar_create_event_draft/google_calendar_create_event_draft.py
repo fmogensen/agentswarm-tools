@@ -65,8 +65,9 @@ class GoogleCalendarCreateEventDraft(BaseTool):
         """
         # Emit deprecation warning
         warnings.warn(
-            "GoogleCalendarCreateEventDraft is deprecated. Use UnifiedGoogleCalendar with action='create' instead. "
-            "This wrapper will be removed in a future version.",
+            "GoogleCalendarCreateEventDraft is deprecated and will be removed in v3.0.0. "
+            "Use UnifiedGoogleCalendar with action='create' instead. "
+            "See docs/guides/MIGRATION_GUIDE.md for migration instructions.",
             DeprecationWarning,
             stacklevel=2,
         )

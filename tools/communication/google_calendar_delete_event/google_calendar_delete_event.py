@@ -62,8 +62,9 @@ class GoogleCalendarDeleteEvent(BaseTool):
         """Execute calendar event deletion (delegates to UnifiedGoogleCalendar)."""
         # Emit deprecation warning
         warnings.warn(
-            "GoogleCalendarDeleteEvent is deprecated. Use UnifiedGoogleCalendar with action='delete' instead. "
-            "This wrapper will be removed in a future version.",
+            "GoogleCalendarDeleteEvent is deprecated and will be removed in v3.0.0. "
+            "Use UnifiedGoogleCalendar with action='delete' instead. "
+            "See docs/guides/MIGRATION_GUIDE.md for migration instructions.",
             DeprecationWarning,
             stacklevel=2,
         )

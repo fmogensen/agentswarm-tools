@@ -102,7 +102,9 @@ class {class_name}(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Delegates to {unified_class}."""
         warnings.warn(
-            "{class_name} is deprecated. Use {unified_class} with {param_type}='{chart_type}' instead.",
+            "{class_name} is deprecated and will be removed in v3.0.0. "
+            "Use {unified_class} with {param_type}='{chart_type}' instead. "
+            "See tools/visualization/MIGRATION_GUIDE.md for migration examples.",
             DeprecationWarning,
             stacklevel=2
         )

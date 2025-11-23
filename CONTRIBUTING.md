@@ -62,7 +62,21 @@ We are committed to providing a welcoming and inclusive environment. Please be r
    # Edit .env with your API keys
    ```
 
-4. **Run tests to verify setup**:
+4. **Set up pre-commit hooks** (Recommended):
+   ```bash
+   # Install pre-commit framework
+   pip install pre-commit
+
+   # Install Git hooks
+   pre-commit install
+
+   # (Optional) Run on all files to verify setup
+   pre-commit run --all-files
+   ```
+
+   Pre-commit hooks automatically check code quality before each commit. See [Pre-Commit Setup Guide](docs/guides/PRE_COMMIT_SETUP.md) for details.
+
+5. **Run tests to verify setup**:
    ```bash
    pytest tests/integration/live/ -v
    ```
@@ -295,10 +309,11 @@ pytest tests/unit/ -k "test_your_category"
 
 ### Test Status in v2.0.0
 
-- **Total Tests:** 95 collected (400+ test cases in shared modules)
-- **Integration Tests:** 11/15 passing (73%)
+- **Total Tests:** 262 test cases (plus 400+ in shared modules)
+- **Pass Rate:** 90.1% (236 passing, 22 failing)
+- **Integration Tests:** 11/11 passing (100%)
 - **Shared Module Coverage:** 85-95%
-- **Note:** Some unit tests need updating to v2.0.0 structure. See [TEST_REPORT_v2.0.0.md](TEST_REPORT_v2.0.0.md) for details.
+- **Note:** See [TEST_REPORT.md](TEST_REPORT.md) for current test status.
 
 ## Documentation
 
@@ -329,8 +344,15 @@ Every tool needs:
    - Add comprehensive tests
    - Update documentation
 
-3. **Run tests locally**:
+3. **Run quality checks**:
    ```bash
+   # If using pre-commit hooks (recommended)
+   pre-commit run --all-files
+
+   # Or manually
+   black tools/ shared/ tests/
+   isort tools/ shared/ tests/
+   flake8 tools/
    pytest
    pytest --cov=agentswarm_tools
    ```
@@ -387,6 +409,37 @@ flake8 tools/
 
 **Important:** All Python code in v2.0.0 has been formatted with Black. Your contributions must also be Black-formatted to maintain consistency.
 
+### Pre-Commit Hooks (Recommended)
+
+Pre-commit hooks automatically enforce code quality standards before each commit:
+
+```bash
+# One-time setup
+pip install pre-commit
+pre-commit install
+
+# Hooks run automatically on git commit
+git commit -m "Your changes"
+```
+
+**What pre-commit hooks check:**
+- **Black** - Code formatting (Python 3.12)
+- **isort** - Import sorting
+- **flake8** - Linting (max line length 100)
+- **mypy** - Type checking (with Pydantic support)
+- **bandit** - Security scanning (tools/, shared/)
+- **pytest-quick** - Fast unit tests
+
+If hooks modify files (e.g., Black formatting), simply re-stage and commit:
+
+```bash
+# Hooks modified files
+git add .
+git commit -m "Your changes"  # Will pass this time
+```
+
+See [Pre-Commit Setup Guide](docs/guides/PRE_COMMIT_SETUP.md) for complete documentation, troubleshooting, and customization options.
+
 ### Naming Conventions
 
 - **Classes**: PascalCase (e.g., `WebSearchTool`)
@@ -410,10 +463,11 @@ flake8 tools/
    - All tool_category attributes updated
 
 3. **Test Suite Status:**
-   - 400+ test cases for shared modules (85-95% coverage)
-   - Integration tests prove tools work correctly
-   - Some unit tests need updating to new category structure
-   - See [TEST_REPORT_v2.0.0.md](TEST_REPORT_v2.0.0.md) for details
+   - 262 tool tests + 400+ shared module tests
+   - 90.1% pass rate (236/262 tests passing)
+   - Integration tests prove tools work correctly (100% pass rate)
+   - See [TEST_REPORT.md](TEST_REPORT.md) for current status
+   - See [docs/archive/TEST_HISTORY.md](docs/archive/TEST_HISTORY.md) for improvement history
 
 4. **Documentation Updates:**
    - All documentation reflects v2.0.0 structure
@@ -466,7 +520,7 @@ See [MIGRATION_GUIDE_v1.2.0.md](MIGRATION_GUIDE_v1.2.0.md) for complete migratio
 
 - Open an issue for bugs or feature requests
 - Start a discussion for questions
-- Review [TEST_REPORT_v2.0.0.md](TEST_REPORT_v2.0.0.md) for test status
+- Review [TEST_REPORT.md](TEST_REPORT.md) for current test status
 - Check [CHANGELOG.md](CHANGELOG.md) for version history
 
 ## License

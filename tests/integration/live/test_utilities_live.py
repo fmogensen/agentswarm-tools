@@ -89,8 +89,8 @@ class TestCodeExecutionTools:
 
     def test_write_and_read_file(self, tmp_path):
         """Test writing and reading a file."""
-        from tools.code_execution.write_tool import WriteTool
-        from tools.code_execution.read_tool import ReadTool
+        from tools.infrastructure.execution.write_tool import WriteTool
+        from tools.infrastructure.execution.read_tool import ReadTool
 
         test_file = str(tmp_path / "test.txt")
         test_content = "Hello, World!"

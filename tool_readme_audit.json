@@ -1,0 +1,787 @@
+{
+  "summary": {
+    "total_tools": 111,
+    "with_readme": 111,
+    "without_readme": 0
+  },
+  "tools_with_readme": [
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/image_style_transfer/image_style_transfer.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/image_style_transfer",
+      "name": "image_style_transfer",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/image_style_transfer/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/image_generation/image_generation.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/image_generation",
+      "name": "image_generation",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/image_generation/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/podcast_generator/podcast_generator.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/podcast_generator",
+      "name": "podcast_generator",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/podcast_generator/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/podcast_generator/example.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/podcast_generator",
+      "name": "example",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/podcast_generator/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/audio_generation/audio_generation.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/audio_generation",
+      "name": "audio_generation",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/audio_generation/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/video_generation/video_generation.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/video_generation",
+      "name": "video_generation",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/video_generation/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/video_effects/video_effects.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/video_effects",
+      "name": "video_effects",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/video_effects/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/text_to_speech_advanced/text_to_speech_advanced.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/text_to_speech_advanced",
+      "name": "text_to_speech_advanced",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/generation/text_to_speech_advanced/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/photo_editor/photo_editor.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/photo_editor",
+      "name": "photo_editor",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/photo_editor/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/video_clipper/video_clipper.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/video_clipper",
+      "name": "video_clipper",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/video_clipper/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/video_editor/video_editor.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/video_editor",
+      "name": "video_editor",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/processing/video_editor/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/audio_effects/audio_effects.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/audio_effects",
+      "name": "audio_effects",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/audio_effects/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/analyze_media_content/analyze_media_content.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/analyze_media_content",
+      "name": "analyze_media_content",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/analyze_media_content/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/batch_video_analysis/batch_video_analysis.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/batch_video_analysis",
+      "name": "batch_video_analysis",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/batch_video_analysis/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/batch_understand_videos/batch_understand_videos.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/batch_understand_videos",
+      "name": "batch_understand_videos",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/batch_understand_videos/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/merge_audio/merge_audio.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/merge_audio",
+      "name": "merge_audio",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/merge_audio/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/audio_transcribe/audio_transcribe.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/audio_transcribe",
+      "name": "audio_transcribe",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/audio_transcribe/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/understand_images/understand_images.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/understand_images",
+      "name": "understand_images",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/understand_images/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/video_metadata_extractor/video_metadata_extractor.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/video_metadata_extractor",
+      "name": "video_metadata_extractor",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/video_metadata_extractor/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/extract_audio_from_video/extract_audio_from_video.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/extract_audio_from_video",
+      "name": "extract_audio_from_video",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/extract_audio_from_video/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/understand_video/understand_video.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/understand_video",
+      "name": "understand_video",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/media/analysis/understand_video/README.md",
+      "category": "media"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/web_search/web_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/web_search",
+      "name": "web_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/web_search/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/video_search/video_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/video_search",
+      "name": "video_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/video_search/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/stock_price/stock_price.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/stock_price",
+      "name": "stock_price",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/stock_price/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/financial_report/financial_report.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/financial_report",
+      "name": "financial_report",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/financial_report/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/scholar_search/scholar_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/scholar_search",
+      "name": "scholar_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/scholar_search/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/product_search/product_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/product_search",
+      "name": "product_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/product_search/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/google_product_search/google_product_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/google_product_search",
+      "name": "google_product_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/google_product_search/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/image_search/image_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/image_search",
+      "name": "image_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/search/image_search/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/data_aggregator/data_aggregator.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/data_aggregator",
+      "name": "data_aggregator",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/data_aggregator/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/trend_analyzer/trend_analyzer.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/trend_analyzer",
+      "name": "trend_analyzer",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/trend_analyzer/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/report_generator/report_generator.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/report_generator",
+      "name": "report_generator",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/business/report_generator/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/rag_pipeline/rag_pipeline.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/rag_pipeline",
+      "name": "rag_pipeline",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/rag_pipeline/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_web_search/research_web_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_web_search",
+      "name": "research_web_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_web_search/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_paper_analysis/research_paper_analysis.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_paper_analysis",
+      "name": "research_paper_analysis",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_paper_analysis/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_synthesizer/research_synthesizer.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_synthesizer",
+      "name": "research_synthesizer",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/research_synthesizer/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/deep_research_agent/deep_research_agent.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/deep_research_agent",
+      "name": "deep_research_agent",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/data/intelligence/deep_research_agent/README.md",
+      "category": "data"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/write_tool/write_tool.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/write_tool",
+      "name": "write_tool",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/write_tool/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/downloadfilewrapper_tool/downloadfilewrapper_tool.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/downloadfilewrapper_tool",
+      "name": "downloadfilewrapper_tool",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/downloadfilewrapper_tool/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/multiedit_tool/multiedit_tool.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/multiedit_tool",
+      "name": "multiedit_tool",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/multiedit_tool/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/read_tool/read_tool.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/read_tool",
+      "name": "read_tool",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/read_tool/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/bash_tool/bash_tool.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/bash_tool",
+      "name": "bash_tool",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/execution/bash_tool/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/aidrive_tool/aidrive_tool.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/aidrive_tool",
+      "name": "aidrive_tool",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/aidrive_tool/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/file_format_converter/file_format_converter.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/file_format_converter",
+      "name": "file_format_converter",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/file_format_converter/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/onedrive_search/onedrive_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/onedrive_search",
+      "name": "onedrive_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/onedrive_search/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/onedrive_file_read/onedrive_file_read.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/onedrive_file_read",
+      "name": "onedrive_file_read",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/storage/onedrive_file_read/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/management/agent_status/agent_status.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/management/agent_status",
+      "name": "agent_status",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/management/agent_status/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/management/task_queue_manager/task_queue_manager.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/management/task_queue_manager",
+      "name": "task_queue_manager",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/infrastructure/management/task_queue_manager/README.md",
+      "category": "infrastructure"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/_examples/demo_tool/demo_tool.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/_examples/demo_tool",
+      "name": "demo_tool",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/_examples/demo_tool/README.md",
+      "category": "_examples"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/slack_read_messages/slack_read_messages.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/slack_read_messages",
+      "name": "slack_read_messages",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/slack_read_messages/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/notion_search/notion_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/notion_search",
+      "name": "notion_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/notion_search/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_sheets/google_sheets.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_sheets",
+      "name": "google_sheets",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_sheets/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/teams_send_message/teams_send_message.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/teams_send_message",
+      "name": "teams_send_message",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/teams_send_message/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_create_event_draft/google_calendar_create_event_draft.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_create_event_draft",
+      "name": "google_calendar_create_event_draft",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_create_event_draft/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_delete_event/google_calendar_delete_event.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_delete_event",
+      "name": "google_calendar_delete_event",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_delete_event/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/gmail_search/gmail_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/gmail_search",
+      "name": "gmail_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/gmail_search/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/twilio_phone_call/twilio_phone_call.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/twilio_phone_call",
+      "name": "twilio_phone_call",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/twilio_phone_call/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_list/google_calendar_list.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_list",
+      "name": "google_calendar_list",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_list/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/read_email_attachments/read_email_attachments.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/read_email_attachments",
+      "name": "read_email_attachments",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/read_email_attachments/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/unified_google_workspace/unified_google_workspace.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/unified_google_workspace",
+      "name": "unified_google_workspace",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/unified_google_workspace/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/notion_read/notion_read.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/notion_read",
+      "name": "notion_read",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/notion_read/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_docs/google_docs.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_docs",
+      "name": "google_docs",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_docs/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_slides/google_slides.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_slides",
+      "name": "google_slides",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_slides/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_update_event/google_calendar_update_event.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_update_event",
+      "name": "google_calendar_update_event",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/google_calendar_update_event/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/unified_google_calendar/unified_google_calendar.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/unified_google_calendar",
+      "name": "unified_google_calendar",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/unified_google_calendar/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/slack_send_message/slack_send_message.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/slack_send_message",
+      "name": "slack_send_message",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/slack_send_message/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/query_call_logs/query_call_logs.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/query_call_logs",
+      "name": "query_call_logs",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/query_call_logs/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/phone_call/phone_call.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/phone_call",
+      "name": "phone_call",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/phone_call/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/email_draft/email_draft.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/email_draft",
+      "name": "email_draft",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/email_draft/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/meeting_notes/meeting_notes.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/meeting_notes",
+      "name": "meeting_notes",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/meeting_notes/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/email_send/email_send.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/email_send",
+      "name": "email_send",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/email_send/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/twilio_call_logs/twilio_call_logs.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/twilio_call_logs",
+      "name": "twilio_call_logs",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/twilio_call_logs/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/gmail_read/gmail_read.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/gmail_read",
+      "name": "gmail_read",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/gmail_read/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/maps_search/maps_search.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/maps_search",
+      "name": "maps_search",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/communication/maps_search/README.md",
+      "category": "communication"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/ask_for_clarification/ask_for_clarification.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/ask_for_clarification",
+      "name": "ask_for_clarification",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/ask_for_clarification/README.md",
+      "category": "utils"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/think/think.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/think",
+      "name": "think",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/think/README.md",
+      "category": "utils"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/translation/translation.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/translation",
+      "name": "translation",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/translation/README.md",
+      "category": "utils"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/batch_processor/batch_processor.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/batch_processor",
+      "name": "batch_processor",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/batch_processor/README.md",
+      "category": "utils"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/json_validator/json_validator.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/json_validator",
+      "name": "json_validator",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/json_validator/README.md",
+      "category": "utils"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/create_profile/create_profile.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/create_profile",
+      "name": "create_profile",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/create_profile/README.md",
+      "category": "utils"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/fact_checker/fact_checker.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/fact_checker",
+      "name": "fact_checker",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/fact_checker/README.md",
+      "category": "utils"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/text_formatter/text_formatter.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/text_formatter",
+      "name": "text_formatter",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/utils/text_formatter/README.md",
+      "category": "utils"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/create_agent/create_agent.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/create_agent",
+      "name": "create_agent",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/create_agent/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_slides/office_slides.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_slides",
+      "name": "office_slides",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_slides/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_slides/standalone_test.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_slides",
+      "name": "standalone_test",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_slides/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_docs/office_docs.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_docs",
+      "name": "office_docs",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_docs/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_sheets/office_sheets.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_sheets",
+      "name": "office_sheets",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/documents/office_sheets/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/website_builder/website_builder.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/website_builder",
+      "name": "website_builder",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/website_builder/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/summarize_large_document/summarize_large_document.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/summarize_large_document",
+      "name": "summarize_large_document",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/summarize_large_document/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/webpage_capture_screen/webpage_capture_screen.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/webpage_capture_screen",
+      "name": "webpage_capture_screen",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/webpage_capture_screen/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/crawler/crawler.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/crawler",
+      "name": "crawler",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/crawler/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/resource_discovery/resource_discovery.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/resource_discovery",
+      "name": "resource_discovery",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/resource_discovery/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/url_metadata/url_metadata.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/url_metadata",
+      "name": "url_metadata",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/content/web/url_metadata/README.md",
+      "category": "content"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_flow_diagram/generate_flow_diagram.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_flow_diagram",
+      "name": "generate_flow_diagram",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_flow_diagram/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_column_chart/generate_column_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_column_chart",
+      "name": "generate_column_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_column_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_histogram_chart/generate_histogram_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_histogram_chart",
+      "name": "generate_histogram_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_histogram_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_dual_axes_chart/generate_dual_axes_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_dual_axes_chart",
+      "name": "generate_dual_axes_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_dual_axes_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_organization_chart/generate_organization_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_organization_chart",
+      "name": "generate_organization_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_organization_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_mind_map/generate_mind_map.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_mind_map",
+      "name": "generate_mind_map",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_mind_map/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_scatter_chart/generate_scatter_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_scatter_chart",
+      "name": "generate_scatter_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_scatter_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_bar_chart/generate_bar_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_bar_chart",
+      "name": "generate_bar_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_bar_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/unified_diagram_generator/unified_diagram_generator.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/unified_diagram_generator",
+      "name": "unified_diagram_generator",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/unified_diagram_generator/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_pie_chart/generate_pie_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_pie_chart",
+      "name": "generate_pie_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_pie_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_line_chart/generate_line_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_line_chart",
+      "name": "generate_line_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_line_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_treemap_chart/generate_treemap_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_treemap_chart",
+      "name": "generate_treemap_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_treemap_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_area_chart/generate_area_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_area_chart",
+      "name": "generate_area_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_area_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_word_cloud_chart/generate_word_cloud_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_word_cloud_chart",
+      "name": "generate_word_cloud_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_word_cloud_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_radar_chart/generate_radar_chart.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_radar_chart",
+      "name": "generate_radar_chart",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_radar_chart/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_network_graph/generate_network_graph.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_network_graph",
+      "name": "generate_network_graph",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_network_graph/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/unified_chart_generator/unified_chart_generator.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/unified_chart_generator",
+      "name": "unified_chart_generator",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/unified_chart_generator/README.md",
+      "category": "visualization"
+    },
+    {
+      "file": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_fishbone_diagram/generate_fishbone_diagram.py",
+      "dir": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_fishbone_diagram",
+      "name": "generate_fishbone_diagram",
+      "readme_path": "/Users/frank/Documents/Code/Genspark/agentswarm-tools/tools/visualization/generate_fishbone_diagram/README.md",
+      "category": "visualization"
+    }
+  ],
+  "tools_without_readme": []
+}

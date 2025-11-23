@@ -341,9 +341,13 @@ data=[
 
 ## Deprecation Timeline
 
-- **Now - Month 3:** Old tools work with deprecation warnings
-- **Month 3 - Month 6:** Migrate internal usage
-- **Month 6+:** Remove old implementations, keep wrappers for compatibility
+**IMPORTANT: All deprecated tools will be removed in v3.0.0 (planned Q3 2025)**
+
+- **Now - Q1 2025:** Old tools work with deprecation warnings
+- **Q2 2025:** Migration support and automated migration scripts
+- **Q3 2025 (v3.0.0):** Complete removal of deprecated implementations
+
+See `/DEPRECATION_TIMELINE.md` for complete removal schedule.
 
 ---
 

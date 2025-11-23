@@ -111,8 +111,9 @@ class GoogleDocs(BaseTool):
         """
         # Emit deprecation warning
         warnings.warn(
-            "GoogleDocs is deprecated. Use UnifiedGoogleWorkspace with workspace_type='docs' instead. "
-            "This wrapper will be removed in a future version.",
+            "GoogleDocs is deprecated and will be removed in v3.0.0. "
+            "Use UnifiedGoogleWorkspace with workspace_type='docs' instead. "
+            "See docs/guides/MIGRATION_GUIDE.md for migration instructions.",
             DeprecationWarning,
             stacklevel=2,
         )
