@@ -18,6 +18,7 @@ This project follows **Agency Swarm** tool development standards.
 4. **Test Blocks Required** - Every tool file must include `if __name__ == "__main__":` test block
 5. **Pydantic Fields** - Use `Field()` with clear descriptions for all parameters
 6. **Atomic & Specific** - Tools perform single, concrete actions
+7. **Use Sub-Agents Proactively** - For complex, multi-file, or repetitive tasks (like fixing multiple test files, implementing multiple tools, updating multiple docs), ALWAYS use Task tool with sub-agents without being asked. Don't do these tasks manually.
 
 ## File Structure
 
