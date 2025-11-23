@@ -1,1 +1,0 @@
-(eval):1: no such file or directory: PYTHONPATH=/Users/frank/Documents/Code/Genspark/agentswarm-tools

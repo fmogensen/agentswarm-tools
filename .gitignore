@@ -34,6 +34,9 @@ env/
 htmlcov/
 *.cover
 .hypothesis/
+test-results/
+coverage.xml
+*.xml
 
 # IDEs
 .vscode/
@@ -71,6 +74,9 @@ logs/
 *.temp
 .temp/
 tmp/
+*.json~
+test_results.txt
+tool_readme_audit.json
 
 # Data
 data/local/
