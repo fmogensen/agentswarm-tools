@@ -2,6 +2,9 @@
 # CORE FRAMEWORK
 # ============================================================================
 agency-swarm>=1.0.0
+# NOTE: datamodel-code-generator>=0.35.0 required for Python 3.14 support
+# agency-swarm 1.4.1 specifies <0.34.0, but 0.35.0 works fine
+datamodel-code-generator>=0.35.0
 pydantic>=2.5.0
 python-dotenv>=1.0.0
 

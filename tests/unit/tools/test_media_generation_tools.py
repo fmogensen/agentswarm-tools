@@ -449,9 +449,15 @@ class TestVideoEffects:
                 effects=[],
             )
 
-    def test_execute_live_mode_success(self, monkeypatch):
-        """Test execution in live mode (mock mode off)"""
+    @patch("shared.base.get_rate_limiter")
+    def test_execute_live_mode_success(self, mock_rate_limiter, monkeypatch):
+        """Test execution in live mode (mock mode off) - validates file existence"""
         monkeypatch.setenv("USE_MOCK_APIS", "false")
+
+        # Mock rate limiter to not raise errors
+        mock_limiter_instance = MagicMock()
+        mock_limiter_instance.check_rate_limit.return_value = None
+        mock_rate_limiter.return_value = mock_limiter_instance
 
         # File validation happens in _validate_parameters
         tool = VideoEffects(
@@ -459,10 +465,13 @@ class TestVideoEffects:
             effects=[{"type": "sepia"}]
         )
 
-        # Will raise ValidationError because file doesn't exist
-        from shared.errors import ValidationError
-        with pytest.raises(ValidationError):
-            tool.run()
+        # BaseTool catches ValidationError and returns error response
+        result = tool.run()
+
+        # Should return error response for missing file
+        assert result["success"] is False
+        assert "error" in result
+        assert "not found" in str(result["error"]["message"]).lower()
 
     def test_edge_case_multiple_effects(self, monkeypatch):
         """Test applying multiple effects"""

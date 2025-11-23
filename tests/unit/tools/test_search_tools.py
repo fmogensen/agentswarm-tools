@@ -95,7 +95,9 @@ class TestWebSearch:
         }
         mock_get.return_value = mock_response
 
+        # Disable caching to ensure mock is called
         tool = WebSearch(query="test query", max_results=2)
+        tool.enable_cache = False
         result = tool.run()
 
         assert result["success"] is True
@@ -121,13 +123,17 @@ class TestWebSearch:
         monkeypatch.setenv("USE_MOCK_APIS", "false")
         monkeypatch.delenv("GOOGLE_SEARCH_API_KEY", raising=False)
         monkeypatch.delenv("GOOGLE_SEARCH_ENGINE_ID", raising=False)
+        monkeypatch.delenv("GOOGLE_SHOPPING_API_KEY", raising=False)
+        monkeypatch.delenv("GOOGLE_SHOPPING_ENGINE_ID", raising=False)
 
         # Mock rate limiter to not raise errors
         mock_limiter_instance = MagicMock()
         mock_limiter_instance.check_rate_limit.return_value = None
         mock_rate_limiter.return_value = mock_limiter_instance
 
+        # Disable caching to ensure error path is tested
         tool = WebSearch(query="test", max_retries=1)
+        tool.enable_cache = False
         result = tool.run()
 
         # Tool returns error response instead of raising exception
@@ -149,7 +155,10 @@ class TestWebSearch:
         mock_rate_limiter.return_value = mock_limiter_instance
 
         mock_get.side_effect = Exception("Network error")
+
+        # Disable caching to ensure error path is tested
         tool = WebSearch(query="test", max_retries=1)
+        tool.enable_cache = False
         result = tool.run()
 
         # Tool returns error response instead of raising exception
