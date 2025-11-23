@@ -68,7 +68,7 @@ class LinearAssignTeam(BaseTool):
 
     # Required parameters
     issue_ids: List[str] = Field(
-        ..., description="List of issue IDs to assign (can be single issue)", min_items=1
+        ..., description="List of issue IDs to assign (can be single issue)", min_length=1
     )
 
     # Optional parameters - assignment targets

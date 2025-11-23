@@ -83,7 +83,7 @@ class SupabaseInsertEmbeddings(BaseTool):
     embeddings: List[Dict[str, Any]] = Field(
         ...,
         description="List of embedding objects with id, embedding, and metadata",
-        min_items=1,
+        min_length=1,
     )
 
     # Optional parameters

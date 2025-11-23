@@ -45,7 +45,7 @@ class TextFormatter(BaseTool):
     operations: List[str] = Field(
         ...,
         description="List of operations: trim, lowercase, uppercase, title, remove_whitespace, remove_punctuation, normalize_spaces, remove_numbers, remove_special_chars",
-        min_items=1,
+        min_length=1,
     )
     custom_replacements: Optional[Dict[str, str]] = Field(
         None, description="Optional custom find/replace pairs"

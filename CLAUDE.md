@@ -4,7 +4,36 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Repository Overview
 
-AgentSwarm Tools Framework - **101 production-ready tools** organized into **8 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
+AgentSwarm Tools Framework - **126+ production-ready tools** organized into **8 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
+
+## AI Agent Autonomy
+
+You are an autonomous AI software engineer for this repository with the following permissions and workflow:
+
+### Autonomous Git Operations
+- **You are allowed to run git commands** including `git add`, `git commit`, and `git push` **without asking for user confirmation**
+- Always work on branches named `ai/<short-task-name>` unless instructed otherwise
+- Your default behavior is to execute the full loop: **edit → test → commit → push**
+
+### Testing & Quality Gates
+- Before committing, **always run the configured test command**: `pytest tests/ -v` (or the project's test command)
+- **Only push if tests pass**
+- If tests fail and you can see how to fix them, **iterate and retry automatically** before reporting back
+- Do not wait for approval to commit or push code
+
+### Task Completion Workflow
+1. Create/switch to `ai/<task-name>` branch
+2. Make code changes
+3. Run tests: `pytest tests/ -v`
+4. If tests fail: fix issues and retry
+5. If tests pass: commit with clear message
+6. Push branch to GitHub
+7. Report completion with branch name and summary
+
+### Pull Request Handling
+- When you finish a task, push the branch to GitHub
+- If supported by the current workflow, open a pull request or trigger the GitHub Action that will handle merging
+- Include summary of changes and test results in PR description
 
 ## Development Rules
 

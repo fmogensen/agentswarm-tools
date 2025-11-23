@@ -20,7 +20,7 @@ setup(
     author_email="bot@agentswarm.ai",
     url="https://github.com/fmogensen/agentswarm-tools",
     packages=find_packages(exclude=["tests", "tests.*", "docs"]),
-    python_requires=">=3.9",
+    python_requires=">=3.12",
     install_requires=[
         "agency-swarm>=1.0.0",
         "pydantic>=2.5.0",
@@ -66,8 +66,7 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ],
 )

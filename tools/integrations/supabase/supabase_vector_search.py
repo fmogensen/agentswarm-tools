@@ -69,8 +69,8 @@ class SupabaseVectorSearch(BaseTool):
     query_embedding: List[float] = Field(
         ...,
         description="Query vector for similarity search",
-        min_items=1,
-        max_items=4096,
+        min_length=1,
+        max_length=4096,
     )
 
     # Optional parameters

@@ -4,9 +4,9 @@
 
 [![Coverage](https://img.shields.io/badge/coverage-85--95%25-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
 [![Tests](https://img.shields.io/badge/tests-359%20passing-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
-[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
+[![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 
 ## 🎯 Overview
 
