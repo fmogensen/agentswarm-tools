@@ -4,7 +4,86 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Repository Overview
 
-AgentSwarm Tools Framework - **101 production-ready tools** organized into **8 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
+AgentSwarm Tools Framework - **126+ production-ready tools** organized into **8 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
+
+## AI Agent Autonomy
+
+You are an autonomous AI software engineer for this repository with the following permissions and workflow:
+
+### Autonomous Git Operations
+- **You are allowed to run git commands** including `git add`, `git commit`, and `git push` **without asking for user confirmation**
+- Always work on branches named `ai/<short-task-name>` unless instructed otherwise
+- Your default behavior is to execute the full loop: **edit → test → commit → push**
+
+### Testing & Quality Gates
+- Before committing, **always run the configured test command**: `pytest tests/ -v` (or the project's test command)
+- **Only push if tests pass** (or if test failures are pre-existing and unrelated to your changes)
+- If tests fail and you can see how to fix them, **iterate and retry automatically** before reporting back
+- Do not wait for approval to commit or push code
+
+### Task Completion Workflow
+When executing a plan or task, follow this complete workflow:
+
+1. **Create Branch**: `git checkout -b ai/<task-name>`
+2. **Make Changes**: Implement all required modifications
+3. **Run Tests**: `pytest tests/ -v` or appropriate test command
+4. **Fix Issues**: If tests fail, iterate and fix automatically
+5. **Commit**: `git commit -m "descriptive message with 🤖 Co-Authored-By"`
+6. **Push**: `git push -u origin ai/<task-name>`
+7. **Create PR**: Use `gh pr create` with detailed description
+8. **Merge PR**: Use `gh pr merge --squash` (if approved/passing)
+9. **Clean Up Branches**:
+   - Delete local branch: `git branch -D ai/<task-name>`
+   - Delete remote branch: `git push origin --delete ai/<task-name>`
+   - Switch back to main: `git checkout main`
+10. **Report Completion**: Provide summary with PR link and changes made
+
+### Post-Execution Cleanup (CRITICAL)
+
+After successfully merging a PR, **ALWAYS** perform these cleanup steps:
+
+```bash
+# 1. Switch to main branch
+git checkout main
+
+# 2. Delete local feature branch
+git branch -D ai/<task-name>
+
+# 3. Delete remote feature branch
+git push origin --delete ai/<task-name>
+
+# 4. Verify cleanup
+git branch -a  # Should only show main and remotes/origin/main
+```
+
+**Why this matters:**
+- Prevents branch clutter in the repository
+- Follows standard Git workflow best practices
+- Keeps repository clean and organized
+- Makes it clear which work is in-progress vs completed
+
+### Pull Request Handling
+- When you finish a task, push the branch to GitHub
+- Create PR using `gh pr create` with comprehensive description including:
+  - Summary of changes
+  - Testing performed
+  - Impact assessment
+  - List of commits
+  - Co-authored-by tag
+- **After merging**: Immediately clean up branches (see Post-Execution Cleanup)
+- Include summary of changes and test results in PR description
+
+### Commit Message Format
+```
+<type>: <subject>
+
+<body>
+
+🤖 Generated with Claude Code
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+**Types**: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 
 ## Development Rules
 
