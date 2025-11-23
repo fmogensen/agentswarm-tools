@@ -38,7 +38,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 
 ### Prerequisites
 
-- Python 3.10 or higher (3.12 recommended for full compatibility)
+- Python 3.12 or higher (required for agency-swarm compatibility)
 - pip and virtualenv
 - Git
 
