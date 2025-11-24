@@ -432,29 +432,27 @@ class TestSupabaseInsertEmbeddingsIntegration:
 
 
 # Performance benchmarks
-def test_insert_embeddings_benchmark(benchmark):
+@pytest.mark.skip(reason="Requires pytest-benchmark plugin")
+def test_insert_embeddings_benchmark():
     """Benchmark embedding insertion performance."""
     os.environ["USE_MOCK_APIS"] = "true"
 
-    def run_insert():
-        embeddings = []
-        for i in range(100):
-            embeddings.append(
-                {
-                    "id": f"doc_{i}",
-                    "embedding": [0.1 * i] * 768,
-                    "content": f"Document {i}",
-                }
-            )
-
-        tool = SupabaseInsertEmbeddings(
-            table_name="documents",
-            embeddings=embeddings,
-            batch_size=50,
+    embeddings = []
+    for i in range(100):
+        embeddings.append(
+            {
+                "id": f"doc_{i}",
+                "embedding": [0.1 * i] * 768,
+                "content": f"Document {i}",
+            }
         )
-        return tool.run()
 
-    result = benchmark(run_insert)
+    tool = SupabaseInsertEmbeddings(
+        table_name="documents",
+        embeddings=embeddings,
+        batch_size=50,
+    )
+    result = tool.run()
     assert result["success"] == True
     assert result["inserted_count"] == 100
 

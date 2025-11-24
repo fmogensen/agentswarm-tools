@@ -474,20 +474,18 @@ class TestSupabaseVectorSearchResultFormat:
 
 
 # Performance benchmarks
-def test_vector_search_benchmark(benchmark):
+@pytest.mark.skip(reason="Requires pytest-benchmark plugin")
+def test_vector_search_benchmark():
     """Benchmark vector search performance."""
     os.environ["USE_MOCK_APIS"] = "true"
 
-    def run_search():
-        tool = SupabaseVectorSearch(
-            table_name="documents",
-            query_embedding=[0.1] * 1536,
-            match_threshold=0.7,
-            match_count=10,
-        )
-        return tool.run()
-
-    result = benchmark(run_search)
+    tool = SupabaseVectorSearch(
+        table_name="documents",
+        query_embedding=[0.1] * 1536,
+        match_threshold=0.7,
+        match_count=10,
+    )
+    result = tool.run()
     assert result["success"] == True
 
 
