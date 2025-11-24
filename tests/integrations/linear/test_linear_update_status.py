@@ -286,6 +286,20 @@ class TestLinearUpdateStatus:
                 }
             }
         }
+        mock_get_response.raise_for_status = MagicMock()
+
+        # Mock resolve state name
+        mock_state_response = MagicMock()
+        mock_state_response.json.return_value = {
+            "data": {
+                "workflowStates": {
+                    "nodes": [
+                        {"id": "state_2", "name": "In Progress"},
+                    ]
+                }
+            }
+        }
+        mock_state_response.raise_for_status = MagicMock()
 
         # Mock update issue
         mock_update_response = MagicMock()
@@ -303,13 +317,17 @@ class TestLinearUpdateStatus:
                 }
             }
         }
+        mock_update_response.raise_for_status = MagicMock()
 
-        mock_post.side_effect = [mock_get_response, mock_update_response]
+        # Mock responses: get issue, resolve state, update issue
+        mock_post.side_effect = [mock_get_response, mock_state_response, mock_update_response]
 
         tool = LinearUpdateStatus(issue_id="issue_abc123", state_name="In Progress")
         result = tool.run()
 
-        assert mock_post.call_count >= 1
+        # Verify API was called and result is successful
+        assert mock_post.call_count >= 2  # At least get + update calls
+        assert result["success"] is True
 
 
 # Run tests if executed directly

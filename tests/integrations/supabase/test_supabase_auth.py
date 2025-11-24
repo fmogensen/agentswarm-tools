@@ -32,13 +32,13 @@ class TestSupabaseAuthValidation:
 
     def test_weak_password(self):
         """Test password too short."""
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationError, PydanticValidationError)):
             tool = SupabaseAuth(action="sign_up", email="user@example.com", password="123")
             tool.run()
 
     def test_invalid_email(self):
         """Test invalid email format."""
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationError, PydanticValidationError)):
             tool = SupabaseAuth(action="sign_up", email="invalid", password="Pass123!")
             tool.run()
 

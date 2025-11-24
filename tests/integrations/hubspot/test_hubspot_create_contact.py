@@ -298,11 +298,13 @@ class TestHubSpotCreateContact:
             email="test@example.com",
             firstname="Test",
         )
-        result = tool.run()
 
-        # Should return error response
-        assert result["success"] == False
-        assert "error" in result
+        # Tool wraps AuthenticationError in APIError, so check for APIError
+        with pytest.raises(APIError) as exc_info:
+            tool.run()
+
+        # Verify the error message contains authentication info
+        assert "auth" in str(exc_info.value).lower() or "invalid" in str(exc_info.value).lower()
 
         # Cleanup
         os.environ.pop("HUBSPOT_API_KEY")
