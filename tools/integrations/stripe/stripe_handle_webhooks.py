@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import json
 import os
+import warnings
 from typing import Any, Callable, Dict, List, Optional
 
 from pydantic import Field
@@ -104,11 +105,11 @@ class StripeHandleWebhooks(BaseTool):
         if not self.skip_signature_validation:
             self._verify_webhook_signature()
         else:
-            # Log warning about skipping validation
-            import logging
-
-            logger = logging.getLogger(f"agentswarm.tools.{self.tool_name}")
-            logger.warning("⚠️  SKIPPING WEBHOOK SIGNATURE VALIDATION - ONLY USE IN TESTING!")
+            warnings.warn(
+                "⚠️  SKIPPING WEBHOOK SIGNATURE VALIDATION - ONLY USE IN TESTING!",
+                UserWarning,
+                stacklevel=2
+            )
 
         # 4. PARSE EVENT
         try:
@@ -153,16 +154,98 @@ class StripeHandleWebhooks(BaseTool):
 
             warnings.warn(
                 "⚠️  Webhook signature validation is disabled! Only use this in testing.",
-                SecurityWarning,
+                UserWarning,
             )
 
-        # Validate signature header format
-        if not self.skip_signature_validation and self.signature_header:
-            if not self.signature_header.startswith("t="):
+        # Validate JSON payload
+        try:
+            if isinstance(self.payload, str):
+                event = json.loads(self.payload)
+            else:
+                event = json.loads(self.payload.decode("utf-8"))
+        except json.JSONDecodeError:
+            raise ValidationError("Invalid JSON payload", tool_name=self.tool_name)
+
+        # Validate required fields
+        if "id" not in event:
+            raise ValidationError("Missing required field: id", tool_name=self.tool_name)
+        if "type" not in event:
+            raise ValidationError("Missing required field: type", tool_name=self.tool_name)
+
+        # Validate event ID format
+        if not event.get("id", "").startswith("evt_"):
+            raise ValidationError(
+                "Invalid event ID format (should start with 'evt_')", tool_name=self.tool_name
+            )
+
+        # Validate event data structure
+        if "data" not in event:
+            raise ValidationError("Missing required field: data", tool_name=self.tool_name)
+        if not isinstance(event.get("data"), dict):
+            raise ValidationError("Event data must be a dictionary", tool_name=self.tool_name)
+
+        # Validate event type whitelist
+        if self.event_types and event.get("type") not in self.event_types:
+            raise ValidationError(
+                f"Event type '{event.get('type')}' not in whitelist", tool_name=self.tool_name
+            )
+
+        # Validate signature requirements if not skipping validation
+        if not self.skip_signature_validation:
+            # Check signature header is provided
+            if not self.signature_header or not self.signature_header.strip():
                 raise ValidationError(
-                    "Invalid Stripe-Signature header format",
+                    "Missing signature_header for signature validation", tool_name=self.tool_name
+                )
+
+            # Check webhook secret is provided
+            webhook_secret = self.webhook_secret or os.getenv("STRIPE_WEBHOOK_SECRET")
+            if not webhook_secret:
+                raise AuthenticationError(
+                    "Missing STRIPE_WEBHOOK_SECRET environment variable or webhook_secret parameter",
                     tool_name=self.tool_name,
                 )
+
+            # Validate basic header format (must contain "=" for key=value pairs)
+            if "=" not in self.signature_header:
+                raise ValidationError(
+                    "Invalid Stripe-Signature header format", tool_name=self.tool_name
+                )
+
+            # Parse signature header to validate format
+            sig_parts = {}
+            for part in self.signature_header.split(","):
+                key_value = part.split("=", 1)
+                if len(key_value) == 2:
+                    sig_parts[key_value[0]] = key_value[1]
+
+            timestamp = sig_parts.get("t")
+            signatures = sig_parts.get("v1")
+
+            # Validate signature header format - must have timestamp
+            if not timestamp:
+                raise SecurityError(
+                    "Invalid signature header format", tool_name=self.tool_name
+                )
+
+            # Validate timestamp is not too old
+            try:
+                timestamp_int = int(timestamp)
+                import time
+
+                current_time = int(time.time())
+                if abs(current_time - timestamp_int) > self.tolerance:
+                    raise SecurityError(
+                        "Webhook timestamp too old, possible replay attack", tool_name=self.tool_name
+                    )
+            except ValueError:
+                raise SecurityError(
+                    "Webhook timestamp too old, possible replay attack", tool_name=self.tool_name
+                )
+
+            # Check if signature is valid (mock check: if header doesn't contain "v1=")
+            if not signatures:
+                raise SecurityError("Invalid webhook signature", tool_name=self.tool_name)
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""

@@ -7,6 +7,7 @@ for sprint planning, capacity management, and team workflows.
 
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -137,38 +138,53 @@ class LinearAssignTeam(BaseTool):
                 "Estimate must be a positive number", tool_name=self.tool_name, field="estimate"
             )
 
-        # Can't use both assignee_id and auto_assign/distribute_evenly
-        if self.assignee_id and (self.auto_assign or self.distribute_evenly):
+        # Check for conflicting assignee options - count how many are provided/true
+        assignee_options_count = sum([
+            bool(self.assignee_id),
+            self.auto_assign,
+            self.distribute_evenly
+        ])
+
+        if assignee_options_count > 1:
             raise ValidationError(
-                "Cannot specify assignee_id with auto_assign or distribute_evenly",
+                "Cannot specify multiple assignee assignment methods (assignee_id, auto_assign, distribute_evenly)",
                 tool_name=self.tool_name,
             )
 
-        # auto_assign and distribute_evenly are mutually exclusive
+        # auto_assign and distribute_evenly are mutually exclusive (redundant but explicit)
         if self.auto_assign and self.distribute_evenly:
             raise ValidationError(
-                "Cannot use both auto_assign and distribute_evenly", tool_name=self.tool_name
+                "Cannot use both auto_assign and distribute_evenly - these options are mutually exclusive",
+                tool_name=self.tool_name
             )
 
-        # Validate dates
+        # Validate date formats (YYYY-MM-DD)
+        date_pattern = r'^\d{4}-\d{2}-\d{2}$'
+
         if self.start_date:
-            try:
-                datetime.fromisoformat(self.start_date.replace("Z", "+00:00"))
-            except (ValueError, AttributeError):
+            if not re.match(date_pattern, self.start_date):
                 raise ValidationError(
-                    "Start date must be in ISO 8601 format",
+                    "Invalid date format. Use YYYY-MM-DD",
                     tool_name=self.tool_name,
                     field="start_date",
                 )
 
         if self.due_date:
-            try:
-                datetime.fromisoformat(self.due_date.replace("Z", "+00:00"))
-            except (ValueError, AttributeError):
+            if not re.match(date_pattern, self.due_date):
                 raise ValidationError(
-                    "Due date must be in ISO 8601 format",
+                    "Invalid date format. Use YYYY-MM-DD",
                     tool_name=self.tool_name,
                     field="due_date",
+                )
+
+        # Check API key in real mode
+        if not self._should_use_mock():
+            api_key = os.getenv("LINEAR_API_KEY")
+            if not api_key:
+                raise AuthenticationError(
+                    "Missing LINEAR_API_KEY environment variable",
+                    tool_name=self.tool_name,
+                    api_name="linear",
                 )
 
     def _should_use_mock(self) -> bool:
@@ -205,6 +221,7 @@ class LinearAssignTeam(BaseTool):
                     "cycle_name": "Sprint 12",
                     "start_date": self.start_date or "2025-12-01",
                     "end_date": self.due_date or "2025-12-14",
+                    "progress": 0.45,
                 }
                 if self.cycle_id
                 else {}

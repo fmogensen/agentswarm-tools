@@ -172,6 +172,7 @@ class GitHubReviewCode(BaseTool):
             "review_url": f"https://github.com/{self.repo_owner}/{self.repo_name}/pull/{self.pr_number}#pullrequestreview-mock123",
             "state": state_map[self.event],
             "submitted_at": "2024-01-15T10:30:00Z",
+            "pr_number": self.pr_number,  # Include pr_number at top level
             "metadata": {
                 "tool_name": self.tool_name,
                 "repo": f"{self.repo_owner}/{self.repo_name}",

@@ -380,10 +380,7 @@ class PrintToLoggingConverter:
                     content = f.read()
 
                 # Check if file has prints and doesn't already have logging
-                if (
-                    "print(" in content
-                    and "from shared.logging import get_logger" not in content
-                ):
+                if "print(" in content and "from shared.logging import get_logger" not in content:
                     files.append(py_file)
 
             except Exception as e:
@@ -448,15 +445,11 @@ class PrintToLoggingConverter:
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Convert print() statements to logging calls"
-    )
+    parser = argparse.ArgumentParser(description="Convert print() statements to logging calls")
     parser.add_argument(
         "--dry-run", action="store_true", help="Show changes without modifying files"
     )
-    parser.add_argument(
-        "--verbose", action="store_true", help="Show detailed progress"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Show detailed progress")
     args = parser.parse_args()
 
     # Get repository root (assuming script is in scripts/)

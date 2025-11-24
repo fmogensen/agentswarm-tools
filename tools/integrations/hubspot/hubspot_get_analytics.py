@@ -7,6 +7,7 @@ emails, conversions, and custom reporting data.
 
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -161,13 +162,17 @@ class HubSpotGetAnalytics(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
+        # Normalize report_type (accept both "email" and "emails")
+        if self.report_type.lower() == "emails":
+            self.report_type = "email"
+
         # Validate report type
         valid_report_types = [
             "contacts",
             "deals",
-            "emails",
-            "conversions",
             "pipeline",
+            "email",
+            "conversions",
             "revenue",
             "engagement",
             "custom",
@@ -179,23 +184,7 @@ class HubSpotGetAnalytics(BaseTool):
                 tool_name=self.tool_name,
             )
 
-        # Validate time range
-        if self.start_date and self.end_date:
-            try:
-                start = datetime.strptime(self.start_date, "%Y-%m-%d")
-                end = datetime.strptime(self.end_date, "%Y-%m-%d")
-                if start > end:
-                    raise ValidationError(
-                        "start_date cannot be after end_date",
-                        tool_name=self.tool_name,
-                    )
-            except ValueError:
-                raise ValidationError(
-                    "Dates must be in YYYY-MM-DD format",
-                    tool_name=self.tool_name,
-                )
-
-        # Validate time period
+        # Validate time period if provided
         if self.time_period:
             valid_periods = [
                 "today",
@@ -206,6 +195,7 @@ class HubSpotGetAnalytics(BaseTool):
                 "last_month",
                 "this_quarter",
                 "this_year",
+                "custom",
             ]
             if self.time_period.lower() not in valid_periods:
                 raise ValidationError(
@@ -214,9 +204,9 @@ class HubSpotGetAnalytics(BaseTool):
                     tool_name=self.tool_name,
                 )
 
-        # Validate group_by
+        # Validate group_by if provided
         if self.group_by:
-            valid_group_by = ["day", "week", "month", "owner", "pipeline", "source", "stage"]
+            valid_group_by = ["day", "week", "month", "stage", "owner", "source"]
             if self.group_by.lower() not in valid_group_by:
                 raise ValidationError(
                     f"Invalid group_by: {self.group_by}. "
@@ -224,12 +214,45 @@ class HubSpotGetAnalytics(BaseTool):
                     tool_name=self.tool_name,
                 )
 
-        # Custom report requires custom_report_id
-        if self.report_type.lower() == "custom" and not self.custom_report_id:
+        # Validate date format for start_date and end_date if provided
+        date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+        if self.start_date and not date_pattern.match(self.start_date):
             raise ValidationError(
-                "custom_report_id is required for custom report type",
+                "Invalid date format. Use YYYY-MM-DD",
                 tool_name=self.tool_name,
             )
+
+        if self.end_date and not date_pattern.match(self.end_date):
+            raise ValidationError(
+                "Invalid date format. Use YYYY-MM-DD",
+                tool_name=self.tool_name,
+            )
+
+        # Validate date range if both dates provided
+        if self.start_date and self.end_date:
+            if self.start_date > self.end_date:
+                raise ValidationError(
+                    "start_date cannot be after end_date",
+                    tool_name=self.tool_name,
+                )
+
+        # Custom report requires custom_report_id
+        if self.report_type.lower() == "custom":
+            if not self.custom_report_id or not self.custom_report_id.strip():
+                raise ValidationError(
+                    "custom_report_id is required for custom reports",
+                    tool_name=self.tool_name,
+                )
+
+        # API key check - only if NOT in mock mode
+        if not self._should_use_mock():
+            api_key = os.getenv("HUBSPOT_API_KEY")
+            if not api_key:
+                raise AuthenticationError(
+                    "Missing HUBSPOT_API_KEY environment variable",
+                    tool_name=self.tool_name,
+                )
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""

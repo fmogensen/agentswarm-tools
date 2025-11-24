@@ -14,6 +14,12 @@ from pydantic import Field
 from shared.base import BaseTool
 from shared.errors import APIError, AuthenticationError, ValidationError
 
+# Stripe SDK import
+try:
+    import stripe
+except ImportError:
+    stripe = None
+
 
 class StripeListCustomers(BaseTool):
     """
@@ -99,7 +105,11 @@ class StripeListCustomers(BaseTool):
                     "filters_applied": self._get_active_filters(),
                 },
             }
+        except (AuthenticationError, ValidationError):
+            # Let these pass through unchanged
+            raise
         except Exception as e:
+            # Only wrap unexpected errors
             raise APIError(f"Failed to list customers: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -130,6 +140,14 @@ class StripeListCustomers(BaseTool):
                 "ending_before must be a valid customer ID (cus_xxx)",
                 tool_name=self.tool_name,
             )
+
+        # Validate API key exists if not in mock mode
+        if not self._should_use_mock():
+            api_key = os.getenv("STRIPE_API_KEY")
+            if not api_key:
+                raise AuthenticationError(
+                    "Missing STRIPE_API_KEY environment variable", tool_name=self.tool_name
+                )
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""
@@ -182,10 +200,8 @@ class StripeListCustomers(BaseTool):
                 "Missing STRIPE_API_KEY environment variable", tool_name=self.tool_name
             )
 
-        # Import Stripe SDK
-        try:
-            import stripe
-        except ImportError:
+        # Check Stripe SDK
+        if stripe is None:
             raise APIError(
                 "Stripe SDK not installed. Run: pip install stripe",
                 tool_name=self.tool_name,

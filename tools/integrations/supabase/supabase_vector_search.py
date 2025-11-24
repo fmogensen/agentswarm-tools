@@ -142,21 +142,16 @@ class SupabaseVectorSearch(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
-        # Validate table name
-        if not self.table_name or not self.table_name.strip():
-            raise ValidationError(
-                "Table name cannot be empty",
-                tool_name=self.tool_name,
-                field="table_name",
-            )
-
-        # Validate embedding dimensions
-        if not self.query_embedding or len(self.query_embedding) == 0:
-            raise ValidationError(
-                "Query embedding cannot be empty",
-                tool_name=self.tool_name,
-                field="query_embedding",
-            )
+        # Check API keys in real mode
+        if not self._should_use_mock():
+            supabase_url = os.getenv("SUPABASE_URL")
+            supabase_key = os.getenv("SUPABASE_KEY")
+            if not supabase_url or not supabase_key:
+                raise AuthenticationError(
+                    "Missing SUPABASE_URL or SUPABASE_KEY environment variable",
+                    tool_name=self.tool_name,
+                    api_name="supabase",
+                )
 
         # Common embedding dimensions
         common_dims = [384, 512, 768, 1024, 1536, 3072]
@@ -181,15 +176,6 @@ class SupabaseVectorSearch(BaseTool):
                 tool_name=self.tool_name,
                 field="query_embedding",
             )
-
-        # Validate filter if provided
-        if self.filter is not None:
-            if not isinstance(self.filter, dict):
-                raise ValidationError(
-                    "Filter must be a dictionary",
-                    tool_name=self.tool_name,
-                    field="filter",
-                )
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""

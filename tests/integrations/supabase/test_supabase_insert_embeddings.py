@@ -7,6 +7,7 @@ import os
 from typing import Any, Dict, List
 
 import pytest
+from pydantic import ValidationError as PydanticValidationError
 
 from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.supabase.supabase_insert_embeddings import SupabaseInsertEmbeddings
@@ -32,7 +33,7 @@ class TestSupabaseInsertEmbeddingsValidation:
 
     def test_empty_table_name(self):
         """Test with empty table name."""
-        with pytest.raises(ValidationError) as exc:
+        with pytest.raises((ValidationError, PydanticValidationError)) as exc:
             tool = SupabaseInsertEmbeddings(
                 table_name="",
                 embeddings=[{"id": "1", "embedding": [0.1] * 768}],
@@ -42,7 +43,7 @@ class TestSupabaseInsertEmbeddingsValidation:
 
     def test_empty_embeddings_list(self):
         """Test with empty embeddings list."""
-        with pytest.raises(ValidationError) as exc:
+        with pytest.raises((ValidationError, PydanticValidationError)) as exc:
             tool = SupabaseInsertEmbeddings(
                 table_name="documents",
                 embeddings=[],

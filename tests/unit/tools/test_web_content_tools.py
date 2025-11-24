@@ -109,6 +109,7 @@ class TestCrawler:
         mock_get.side_effect = Exception("Connection error")
 
         tool = Crawler(url="https://example.com")
+        tool._raise_exceptions = False
         result = tool.run()
 
         # Tool returns error response instead of raising after retries
@@ -259,6 +260,7 @@ class TestUrlMetadata:
         mock_head.side_effect = requests.RequestException("Not found")
 
         tool = UrlMetadata(url="https://example.com/nonexistent")
+        tool._raise_exceptions = False
         result = tool.run()
 
         # Tool returns error response instead of raising after retries

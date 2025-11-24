@@ -5,14 +5,23 @@ Creates a one-time payment using Stripe's Payment Intent API.
 Supports multiple currencies, payment methods, and automatic confirmation.
 """
 
+import hashlib
 import json
 import os
+import time
+import uuid
 from typing import Any, Dict, List, Optional
 
 from pydantic import Field
 
 from shared.base import BaseTool
 from shared.errors import APIError, AuthenticationError, ValidationError
+
+# Stripe SDK import
+try:
+    import stripe
+except ImportError:
+    stripe = None
 
 
 class StripeCreatePayment(BaseTool):
@@ -112,7 +121,11 @@ class StripeCreatePayment(BaseTool):
                     "customer_email": self.customer_email,
                 },
             }
+        except (AuthenticationError, ValidationError):
+            # Let these pass through unchanged
+            raise
         except Exception as e:
+            # Only wrap unexpected errors
             raise APIError(f"Failed to create payment: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -162,10 +175,14 @@ class StripeCreatePayment(BaseTool):
 
     def _generate_mock_results(self) -> Dict[str, Any]:
         """Generate mock results for testing."""
+        # Generate unique ID
+        unique_data = f"{self.amount}{self.currency}{time.time()}{uuid.uuid4()}"
+        unique_id = hashlib.sha256(unique_data.encode()).hexdigest()[:16]
+
         return {
             "success": True,
-            "payment_intent_id": "pi_mock_1234567890abcdef",
-            "client_secret": "pi_mock_1234567890abcdef_secret_mock1234567890",
+            "payment_intent_id": f"pi_mock_{unique_id}",
+            "client_secret": f"pi_mock_{unique_id}_secret_mock",
             "status": "requires_payment_method" if not self.confirm else "succeeded",
             "amount": self.amount,
             "currency": self.currency.lower(),
@@ -185,10 +202,8 @@ class StripeCreatePayment(BaseTool):
                 "Missing STRIPE_API_KEY environment variable", tool_name=self.tool_name
             )
 
-        # Import Stripe SDK
-        try:
-            import stripe
-        except ImportError:
+        # Check Stripe SDK
+        if stripe is None:
             raise APIError(
                 "Stripe SDK not installed. Run: pip install stripe",
                 tool_name=self.tool_name,

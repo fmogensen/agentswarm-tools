@@ -7,6 +7,7 @@ stage tracking, deal values, and forecasting support.
 
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -169,51 +170,27 @@ class HubSpotTrackDeal(BaseTool):
                     tool_name=self.tool_name,
                 )
 
+            # Validate batch size limit
+            if len(self.batch_deals) > 10:
+                raise ValidationError(
+                    "Batch size cannot exceed 10 deals",
+                    tool_name=self.tool_name,
+                )
+
             # Validate each deal has dealname
             for idx, deal in enumerate(self.batch_deals):
                 if not deal.get("dealname"):
                     raise ValidationError(
-                        f"Deal at index {idx} missing required 'dealname' field",
+                        "Each deal in batch missing required 'dealname' field",
                         tool_name=self.tool_name,
                     )
-
-            # HubSpot API batch limit
-            if len(self.batch_deals) > 10:
-                raise ValidationError(
-                    "Batch size cannot exceed 10 deals per request",
-                    tool_name=self.tool_name,
-                )
             return
 
-        # Update mode validation
-        if self.deal_id:
-            if not (
-                self.move_to_stage
-                or self.win_deal
-                or self.lose_deal
-                or self.amount is not None
-                or self.custom_properties
-            ):
-                raise ValidationError(
-                    "When updating a deal, specify at least one field to update",
-                    tool_name=self.tool_name,
-                )
+        # Validate win/lose conflict (BEFORE general field validation)
+        if self.win_deal and self.lose_deal:
+            raise ValidationError("Cannot win and lose a deal simultaneously", tool_name=self.tool_name)
 
-            if self.win_deal and self.lose_deal:
-                raise ValidationError(
-                    "Cannot win and lose a deal at the same time",
-                    tool_name=self.tool_name,
-                )
-            return
-
-        # Create mode validation - dealname is required
-        if not self.dealname:
-            raise ValidationError(
-                "dealname is required for deal creation",
-                tool_name=self.tool_name,
-            )
-
-        # Validate dealtype
+        # Validate dealtype if provided
         if self.dealtype:
             valid_types = ["newbusiness", "existingbusiness", "renewal"]
             if self.dealtype.lower() not in valid_types:
@@ -223,26 +200,55 @@ class HubSpotTrackDeal(BaseTool):
                     tool_name=self.tool_name,
                 )
 
-        # Validate priority
-        if self.priority:
-            valid_priorities = ["low", "medium", "high"]
-            if self.priority.lower() not in valid_priorities:
+        # Validate closedate format if provided
+        if self.closedate:
+            date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+            if not date_pattern.match(self.closedate):
                 raise ValidationError(
-                    f"Invalid priority: {self.priority}. "
-                    f"Valid priorities: {', '.join(valid_priorities)}",
+                    "Invalid closedate format. Use YYYY-MM-DD",
                     tool_name=self.tool_name,
                 )
 
-        # Validate closedate format
-        if self.closedate:
-            if not self.closedate.isdigit():  # Not Unix timestamp
-                try:
-                    datetime.strptime(self.closedate, "%Y-%m-%d")
-                except ValueError:
-                    raise ValidationError(
-                        "closedate must be in YYYY-MM-DD format or Unix timestamp (ms)",
-                        tool_name=self.tool_name,
-                    )
+        # Create mode validation
+        if not self.deal_id:
+            # dealname is required for creating deals
+            if not self.dealname or not self.dealname.strip():
+                raise ValidationError(
+                    "dealname is required for creating deals",
+                    tool_name=self.tool_name,
+                )
+        else:
+            # Update mode validation
+            # At least one field must be provided for update
+            has_update_field = (
+                self.dealname is not None
+                or self.amount is not None
+                or self.dealstage is not None
+                or self.move_to_stage is not None
+                or self.win_deal
+                or self.lose_deal
+                or self.description is not None
+                or self.closedate is not None
+                or self.pipeline is not None
+                or self.dealtype is not None
+                or self.priority is not None
+                or self.custom_properties is not None
+            )
+
+            if not has_update_field:
+                raise ValidationError(
+                    "At least one field must be provided for update",
+                    tool_name=self.tool_name,
+                )
+
+        # API key check - only if NOT in mock mode
+        if not self._should_use_mock():
+            api_key = os.getenv("HUBSPOT_API_KEY")
+            if not api_key:
+                raise AuthenticationError(
+                    "Missing HUBSPOT_API_KEY environment variable",
+                    tool_name=self.tool_name,
+                )
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""

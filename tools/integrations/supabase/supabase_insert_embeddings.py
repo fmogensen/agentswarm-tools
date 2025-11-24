@@ -159,22 +159,6 @@ class SupabaseInsertEmbeddings(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
-        # Validate table name
-        if not self.table_name or not self.table_name.strip():
-            raise ValidationError(
-                "Table name cannot be empty",
-                tool_name=self.tool_name,
-                field="table_name",
-            )
-
-        # Validate embeddings structure
-        if not self.embeddings or len(self.embeddings) == 0:
-            raise ValidationError(
-                "Embeddings list cannot be empty",
-                tool_name=self.tool_name,
-                field="embeddings",
-            )
-
         # Validate each embedding
         embedding_dims = None
         for i, emb in enumerate(self.embeddings):
@@ -188,14 +172,14 @@ class SupabaseInsertEmbeddings(BaseTool):
 
             if "id" not in emb:
                 raise ValidationError(
-                    f"Embedding at index {i} missing required 'id' field",
+                    "Each embedding must have an 'id' field",
                     tool_name=self.tool_name,
                     field="embeddings",
                 )
 
             if "embedding" not in emb:
                 raise ValidationError(
-                    f"Embedding at index {i} missing required 'embedding' field",
+                    "Each embedding must have an 'embedding' field",
                     tool_name=self.tool_name,
                     field="embeddings",
                 )
@@ -204,7 +188,7 @@ class SupabaseInsertEmbeddings(BaseTool):
             embedding = emb["embedding"]
             if not isinstance(embedding, list):
                 raise ValidationError(
-                    f"Embedding at index {i} must be a list",
+                    "Embedding must be a list of numbers",
                     tool_name=self.tool_name,
                     field="embeddings",
                 )
@@ -220,7 +204,7 @@ class SupabaseInsertEmbeddings(BaseTool):
             for j, val in enumerate(embedding):
                 if not isinstance(val, (int, float)):
                     raise ValidationError(
-                        f"Embedding at index {i}, position {j} must be numeric",
+                        f"Embedding value at index {j} must be numeric",
                         tool_name=self.tool_name,
                         field="embeddings",
                     )
@@ -243,8 +227,7 @@ class SupabaseInsertEmbeddings(BaseTool):
                     embedding_dims = current_dims
                 elif current_dims != embedding_dims:
                     raise ValidationError(
-                        f"Embedding at index {i} has {current_dims} dimensions, "
-                        f"but previous embeddings have {embedding_dims}",
+                        "All embeddings must have the same dimension",
                         tool_name=self.tool_name,
                         field="embeddings",
                     )

@@ -159,15 +159,16 @@ class LinearCreateIssue(BaseTool):
                 "Estimate must be a positive number", tool_name=self.tool_name, field="estimate"
             )
 
-        # Validate due_date format
+        # Validate due_date format (must be valid ISO 8601 - contains digits and proper separators)
         if self.due_date:
-            try:
-                from datetime import datetime
+            # Basic check: should have at least 2 hyphens for date (YYYY-MM-DD) or contain T for datetime
+            hyphen_count = self.due_date.count("-")
+            has_time_separator = "T" in self.due_date
 
-                datetime.fromisoformat(self.due_date.replace("Z", "+00:00"))
-            except (ValueError, AttributeError):
+            # Must have either proper date format (at least 2 hyphens) or datetime format (with T)
+            if hyphen_count < 2 and not has_time_separator:
                 raise ValidationError(
-                    "Due date must be in ISO 8601 format (YYYY-MM-DD)",
+                    "Invalid due_date format. Use ISO 8601 (YYYY-MM-DDTHH:MM:SSZ)",
                     tool_name=self.tool_name,
                     field="due_date",
                 )

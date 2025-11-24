@@ -13,6 +13,7 @@ import pytest
 # Optional redis import - gracefully handle if not installed
 try:
     import redis
+
     REDIS_AVAILABLE = True
 except ImportError:
     redis = None

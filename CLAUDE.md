@@ -300,6 +300,59 @@ pytest --cov=agentswarm_tools --cov-report=html
 | `_generate_mock_results()` | Return realistic mock data for testing |
 | `_process()` | Actual API calls and business logic |
 
+### Critical: Validation Requirements
+
+**MUST implement `_validate_parameters()` with proper error raising:**
+
+```python
+def _validate_parameters(self) -> None:
+    """Validate all input parameters before execution."""
+    # Example validations - ALWAYS raise errors, never return silently
+
+    # 1. Required field validation
+    if not self.required_field or not self.required_field.strip():
+        raise ValidationError("required_field is required", tool_name=self.tool_name)
+
+    # 2. Enum/choice validation
+    valid_choices = ["option1", "option2", "option3"]
+    if self.choice_field and self.choice_field not in valid_choices:
+        raise ValidationError(
+            f"Invalid choice_field: {self.choice_field}. Must be one of: {valid_choices}",
+            tool_name=self.tool_name
+        )
+
+    # 3. Format validation (email, date, URL, etc.)
+    if self.email_field and "@" not in self.email_field:
+        raise ValidationError("Invalid email format", tool_name=self.tool_name)
+
+    # 4. Range validation
+    if self.numeric_field < 1 or self.numeric_field > 100:
+        raise ValidationError(
+            f"numeric_field must be between 1 and 100, got {self.numeric_field}",
+            tool_name=self.tool_name
+        )
+
+    # 5. Logical constraint validation
+    if self.start_date and self.end_date and self.start_date > self.end_date:
+        raise ValidationError("start_date must be before end_date", tool_name=self.tool_name)
+
+    # 6. Mutually exclusive parameters
+    if self.option_a and self.option_b:
+        raise ValidationError("Cannot specify both option_a and option_b", tool_name=self.tool_name)
+
+    # 7. Conditional requirements
+    if self.operation == "update" and not self.record_id:
+        raise ValidationError("record_id is required for update operation", tool_name=self.tool_name)
+```
+
+**Common validation patterns for integration tools:**
+- Date formats: `YYYY-MM-DD` or ISO 8601
+- ID formats: Proper prefix validation (e.g., `cus_` for Stripe customers)
+- Batch size limits: Max 100 items per batch
+- Email validation: Basic format check
+- URL validation: Proper scheme (http/https)
+- Authentication: Check for required API keys/tokens in `_validate_parameters()`
+
 ### Error Types (from `shared/errors.py`):
 
 | Error Class | Use Case |
@@ -395,6 +448,128 @@ Follow [Keep a Changelog](https://keepachangelog.com/) standard:
 6. **Use GitHub Releases** for detailed release notes (not root files)
 
 **DO NOT create separate versioned documentation files in root.**
+
+## Code Quality & CI/CD Standards
+
+### Pre-Commit Requirements
+
+**ALWAYS run before committing:**
+
+```bash
+# 1. Format code with Black
+black .
+
+# 2. Sort imports with isort
+isort .
+
+# 3. Run linters
+flake8 .
+
+# 4. Run tests locally
+pytest tests/ -v
+
+# 5. Check coverage
+pytest --cov=. --cov-report=term-missing
+```
+
+### Code Formatting Rules
+
+1. **Black**: All Python code MUST be formatted with Black (line length 127)
+2. **isort**: All imports MUST be sorted with isort
+3. **Flake8**: Code MUST pass flake8 linting (E9, F63, F7, F82 errors are blocking)
+4. **Type Hints**: Prefer type hints for function signatures
+5. **Docstrings**: Use Google-style docstrings for all public functions/classes
+
+### Import Organization
+
+**CRITICAL**: All imports must be properly organized and complete
+
+```python
+# Standard library imports (alphabetical)
+import hashlib
+import hmac
+import json
+import os
+import warnings  # ALWAYS import warnings if using warnings.warn()
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+# Third-party imports (alphabetical)
+from pydantic import Field
+
+# Local imports (alphabetical)
+from shared.base import BaseTool
+from shared.errors import (
+    APIError,
+    AuthenticationError,
+    SecurityError,  # Import ALL error types used
+    ValidationError,
+)
+```
+
+**Common Import Mistakes to Avoid:**
+- ❌ Using `SecurityWarning` without importing it
+- ❌ Using `warnings.warn()` without `import warnings`
+- ❌ Importing from a module that doesn't export the attribute
+- ✅ ALWAYS verify imports match usage in code
+
+### Testing Before Commit
+
+**Required checks before pushing:**
+
+1. **Local test run**: `pytest tests/ -v` - ALL tests must pass
+2. **Format check**: `black --check .` - No files should need reformatting
+3. **Import check**: `isort --check-only .` - Imports must be sorted
+4. **Lint check**: `flake8 .` - No critical errors
+
+**If any check fails:**
+- Fix formatting: `black .`
+- Fix imports: `isort .`
+- Fix validation: Add proper error raising in `_validate_parameters()`
+- Fix tests: Ensure tool behavior matches test expectations
+
+### CI/CD Workflow Success Criteria
+
+**All three workflows must pass:**
+
+1. ✅ **Code Quality** (lint.yml):
+   - Black formatting check passes
+   - isort import sorting passes
+   - Flake8 linting passes (critical errors only)
+   - MyPy type checking (non-blocking)
+   - Pylint (non-blocking)
+
+2. ✅ **Test Suite** (test.yml):
+   - All unit tests pass (Python 3.12 and 3.13)
+   - Integration tests pass (allowed to continue on error)
+   - Coverage meets threshold (70% minimum)
+
+3. ✅ **Security Scan** (security.yml):
+   - Bandit security scan passes
+   - Safety dependency check passes
+   - CodeQL analysis passes
+
+### Debugging CI/CD Failures
+
+**When workflows fail:**
+
+1. **View failure logs**: `gh run view <run-id> --log-failed`
+2. **Check error type**:
+   - Formatting errors → Run `black .` and `isort .`
+   - Import errors → Check for missing imports, typos in module names
+   - Test failures → Check if `_validate_parameters()` raises proper errors
+   - Coverage failures → Add tests for uncovered code paths
+
+3. **Reproduce locally**:
+   ```bash
+   # Run exact CI command locally
+   pytest tests/unit/tools/ tests/integration/ tests/integrations/ -v --cov=. --cov-report=term-missing
+   ```
+
+4. **Common fixes**:
+   - Missing imports: Add to import block
+   - Validation not implemented: Add proper error raising
+   - Tests expect errors: Make sure tool validates and raises `ValidationError`/`AuthenticationError`
 
 ## Important Instructions
 

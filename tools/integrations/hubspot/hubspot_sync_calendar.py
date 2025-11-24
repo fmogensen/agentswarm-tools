@@ -197,12 +197,11 @@ class HubSpotSyncCalendar(BaseTool):
         """Validate input parameters."""
         # Validate operation
         valid_operations = [
-            "hubspot_to_google",
-            "google_to_hubspot",
-            "bidirectional",
-            "create_meeting",
-            "update_meeting",
-            "delete_meeting",
+            "create", "create_meeting",
+            "update", "update_meeting",
+            "delete", "delete_meeting",
+            "list",
+            "hubspot_to_google", "google_to_hubspot", "bidirectional"
         ]
         if self.operation.lower() not in valid_operations:
             raise ValidationError(
@@ -213,49 +212,67 @@ class HubSpotSyncCalendar(BaseTool):
 
         operation = self.operation.lower()
 
-        # Validate create_meeting requirements
-        if operation == "create_meeting":
-            if not all([self.title, self.start_time, self.end_time]):
+        # Validate create operation requirements
+        if operation == "create":
+            if not self.title or not self.title.strip():
                 raise ValidationError(
-                    "create_meeting requires title, start_time, and end_time",
+                    "title is required for create operation",
                     tool_name=self.tool_name,
                 )
 
-            # Validate time format
-            try:
-                start = datetime.fromisoformat(self.start_time.replace("Z", "+00:00"))
-                end = datetime.fromisoformat(self.end_time.replace("Z", "+00:00"))
-
-                if start >= end:
-                    raise ValidationError(
-                        "start_time must be before end_time",
-                        tool_name=self.tool_name,
-                    )
-            except ValueError:
+            if not self.start_time or not self.start_time.strip():
                 raise ValidationError(
-                    "Times must be in ISO 8601 format (e.g., 2024-03-15T14:00:00Z)",
+                    "start_time is required for create operation",
                     tool_name=self.tool_name,
                 )
 
-        # Validate update_meeting requirements
-        if operation == "update_meeting":
-            if not self.meeting_id:
+            if not self.end_time or not self.end_time.strip():
                 raise ValidationError(
-                    "update_meeting requires meeting_id",
+                    "end_time is required for create operation",
                     tool_name=self.tool_name,
                 )
 
-        # Validate delete_meeting requirements
-        if operation == "delete_meeting":
-            if not self.meeting_id:
+        # Validate time format if provided
+        if self.start_time:
+            if "T" not in self.start_time and ":" not in self.start_time:
                 raise ValidationError(
-                    "delete_meeting requires meeting_id",
+                    "Invalid time format. Use ISO 8601",
                     tool_name=self.tool_name,
                 )
 
-        # Validate meeting_type
+        if self.end_time:
+            if "T" not in self.end_time and ":" not in self.end_time:
+                raise ValidationError(
+                    "Invalid time format. Use ISO 8601",
+                    tool_name=self.tool_name,
+                )
+
+        # Validate time logic if both times provided
+        if self.start_time and self.end_time:
+            if self.start_time >= self.end_time:
+                raise ValidationError(
+                    "start_time must be before end_time",
+                    tool_name=self.tool_name,
+                )
+
+        # Validate update/delete requirements
+        if operation == "update":
+            if not self.meeting_id or not self.meeting_id.strip():
+                raise ValidationError(
+                    "meeting_id is required for update operation",
+                    tool_name=self.tool_name,
+                )
+
+        if operation == "delete":
+            if not self.meeting_id or not self.meeting_id.strip():
+                raise ValidationError(
+                    "meeting_id is required for delete operation",
+                    tool_name=self.tool_name,
+                )
+
+        # Validate meeting_type if provided
         if self.meeting_type:
-            valid_types = ["sales_call", "demo", "consultation", "followup"]
+            valid_types = ["call", "meeting", "task"]
             if self.meeting_type.lower() not in valid_types:
                 raise ValidationError(
                     f"Invalid meeting_type: {self.meeting_type}. "
@@ -263,10 +280,10 @@ class HubSpotSyncCalendar(BaseTool):
                     tool_name=self.tool_name,
                 )
 
-        # Validate outcome
+        # Validate outcome if provided
         if self.outcome:
-            valid_outcomes = ["scheduled", "completed", "cancelled", "no_show"]
-            if self.outcome.lower() not in valid_outcomes:
+            valid_outcomes = ["SCHEDULED", "COMPLETED", "RESCHEDULED", "NO_SHOW", "CANCELLED"]
+            if self.outcome.upper() not in valid_outcomes:
                 raise ValidationError(
                     f"Invalid outcome: {self.outcome}. "
                     f"Valid outcomes: {', '.join(valid_outcomes)}",

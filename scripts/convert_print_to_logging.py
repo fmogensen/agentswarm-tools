@@ -13,7 +13,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
 
 class PrintToLoggingConverter:
@@ -22,11 +22,11 @@ class PrintToLoggingConverter:
     def __init__(self, base_dir: str):
         self.base_dir = Path(base_dir)
         self.stats = {
-            'files_modified': 0,
-            'files_skipped': 0,
-            'prints_replaced': 0,
-            'files_with_errors': [],
-            'modified_files': []
+            "files_modified": 0,
+            "files_skipped": 0,
+            "prints_replaced": 0,
+            "files_with_errors": [],
+            "modified_files": [],
         }
 
     def should_skip_line(self, line: str, in_test_block: bool) -> bool:
@@ -34,7 +34,7 @@ class PrintToLoggingConverter:
         stripped = line.strip()
 
         # Skip comments
-        if stripped.startswith('#'):
+        if stripped.startswith("#"):
             return True
 
         # Skip test blocks
@@ -42,10 +42,10 @@ class PrintToLoggingConverter:
             return True
 
         # Skip if print is in a string
-        if 'print(' in line:
+        if "print(" in line:
             # Check if it's in a docstring or comment
-            before_print = line.split('print(')[0]
-            if '"""' in before_print or "'''" in before_print or '#' in before_print:
+            before_print = line.split("print(")[0]
+            if '"""' in before_print or "'''" in before_print or "#" in before_print:
                 return True
 
         return False
@@ -55,27 +55,30 @@ class PrintToLoggingConverter:
         content_lower = print_content.lower()
 
         # Error indicators
-        if any(word in content_lower for word in ['error', 'exception', 'failed', 'failure', 'critical']):
-            return 'error'
+        if any(
+            word in content_lower
+            for word in ["error", "exception", "failed", "failure", "critical"]
+        ):
+            return "error"
 
         # Warning indicators
-        if any(word in content_lower for word in ['warning', 'warn', 'deprecated', 'caution']):
-            return 'warning'
+        if any(word in content_lower for word in ["warning", "warn", "deprecated", "caution"]):
+            return "warning"
 
         # Debug indicators
-        if any(word in content_lower for word in ['debug', 'verbose', 'trace', 'dump']):
-            return 'debug'
+        if any(word in content_lower for word in ["debug", "verbose", "trace", "dump"]):
+            return "debug"
 
         # Success/info indicators (default)
-        return 'info'
+        return "info"
 
     def extract_print_content(self, line: str) -> Tuple[str, str]:
         """Extract content from print() statement."""
         # Match print(...) including multi-line
-        match = re.search(r'print\((.*)\)', line)
+        match = re.search(r"print\((.*)\)", line)
         if match:
             content = match.group(1)
-            return content, line[:match.start()]
+            return content, line[: match.start()]
         return None, None
 
     def convert_print_to_logger(self, line: str, indent: str) -> str:
@@ -91,7 +94,7 @@ class PrintToLoggingConverter:
         if content.strip().startswith('f"') or content.strip().startswith("f'"):
             # Already an f-string
             log_content = content.strip()
-        elif ',' in content or '%' in content:
+        elif "," in content or "%" in content:
             # Multiple args or string formatting - convert to f-string
             # This is a simplified conversion; complex cases may need manual review
             log_content = content.strip()
@@ -104,7 +107,7 @@ class PrintToLoggingConverter:
 
     def has_logging_import(self, content: str) -> bool:
         """Check if file already has logging import."""
-        return 'from shared.logging import get_logger' in content
+        return "from shared.logging import get_logger" in content
 
     def add_logging_import(self, lines: List[str]) -> List[str]:
         """Add logging import at the top of the file."""
@@ -124,12 +127,12 @@ class PrintToLoggingConverter:
                 continue
 
             # Find last import statement
-            if stripped.startswith('import ') or stripped.startswith('from '):
+            if stripped.startswith("import ") or stripped.startswith("from "):
                 insert_idx = i + 1
 
         # Insert logging import
         if insert_idx > 0:
-            lines.insert(insert_idx, '\nfrom shared.logging import get_logger\n')
+            lines.insert(insert_idx, "\nfrom shared.logging import get_logger\n")
 
         return lines
 
@@ -152,11 +155,11 @@ class PrintToLoggingConverter:
                 continue
 
             # Find last import
-            if stripped.startswith('import ') or stripped.startswith('from '):
+            if stripped.startswith("import ") or stripped.startswith("from "):
                 last_import_idx = i
 
             # Look for class definition (add logger inside class)
-            if stripped.startswith('class ') and 'BaseTool' in stripped:
+            if stripped.startswith("class ") and "BaseTool" in stripped:
                 # Add logger inside class, after docstring
                 class_start = i
                 for j in range(i + 1, len(lines)):
@@ -171,7 +174,7 @@ class PrintToLoggingConverter:
                                 insert_idx = k + 1
                                 break
                         break
-                    elif not lines[j].strip().startswith('#') and lines[j].strip():
+                    elif not lines[j].strip().startswith("#") and lines[j].strip():
                         # First non-comment, non-blank line
                         insert_idx = j
                         break
@@ -182,24 +185,24 @@ class PrintToLoggingConverter:
             insert_idx = last_import_idx + 1
 
         # Add logger setup with proper indentation
-        indent = '    ' if 'class ' in ''.join(lines[:insert_idx]) else ''
-        lines.insert(insert_idx, f'\n{indent}logger = get_logger(__name__)\n')
+        indent = "    " if "class " in "".join(lines[:insert_idx]) else ""
+        lines.insert(insert_idx, f"\n{indent}logger = get_logger(__name__)\n")
 
         return lines
 
     def convert_file(self, file_path: Path) -> bool:
         """Convert a single file."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Check if already has logging
             if self.has_logging_import(content):
                 print(f"Skipping {file_path.name} - already has logging import")
-                self.stats['files_skipped'] += 1
+                self.stats["files_skipped"] += 1
                 return False
 
-            lines = content.split('\n')
+            lines = content.split("\n")
             modified = False
             in_test_block = False
             print_count = 0
@@ -217,20 +220,20 @@ class PrintToLoggingConverter:
                     continue
 
                 # Check for print statements
-                if 'print(' in line and not line.strip().startswith('#'):
+                if "print(" in line and not line.strip().startswith("#"):
                     # Get indentation
-                    indent = line[:len(line) - len(line.lstrip())]
+                    indent = line[: len(line) - len(line.lstrip())]
 
                     # Convert print to logger
                     new_line = self.convert_print_to_logger(line, indent)
-                    new_lines.append(new_line.rstrip('\n'))
+                    new_lines.append(new_line.rstrip("\n"))
                     modified = True
                     print_count += 1
                 else:
                     new_lines.append(line)
 
             if not modified:
-                self.stats['files_skipped'] += 1
+                self.stats["files_skipped"] += 1
                 return False
 
             # Add logging import and logger setup
@@ -238,35 +241,38 @@ class PrintToLoggingConverter:
             new_lines = self.add_logger_setup(new_lines)
 
             # Write back
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write('\n'.join(new_lines))
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(new_lines))
 
-            self.stats['files_modified'] += 1
-            self.stats['prints_replaced'] += print_count
-            self.stats['modified_files'].append(str(file_path))
+            self.stats["files_modified"] += 1
+            self.stats["prints_replaced"] += print_count
+            self.stats["modified_files"].append(str(file_path))
 
             print(f"✓ Converted {file_path.name}: {print_count} print statements")
             return True
 
         except Exception as e:
             print(f"✗ Error processing {file_path.name}: {e}")
-            self.stats['files_with_errors'].append(str(file_path))
+            self.stats["files_with_errors"].append(str(file_path))
             return False
 
     def find_files_with_prints(self) -> List[Path]:
         """Find all Python files in tools/ with print statements."""
         files = []
-        tools_dir = self.base_dir / 'tools'
+        tools_dir = self.base_dir / "tools"
 
-        for py_file in tools_dir.rglob('*.py'):
+        for py_file in tools_dir.rglob("*.py"):
             # Skip __init__.py files
-            if py_file.name == '__init__.py':
+            if py_file.name == "__init__.py":
                 continue
 
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
+                with open(py_file, "r", encoding="utf-8") as f:
                     content = f.read()
-                    if 'print(' in content and 'from shared.logging import get_logger' not in content:
+                    if (
+                        "print(" in content
+                        and "from shared.logging import get_logger" not in content
+                    ):
                         files.append(py_file)
             except Exception as e:
                 print(f"Error reading {py_file}: {e}")
@@ -291,9 +297,9 @@ class PrintToLoggingConverter:
         print(f"  Total print() statements replaced: {self.stats['prints_replaced']}")
         print(f"  Files with errors: {len(self.stats['files_with_errors'])}")
 
-        if self.stats['files_with_errors']:
+        if self.stats["files_with_errors"]:
             print("\nFiles with errors:")
-            for f in self.stats['files_with_errors']:
+            for f in self.stats["files_with_errors"]:
                 print(f"  - {f}")
 
         return self.stats
@@ -312,7 +318,7 @@ def main():
     stats = converter.run()
 
     # Exit with error code if there were errors
-    if stats['files_with_errors']:
+    if stats["files_with_errors"]:
         sys.exit(1)
 
     print("\n✓ Conversion complete!")

@@ -17,6 +17,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from shared.errors import APIError
 from tools.integrations.linear.linear_sync_github import LinearSyncGitHub
 
 
@@ -465,26 +466,26 @@ class TestLinearSyncGitHub:
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_missing_linear_api_key(self):
         """Test error when Linear API key is missing."""
-        tool = LinearSyncGitHub(
-            sync_direction="linear_to_github",
-            linear_issue_id="issue_abc",
-            github_repo="company/project",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(APIError) as exc_info:
+            tool = LinearSyncGitHub(
+                sync_direction="linear_to_github",
+                linear_issue_id="issue_abc",
+                github_repo="company/project",
+            )
+            tool.run()
+        assert "api key" in str(exc_info.value).lower() or "linear" in str(exc_info.value).lower()
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false", "LINEAR_API_KEY": "test_key"})
     def test_missing_github_token(self):
         """Test error when GitHub token is missing."""
-        tool = LinearSyncGitHub(
-            sync_direction="linear_to_github",
-            linear_issue_id="issue_abc",
-            github_repo="company/project",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(APIError) as exc_info:
+            tool = LinearSyncGitHub(
+                sync_direction="linear_to_github",
+                linear_issue_id="issue_abc",
+                github_repo="company/project",
+            )
+            tool.run()
+        assert "token" in str(exc_info.value).lower() or "github" in str(exc_info.value).lower()
 
 
 # Run tests if executed directly

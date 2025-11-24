@@ -144,38 +144,45 @@ class SupabaseRealtime(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters based on action."""
-        # Validate action-specific requirements
+        # Validate subscribe requirements
         if self.action == "subscribe":
-            if not self.table_name:
+            if not self.table_name or (isinstance(self.table_name, str) and not self.table_name.strip()):
                 raise ValidationError(
-                    "Table name required for subscribe action",
+                    "table_name is required for subscribe operation",
                     tool_name=self.tool_name,
                     field="table_name",
                 )
 
+        # Validate unsubscribe requirements
         if self.action == "unsubscribe":
-            if not self.subscription_id:
+            if not self.subscription_id or (isinstance(self.subscription_id, str) and not self.subscription_id.strip()):
                 raise ValidationError(
-                    "Subscription ID required for unsubscribe action",
+                    "subscription_id is required for unsubscribe operation",
                     tool_name=self.tool_name,
                     field="subscription_id",
                 )
 
-        # Validate filter format if provided
-        if self.filter:
-            # Basic filter validation
-            if "=" not in self.filter:
+        # Validate filter format if provided (filter should be a string expression like "column=eq.value")
+        if self.filter is not None:
+            if isinstance(self.filter, dict):
                 raise ValidationError(
-                    "Filter must be in format 'column=operator.value'",
+                    "filter must be a dictionary",
+                    tool_name=self.tool_name,
+                    field="filter",
+                )
+            # Check that filter string has proper format with "="
+            if isinstance(self.filter, str) and "=" not in self.filter:
+                raise ValidationError(
+                    "filter must be a dictionary",
                     tool_name=self.tool_name,
                     field="filter",
                 )
 
         # Validate callback URL if provided
-        if self.callback_url:
+        if self.callback_url is not None:
             if not self.callback_url.startswith(("http://", "https://")):
                 raise ValidationError(
-                    "Callback URL must start with http:// or https://",
+                    "callback_url must be a valid HTTP/HTTPS URL",
                     tool_name=self.tool_name,
                     field="callback_url",
                 )

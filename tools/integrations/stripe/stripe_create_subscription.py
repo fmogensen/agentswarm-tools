@@ -5,14 +5,23 @@ Creates a recurring subscription for a customer using Stripe's Subscription API.
 Supports multiple plans, trial periods, and billing intervals.
 """
 
+import hashlib
 import json
 import os
+import time
+import uuid
 from typing import Any, Dict, List, Optional
 
 from pydantic import Field
 
 from shared.base import BaseTool
 from shared.errors import APIError, AuthenticationError, ValidationError
+
+# Stripe SDK import
+try:
+    import stripe
+except ImportError:
+    stripe = None
 
 
 class StripeCreateSubscription(BaseTool):
@@ -102,7 +111,11 @@ class StripeCreateSubscription(BaseTool):
                     "billing_interval": self.billing_interval,
                 },
             }
+        except (AuthenticationError, ValidationError):
+            # Let these pass through unchanged
+            raise
         except Exception as e:
+            # Only wrap unexpected errors
             raise APIError(f"Failed to create subscription: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -129,7 +142,9 @@ class StripeCreateSubscription(BaseTool):
 
     def _generate_mock_results(self) -> Dict[str, Any]:
         """Generate mock results for testing."""
-        import time
+        # Generate unique ID
+        unique_data = f"{self.price_id}{self.customer_id}{time.time()}{uuid.uuid4()}"
+        unique_id = hashlib.sha256(unique_data.encode()).hexdigest()[:16]
 
         current_time = int(time.time())
         trial_end = (
@@ -139,7 +154,7 @@ class StripeCreateSubscription(BaseTool):
 
         return {
             "success": True,
-            "subscription_id": "sub_mock_1234567890abcdef",
+            "subscription_id": f"sub_mock_{unique_id}",
             "customer_id": (
                 self.customer_id if self.customer_id.startswith("cus_") else "cus_mock_created"
             ),
@@ -163,10 +178,8 @@ class StripeCreateSubscription(BaseTool):
                 "Missing STRIPE_API_KEY environment variable", tool_name=self.tool_name
             )
 
-        # Import Stripe SDK
-        try:
-            import stripe
-        except ImportError:
+        # Check Stripe SDK
+        if stripe is None:
             raise APIError(
                 "Stripe SDK not installed. Run: pip install stripe",
                 tool_name=self.tool_name,

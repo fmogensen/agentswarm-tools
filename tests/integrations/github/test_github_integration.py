@@ -8,6 +8,9 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
+# Import errors
+from shared.errors import ValidationError
+
 # Import all GitHub tools
 from tools.integrations.github.github_create_pr import GitHubCreatePR
 from tools.integrations.github.github_manage_issues import GitHubManageIssues, IssueAction
@@ -77,33 +80,30 @@ class TestGitHubCreatePR:
 
     def test_validation_same_branch(self):
         """Test validation error for same head and base branch."""
-        tool = GitHubCreatePR(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            title="Test PR",
-            head_branch="main",
-            base_branch="main",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
-        assert "error" in result
-        assert "cannot be the same" in result["error"]["message"]
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubCreatePR(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                title="Test PR",
+                head_branch="main",
+                base_branch="main",
+            )
+            tool.run()
+        assert "cannot be the same" in str(exc_info.value)
 
     def test_validation_empty_reviewer(self):
         """Test validation error for empty reviewer."""
-        tool = GitHubCreatePR(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            title="Test PR",
-            head_branch="feature",
-            base_branch="main",
-            reviewers=[""],
-        )
-        result = tool.run()
-
-        assert result["success"] is False
-        assert "error" in result
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubCreatePR(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                title="Test PR",
+                head_branch="feature",
+                base_branch="main",
+                reviewers=[""],
+            )
+            tool.run()
+        assert "reviewer" in str(exc_info.value).lower() or "empty" in str(exc_info.value).lower()
 
 
 class TestGitHubReviewCode:
@@ -177,30 +177,29 @@ class TestGitHubReviewCode:
 
     def test_validation_missing_body_for_approve(self):
         """Test validation error for missing body on APPROVE."""
-        tool = GitHubReviewCode(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            pr_number=123,
-            event=ReviewEvent.APPROVE,
-            body="",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
-        assert "error" in result
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubReviewCode(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                pr_number=123,
+                event=ReviewEvent.APPROVE,
+                body="",
+            )
+            tool.run()
+        assert "body" in str(exc_info.value).lower() or "approve" in str(exc_info.value).lower()
 
     def test_validation_missing_comment_fields(self):
         """Test validation error for missing comment fields."""
-        tool = GitHubReviewCode(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            pr_number=123,
-            event=ReviewEvent.COMMENT,
-            comments=[{"body": "Missing path"}],
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubReviewCode(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                pr_number=123,
+                event=ReviewEvent.COMMENT,
+                comments=[{"body": "Missing path"}],
+            )
+            tool.run()
+        assert "path" in str(exc_info.value).lower() or "comment" in str(exc_info.value).lower()
 
 
 class TestGitHubManageIssues:
@@ -322,27 +321,27 @@ class TestGitHubManageIssues:
 
     def test_validation_missing_title_for_create(self):
         """Test validation error for missing title on create."""
-        tool = GitHubManageIssues(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            action=IssueAction.CREATE,
-            body="Missing title",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubManageIssues(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                action=IssueAction.CREATE,
+                body="Missing title",
+            )
+            tool.run()
+        assert "title" in str(exc_info.value).lower()
 
     def test_validation_missing_issue_number_for_update(self):
         """Test validation error for missing issue_number on update."""
-        tool = GitHubManageIssues(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            action=IssueAction.UPDATE,
-            title="Updated title",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubManageIssues(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                action=IssueAction.UPDATE,
+                title="Updated title",
+            )
+            tool.run()
+        assert "issue_number" in str(exc_info.value).lower() or "issue number" in str(exc_info.value).lower()
 
 
 class TestGitHubRunActions:
@@ -413,24 +412,24 @@ class TestGitHubRunActions:
 
     def test_validation_missing_parameters(self):
         """Test validation error for missing parameters."""
-        tool = GitHubRunActions(
-            repo_owner="myorg",
-            repo_name="myrepo",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubRunActions(
+                repo_owner="myorg",
+                repo_name="myrepo",
+            )
+            tool.run()
+        assert "workflow" in str(exc_info.value).lower() or "parameter" in str(exc_info.value).lower()
 
     def test_validation_missing_ref_for_trigger(self):
         """Test validation error for missing ref when triggering."""
-        tool = GitHubRunActions(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            workflow_id="ci.yml",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubRunActions(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                workflow_id="ci.yml",
+            )
+            tool.run()
+        assert "ref" in str(exc_info.value).lower()
 
 
 class TestGitHubRepoAnalytics:
@@ -513,26 +512,26 @@ class TestGitHubRepoAnalytics:
 
     def test_validation_invalid_date_format(self):
         """Test validation error for invalid date format."""
-        tool = GitHubRepoAnalytics(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            since="invalid-date",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubRepoAnalytics(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                since="invalid-date",
+            )
+            tool.run()
+        assert "date" in str(exc_info.value).lower() or "format" in str(exc_info.value).lower()
 
     def test_validation_invalid_date_range(self):
         """Test validation error for invalid date range."""
-        tool = GitHubRepoAnalytics(
-            repo_owner="myorg",
-            repo_name="myrepo",
-            since="2024-12-31",
-            until="2024-01-01",
-        )
-        result = tool.run()
-
-        assert result["success"] is False
+        with pytest.raises(ValidationError) as exc_info:
+            tool = GitHubRepoAnalytics(
+                repo_owner="myorg",
+                repo_name="myrepo",
+                since="2024-12-31",
+                until="2024-01-01",
+            )
+            tool.run()
+        assert "date" in str(exc_info.value).lower() or "range" in str(exc_info.value).lower() or "before" in str(exc_info.value).lower()
 
 
 # Integration tests
