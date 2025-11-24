@@ -326,6 +326,76 @@ max_results: int = Field(10, description="Max results", ge=1, le=100)
 filter: Optional[str] = Field(None, description="Optional filter")
 ```
 
+## Documentation & Release Management
+
+### Root Directory Organization
+
+**Keep root directory clean with ONLY essential documentation:**
+
+```
+root/
+├── README.md           # Project overview
+├── CHANGELOG.md        # Complete version history (single source of truth)
+├── CONTRIBUTING.md     # Contribution guidelines
+└── CLAUDE.md          # AI development guidelines (this file)
+```
+
+**Rules:**
+- ❌ **NEVER create versioned release notes** (e.g., `RELEASE_NOTES_v1.2.0.md`)
+- ❌ **NEVER create versioned migration guides** (e.g., `MIGRATION_GUIDE_v1.2.0.md`)
+- ❌ **NEVER create standalone deprecation files** (e.g., `DEPRECATION_TIMELINE.md`)
+- ❌ **NEVER create standalone test reports** (e.g., `TEST_REPORT.md`)
+- ✅ **ALWAYS update CHANGELOG.md** for all releases and changes
+
+### CHANGELOG.md Format
+
+Follow [Keep a Changelog](https://keepachangelog.com/) standard:
+
+```markdown
+## [Unreleased]
+
+## [X.Y.Z] - YYYY-MM-DD
+
+### Added
+- New features
+
+### Changed
+- Changes to existing functionality
+
+### Deprecated
+- Soon-to-be removed features
+
+### Removed
+- Removed features
+
+### Fixed
+- Bug fixes
+
+### Security
+- Security fixes
+
+### Migration Notes
+- Breaking changes and upgrade instructions
+```
+
+**Guidelines:**
+- Include migration notes directly in each version section
+- Document breaking changes with clear upgrade paths
+- Keep deprecation notices within relevant version entries
+- Link to related PRs and issues
+- Use semantic versioning (Major.Minor.Patch)
+
+### When Creating Releases
+
+1. **Update CHANGELOG.md** with new version section
+2. **Include migration notes** if breaking changes exist
+3. **Document all changes** (Added, Changed, Deprecated, Removed, Fixed)
+4. **Create git tag**: `git tag -a vX.Y.Z -m "Release X.Y.Z"`
+5. **Push tag**: `git push origin vX.Y.Z`
+6. **Use GitHub Releases** for detailed release notes (not root files)
+
+**DO NOT create separate versioned documentation files in root.**
+
 ## Important Instructions
 
 - **FOLLOW** Agency Swarm tool development standards
@@ -335,6 +405,8 @@ filter: Optional[str] = Field(None, description="Optional filter")
 - **Tools perform concrete, atomic actions** - avoid abstract tools
 - **Always implement all 5 required methods** in tool classes
 - **Test with mock mode** before testing with real APIs
+- **Keep root directory clean** - only essential docs (README, CHANGELOG, CONTRIBUTING, CLAUDE)
+- **Use CHANGELOG.md as single source of truth** - no versioned release files
 
 ## Quick Reference
 
