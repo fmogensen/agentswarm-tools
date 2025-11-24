@@ -145,10 +145,10 @@ class AudioTranscribe(BaseTool):
                 )
             except Exception as e:
                 self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
-            raise APIError(
-                f"Speech recognition failed: {e}",
-                tool_name=self.tool_name,
-            )
+                raise APIError(
+                    f"Speech recognition failed: {e}",
+                    tool_name=self.tool_name,
+                )
 
             if isinstance(raw_result, str):
                 return {"text": raw_result, "words": []}

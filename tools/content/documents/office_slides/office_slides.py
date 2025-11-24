@@ -318,7 +318,7 @@ class OfficeSlidesTool(BaseTool):
                 return temp_file.name
             except Exception as e:
                 self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
-            raise APIError(f"Failed to download file from URL: {e}", tool_name=self.tool_name)
+                raise APIError(f"Failed to download file from URL: {e}", tool_name=self.tool_name)
 
         else:
             raise ValidationError(f"Unsupported URL scheme: {url}", tool_name=self.tool_name)

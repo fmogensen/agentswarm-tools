@@ -150,7 +150,7 @@ class ReadEmailAttachments(BaseTool):
                 return {"attachments": cached_data, "from_cache": True}
             except Exception as e:
                 self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
-            raise APIError(f"Failed reading cache: {e}", tool_name=self.tool_name)
+                raise APIError(f"Failed reading cache: {e}", tool_name=self.tool_name)
 
         # Simulated real attachment reading logic
         try:
