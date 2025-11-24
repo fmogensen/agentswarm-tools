@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 import requests
+from requests.exceptions import HTTPError, RequestException, Timeout
 from pydantic import Field
 
 from shared.base import BaseTool
@@ -527,14 +528,6 @@ class HubSpotGetAnalytics(BaseTool):
                 tool_name=self.tool_name,
             )
 
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
-                tool_name=self.tool_name,
-            )
-
         # Determine API endpoint based on report type
         report_type = self.report_type.lower()
 
@@ -588,7 +581,7 @@ class HubSpotGetAnalytics(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 401:
                 raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 404:
@@ -604,7 +597,7 @@ class HubSpotGetAnalytics(BaseTool):
                     f"HubSpot analytics API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _parse_api_response(self, api_data: Dict[str, Any]) -> Dict[str, Any]:

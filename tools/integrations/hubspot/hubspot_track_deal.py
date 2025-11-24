@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 import requests
+from requests.exceptions import HTTPError, RequestException, Timeout
 from pydantic import Field
 
 from shared.base import BaseTool
@@ -411,14 +412,6 @@ class HubSpotTrackDeal(BaseTool):
                 tool_name=self.tool_name,
             )
 
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
-                tool_name=self.tool_name,
-            )
-
         # Build properties
         properties = self._build_properties()
 
@@ -489,7 +482,7 @@ class HubSpotTrackDeal(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 401:
                 raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
@@ -500,7 +493,7 @@ class HubSpotTrackDeal(BaseTool):
                     f"HubSpot API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_update(self) -> Dict[str, Any]:
@@ -509,14 +502,6 @@ class HubSpotTrackDeal(BaseTool):
         if not api_key:
             raise AuthenticationError(
                 "Missing HUBSPOT_API_KEY environment variable",
-                tool_name=self.tool_name,
-            )
-
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
                 tool_name=self.tool_name,
             )
 
@@ -568,7 +553,7 @@ class HubSpotTrackDeal(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 401:
                 raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 404:
@@ -581,7 +566,7 @@ class HubSpotTrackDeal(BaseTool):
                     f"HubSpot API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_batch(self) -> Dict[str, Any]:
@@ -590,14 +575,6 @@ class HubSpotTrackDeal(BaseTool):
         if not api_key:
             raise AuthenticationError(
                 "Missing HUBSPOT_API_KEY environment variable",
-                tool_name=self.tool_name,
-            )
-
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
                 tool_name=self.tool_name,
             )
 
@@ -635,7 +612,7 @@ class HubSpotTrackDeal(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 401:
                 raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
@@ -646,7 +623,7 @@ class HubSpotTrackDeal(BaseTool):
                     f"HubSpot batch API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
 

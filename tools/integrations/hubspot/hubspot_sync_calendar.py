@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 import requests
+from requests.exceptions import HTTPError, RequestException, Timeout
 from pydantic import Field
 
 from shared.base import BaseTool
@@ -407,14 +408,6 @@ class HubSpotSyncCalendar(BaseTool):
                 tool_name=self.tool_name,
             )
 
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
-                tool_name=self.tool_name,
-            )
-
         # 1. Create meeting in HubSpot
         hubspot_url = "https://api.hubapi.com/crm/v3/objects/meetings"
         hubspot_headers = {
@@ -483,7 +476,7 @@ class HubSpotSyncCalendar(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 401:
                 raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
@@ -494,7 +487,7 @@ class HubSpotSyncCalendar(BaseTool):
                     f"HubSpot meeting API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_update_meeting(self) -> Dict[str, Any]:
@@ -503,14 +496,6 @@ class HubSpotSyncCalendar(BaseTool):
         if not hubspot_key:
             raise AuthenticationError(
                 "Missing HUBSPOT_API_KEY environment variable",
-                tool_name=self.tool_name,
-            )
-
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
                 tool_name=self.tool_name,
             )
 
@@ -552,7 +537,7 @@ class HubSpotSyncCalendar(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 404:
                 raise APIError(f"Meeting not found: {self.meeting_id}", tool_name=self.tool_name)
             else:
@@ -561,7 +546,7 @@ class HubSpotSyncCalendar(BaseTool):
                     f"HubSpot API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_delete_meeting(self) -> Dict[str, Any]:
@@ -570,14 +555,6 @@ class HubSpotSyncCalendar(BaseTool):
         if not hubspot_key:
             raise AuthenticationError(
                 "Missing HUBSPOT_API_KEY environment variable",
-                tool_name=self.tool_name,
-            )
-
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
                 tool_name=self.tool_name,
             )
 
@@ -600,7 +577,7 @@ class HubSpotSyncCalendar(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 404:
                 raise APIError(f"Meeting not found: {self.meeting_id}", tool_name=self.tool_name)
             else:
@@ -609,7 +586,7 @@ class HubSpotSyncCalendar(BaseTool):
                     f"HubSpot API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_sync(self) -> Dict[str, Any]:

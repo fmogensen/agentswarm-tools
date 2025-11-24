@@ -10,7 +10,9 @@ import os
 import time
 from typing import Any, Dict, List, Optional
 
+import requests
 from pydantic import Field
+from requests.exceptions import HTTPError, RequestException, Timeout
 
 from shared.base import BaseTool
 from shared.errors import APIError, AuthenticationError, ValidationError
@@ -309,14 +311,6 @@ class HubSpotCreateContact(BaseTool):
             )
 
         # Import requests
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
-                tool_name=self.tool_name,
-            )
-
         # Build properties
         properties = self._build_properties()
 
@@ -381,7 +375,7 @@ class HubSpotCreateContact(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 401:
                 raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
@@ -392,12 +386,12 @@ class HubSpotCreateContact(BaseTool):
                     f"HubSpot API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.Timeout:
+        except Timeout:
             raise APIError(
                 "Request timed out. HubSpot API may be slow.",
                 tool_name=self.tool_name,
             )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _process_batch(self) -> Dict[str, Any]:
@@ -406,14 +400,6 @@ class HubSpotCreateContact(BaseTool):
         if not api_key:
             raise AuthenticationError(
                 "Missing HUBSPOT_API_KEY environment variable",
-                tool_name=self.tool_name,
-            )
-
-        try:
-            import requests
-        except ImportError:
-            raise APIError(
-                "requests library not installed. Run: pip install requests",
                 tool_name=self.tool_name,
             )
 
@@ -453,7 +439,7 @@ class HubSpotCreateContact(BaseTool):
                 },
             }
 
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             if e.response.status_code == 401:
                 raise AuthenticationError("Invalid HubSpot API key", tool_name=self.tool_name)
             elif e.response.status_code == 429:
@@ -464,19 +450,17 @@ class HubSpotCreateContact(BaseTool):
                     f"HubSpot batch API error: {error_detail.get('message', str(e))}",
                     tool_name=self.tool_name,
                 )
-        except requests.exceptions.Timeout:
+        except Timeout:
             raise APIError(
                 "Batch request timed out. Try smaller batch size.",
                 tool_name=self.tool_name,
             )
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
 
     def _get_contact_by_email(self, api_key: str, email: str) -> Optional[str]:
         """Get contact ID by email address."""
         try:
-            import requests
-
             url = "https://api.hubapi.com/crm/v3/objects/contacts/search"
             headers = {
                 "Authorization": f"Bearer {api_key}",
@@ -512,8 +496,6 @@ class HubSpotCreateContact(BaseTool):
     def _add_to_lists(self, api_key: str, contact_id: str, list_ids: List[str]) -> List[str]:
         """Add contact to specified lists."""
         try:
-            import requests
-
             headers = {
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",

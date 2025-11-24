@@ -79,6 +79,7 @@ class SupabaseInsertEmbeddings(BaseTool):
         description="Name of the table to insert into",
         min_length=1,
         max_length=63,
+        pattern=r"^.+$",  # Ensure not empty after strip
     )
     embeddings: List[Dict[str, Any]] = Field(
         ...,
