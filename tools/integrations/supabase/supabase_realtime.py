@@ -157,7 +157,9 @@ class SupabaseRealtime(BaseTool):
 
         # Validate unsubscribe requirements
         if self.action == "unsubscribe":
-            if not self.subscription_id or (isinstance(self.subscription_id, str) and not self.subscription_id.strip()):
+            if not self.subscription_id or (
+                isinstance(self.subscription_id, str) and not self.subscription_id.strip()
+            ):
                 raise ValidationError(
                     "subscription_id is required for unsubscribe operation",
                     tool_name=self.tool_name,

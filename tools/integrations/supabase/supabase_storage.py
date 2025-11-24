@@ -178,7 +178,9 @@ class SupabaseStorage(BaseTool):
         """Validate input parameters based on action."""
         # Validate upload requirements
         if self.action == "upload":
-            if not self.file_path or (isinstance(self.file_path, str) and not self.file_path.strip()):
+            if not self.file_path or (
+                isinstance(self.file_path, str) and not self.file_path.strip()
+            ):
                 raise ValidationError(
                     "file_path is required for upload operation",
                     tool_name=self.tool_name,
@@ -186,8 +188,12 @@ class SupabaseStorage(BaseTool):
                 )
 
             # Must have either content OR local_path (not both, not neither)
-            has_content = self.content is not None and (not isinstance(self.content, str) or self.content.strip())
-            has_local_path = self.local_path is not None and (not isinstance(self.local_path, str) or self.local_path.strip())
+            has_content = self.content is not None and (
+                not isinstance(self.content, str) or self.content.strip()
+            )
+            has_local_path = self.local_path is not None and (
+                not isinstance(self.local_path, str) or self.local_path.strip()
+            )
 
             if not has_content and not has_local_path:
                 raise ValidationError(
