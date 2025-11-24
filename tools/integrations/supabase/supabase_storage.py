@@ -211,7 +211,9 @@ class SupabaseStorage(BaseTool):
 
         # Validate download requirements
         if self.action == "download":
-            if not self.local_path or (isinstance(self.local_path, str) and not self.local_path.strip()):
+            if not self.local_path or (
+                isinstance(self.local_path, str) and not self.local_path.strip()
+            ):
                 raise ValidationError(
                     "local_path is required for download operation",
                     tool_name=self.tool_name,
