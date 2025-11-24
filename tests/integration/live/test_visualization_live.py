@@ -177,6 +177,7 @@ class TestHistogramLive:
 class TestWordCloudLive:
     """Live tests for word cloud generation."""
 
+    @pytest.mark.skip(reason="Requires wordcloud library")
     def test_basic_word_cloud(self):
         """Test basic word cloud generation."""
         from tools.visualization.generate_word_cloud_chart import GenerateWordCloudChart

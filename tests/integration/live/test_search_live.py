@@ -105,6 +105,7 @@ class TestNotionLive:
 class TestFinancialToolsLive:
     """Live tests for financial data tools."""
 
+    @pytest.mark.skip(reason="Requires external API endpoint")
     def test_stock_price(self):
         """Test stock price retrieval."""
         from tools.data.search.stock_price import StockPrice
@@ -115,6 +116,7 @@ class TestFinancialToolsLive:
         # Should return data or graceful error
         assert "success" in result or "error" in result
 
+    @pytest.mark.skip(reason="Requires external API endpoint")
     def test_financial_report(self):
         """Test financial report retrieval."""
         from tools.data.search.financial_report import FinancialReport

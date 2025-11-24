@@ -386,7 +386,7 @@ class HubSpotGetAnalytics(BaseTool):
                     "pipeline": 3890000,
                 },
             }
-        elif report_type == "emails":
+        elif report_type == "email":
             return {
                 "total_sent": 45678,
                 "delivered": 44532,
@@ -535,7 +535,7 @@ class HubSpotGetAnalytics(BaseTool):
             url = f"https://api.hubapi.com/analytics/v2/reports/{self.custom_report_id}"
         elif report_type == "deals":
             url = "https://api.hubapi.com/crm-analytics/v1/deals/funnel"
-        elif report_type == "emails":
+        elif report_type == "email":
             url = "https://api.hubapi.com/email/public/v1/campaigns/stats"
         else:
             # General analytics endpoint
