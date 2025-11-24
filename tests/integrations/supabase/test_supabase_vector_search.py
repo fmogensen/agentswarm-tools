@@ -43,7 +43,7 @@ class TestSupabaseVectorSearchValidation:
             tool.run()
         # Flexible check - Pydantic v2 may say "at least 1" or "table name"
         error_msg = str(exc.value).lower()
-        assert ("table" in error_msg or "at least" in error_msg or "should have" in error_msg)
+        assert "table" in error_msg or "at least" in error_msg or "should have" in error_msg
 
     def test_empty_embedding(self):
         """Test with empty embedding."""
@@ -65,7 +65,12 @@ class TestSupabaseVectorSearchValidation:
             tool.run()
         # Flexible check - Pydantic v2 may say different things about type errors
         error_msg = str(exc.value).lower()
-        assert ("numeric" in error_msg or "float" in error_msg or "input" in error_msg or "type" in error_msg)
+        assert (
+            "numeric" in error_msg
+            or "float" in error_msg
+            or "input" in error_msg
+            or "type" in error_msg
+        )
 
     def test_invalid_filter_type(self):
         """Test with invalid filter type."""

@@ -41,7 +41,7 @@ class TestSupabaseInsertEmbeddingsValidation:
             tool.run()
         # Flexible check - Pydantic v2 may say "at least 1" or "table name"
         error_msg = str(exc.value).lower()
-        assert ("table" in error_msg or "at least" in error_msg or "should have" in error_msg)
+        assert "table" in error_msg or "at least" in error_msg or "should have" in error_msg
 
     def test_empty_embeddings_list(self):
         """Test with empty embeddings list."""
