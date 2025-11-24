@@ -225,7 +225,12 @@ class HubSpotSyncCalendar(BaseTool):
                     tool_name=self.tool_name,
                 )
 
-            if not self.start_time or not self.start_time.strip() or not self.end_time or not self.end_time.strip():
+            if (
+                not self.start_time
+                or not self.start_time.strip()
+                or not self.end_time
+                or not self.end_time.strip()
+            ):
                 raise ValidationError(
                     "create_meeting requires title, start_time, and end_time",
                     tool_name=self.tool_name,

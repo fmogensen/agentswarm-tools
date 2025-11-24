@@ -254,10 +254,18 @@ class StripeListCustomers(BaseTool):
             error_type = type(e).__name__
 
             if error_type == "InvalidRequestError":
-                raise ValidationError(f"Invalid request: {str(e)}", tool_name=self.tool_name)
+                raise ValidationError(
+                    f"Invalid request: {str(e)}", tool_name=self.tool_name
+                )
             elif error_type == "AuthenticationError":
-                raise AuthenticationError(f"Authentication failed: {str(e)}", tool_name=self.tool_name)
-            elif "StripeError" in error_type or hasattr(e, '__module__') and 'stripe' in e.__module__:
+                raise AuthenticationError(
+                    f"Authentication failed: {str(e)}", tool_name=self.tool_name
+                )
+            elif (
+                "StripeError" in error_type
+                or hasattr(e, "__module__")
+                and "stripe" in e.__module__
+            ):
                 raise APIError(f"Stripe error: {str(e)}", tool_name=self.tool_name)
             else:
                 # Unknown error

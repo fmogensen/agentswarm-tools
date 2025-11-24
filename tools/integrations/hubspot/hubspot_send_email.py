@@ -211,7 +211,9 @@ class HubSpotSendEmail(BaseTool):
             for idx, email in enumerate(self.batch_emails):
                 # Check content
                 has_template = "template_id" in email and email["template_id"]
-                has_custom = "subject" in email and "body" in email and email["subject"] and email["body"]
+                has_custom = (
+                    "subject" in email and "body" in email and email["subject"] and email["body"]
+                )
                 if not has_template and not has_custom:
                     raise ValidationError(
                         f"Email at index {idx} must have template_id or subject+body",
