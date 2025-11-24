@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Repository Overview
 
-AgentSwarm Tools Framework - **126+ production-ready tools** organized into **8 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
+AgentSwarm Tools Framework - **110 production-ready tools** organized into **7 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Adopts MCP-first strategy for enterprise integrations. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
 
 ## AI Agent Autonomy
 
@@ -122,7 +122,7 @@ agentswarm-tools/
 │   │   ├── storage/        # AI Drive, OneDrive, file conversion (4)
 │   │   └── management/     # Agent status, task queues (2)
 │   ├── utils/              # Utilities and helpers (8)
-│   └── integrations/       # External service connectors (0, extensible)
+│   └── integrations/       # External service connectors (0, use MCP servers instead)
 ├── shared/                   # Shared utilities
 │   ├── base.py             # BaseTool class
 │   ├── errors.py           # Custom exceptions
@@ -163,7 +163,7 @@ class MyTool(BaseTool):
 
     # Tool metadata
     tool_name: str = "my_tool"
-    tool_category: str = "data"  # One of: data, communication, media, visualization, content, infrastructure, utils, integrations
+    tool_category: str = "data"  # One of: data, communication, media, visualization, content, infrastructure, utils
 
     # Parameters with Pydantic Field
     param1: str = Field(..., description="Required parameter", min_length=1)
@@ -345,7 +345,7 @@ def _validate_parameters(self) -> None:
         raise ValidationError("record_id is required for update operation", tool_name=self.tool_name)
 ```
 
-**Common validation patterns for integration tools:**
+**Common validation patterns for tools:**
 - Date formats: `YYYY-MM-DD` or ISO 8601
 - ID formats: Proper prefix validation (e.g., `cus_` for Stripe customers)
 - Batch size limits: Max 100 items per batch
@@ -563,7 +563,7 @@ from shared.errors import (
 3. **Reproduce locally**:
    ```bash
    # Run exact CI command locally
-   pytest tests/unit/tools/ tests/integration/ tests/integrations/ -v --cov=. --cov-report=term-missing
+   pytest tests/unit/tools/ tests/integration/ -v --cov=. --cov-report=term-missing
    ```
 
 4. **Common fixes**:

@@ -3,14 +3,14 @@
 **Production-Ready AI Tool Suite for Agent Development**
 
 [![Coverage](https://img.shields.io/badge/coverage-85--95%25-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
-[![Tests](https://img.shields.io/badge/tests-359%20passing-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
+[![Tests](https://img.shields.io/badge/tests-760%20passing-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 
 ## 🎯 Overview
 
-A comprehensive suite of **135 production-ready tools** organized into **8 streamlined categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
+A comprehensive suite of **110 production-ready tools** organized into **7 streamlined categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
 
 - ✅ **Error Handling by Design** - Comprehensive exception handling and graceful degradation
 - ✅ **Built-in Analytics** - Request tracking, performance metrics, usage statistics
@@ -35,10 +35,10 @@ A comprehensive suite of **135 production-ready tools** organized into **8 strea
 AgentSwarm Tools Framework represents the most comprehensive AI tool suite in the market, with significant advantages over competing platforms:
 
 ### Market-Leading Tool Count
-- **135 production-ready tools** vs. Genspark's 57 tools (**+137% more capabilities**)
-- **25 enterprise integrations** (Stripe, Supabase, GitHub, Linear, HubSpot)
-- Streamlined organization across 8 intuitive categories
-- Continuous tool development and category expansion
+- **110 production-ready tools** vs. Genspark's 57 tools (**+93% more capabilities**)
+- **MCP-first approach** - Leverages existing MCP servers for integrations (GitHub, HubSpot, Stripe, Linear, Supabase)
+- Streamlined organization across 7 intuitive categories
+- Focused on unique capabilities not available via MCP servers
 
 ### Cost Optimization Through LiteLLM Integration
 - **90% cost savings** on AI model operations through intelligent routing
@@ -75,45 +75,43 @@ AgentSwarm Tools Framework represents the most comprehensive AI tool suite in th
 | **Content** | 10 tools | ✅ Complete |
 | **Infrastructure** | 11 tools | ✅ Complete |
 | **Utilities** | 8 tools | ✅ Complete |
-| **Integrations** | 25 tools | ✅ **NEW!** |
-| **TOTAL** | **135 tools** | ✅ **100% Complete** |
+| **TOTAL** | **110 tools** | ✅ **100% Complete** |
 
-### 🆕 Enterprise Integrations (25 Tools)
+### 🔌 MCP-First Integration Strategy
 
-#### Stripe - Payment Processing (5 tools)
-- **stripe_create_payment** - One-time payments with multi-currency support
-- **stripe_create_subscription** - Recurring billing with trial periods
-- **stripe_list_customers** - Customer search and filtering
-- **stripe_get_invoices** - Invoice retrieval by status/date
-- **stripe_handle_webhooks** - Secure HMAC-SHA256 webhook processing
+**AgentSwarm Tools adopts an MCP-first approach** - we leverage existing Model Context Protocol (MCP) servers for enterprise integrations rather than duplicating functionality.
 
-#### Supabase - Vector Database & Backend (5 tools)
-- **supabase_vector_search** - pgvector similarity search for RAG pipelines
-- **supabase_insert_embeddings** - Batch vector insertion with metadata
-- **supabase_auth** - JWT authentication and session management
-- **supabase_realtime** - Database change subscriptions
-- **supabase_storage** - File storage with CDN URLs
+#### Use MCP Servers For:
 
-#### GitHub - Developer Productivity (5 tools)
-- **github_create_pr** - GraphQL-optimized pull request creation
-- **github_review_code** - Automated code review submission
-- **github_manage_issues** - Complete issue lifecycle management
-- **github_run_actions** - CI/CD workflow triggers and monitoring
-- **github_repo_analytics** - Repository metrics and insights
+**Payment & Commerce:**
+- **Stripe** - Official MCP server at https://mcp.stripe.com/
+  - Customer management, payments, subscriptions, invoices, webhooks
 
-#### Linear - Project Management (5 tools)
-- **linear_create_issue** - Issue creation with workflows
-- **linear_update_status** - Status transitions and updates
-- **linear_assign_team** - Team assignment with capacity planning
-- **linear_get_roadmap** - Roadmap and milestone tracking
-- **linear_sync_github** - Bi-directional GitHub synchronization
+**Developer Tools:**
+- **GitHub** - Official MCP server available
+  - Pull requests, code review, issues, actions, repository analytics
 
-#### HubSpot - CRM & Marketing (5 tools)
-- **hubspot_create_contact** - Contact management with batch operations
-- **hubspot_track_deal** - Deal pipelines and forecasting
-- **hubspot_send_email** - Email campaigns with templates
-- **hubspot_get_analytics** - 8 report types and metrics
-- **hubspot_sync_calendar** - Google Calendar integration
+**Project Management:**
+- **Linear** - Official MCP server available
+  - Issue tracking, team assignment, roadmap, GitHub sync
+
+**CRM & Marketing:**
+- **HubSpot** - Official MCP server (@hubspot/mcp-server)
+  - Contacts, deals, email campaigns, analytics, calendar sync
+
+**Database & Backend:**
+- **Supabase** - Official MCP server at https://mcp.supabase.com/mcp
+  - Vector search, embeddings, authentication, realtime, storage
+
+#### Why MCP-First?
+
+- ✅ **No Duplication** - Avoid maintaining redundant integration code
+- ✅ **Always Up-to-Date** - Official MCP servers maintained by vendors
+- ✅ **Standardized Interface** - Consistent tool patterns across platforms
+- ✅ **Better Security** - Official authentication and permissions
+- ✅ **Community Support** - Leverage 100+ existing MCP servers
+
+**Focus:** AgentSwarm Tools focuses on **unique capabilities not available via MCP**, including specialized media processing, advanced analytics, custom workflows, and domain-specific tools.
 
 ## 📚 Documentation
 
