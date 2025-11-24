@@ -236,7 +236,10 @@ class LinearGetRoadmap(BaseTool):
         milestones = []
         for project in projects:
             if self.include_milestones and "milestones" in project:
-                milestones.extend(project["milestones"])
+                for milestone in project["milestones"]:
+                    milestones.append(
+                        {**milestone, "project_id": project["id"], "project_name": project["name"]}
+                    )
 
         roadmap_summary = {
             "total_projects": len(projects),
