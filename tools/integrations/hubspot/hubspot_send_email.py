@@ -269,10 +269,13 @@ class HubSpotSendEmail(BaseTool):
         # Validate scheduled_time format (ISO 8601)
         if self.scheduled_time:
             from datetime import datetime
+
             try:
-                datetime.fromisoformat(self.scheduled_time.replace('Z', '+00:00'))
+                datetime.fromisoformat(self.scheduled_time.replace("Z", "+00:00"))
             except ValueError:
-                raise ValidationError("scheduled_time must be in ISO 8601 format", tool_name=self.tool_name)
+                raise ValidationError(
+                    "scheduled_time must be in ISO 8601 format", tool_name=self.tool_name
+                )
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""

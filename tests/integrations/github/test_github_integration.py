@@ -341,7 +341,10 @@ class TestGitHubManageIssues:
                 title="Updated title",
             )
             tool.run()
-        assert "issue_number" in str(exc_info.value).lower() or "issue number" in str(exc_info.value).lower()
+        assert (
+            "issue_number" in str(exc_info.value).lower()
+            or "issue number" in str(exc_info.value).lower()
+        )
 
 
 class TestGitHubRunActions:
@@ -418,7 +421,9 @@ class TestGitHubRunActions:
                 repo_name="myrepo",
             )
             tool.run()
-        assert "workflow" in str(exc_info.value).lower() or "parameter" in str(exc_info.value).lower()
+        assert (
+            "workflow" in str(exc_info.value).lower() or "parameter" in str(exc_info.value).lower()
+        )
 
     def test_validation_missing_ref_for_trigger(self):
         """Test validation error for missing ref when triggering."""
@@ -531,7 +536,11 @@ class TestGitHubRepoAnalytics:
                 until="2024-01-01",
             )
             tool.run()
-        assert "date" in str(exc_info.value).lower() or "range" in str(exc_info.value).lower() or "before" in str(exc_info.value).lower()
+        assert (
+            "date" in str(exc_info.value).lower()
+            or "range" in str(exc_info.value).lower()
+            or "before" in str(exc_info.value).lower()
+        )
 
 
 # Integration tests

@@ -348,7 +348,9 @@ class TestLinearCreateIssue:
         with pytest.raises(APIError) as exc_info:
             tool = LinearCreateIssue(title="Test issue", team_id="invalid_team")
             tool.run()
-        assert "invalid team" in str(exc_info.value).lower() or "error" in str(exc_info.value).lower()
+        assert (
+            "invalid team" in str(exc_info.value).lower() or "error" in str(exc_info.value).lower()
+        )
 
     @patch.dict(os.environ, {"USE_MOCK_APIS": "false"})
     def test_missing_api_key(self):
@@ -356,7 +358,10 @@ class TestLinearCreateIssue:
         with pytest.raises(APIError) as exc_info:
             tool = LinearCreateIssue(title="Test issue", team_id="team_abc123")
             tool.run()
-        assert "api key" in str(exc_info.value).lower() or "linear_api_key" in str(exc_info.value).lower()
+        assert (
+            "api key" in str(exc_info.value).lower()
+            or "linear_api_key" in str(exc_info.value).lower()
+        )
 
 
 # Run tests if executed directly

@@ -139,11 +139,9 @@ class LinearAssignTeam(BaseTool):
             )
 
         # Check for conflicting assignee options - count how many are provided/true
-        assignee_options_count = sum([
-            bool(self.assignee_id),
-            self.auto_assign,
-            self.distribute_evenly
-        ])
+        assignee_options_count = sum(
+            [bool(self.assignee_id), self.auto_assign, self.distribute_evenly]
+        )
 
         if assignee_options_count > 1:
             raise ValidationError(
@@ -155,11 +153,11 @@ class LinearAssignTeam(BaseTool):
         if self.auto_assign and self.distribute_evenly:
             raise ValidationError(
                 "Cannot use both auto_assign and distribute_evenly - these options are mutually exclusive",
-                tool_name=self.tool_name
+                tool_name=self.tool_name,
             )
 
         # Validate date formats (YYYY-MM-DD)
-        date_pattern = r'^\d{4}-\d{2}-\d{2}$'
+        date_pattern = r"^\d{4}-\d{2}-\d{2}$"
 
         if self.start_date:
             if not re.match(date_pattern, self.start_date):
