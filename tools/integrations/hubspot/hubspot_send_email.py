@@ -201,18 +201,32 @@ class HubSpotSendEmail(BaseTool):
                 )
 
             # Batch size limit
-            if len(self.batch_emails) > 100:
+            if len(self.batch_emails) > 10:
                 raise ValidationError(
-                    "Batch size cannot exceed 100 emails",
+                    "Batch size cannot exceed 10 emails",
                     tool_name=self.tool_name,
                 )
 
             # Validate each email
             for idx, email in enumerate(self.batch_emails):
-                # Check if recipients key exists
-                if "recipients" not in email:
+                # Check content
+                has_template = "template_id" in email and email["template_id"]
+                has_custom = "subject" in email and "body" in email and email["subject"] and email["body"]
+                if not has_template and not has_custom:
                     raise ValidationError(
-                        "Each email in batch must have recipients",
+                        f"Email at index {idx} must have template_id or subject+body",
+                        tool_name=self.tool_name,
+                    )
+
+                # Check recipients
+                has_recipients = (
+                    ("contact_ids" in email and email["contact_ids"])
+                    or ("list_ids" in email and email["list_ids"])
+                    or ("recipient_email" in email and email["recipient_email"])
+                )
+                if not has_recipients:
+                    raise ValidationError(
+                        f"Email at index {idx} must have recipients (contact_ids, list_ids, or recipient_email)",
                         tool_name=self.tool_name,
                     )
             return

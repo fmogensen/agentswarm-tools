@@ -156,9 +156,26 @@ class SupabaseAuth(BaseTool):
                     tool_name=self.tool_name,
                     field="email",
                 )
+
+            # Validate email format
+            if self.email and "@" not in self.email:
+                raise ValidationError(
+                    "Invalid email format",
+                    tool_name=self.tool_name,
+                    field="email",
+                )
+
             if not self.password or (isinstance(self.password, str) and not self.password.strip()):
                 raise ValidationError(
                     "password is required for sign_up operation",
+                    tool_name=self.tool_name,
+                    field="password",
+                )
+
+            # Validate password strength
+            if self.password and len(self.password) < 6:
+                raise ValidationError(
+                    "Password must be at least 6 characters long",
                     tool_name=self.tool_name,
                     field="password",
                 )

@@ -137,7 +137,7 @@ class HubSpotCreateContact(BaseTool):
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
         # Check if batch or single mode
-        if self.batch_contacts:
+        if self.batch_contacts is not None:
             # Validate batch contacts is not empty
             if not isinstance(self.batch_contacts, list):
                 raise ValidationError(
@@ -147,7 +147,7 @@ class HubSpotCreateContact(BaseTool):
 
             if len(self.batch_contacts) == 0:
                 raise ValidationError(
-                    "Batch contacts cannot be empty",
+                    "batch_contacts must be a non-empty list",
                     tool_name=self.tool_name,
                 )
 

@@ -159,6 +159,14 @@ class SupabaseInsertEmbeddings(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
+        # Validate table name
+        if not self.table_name or not self.table_name.strip():
+            raise ValidationError(
+                "Table name cannot be empty",
+                tool_name=self.tool_name,
+                field="table_name",
+            )
+
         # Validate each embedding
         embedding_dims = None
         for i, emb in enumerate(self.embeddings):

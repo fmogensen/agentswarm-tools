@@ -207,7 +207,7 @@ class HubSpotTrackDeal(BaseTool):
             date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
             if not date_pattern.match(self.closedate):
                 raise ValidationError(
-                    "Invalid closedate format. Use YYYY-MM-DD",
+                    "Invalid closedate format. Use YYYY-MM-DD format",
                     tool_name=self.tool_name,
                 )
 
@@ -239,7 +239,7 @@ class HubSpotTrackDeal(BaseTool):
 
             if not has_update_field:
                 raise ValidationError(
-                    "At least one field must be provided for update",
+                    "Deal update requires at least one field to update",
                     tool_name=self.tool_name,
                 )
 

@@ -218,22 +218,16 @@ class HubSpotSyncCalendar(BaseTool):
         operation = self.operation.lower()
 
         # Validate create operation requirements
-        if operation == "create":
+        if operation in ["create", "create_meeting"]:
             if not self.title or not self.title.strip():
                 raise ValidationError(
-                    "title is required for create operation",
+                    "create_meeting requires title",
                     tool_name=self.tool_name,
                 )
 
-            if not self.start_time or not self.start_time.strip():
+            if not self.start_time or not self.start_time.strip() or not self.end_time or not self.end_time.strip():
                 raise ValidationError(
-                    "start_time is required for create operation",
-                    tool_name=self.tool_name,
-                )
-
-            if not self.end_time or not self.end_time.strip():
-                raise ValidationError(
-                    "end_time is required for create operation",
+                    "create_meeting requires title, start_time, and end_time",
                     tool_name=self.tool_name,
                 )
 
@@ -241,14 +235,14 @@ class HubSpotSyncCalendar(BaseTool):
         if self.start_time:
             if "T" not in self.start_time and ":" not in self.start_time:
                 raise ValidationError(
-                    "Invalid time format. Use ISO 8601",
+                    "Invalid time format. Use ISO 8601 format",
                     tool_name=self.tool_name,
                 )
 
         if self.end_time:
             if "T" not in self.end_time and ":" not in self.end_time:
                 raise ValidationError(
-                    "Invalid time format. Use ISO 8601",
+                    "Invalid time format. Use ISO 8601 format",
                     tool_name=self.tool_name,
                 )
 
@@ -261,23 +255,23 @@ class HubSpotSyncCalendar(BaseTool):
                 )
 
         # Validate update/delete requirements
-        if operation == "update":
+        if operation in ["update", "update_meeting"]:
             if not self.meeting_id or not self.meeting_id.strip():
                 raise ValidationError(
-                    "meeting_id is required for update operation",
+                    "update_meeting requires meeting_id",
                     tool_name=self.tool_name,
                 )
 
-        if operation == "delete":
+        if operation in ["delete", "delete_meeting"]:
             if not self.meeting_id or not self.meeting_id.strip():
                 raise ValidationError(
-                    "meeting_id is required for delete operation",
+                    "delete_meeting requires meeting_id",
                     tool_name=self.tool_name,
                 )
 
         # Validate meeting_type if provided
         if self.meeting_type:
-            valid_types = ["call", "meeting", "task"]
+            valid_types = ["sales_call", "demo", "consultation", "followup"]
             if self.meeting_type.lower() not in valid_types:
                 raise ValidationError(
                     f"Invalid meeting_type: {self.meeting_type}. "

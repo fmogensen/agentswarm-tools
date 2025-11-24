@@ -234,16 +234,23 @@ class StripeCreatePayment(BaseTool):
         try:
             payment_intent = stripe.PaymentIntent.create(**intent_data)
             return payment_intent
-        except stripe.error.CardError as e:
-            raise APIError(f"Card error: {e.user_message}", tool_name=self.tool_name)
-        except stripe.error.InvalidRequestError as e:
-            raise ValidationError(f"Invalid request: {str(e)}", tool_name=self.tool_name)
-        except stripe.error.AuthenticationError as e:
-            raise AuthenticationError(f"Authentication failed: {str(e)}", tool_name=self.tool_name)
-        except stripe.error.APIConnectionError as e:
-            raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
-        except stripe.error.StripeError as e:
-            raise APIError(f"Stripe error: {str(e)}", tool_name=self.tool_name)
+        except Exception as e:
+            # Handle Stripe errors by checking the error type name
+            error_type = type(e).__name__
+
+            if error_type == "CardError":
+                raise APIError(f"Card error: {getattr(e, 'user_message', str(e))}", tool_name=self.tool_name)
+            elif error_type == "InvalidRequestError":
+                raise ValidationError(f"Invalid request: {str(e)}", tool_name=self.tool_name)
+            elif error_type == "AuthenticationError":
+                raise AuthenticationError(f"Authentication failed: {str(e)}", tool_name=self.tool_name)
+            elif error_type == "APIConnectionError":
+                raise APIError(f"Network error: {str(e)}", tool_name=self.tool_name)
+            elif "StripeError" in error_type or hasattr(e, '__module__') and 'stripe' in e.__module__:
+                raise APIError(f"Stripe error: {str(e)}", tool_name=self.tool_name)
+            else:
+                # Unknown error
+                raise
 
 
 if __name__ == "__main__":

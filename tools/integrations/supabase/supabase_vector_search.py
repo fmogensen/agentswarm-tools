@@ -142,6 +142,14 @@ class SupabaseVectorSearch(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
+        # Validate table name
+        if not self.table_name or not self.table_name.strip():
+            raise ValidationError(
+                "Table name cannot be empty",
+                tool_name=self.tool_name,
+                field="table_name",
+            )
+
         # Check API keys in real mode
         if not self._should_use_mock():
             supabase_url = os.getenv("SUPABASE_URL")
