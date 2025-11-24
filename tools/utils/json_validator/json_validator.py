@@ -51,7 +51,9 @@ class JsonValidator(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute JSON validation."""
 
-        self._logger.info(f"Executing {self.tool_name} with json_data={self.json_data}, schema={self.schema}, strict={self.strict}, validate_types={self.validate_types}")
+        self._logger.info(
+            f"Executing {self.tool_name} with json_data={self.json_data}, schema={self.schema}, strict={self.strict}, validate_types={self.validate_types}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -55,7 +55,9 @@ class TextFormatter(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute text formatting."""
 
-        self._logger.info(f"Executing {self.tool_name} with text={self.text}, operations={self.operations}, custom_replacements={self.custom_replacements}, strip_html={self.strip_html}")
+        self._logger.info(
+            f"Executing {self.tool_name} with text={self.text}, operations={self.operations}, custom_replacements={self.custom_replacements}, strip_html={self.strip_html}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -67,7 +67,9 @@ class SlackSendMessage(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute Slack message send."""
 
-        self._logger.info(f"Executing {self.tool_name} with channel={self.channel}, text={self.text}, thread_ts={self.thread_ts}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with channel={self.channel}, text={self.text}, thread_ts={self.thread_ts}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -110,7 +110,9 @@ class UnifiedChartGenerator(BaseTool):
             Dict with chart image and metadata
         """
 
-        self._logger.info(f"Executing {self.tool_name} with title={self.title}, width={self.width}, height={self.height}, options={self.options}")
+        self._logger.info(
+            f"Executing {self.tool_name} with title={self.title}, width={self.width}, height={self.height}, options={self.options}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

@@ -54,7 +54,9 @@ class AnalyzeMediaContent(BaseTool):
             APIError: For external API failures
         """
 
-        self._logger.info(f"Executing {self.tool_name} with media_url={self.media_url}, instruction={self.instruction}")
+        self._logger.info(
+            f"Executing {self.tool_name} with media_url={self.media_url}, instruction={self.instruction}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

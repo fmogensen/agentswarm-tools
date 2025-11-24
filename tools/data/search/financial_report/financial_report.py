@@ -58,7 +58,9 @@ class FinancialReport(BaseTool):
             APIError: For external API failures
         """
 
-        self._logger.info(f"Executing {self.tool_name} with ticker={self.ticker}, report_type={self.report_type}")
+        self._logger.info(
+            f"Executing {self.tool_name} with ticker={self.ticker}, report_type={self.report_type}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

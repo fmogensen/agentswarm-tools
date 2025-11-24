@@ -51,7 +51,9 @@ class UnderstandVideo(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with media_url={self.media_url}, instruction={self.instruction}")
+        self._logger.info(
+            f"Executing {self.tool_name} with media_url={self.media_url}, instruction={self.instruction}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

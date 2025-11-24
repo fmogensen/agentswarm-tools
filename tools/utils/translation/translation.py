@@ -114,7 +114,9 @@ class Translation(BaseTool):
             Dict with translation results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with text={self.text}, source_lang={self.source_lang}, target_lang={self.target_lang}, preserve_formatting={self.preserve_formatting}, api_provider={self.api_provider}")
+        self._logger.info(
+            f"Executing {self.tool_name} with text={self.text}, source_lang={self.source_lang}, target_lang={self.target_lang}, preserve_formatting={self.preserve_formatting}, api_provider={self.api_provider}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

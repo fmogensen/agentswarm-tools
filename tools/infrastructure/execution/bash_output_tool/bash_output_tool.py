@@ -46,12 +46,8 @@ class BashOutputTool(BaseTool):
     tool_description: str = "Monitor output from background bash processes"
 
     # Parameters
-    shell_id: str = Field(
-        ..., description="ID of background shell to monitor", min_length=1
-    )
-    filter_pattern: Optional[str] = Field(
-        None, description="Regex pattern to filter output lines"
-    )
+    shell_id: str = Field(..., description="ID of background shell to monitor", min_length=1)
+    filter_pattern: Optional[str] = Field(None, description="Regex pattern to filter output lines")
 
     # Simulated shell registry for demonstration
     # In production, this would be a persistent data store or API
@@ -97,9 +93,7 @@ class BashOutputTool(BaseTool):
                 "metadata": {"tool_name": self.tool_name, "tool_version": "1.0.0"},
             }
         except Exception as e:
-            self._logger.error(
-                f"Error in {self.tool_name}: {str(e)}", exc_info=True
-            )
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to retrieve output: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -150,9 +144,7 @@ class BashOutputTool(BaseTool):
         if self.filter_pattern:
             try:
                 pattern = re.compile(self.filter_pattern, re.IGNORECASE)
-                filtered_lines = [
-                    line for line in mock_output if pattern.search(line)
-                ]
+                filtered_lines = [line for line in mock_output if pattern.search(line)]
             except Exception:
                 filtered_lines = [mock_output[2]]  # Return error line as fallback
         else:

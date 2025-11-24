@@ -48,7 +48,9 @@ class NotionSearch(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with query={self.query}, max_results={self.max_results}")
+        self._logger.info(
+            f"Executing {self.tool_name} with query={self.query}, max_results={self.max_results}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

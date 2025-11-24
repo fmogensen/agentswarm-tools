@@ -94,7 +94,9 @@ class OfficeSheetsTool(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with mode={self.mode}, data={self.data}, headers={self.headers}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with mode={self.mode}, data={self.data}, headers={self.headers}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

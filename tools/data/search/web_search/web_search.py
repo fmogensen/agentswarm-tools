@@ -51,7 +51,9 @@ class WebSearch(BaseTool):
         Returns:
             Dict with results
         """
-        self._logger.info(f"Executing {self.tool_name} with query: '{self.query}', max_results: {self.max_results}")
+        self._logger.info(
+            f"Executing {self.tool_name} with query: '{self.query}', max_results: {self.max_results}"
+        )
 
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
@@ -119,7 +121,9 @@ class WebSearch(BaseTool):
                 )
 
             # Call Google Custom Search API
-            self._logger.debug(f"Making API request to Google Custom Search for query: '{self.query}'")
+            self._logger.debug(
+                f"Making API request to Google Custom Search for query: '{self.query}'"
+            )
             response = requests.get(
                 "https://www.googleapis.com/customsearch/v1",
                 params={

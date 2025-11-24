@@ -161,9 +161,9 @@ class MergeAudio(BaseTool):
             except Exception as e:
                 self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
-                    f"Failed to load audio file {clip['path']}: {e}",
-                    tool_name=self.tool_name,
-                )
+                f"Failed to load audio file {clip['path']}: {e}",
+                tool_name=self.tool_name,
+            )
 
             start = clip.get("start", 0)
             gain = clip.get("gain", None)

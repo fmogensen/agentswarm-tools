@@ -63,7 +63,9 @@ class BatchWebSearch(BaseTool):
             Dict with results for all queries
         """
 
-        self._logger.info(f"Executing {self.tool_name} with queries={self.queries}, max_results_per_query={self.max_results_per_query}, max_workers={self.max_workers}, show_progress={self.show_progress}")
+        self._logger.info(
+            f"Executing {self.tool_name} with queries={self.queries}, max_results_per_query={self.max_results_per_query}, max_workers={self.max_workers}, show_progress={self.show_progress}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -58,7 +58,9 @@ class AudioGeneration(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}, model={self.model}, fallback_models={self.fallback_models}")
+        self._logger.info(
+            f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}, model={self.model}, fallback_models={self.fallback_models}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

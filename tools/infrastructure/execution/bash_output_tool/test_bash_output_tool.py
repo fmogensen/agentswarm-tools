@@ -125,9 +125,7 @@ class TestBashOutputToolValidation:
     def test_valid_complex_regex_accepted(self):
         """Test that valid complex regex patterns are accepted."""
         # Should not raise any errors
-        tool = BashOutputTool(
-            shell_id="test_shell", filter_pattern=r"^(ERROR|WARN):\s+\w+"
-        )
+        tool = BashOutputTool(shell_id="test_shell", filter_pattern=r"^(ERROR|WARN):\s+\w+")
         result = tool.run()
         assert result["success"] is True
 
@@ -182,9 +180,7 @@ class TestBashOutputToolFilterPattern:
 
         assert result["success"] is True
         # Filtered count should be <= total count
-        assert (
-            result["result"]["filtered_lines_count"] <= result["result"]["total_lines"]
-        )
+        assert result["result"]["filtered_lines_count"] <= result["result"]["total_lines"]
 
 
 class TestBashOutputToolShellStatus:
@@ -247,12 +243,8 @@ class TestBashOutputToolMultipleReads:
 
         try:
             # Initialize registry
-            BashOutputTool._shell_registry = {
-                "test_shell_123": {"status": "running"}
-            }
-            BashOutputTool._output_buffers = {
-                "test_shell_123": ["Line 1", "Line 2", "Line 3"]
-            }
+            BashOutputTool._shell_registry = {"test_shell_123": {"status": "running"}}
+            BashOutputTool._output_buffers = {"test_shell_123": ["Line 1", "Line 2", "Line 3"]}
             BashOutputTool._read_positions = {"test_shell_123": 0}
 
             # First read - should get all lines
@@ -366,9 +358,7 @@ class TestBashOutputToolEdgeCases:
 
     def test_filter_pattern_matches_nothing(self):
         """Test filter pattern that matches nothing."""
-        tool = BashOutputTool(
-            shell_id="test_shell", filter_pattern="xyz_impossible_pattern_12345"
-        )
+        tool = BashOutputTool(shell_id="test_shell", filter_pattern="xyz_impossible_pattern_12345")
         result = tool.run()
 
         assert result["success"] is True

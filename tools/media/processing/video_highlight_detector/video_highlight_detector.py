@@ -76,9 +76,7 @@ class VideoHighlightDetector(BaseTool):
         10, description="Maximum number of highlights to detect", ge=1, le=50
     )
     min_duration: int = Field(5, description="Minimum highlight duration in seconds", ge=1, le=60)
-    max_duration: int = Field(
-        30, description="Maximum highlight duration in seconds", ge=5, le=300
-    )
+    max_duration: int = Field(30, description="Maximum highlight duration in seconds", ge=5, le=300)
     confidence_threshold: float = Field(
         0.6, description="Minimum confidence score for highlights", ge=0.0, le=1.0
     )
@@ -581,9 +579,7 @@ class VideoHighlightDetector(BaseTool):
 
         return highlights
 
-    def _detect_dialogue_segments(
-        self, video_file: str, duration: float
-    ) -> List[Dict[str, Any]]:
+    def _detect_dialogue_segments(self, video_file: str, duration: float) -> List[Dict[str, Any]]:
         """Detect dialogue segments using audio analysis."""
         # Simplified dialogue detection
         highlights = []
@@ -708,7 +704,10 @@ if __name__ == "__main__":
     )
     result2 = tool2.run()
     assert result2.get("success") == True
-    assert all(h["type"] in ["fast_motion", "intense_action", "dynamic_movement", "collision"] for h in result2["highlights"])
+    assert all(
+        h["type"] in ["fast_motion", "intense_action", "dynamic_movement", "collision"]
+        for h in result2["highlights"]
+    )
     print("   Action detection test passed")
 
     # Test 3: Dialogue detection with audio analysis

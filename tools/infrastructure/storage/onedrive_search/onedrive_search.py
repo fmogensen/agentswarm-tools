@@ -45,7 +45,9 @@ class OnedriveSearch(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with query={self.query}, max_results={self.max_results}")
+        self._logger.info(
+            f"Executing {self.tool_name} with query={self.query}, max_results={self.max_results}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

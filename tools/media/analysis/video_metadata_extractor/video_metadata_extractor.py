@@ -59,7 +59,9 @@ class VideoMetadataExtractor(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute the video metadata extraction."""
 
-        self._logger.info(f"Executing {self.tool_name} with video_path={self.video_path}, extract_thumbnails={self.extract_thumbnails}, include_streams={self.include_streams}")
+        self._logger.info(
+            f"Executing {self.tool_name} with video_path={self.video_path}, extract_thumbnails={self.extract_thumbnails}, include_streams={self.include_streams}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

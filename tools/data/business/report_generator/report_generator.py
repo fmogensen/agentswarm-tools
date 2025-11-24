@@ -58,7 +58,9 @@ class ReportGenerator(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute report generation."""
 
-        self._logger.info(f"Executing {self.tool_name} with data={self.data}, report_type={self.report_type}, title={self.title}, sections={self.sections}, format={self.format}")
+        self._logger.info(
+            f"Executing {self.tool_name} with data={self.data}, report_type={self.report_type}, title={self.title}, sections={self.sections}, format={self.format}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -152,7 +152,9 @@ class PodcastGenerator(BaseTool):
             Dict with podcast generation results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with topic={self.topic}, duration_minutes={self.duration_minutes}, num_speakers={self.num_speakers}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with topic={self.topic}, duration_minutes={self.duration_minutes}, num_speakers={self.num_speakers}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

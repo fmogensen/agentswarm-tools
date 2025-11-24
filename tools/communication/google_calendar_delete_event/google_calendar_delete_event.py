@@ -63,7 +63,9 @@ class GoogleCalendarDeleteEvent(BaseTool):
         """Execute calendar event deletion (delegates to UnifiedGoogleCalendar)."""
         # Emit deprecation warning
 
-        self._logger.info(f"Executing {self.tool_name} with event_id={self.event_id}, send_updates={self.send_updates}")
+        self._logger.info(
+            f"Executing {self.tool_name} with event_id={self.event_id}, send_updates={self.send_updates}"
+        )
         warnings.warn(
             "GoogleCalendarDeleteEvent is deprecated and will be removed in v3.0.0. "
             "Use UnifiedGoogleCalendar with action='delete' instead. "

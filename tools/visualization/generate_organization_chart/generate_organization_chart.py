@@ -82,7 +82,9 @@ class GenerateOrganizationChart(BaseTool):
             Dict with chart data and visualization
         """
 
-        self._logger.info(f"Executing {self.tool_name} with data={self.data}, title={self.title}, width={self.width}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with data={self.data}, title={self.title}, width={self.width}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -84,7 +84,9 @@ class CreateProfile(BaseTool):
             Dict with created profile data
         """
 
-        self._logger.info(f"Executing {self.tool_name} with name={self.name}, profile_type={self.profile_type}, role={self.role}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with name={self.name}, profile_type={self.profile_type}, role={self.role}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

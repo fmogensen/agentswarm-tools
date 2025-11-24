@@ -72,7 +72,9 @@ class ImageStyleTransfer(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute the image style transfer."""
 
-        self._logger.info(f"Executing {self.tool_name} with input_image={self.input_image}, style={self.style}, style_image_url={self.style_image_url}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with input_image={self.input_image}, style={self.style}, style_image_url={self.style_image_url}, ..."
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

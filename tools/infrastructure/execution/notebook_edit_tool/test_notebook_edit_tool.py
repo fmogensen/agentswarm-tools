@@ -71,9 +71,7 @@ def sample_notebook():
 @pytest.fixture
 def temp_notebook(sample_notebook):
     """Create a temporary notebook file"""
-    with tempfile.NamedTemporaryFile(
-        mode="w", delete=False, suffix=".ipynb"
-    ) as f:
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".ipynb") as f:
         json.dump(sample_notebook, f)
         notebook_path = f.name
 
@@ -94,9 +92,7 @@ def empty_notebook():
         "nbformat_minor": 5,
     }
 
-    with tempfile.NamedTemporaryFile(
-        mode="w", delete=False, suffix=".ipynb"
-    ) as f:
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".ipynb") as f:
         json.dump(notebook, f)
         notebook_path = f.name
 
@@ -340,9 +336,7 @@ class TestNotebookEditToolDelete:
 
     def test_delete_cell(self, temp_notebook):
         """Test deleting a cell"""
-        tool = NotebookEditTool(
-            notebook_path=temp_notebook, cell_id="cell2", edit_mode="delete"
-        )
+        tool = NotebookEditTool(notebook_path=temp_notebook, cell_id="cell2", edit_mode="delete")
         result = tool.run()
 
         assert result["success"] is True
@@ -360,9 +354,7 @@ class TestNotebookEditToolDelete:
 
     def test_delete_first_cell(self, temp_notebook):
         """Test deleting first cell"""
-        tool = NotebookEditTool(
-            notebook_path=temp_notebook, cell_id="cell1", edit_mode="delete"
-        )
+        tool = NotebookEditTool(notebook_path=temp_notebook, cell_id="cell1", edit_mode="delete")
         result = tool.run()
 
         assert result["success"] is True
@@ -374,9 +366,7 @@ class TestNotebookEditToolDelete:
 
     def test_delete_last_cell(self, temp_notebook):
         """Test deleting last cell"""
-        tool = NotebookEditTool(
-            notebook_path=temp_notebook, cell_id="cell3", edit_mode="delete"
-        )
+        tool = NotebookEditTool(notebook_path=temp_notebook, cell_id="cell3", edit_mode="delete")
         result = tool.run()
 
         assert result["success"] is True

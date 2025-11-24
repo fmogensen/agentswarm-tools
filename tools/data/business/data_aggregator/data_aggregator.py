@@ -53,7 +53,9 @@ class DataAggregator(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute data aggregation."""
 
-        self._logger.info(f"Executing {self.tool_name} with sources={self.sources}, aggregation_method={self.aggregation_method}, filters={self.filters}")
+        self._logger.info(
+            f"Executing {self.tool_name} with sources={self.sources}, aggregation_method={self.aggregation_method}, filters={self.filters}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -65,7 +65,9 @@ class ImageGeneration(BaseTool):
             APIError: For external API failures
         """
 
-        self._logger.info(f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}, model={self.model}, fallback_models={self.fallback_models}")
+        self._logger.info(
+            f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}, model={self.model}, fallback_models={self.fallback_models}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

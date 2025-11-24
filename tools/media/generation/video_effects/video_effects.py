@@ -97,7 +97,9 @@ class VideoEffects(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute video effects processing."""
 
-        self._logger.info(f"Executing {self.tool_name} with input_path={self.input_path}, effects={self.effects}, output_path={self.output_path}, output_format={self.output_format}")
+        self._logger.info(
+            f"Executing {self.tool_name} with input_path={self.input_path}, effects={self.effects}, output_path={self.output_path}, output_format={self.output_format}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

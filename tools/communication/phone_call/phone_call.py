@@ -67,7 +67,9 @@ class PhoneCall(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute phone call via Twilio."""
 
-        self._logger.info(f"Executing {self.tool_name} with phone_number={self.phone_number}, message={self.message}, voice={self.voice}, language={self.language}, wait_for_response={self.wait_for_response}")
+        self._logger.info(
+            f"Executing {self.tool_name} with phone_number={self.phone_number}, message={self.message}, voice={self.voice}, language={self.language}, wait_for_response={self.wait_for_response}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

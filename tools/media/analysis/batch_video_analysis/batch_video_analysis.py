@@ -59,7 +59,9 @@ class BatchVideoAnalysis(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute the batch video analysis."""
 
-        self._logger.info(f"Executing {self.tool_name} with video_urls={self.video_urls}, analysis_types={self.analysis_types}, custom_instruction={self.custom_instruction}")
+        self._logger.info(
+            f"Executing {self.tool_name} with video_urls={self.video_urls}, analysis_types={self.analysis_types}, custom_instruction={self.custom_instruction}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

@@ -92,3 +92,4 @@ data/cache/
 # Documentation builds
 docs/_build/
 site/
+test-results/

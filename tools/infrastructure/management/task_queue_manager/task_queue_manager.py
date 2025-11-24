@@ -54,7 +54,9 @@ class TaskQueueManager(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute queue management action."""
 
-        self._logger.info(f"Executing {self.tool_name} with action={self.action}, task_id={self.task_id}, task_data={self.task_data}, queue_id={self.queue_id}, priority={self.priority}")
+        self._logger.info(
+            f"Executing {self.tool_name} with action={self.action}, task_id={self.task_id}, task_data={self.task_data}, queue_id={self.queue_id}, priority={self.priority}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

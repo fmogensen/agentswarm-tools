@@ -94,7 +94,9 @@ class EmailSend(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute email send."""
 
-        self._logger.info(f"Executing {self.tool_name} with to={self.to}, subject={self.subject}, body={self.body}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with to={self.to}, subject={self.subject}, body={self.body}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -62,7 +62,9 @@ class SlackReadMessages(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute Slack message read."""
 
-        self._logger.info(f"Executing {self.tool_name} with channel={self.channel}, limit={self.limit}, oldest={self.oldest}, latest={self.latest}, include_threads={self.include_threads}")
+        self._logger.info(
+            f"Executing {self.tool_name} with channel={self.channel}, limit={self.limit}, oldest={self.oldest}, latest={self.latest}, include_threads={self.include_threads}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

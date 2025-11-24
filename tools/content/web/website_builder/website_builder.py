@@ -106,7 +106,9 @@ class WebsiteBuilder(BaseTool):
             ConfigurationError: If API key is missing
         """
 
-        self._logger.info(f"Executing {self.tool_name} with website_purpose={self.website_purpose}, num_pages={self.num_pages}, style={self.style}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with website_purpose={self.website_purpose}, num_pages={self.num_pages}, style={self.style}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

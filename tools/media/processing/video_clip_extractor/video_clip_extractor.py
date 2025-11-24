@@ -370,7 +370,9 @@ class VideoClipExtractor(BaseTool):
 
         # Add fade transitions if requested
         if self.add_fade:
-            fade_duration = min(0.5, duration / 4)  # Fade is 0.5s or 25% of clip, whichever is shorter
+            fade_duration = min(
+                0.5, duration / 4
+            )  # Fade is 0.5s or 25% of clip, whichever is shorter
             fade_frames = int(fade_duration * 30)  # Assuming 30fps
             filters.append(f"fade=in:0:{fade_frames}")
             filters.append(f"fade=out:st={duration-fade_duration}:d={fade_duration}")

@@ -163,9 +163,10 @@ class TestGlobTool:
                 with pytest.raises(Exception) as exc_info:
                     tool = GlobTool(pattern="*.py", path=tmpfile.name)
                     tool.run()
-                assert "directory" in str(exc_info.value).lower() or "validation" in str(
-                    exc_info.value
-                ).lower()
+                assert (
+                    "directory" in str(exc_info.value).lower()
+                    or "validation" in str(exc_info.value).lower()
+                )
             finally:
                 os.unlink(tmpfile.name)
 
@@ -196,7 +197,9 @@ class TestGlobTool:
         # Verify sorting: most recent files should be first
         # We created files with delays, so deep_file.py should be most recent
         mtimes = [os.path.getmtime(m) for m in matches]
-        assert mtimes == sorted(mtimes, reverse=True), "Files should be sorted by mtime (newest first)"
+        assert mtimes == sorted(
+            mtimes, reverse=True
+        ), "Files should be sorted by mtime (newest first)"
 
     def test_hidden_files_matching(self, test_directory):
         """Test 13: Hidden files matching"""

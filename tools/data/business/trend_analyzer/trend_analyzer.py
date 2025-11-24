@@ -57,7 +57,9 @@ class TrendAnalyzer(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute trend analysis."""
 
-        self._logger.info(f"Executing {self.tool_name} with data_points={self.data_points}, time_labels={self.time_labels}, analysis_type={self.analysis_type}, window_size={self.window_size}")
+        self._logger.info(
+            f"Executing {self.tool_name} with data_points={self.data_points}, time_labels={self.time_labels}, analysis_type={self.analysis_type}, window_size={self.window_size}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

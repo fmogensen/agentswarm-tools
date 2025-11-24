@@ -56,7 +56,9 @@ class TeamsSendMessage(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute Teams message send."""
 
-        self._logger.info(f"Executing {self.tool_name} with team_id={self.team_id}, channel_id={self.channel_id}, message={self.message}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with team_id={self.team_id}, channel_id={self.channel_id}, message={self.message}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

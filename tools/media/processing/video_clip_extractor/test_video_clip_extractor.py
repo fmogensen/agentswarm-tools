@@ -139,9 +139,7 @@ class TestVideoClipExtractor:
 
     def test_invalid_clip_missing_start_time(self, valid_video_url):
         with pytest.raises(PydanticValidationError):
-            VideoClipExtractor(
-                video_url=valid_video_url, clips=[{"end_time": 10, "label": "test"}]
-            )
+            VideoClipExtractor(video_url=valid_video_url, clips=[{"end_time": 10, "label": "test"}])
 
     def test_invalid_clip_missing_end_time(self, valid_video_url):
         with pytest.raises(PydanticValidationError):
@@ -168,17 +166,13 @@ class TestVideoClipExtractor:
             )
 
     def test_invalid_aspect_ratio(self, valid_video_url, valid_clips):
-        tool = VideoClipExtractor(
-            video_url=valid_video_url, clips=valid_clips, aspect_ratio="21:9"
-        )
+        tool = VideoClipExtractor(video_url=valid_video_url, clips=valid_clips, aspect_ratio="21:9")
         result = tool.run()
         assert result["success"] is False
 
     def test_invalid_output_format(self, valid_video_url, valid_clips):
         with pytest.raises(PydanticValidationError):
-            VideoClipExtractor(
-                video_url=valid_video_url, clips=valid_clips, output_format="avi"
-            )
+            VideoClipExtractor(video_url=valid_video_url, clips=valid_clips, output_format="avi")
 
     # ========== API ERROR TESTS ==========
 
@@ -252,9 +246,7 @@ class TestVideoClipExtractor:
     @patch.dict("os.environ", {"USE_MOCK_APIS": "true"})
     def test_aspect_ratios(self, valid_video_url, aspect_ratio, expected_resolution):
         clips = [{"start_time": 0, "end_time": 10, "label": "test"}]
-        tool = VideoClipExtractor(
-            video_url=valid_video_url, clips=clips, aspect_ratio=aspect_ratio
-        )
+        tool = VideoClipExtractor(video_url=valid_video_url, clips=clips, aspect_ratio=aspect_ratio)
         result = tool.run()
 
         assert result["success"] is True
@@ -372,9 +364,7 @@ class TestVideoClipExtractor:
 
         # Test with different formats
         for fmt in ["mp4", "mov", "webm"]:
-            tool = VideoClipExtractor(
-                video_url=valid_video_url, clips=clips, output_format=fmt
-            )
+            tool = VideoClipExtractor(video_url=valid_video_url, clips=clips, output_format=fmt)
             result = tool.run()
 
             assert result["success"] is True

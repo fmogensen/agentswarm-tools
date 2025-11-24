@@ -59,7 +59,9 @@ class ProductSearch(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with type={self.type}, query={self.query}, ASIN={self.ASIN}, location_domain={self.location_domain}")
+        self._logger.info(
+            f"Executing {self.tool_name} with type={self.type}, query={self.query}, ASIN={self.ASIN}, location_domain={self.location_domain}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

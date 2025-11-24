@@ -99,9 +99,7 @@ class TestEditTool:
         with open(self.test_file, "w") as f:
             f.write("Hello World\n")
 
-        tool = EditTool(
-            file_path=self.test_file, old_string="nonexistent string", new_string="new"
-        )
+        tool = EditTool(file_path=self.test_file, old_string="nonexistent string", new_string="new")
 
         with pytest.raises(ValidationError) as exc_info:
             tool.run()
@@ -143,9 +141,7 @@ class TestEditTool:
         os.environ["USE_MOCK_APIS"] = "true"
 
         try:
-            tool = EditTool(
-                file_path="/mock/path/file.txt", old_string="old", new_string="new"
-            )
+            tool = EditTool(file_path="/mock/path/file.txt", old_string="old", new_string="new")
             result = tool.run()
 
             assert result["success"] is True
@@ -162,9 +158,7 @@ class TestEditTool:
             for i in range(1000):
                 f.write(f"Line {i}\n")
 
-        tool = EditTool(
-            file_path=self.test_file, old_string="Line 500", new_string="Modified 500"
-        )
+        tool = EditTool(file_path=self.test_file, old_string="Line 500", new_string="Modified 500")
         result = tool.run()
 
         assert result["success"] is True
@@ -271,9 +265,7 @@ class TestEditTool:
         os.chmod(self.test_file, 0o444)
 
         try:
-            tool = EditTool(
-                file_path=self.test_file, old_string="test", new_string="modified"
-            )
+            tool = EditTool(file_path=self.test_file, old_string="test", new_string="modified")
 
             # Should raise APIError due to write permission
             with pytest.raises(APIError) as exc_info:
@@ -301,9 +293,7 @@ class TestEditTool:
         with open(self.test_file, "w") as f:
             f.write("Remove this word from the sentence.\n")
 
-        tool = EditTool(
-            file_path=self.test_file, old_string=" this word", new_string=""
-        )
+        tool = EditTool(file_path=self.test_file, old_string=" this word", new_string="")
         result = tool.run()
 
         assert result["success"] is True

@@ -102,7 +102,9 @@ class OfficeSlidesTool(BaseTool):
         """
         # 1. CHECK MOCK MODE FIRST (before validation that requires libraries)
 
-        self._logger.info(f"Executing {self.tool_name} with mode={self.mode}, slides={self.slides}, theme={self.theme}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with mode={self.mode}, slides={self.slides}, theme={self.theme}, ..."
+        )
         if self._should_use_mock():
             # Still do basic parameter validation
             self._validate_basic_parameters()

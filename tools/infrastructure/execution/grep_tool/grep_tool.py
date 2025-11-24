@@ -46,8 +46,12 @@ class GrepTool(BaseTool):
 
     # Parameters
     pattern: str = Field(..., description="Regular expression pattern to search for", min_length=1)
-    path: Optional[str] = Field(None, description="File or directory to search in (defaults to current directory)")
-    output_mode: str = Field("files_with_matches", description="Output mode: content, files_with_matches, or count")
+    path: Optional[str] = Field(
+        None, description="File or directory to search in (defaults to current directory)"
+    )
+    output_mode: str = Field(
+        "files_with_matches", description="Output mode: content, files_with_matches, or count"
+    )
     case_insensitive: bool = Field(False, description="Case insensitive search")
     line_numbers: bool = Field(False, description="Show line numbers in content mode")
     context_before: int = Field(0, description="Lines to show before match (content mode)", ge=0)
@@ -241,16 +245,45 @@ class GrepTool(BaseTool):
             True if file should be skipped
         """
         # Skip hidden files
-        if file_path.name.startswith('.'):
+        if file_path.name.startswith("."):
             return True
 
         # Skip common binary extensions
         binary_extensions = {
-            '.pyc', '.pyo', '.so', '.o', '.a', '.exe', '.dll', '.dylib',
-            '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.ico', '.webp',
-            '.mp3', '.mp4', '.avi', '.mov', '.wav', '.flac',
-            '.zip', '.tar', '.gz', '.bz2', '.7z', '.rar',
-            '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+            ".pyc",
+            ".pyo",
+            ".so",
+            ".o",
+            ".a",
+            ".exe",
+            ".dll",
+            ".dylib",
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+            ".bmp",
+            ".ico",
+            ".webp",
+            ".mp3",
+            ".mp4",
+            ".avi",
+            ".mov",
+            ".wav",
+            ".flac",
+            ".zip",
+            ".tar",
+            ".gz",
+            ".bz2",
+            ".7z",
+            ".rar",
+            ".pdf",
+            ".doc",
+            ".docx",
+            ".xls",
+            ".xlsx",
+            ".ppt",
+            ".pptx",
         }
 
         if file_path.suffix.lower() in binary_extensions:
@@ -258,10 +291,10 @@ class GrepTool(BaseTool):
 
         # Try to detect binary files by reading first bytes
         try:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 chunk = f.read(1024)
                 # Check for null bytes (common in binary files)
-                if b'\x00' in chunk:
+                if b"\x00" in chunk:
                     return True
         except (OSError, IOError):
             # If we can't read the file, skip it
@@ -318,7 +351,7 @@ class GrepTool(BaseTool):
 
         for file_path in files:
             try:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
                     if pattern.search(content):
                         matching_files.append(str(file_path))
@@ -343,7 +376,7 @@ class GrepTool(BaseTool):
 
         for file_path in files:
             try:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
                     matches = pattern.findall(content)
                     if matches:
@@ -369,7 +402,7 @@ class GrepTool(BaseTool):
 
         for file_path in files:
             try:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                     lines = f.readlines()
 
                     for i, line in enumerate(lines):
@@ -378,7 +411,9 @@ class GrepTool(BaseTool):
                             if self.context_before > 0:
                                 start = max(0, i - self.context_before)
                                 for j in range(start, i):
-                                    formatted = self._format_line(file_path, j, lines[j], is_match=False)
+                                    formatted = self._format_line(
+                                        file_path, j, lines[j], is_match=False
+                                    )
                                     if formatted not in matching_lines:
                                         matching_lines.append(formatted)
 
@@ -390,7 +425,9 @@ class GrepTool(BaseTool):
                             if self.context_after > 0:
                                 end = min(len(lines), i + self.context_after + 1)
                                 for j in range(i + 1, end):
-                                    formatted = self._format_line(file_path, j, lines[j], is_match=False)
+                                    formatted = self._format_line(
+                                        file_path, j, lines[j], is_match=False
+                                    )
                                     if formatted not in matching_lines:
                                         matching_lines.append(formatted)
             except (OSError, IOError, UnicodeDecodeError):
@@ -443,27 +480,29 @@ if __name__ == "__main__":
         tool = GrepTool(pattern="Hello", path=tmpdir, output_mode="files_with_matches")
         result = tool.run()
 
-        assert result.get('success') == True
-        results = result.get('result', {}).get('results', [])
+        assert result.get("success") == True
+        results = result.get("result", {}).get("results", [])
         assert len(results) == 2
         print(f"✅ Test 1 passed: Found {len(results)} files")
 
         # Test 2: content mode with line numbers
         print("\nTest 2: content mode with line numbers")
-        tool = GrepTool(pattern="Hello", path=str(test_file), output_mode="content", line_numbers=True)
+        tool = GrepTool(
+            pattern="Hello", path=str(test_file), output_mode="content", line_numbers=True
+        )
         result = tool.run()
-        assert result.get('success') == True
-        results = result.get('result', {}).get('results', [])
+        assert result.get("success") == True
+        results = result.get("result", {}).get("results", [])
         assert len(results) >= 1
-        assert ':2:' in results[0]  # Line number should be present
+        assert ":2:" in results[0]  # Line number should be present
         print(f"✅ Test 2 passed: Content mode working")
 
         # Test 3: count mode
         print("\nTest 3: count mode")
         tool = GrepTool(pattern="hello", path=tmpdir, output_mode="count", case_insensitive=True)
         result = tool.run()
-        assert result.get('success') == True
-        results = result.get('result', {}).get('results', {})
+        assert result.get("success") == True
+        results = result.get("result", {}).get("results", {})
         assert len(results) == 2
         print(f"✅ Test 3 passed: Count mode working")
 
@@ -471,18 +510,20 @@ if __name__ == "__main__":
         print("\nTest 4: glob filtering")
         tool = GrepTool(pattern="hello", path=tmpdir, glob="*.py", output_mode="files_with_matches")
         result = tool.run()
-        assert result.get('success') == True
-        results = result.get('result', {}).get('results', [])
+        assert result.get("success") == True
+        results = result.get("result", {}).get("results", [])
         assert len(results) == 1
-        assert results[0].endswith('.py')
+        assert results[0].endswith(".py")
         print(f"✅ Test 4 passed: Glob filtering working")
 
         # Test 5: case insensitive
         print("\nTest 5: case insensitive search")
-        tool = GrepTool(pattern="HELLO", path=tmpdir, case_insensitive=True, output_mode="files_with_matches")
+        tool = GrepTool(
+            pattern="HELLO", path=tmpdir, case_insensitive=True, output_mode="files_with_matches"
+        )
         result = tool.run()
-        assert result.get('success') == True
-        results = result.get('result', {}).get('results', [])
+        assert result.get("success") == True
+        results = result.get("result", {}).get("results", [])
         assert len(results) == 2
         print(f"✅ Test 5 passed: Case insensitive working")
 
@@ -521,11 +562,11 @@ if __name__ == "__main__":
             output_mode="content",
             context_before=1,
             context_after=1,
-            line_numbers=True
+            line_numbers=True,
         )
         result = tool.run()
-        assert result.get('success') == True
-        results = result.get('result', {}).get('results', [])
+        assert result.get("success") == True
+        results = result.get("result", {}).get("results", [])
         assert len(results) >= 3  # Before, match, after
         print(f"✅ Test 9 passed: Context working")
 

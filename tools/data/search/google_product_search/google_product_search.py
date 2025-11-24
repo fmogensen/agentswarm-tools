@@ -49,7 +49,9 @@ class GoogleProductSearch(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with query={self.query}, num={self.num}, page={self.page}")
+        self._logger.info(
+            f"Executing {self.tool_name} with query={self.query}, num={self.num}, page={self.page}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -315,9 +315,7 @@ if __name__ == "__main__":
         # Test 7: Old string not found error
         print("\nTest 7: Old string not found error")
         try:
-            tool = EditTool(
-                file_path=test_file, old_string="nonexistent string", new_string="new"
-            )
+            tool = EditTool(file_path=test_file, old_string="nonexistent string", new_string="new")
             result = tool.run()
             print("❌ Test 7 failed: Should have raised ValidationError")
         except ValidationError as e:

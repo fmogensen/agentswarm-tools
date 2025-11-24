@@ -59,7 +59,9 @@ class GenerateMindMap(BaseTool):
             APIError: For external API failures
         """
 
-        self._logger.info(f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}")
+        self._logger.info(
+            f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

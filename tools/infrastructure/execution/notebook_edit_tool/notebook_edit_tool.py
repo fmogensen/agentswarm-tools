@@ -194,13 +194,9 @@ class NotebookEditTool(BaseTool):
             with open(self.notebook_path, "r", encoding="utf-8") as f:
                 notebook = json.load(f)
         except json.JSONDecodeError as e:
-            raise APIError(
-                f"Failed to parse notebook JSON: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to parse notebook JSON: {e}", tool_name=self.tool_name)
         except IOError as e:
-            raise APIError(
-                f"Failed to read/write notebook file: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to read/write notebook file: {e}", tool_name=self.tool_name)
 
         # Validate notebook structure
         if "cells" not in notebook:
@@ -277,9 +273,7 @@ class NotebookEditTool(BaseTool):
             with open(self.notebook_path, "w", encoding="utf-8") as f:
                 json.dump(notebook, f, indent=1)
         except IOError as e:
-            raise APIError(
-                f"Failed to write notebook file: {e}", tool_name=self.tool_name
-            )
+            raise APIError(f"Failed to write notebook file: {e}", tool_name=self.tool_name)
 
         return {
             "edit_mode": self.edit_mode,
@@ -432,9 +426,7 @@ if __name__ == "__main__":
 
         # Test 3: Delete cell
         print("\nTest 3: Delete cell")
-        tool = NotebookEditTool(
-            notebook_path=test_notebook, cell_id="cell1", edit_mode="delete"
-        )
+        tool = NotebookEditTool(notebook_path=test_notebook, cell_id="cell1", edit_mode="delete")
         result = tool.run()
 
         assert result.get("success") == True

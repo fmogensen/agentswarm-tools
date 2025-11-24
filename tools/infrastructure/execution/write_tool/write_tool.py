@@ -46,7 +46,9 @@ class WriteTool(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with file_path={self.file_path}, content={self.content}")
+        self._logger.info(
+            f"Executing {self.tool_name} with file_path={self.file_path}, content={self.content}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

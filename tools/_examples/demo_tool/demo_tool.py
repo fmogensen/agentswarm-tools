@@ -102,7 +102,9 @@ class DemoTool(BaseTool):
             APIError: For external API failures
         """
 
-        self._logger.info(f"Executing {self.tool_name} with query={self.query}, max_results={self.max_results}, filter_type={self.filter_type}, use_cache={self.use_cache}")
+        self._logger.info(
+            f"Executing {self.tool_name} with query={self.query}, max_results={self.max_results}, filter_type={self.filter_type}, use_cache={self.use_cache}"
+        )
         # 1. VALIDATE INPUTS
         self._validate_parameters()
 

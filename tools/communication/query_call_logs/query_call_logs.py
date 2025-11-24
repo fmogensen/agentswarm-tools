@@ -64,7 +64,9 @@ class QueryCallLogs(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with phone_number={self.phone_number}, start_date={self.start_date}, end_date={self.end_date}, status={self.status}, limit={self.limit}")
+        self._logger.info(
+            f"Executing {self.tool_name} with phone_number={self.phone_number}, start_date={self.start_date}, end_date={self.end_date}, status={self.status}, limit={self.limit}"
+        )
         # 1. VALIDATE INPUT PARAMETERS
         self._validate_parameters()
 

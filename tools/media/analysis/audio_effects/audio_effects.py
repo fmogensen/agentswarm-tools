@@ -68,7 +68,9 @@ class AudioEffects(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute audio effects processing."""
 
-        self._logger.info(f"Executing {self.tool_name} with input_path={self.input_path}, effects={self.effects}, output_path={self.output_path}")
+        self._logger.info(
+            f"Executing {self.tool_name} with input_path={self.input_path}, effects={self.effects}, output_path={self.output_path}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

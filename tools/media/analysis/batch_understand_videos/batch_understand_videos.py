@@ -52,7 +52,9 @@ class BatchUnderstandVideos(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with media_url={self.media_url}, instruction={self.instruction}, max_workers={self.max_workers}, show_progress={self.show_progress}")
+        self._logger.info(
+            f"Executing {self.tool_name} with media_url={self.media_url}, instruction={self.instruction}, max_workers={self.max_workers}, show_progress={self.show_progress}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

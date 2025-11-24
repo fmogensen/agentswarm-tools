@@ -89,7 +89,9 @@ class FactChecker(BaseTool):
             Dict with fact-checking results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with claim={self.claim}, sources={self.sources}, use_scholar={self.use_scholar}, max_sources={self.max_sources}")
+        self._logger.info(
+            f"Executing {self.tool_name} with claim={self.claim}, sources={self.sources}, use_scholar={self.use_scholar}, max_sources={self.max_sources}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

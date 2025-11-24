@@ -64,7 +64,9 @@ class BatchProcessor(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute batch processing."""
 
-        self._logger.info(f"Executing {self.tool_name} with items={self.items}, operation={self.operation}, operation_config={self.operation_config}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with items={self.items}, operation={self.operation}, operation_config={self.operation_config}, ..."
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

@@ -47,7 +47,9 @@ class AgentStatus(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute agent status check."""
 
-        self._logger.info(f"Executing {self.tool_name} with agent_id={self.agent_id}, include_metrics={self.include_metrics}, include_tasks={self.include_tasks}")
+        self._logger.info(
+            f"Executing {self.tool_name} with agent_id={self.agent_id}, include_metrics={self.include_metrics}, include_tasks={self.include_tasks}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

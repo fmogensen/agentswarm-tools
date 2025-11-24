@@ -57,7 +57,9 @@ class UnderstandImages(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with media_url={self.media_url}, instruction={self.instruction}, model={self.model}, fallback_models={self.fallback_models}")
+        self._logger.info(
+            f"Executing {self.tool_name} with media_url={self.media_url}, instruction={self.instruction}, model={self.model}, fallback_models={self.fallback_models}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

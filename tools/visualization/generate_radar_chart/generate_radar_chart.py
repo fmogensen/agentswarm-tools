@@ -47,7 +47,9 @@ class GenerateRadarChart(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}")
+        self._logger.info(
+            f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}"
+        )
         self._validate_parameters()
 
         if self._should_use_mock():

@@ -49,7 +49,9 @@ class Crawler(BaseTool):
             Dict with results
         """
 
-        self._logger.info(f"Executing {self.tool_name} with url={self.url}, max_depth={self.max_depth}")
+        self._logger.info(
+            f"Executing {self.tool_name} with url={self.url}, max_depth={self.max_depth}"
+        )
         # 1. VALIDATE
         self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()

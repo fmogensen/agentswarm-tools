@@ -110,7 +110,9 @@ class OfficeDocsTool(BaseTool):
         """
         # 1. CHECK MOCK MODE FIRST (before validation that requires libraries)
 
-        self._logger.info(f"Executing {self.tool_name} with mode={self.mode}, content={self.content}, template={self.template}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with mode={self.mode}, content={self.content}, template={self.template}, ..."
+        )
         if self._should_use_mock():
             # Still do basic parameter validation
             self._validate_basic_parameters()

@@ -99,7 +99,9 @@ class TextToSpeechAdvanced(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute advanced text-to-speech synthesis."""
 
-        self._logger.info(f"Executing {self.tool_name} with text={self.text}, voice_id={self.voice_id}, gender={self.gender}, ...")
+        self._logger.info(
+            f"Executing {self.tool_name} with text={self.text}, voice_id={self.voice_id}, gender={self.gender}, ..."
+        )
         self._validate_parameters()
 
         if self._should_use_mock():
