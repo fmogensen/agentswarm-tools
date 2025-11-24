@@ -133,6 +133,7 @@ class TestWebSearch:
         # Disable caching to ensure error path is tested
         tool = WebSearch(query="test", max_retries=1)
         tool.enable_cache = False
+        tool._raise_exceptions = False
         result = tool.run()
 
         # Tool returns error response instead of raising exception
@@ -158,6 +159,7 @@ class TestWebSearch:
         # Disable caching to ensure error path is tested
         tool = WebSearch(query="test", max_retries=1)
         tool.enable_cache = False
+        tool._raise_exceptions = False
         result = tool.run()
 
         # Tool returns error response instead of raising exception
@@ -538,6 +540,7 @@ class TestStockPrice:
 
         mock_get.side_effect = Exception("Network error")
         tool = StockPrice(ticker="AAPL", max_retries=1)
+        tool._raise_exceptions = False
         result = tool.run()
 
         # Tool returns error response instead of raising exception

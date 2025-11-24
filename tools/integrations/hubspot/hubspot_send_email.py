@@ -235,7 +235,7 @@ class HubSpotSendEmail(BaseTool):
 
         if not has_template and not has_custom_content:
             raise ValidationError(
-                "Must provide either template_id or custom_content (subject and body)",
+                "Must provide either template_id or both subject and body",
                 tool_name=self.tool_name,
             )
 
@@ -262,18 +262,17 @@ class HubSpotSendEmail(BaseTool):
         # Cannot specify both scheduled_time and send_immediately
         if self.scheduled_time and self.send_immediately:
             raise ValidationError(
-                "Cannot specify both scheduled_time and send_immediately",
+                "Cannot set scheduled_time when send_immediately is True",
                 tool_name=self.tool_name,
             )
 
-        # Validate scheduled time format if provided
+        # Validate scheduled_time format (ISO 8601)
         if self.scheduled_time:
-            # Check if it looks like ISO 8601 format (contains "T" or "-")
-            if "T" not in self.scheduled_time and "-" not in self.scheduled_time:
-                raise ValidationError(
-                    "Invalid scheduled_time format. Use ISO 8601",
-                    tool_name=self.tool_name,
-                )
+            from datetime import datetime
+            try:
+                datetime.fromisoformat(self.scheduled_time.replace('Z', '+00:00'))
+            except ValueError:
+                raise ValidationError("scheduled_time must be in ISO 8601 format", tool_name=self.tool_name)
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""

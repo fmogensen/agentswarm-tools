@@ -453,6 +453,7 @@ class TestVideoEffects:
         tool = VideoEffects(input_path="/path/to/test.mp4", effects=[{"type": "sepia"}])
 
         # BaseTool catches ValidationError and returns error response
+        tool._raise_exceptions = False
         result = tool.run()
 
         # Should return error response for missing file

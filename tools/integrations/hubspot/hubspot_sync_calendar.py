@@ -197,10 +197,11 @@ class HubSpotSyncCalendar(BaseTool):
         """Validate input parameters."""
         # Validate operation
         valid_operations = [
-            "create",
-            "update",
-            "delete",
+            "create", "create_meeting",
+            "update", "update_meeting",
+            "delete", "delete_meeting",
             "list",
+            "hubspot_to_google", "google_to_hubspot", "bidirectional"
         ]
         if self.operation.lower() not in valid_operations:
             raise ValidationError(

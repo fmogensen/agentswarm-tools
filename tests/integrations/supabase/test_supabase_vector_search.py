@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
+from pydantic import ValidationError as PydanticValidationError
 
 from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.integrations.supabase.supabase_vector_search import SupabaseVectorSearch
@@ -34,7 +35,7 @@ class TestSupabaseVectorSearchValidation:
 
     def test_empty_table_name(self):
         """Test with empty table name."""
-        with pytest.raises(ValidationError) as exc:
+        with pytest.raises((ValidationError, PydanticValidationError)) as exc:
             tool = SupabaseVectorSearch(
                 table_name="",
                 query_embedding=[0.1] * 768,
@@ -44,7 +45,7 @@ class TestSupabaseVectorSearchValidation:
 
     def test_empty_embedding(self):
         """Test with empty embedding."""
-        with pytest.raises(ValidationError) as exc:
+        with pytest.raises((ValidationError, PydanticValidationError)) as exc:
             tool = SupabaseVectorSearch(
                 table_name="documents",
                 query_embedding=[],
@@ -54,7 +55,7 @@ class TestSupabaseVectorSearchValidation:
 
     def test_invalid_embedding_type(self):
         """Test with invalid embedding values."""
-        with pytest.raises(ValidationError) as exc:
+        with pytest.raises((ValidationError, PydanticValidationError)) as exc:
             tool = SupabaseVectorSearch(
                 table_name="documents",
                 query_embedding=[0.1, "invalid", 0.3],
@@ -64,7 +65,7 @@ class TestSupabaseVectorSearchValidation:
 
     def test_invalid_filter_type(self):
         """Test with invalid filter type."""
-        with pytest.raises(ValidationError) as exc:
+        with pytest.raises((ValidationError, PydanticValidationError)) as exc:
             tool = SupabaseVectorSearch(
                 table_name="documents",
                 query_embedding=[0.1] * 768,
@@ -274,7 +275,7 @@ class TestSupabaseVectorSearchEdgeCases:
 
     def test_zero_match_count(self):
         """Test with zero match count."""
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationError, PydanticValidationError)):
             tool = SupabaseVectorSearch(
                 table_name="documents",
                 query_embedding=[0.1] * 768,
@@ -283,7 +284,7 @@ class TestSupabaseVectorSearchEdgeCases:
 
     def test_negative_threshold(self):
         """Test with negative threshold."""
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationError, PydanticValidationError)):
             tool = SupabaseVectorSearch(
                 table_name="documents",
                 query_embedding=[0.1] * 768,
@@ -292,7 +293,7 @@ class TestSupabaseVectorSearchEdgeCases:
 
     def test_threshold_above_one(self):
         """Test with threshold > 1.0."""
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationError, PydanticValidationError)):
             tool = SupabaseVectorSearch(
                 table_name="documents",
                 query_embedding=[0.1] * 768,

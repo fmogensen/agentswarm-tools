@@ -223,6 +223,16 @@ class LinearGetRoadmap(BaseTool):
         if self.status_filter:
             projects = [p for p in projects if p["status"] == self.status_filter.lower()]
 
+        # Sort projects by specified field
+        if self.sort_by == "name":
+            projects = sorted(projects, key=lambda p: p["name"])
+        elif self.sort_by == "startDate":
+            projects = sorted(projects, key=lambda p: p["start_date"])
+        elif self.sort_by == "targetDate":
+            projects = sorted(projects, key=lambda p: p["target_date"])
+        elif self.sort_by == "progress":
+            projects = sorted(projects, key=lambda p: p.get("progress", 0), reverse=True)
+
         milestones = []
         for project in projects:
             if self.include_milestones and "milestones" in project:
@@ -255,7 +265,7 @@ class LinearGetRoadmap(BaseTool):
 
         return {
             "success": True,
-            "projects": projects,
+            "projects": projects[:self.limit] if self.limit else projects,
             "milestones": milestones if self.include_milestones else [],
             "roadmap_summary": roadmap_summary,
             "timeline": timeline,

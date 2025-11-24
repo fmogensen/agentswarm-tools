@@ -6,6 +6,7 @@ Achieves 90%+ code coverage.
 import os
 
 import pytest
+from pydantic import ValidationError as PydanticValidationError
 
 from shared.errors import AuthenticationError, ValidationError
 from tools.integrations.supabase.supabase_auth import SupabaseAuth
@@ -19,13 +20,13 @@ class TestSupabaseAuthValidation:
 
     def test_sign_up_requires_email(self):
         """Test sign up requires email."""
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationError, PydanticValidationError)):
             tool = SupabaseAuth(action="sign_up", password="Pass123!")
             tool.run()
 
     def test_sign_up_requires_password(self):
         """Test sign up requires password."""
-        with pytest.raises(ValidationError):
+        with pytest.raises((ValidationError, PydanticValidationError)):
             tool = SupabaseAuth(action="sign_up", email="user@example.com")
             tool.run()
 

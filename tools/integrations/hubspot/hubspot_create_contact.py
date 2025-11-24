@@ -151,10 +151,10 @@ class HubSpotCreateContact(BaseTool):
                     tool_name=self.tool_name,
                 )
 
-            # Validate batch size limit (100 contacts per batch per requirements)
-            if len(self.batch_contacts) > 100:
+            # Validate batch size limit (10 contacts per batch per requirements)
+            if len(self.batch_contacts) > 10:
                 raise ValidationError(
-                    "Batch size cannot exceed 100 contacts",
+                    "Batch size cannot exceed 10 contacts",
                     tool_name=self.tool_name,
                 )
 
@@ -162,7 +162,7 @@ class HubSpotCreateContact(BaseTool):
             for idx, contact in enumerate(self.batch_contacts):
                 if not contact.get("email"):
                     raise ValidationError(
-                        "Each contact in batch must have an email",
+                        "Each contact in batch missing required 'email' field",
                         tool_name=self.tool_name,
                     )
         else:
@@ -194,7 +194,7 @@ class HubSpotCreateContact(BaseTool):
             ]
             if self.lifecyclestage.lower() not in valid_stages:
                 raise ValidationError(
-                    f"Invalid lifecyclestage: {self.lifecyclestage}. Must be one of: {', '.join(valid_stages)}",
+                    f"Invalid lifecycle stage: {self.lifecyclestage}. Must be one of: {', '.join(valid_stages)}",
                     tool_name=self.tool_name,
                 )
 
@@ -243,6 +243,7 @@ class HubSpotCreateContact(BaseTool):
                 "lists_added": self.lists or [],
                 "metadata": {
                     "tool_name": self.tool_name,
+                    "update_if_exists": self.update_if_exists,
                     "mock_mode": True,
                 },
             }

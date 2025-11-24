@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import json
 import os
+import warnings
 from typing import Any, Callable, Dict, List, Optional
 
 from pydantic import Field
@@ -104,11 +105,11 @@ class StripeHandleWebhooks(BaseTool):
         if not self.skip_signature_validation:
             self._verify_webhook_signature()
         else:
-            # Log warning about skipping validation
-            import logging
-
-            logger = logging.getLogger(f"agentswarm.tools.{self.tool_name}")
-            logger.warning("⚠️  SKIPPING WEBHOOK SIGNATURE VALIDATION - ONLY USE IN TESTING!")
+            warnings.warn(
+                "⚠️  SKIPPING WEBHOOK SIGNATURE VALIDATION - ONLY USE IN TESTING!",
+                UserWarning,
+                stacklevel=2
+            )
 
         # 4. PARSE EVENT
         try:

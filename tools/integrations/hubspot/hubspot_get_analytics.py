@@ -162,6 +162,10 @@ class HubSpotGetAnalytics(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
+        # Normalize report_type (accept both "email" and "emails")
+        if self.report_type.lower() == "emails":
+            self.report_type = "email"
+
         # Validate report type
         valid_report_types = [
             "contacts",
@@ -189,6 +193,8 @@ class HubSpotGetAnalytics(BaseTool):
                 "last_30_days",
                 "this_month",
                 "last_month",
+                "this_quarter",
+                "this_year",
                 "custom",
             ]
             if self.time_period.lower() not in valid_periods:
@@ -227,15 +233,15 @@ class HubSpotGetAnalytics(BaseTool):
         if self.start_date and self.end_date:
             if self.start_date > self.end_date:
                 raise ValidationError(
-                    "start_date must be before or equal to end_date",
+                    "start_date cannot be after end_date",
                     tool_name=self.tool_name,
                 )
 
-        # Custom report requires report_id
+        # Custom report requires custom_report_id
         if self.report_type.lower() == "custom":
             if not self.custom_report_id or not self.custom_report_id.strip():
                 raise ValidationError(
-                    "report_id is required for custom reports",
+                    "custom_report_id is required for custom reports",
                     tool_name=self.tool_name,
                 )
 

@@ -221,6 +221,7 @@ class LinearAssignTeam(BaseTool):
                     "cycle_name": "Sprint 12",
                     "start_date": self.start_date or "2025-12-01",
                     "end_date": self.due_date or "2025-12-14",
+                    "progress": 0.45,
                 }
                 if self.cycle_id
                 else {}

@@ -14,6 +14,12 @@ from pydantic import Field
 from shared.base import BaseTool
 from shared.errors import APIError, AuthenticationError, ValidationError
 
+# Stripe SDK import
+try:
+    import stripe
+except ImportError:
+    stripe = None
+
 
 class StripeGetInvoices(BaseTool):
     """
@@ -117,7 +123,11 @@ class StripeGetInvoices(BaseTool):
 
             return response
 
+        except (AuthenticationError, ValidationError):
+            # Let these pass through unchanged
+            raise
         except Exception as e:
+            # Only wrap unexpected errors
             raise APIError(f"Failed to retrieve invoices: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -253,10 +263,8 @@ class StripeGetInvoices(BaseTool):
                 "Missing STRIPE_API_KEY environment variable", tool_name=self.tool_name
             )
 
-        # Import Stripe SDK
-        try:
-            import stripe
-        except ImportError:
+        # Check Stripe SDK
+        if stripe is None:
             raise APIError(
                 "Stripe SDK not installed. Run: pip install stripe",
                 tool_name=self.tool_name,

@@ -171,9 +171,9 @@ class HubSpotTrackDeal(BaseTool):
                 )
 
             # Validate batch size limit
-            if len(self.batch_deals) > 100:
+            if len(self.batch_deals) > 10:
                 raise ValidationError(
-                    "Batch size cannot exceed 100 deals",
+                    "Batch size cannot exceed 10 deals",
                     tool_name=self.tool_name,
                 )
 
@@ -181,17 +181,21 @@ class HubSpotTrackDeal(BaseTool):
             for idx, deal in enumerate(self.batch_deals):
                 if not deal.get("dealname"):
                     raise ValidationError(
-                        "Each deal in batch must have a dealname",
+                        "Each deal in batch missing required 'dealname' field",
                         tool_name=self.tool_name,
                     )
             return
+
+        # Validate win/lose conflict (BEFORE general field validation)
+        if self.win_deal and self.lose_deal:
+            raise ValidationError("Cannot win and lose a deal simultaneously", tool_name=self.tool_name)
 
         # Validate dealtype if provided
         if self.dealtype:
             valid_types = ["newbusiness", "existingbusiness", "renewal"]
             if self.dealtype.lower() not in valid_types:
                 raise ValidationError(
-                    f"Invalid dealtype: {self.dealtype}. "
+                    f"Invalid deal type: {self.dealtype}. "
                     f"Valid types: {', '.join(valid_types)}",
                     tool_name=self.tool_name,
                 )
@@ -220,8 +224,15 @@ class HubSpotTrackDeal(BaseTool):
                 self.dealname is not None
                 or self.amount is not None
                 or self.dealstage is not None
+                or self.move_to_stage is not None
+                or self.win_deal
+                or self.lose_deal
+                or self.description is not None
                 or self.closedate is not None
                 or self.pipeline is not None
+                or self.dealtype is not None
+                or self.priority is not None
+                or self.custom_properties is not None
             )
 
             if not has_update_field:
@@ -229,13 +240,6 @@ class HubSpotTrackDeal(BaseTool):
                     "At least one field must be provided for update",
                     tool_name=self.tool_name,
                 )
-
-        # Win/lose conflict validation
-        if self.win_deal and self.lose_deal:
-            raise ValidationError(
-                "Cannot mark deal as both won and lost",
-                tool_name=self.tool_name,
-            )
 
         # API key check - only if NOT in mock mode
         if not self._should_use_mock():
