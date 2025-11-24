@@ -265,7 +265,7 @@ class LinearGetRoadmap(BaseTool):
 
         return {
             "success": True,
-            "projects": projects[:self.limit] if self.limit else projects,
+            "projects": projects[: self.limit] if self.limit else projects,
             "milestones": milestones if self.include_milestones else [],
             "roadmap_summary": roadmap_summary,
             "timeline": timeline,

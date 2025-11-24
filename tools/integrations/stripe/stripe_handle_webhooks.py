@@ -108,7 +108,7 @@ class StripeHandleWebhooks(BaseTool):
             warnings.warn(
                 "⚠️  SKIPPING WEBHOOK SIGNATURE VALIDATION - ONLY USE IN TESTING!",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
         # 4. PARSE EVENT
@@ -224,9 +224,7 @@ class StripeHandleWebhooks(BaseTool):
 
             # Validate signature header format - must have timestamp
             if not timestamp:
-                raise SecurityError(
-                    "Invalid signature header format", tool_name=self.tool_name
-                )
+                raise SecurityError("Invalid signature header format", tool_name=self.tool_name)
 
             # Validate timestamp is not too old
             try:
@@ -236,7 +234,8 @@ class StripeHandleWebhooks(BaseTool):
                 current_time = int(time.time())
                 if abs(current_time - timestamp_int) > self.tolerance:
                     raise SecurityError(
-                        "Webhook timestamp too old, possible replay attack", tool_name=self.tool_name
+                        "Webhook timestamp too old, possible replay attack",
+                        tool_name=self.tool_name,
                     )
             except ValueError:
                 raise SecurityError(

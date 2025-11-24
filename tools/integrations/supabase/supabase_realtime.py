@@ -146,7 +146,9 @@ class SupabaseRealtime(BaseTool):
         """Validate input parameters based on action."""
         # Validate subscribe requirements
         if self.action == "subscribe":
-            if not self.table_name or (isinstance(self.table_name, str) and not self.table_name.strip()):
+            if not self.table_name or (
+                isinstance(self.table_name, str) and not self.table_name.strip()
+            ):
                 raise ValidationError(
                     "table_name is required for subscribe operation",
                     tool_name=self.tool_name,

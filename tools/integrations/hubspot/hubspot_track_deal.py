@@ -188,7 +188,9 @@ class HubSpotTrackDeal(BaseTool):
 
         # Validate win/lose conflict (BEFORE general field validation)
         if self.win_deal and self.lose_deal:
-            raise ValidationError("Cannot win and lose a deal simultaneously", tool_name=self.tool_name)
+            raise ValidationError(
+                "Cannot win and lose a deal simultaneously", tool_name=self.tool_name
+            )
 
         # Validate dealtype if provided
         if self.dealtype:
