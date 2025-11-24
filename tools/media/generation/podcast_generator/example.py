@@ -6,8 +6,8 @@ This script demonstrates various use cases and features.
 
 import os
 
-from tools.media_generation.podcast_generator import PodcastGenerator
 from shared.logging import get_logger
+from tools.media_generation.podcast_generator import PodcastGenerator
 
 logger = get_logger(__name__)
 
