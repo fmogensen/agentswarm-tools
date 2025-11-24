@@ -3,14 +3,14 @@
 **Production-Ready AI Tool Suite for Agent Development**
 
 [![Coverage](https://img.shields.io/badge/coverage-85--95%25-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
-[![Tests](https://img.shields.io/badge/tests-760%20passing-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
+[![Tests](https://img.shields.io/badge/tests-942%20passing-brightgreen.svg)](https://github.com/fmogensen/agentswarm-tools)
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 
 ## 🎯 Overview
 
-A comprehensive suite of **110 production-ready tools** organized into **7 streamlined categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
+A comprehensive suite of **117 production-ready tools** organized into **7 streamlined categories**, built on the Agency Swarm framework. Each tool is designed with enterprise-grade reliability and AI-first principles:
 
 - ✅ **Error Handling by Design** - Comprehensive exception handling and graceful degradation
 - ✅ **Built-in Analytics** - Request tracking, performance metrics, usage statistics
@@ -35,7 +35,7 @@ A comprehensive suite of **110 production-ready tools** organized into **7 strea
 AgentSwarm Tools Framework represents the most comprehensive AI tool suite in the market, with significant advantages over competing platforms:
 
 ### Market-Leading Tool Count
-- **110 production-ready tools** vs. Genspark's 57 tools (**+93% more capabilities**)
+- **117 production-ready tools** vs. Genspark's 57 tools (**+105% more capabilities**)
 - **MCP-first approach** - Leverages existing MCP servers for integrations (GitHub, HubSpot, Stripe, Linear, Supabase)
 - Streamlined organization across 7 intuitive categories
 - Focused on unique capabilities not available via MCP servers

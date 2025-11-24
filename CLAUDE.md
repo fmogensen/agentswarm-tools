@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Repository Overview
 
-AgentSwarm Tools Framework - **110 production-ready tools** organized into **7 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Adopts MCP-first strategy for enterprise integrations. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
+AgentSwarm Tools Framework - **117 production-ready tools** organized into **7 streamlined categories** for the SuperAgentSwarm platform, built on the Agency Swarm framework. Adopts MCP-first strategy for enterprise integrations. Tools provide search, media generation, file management, communication, data visualization, and code execution capabilities.
 
 ## AI Agent Autonomy
 
