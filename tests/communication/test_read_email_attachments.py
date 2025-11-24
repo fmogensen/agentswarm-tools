@@ -119,8 +119,8 @@ class TestReadEmailAttachments:
         """Test that tool has correct metadata attributes."""
         tool = ReadEmailAttachments(input="test query")
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "read_email_attachments"
         assert tool.tool_category == "communication"
 

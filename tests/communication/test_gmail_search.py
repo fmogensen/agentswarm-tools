@@ -119,8 +119,8 @@ class TestGmailSearch:
         """Test that tool has correct metadata attributes."""
         tool = GmailSearch(query="test query", max_results=10)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "gmail_search"
         assert tool.tool_category == "communication"
 

@@ -119,8 +119,8 @@ class TestGoogleCalendarList:
         """Test that tool has correct metadata attributes."""
         tool = GoogleCalendarList(input="test query")
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "google_calendar_list"
         assert tool.tool_category == "communication"
 

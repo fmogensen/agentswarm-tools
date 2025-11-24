@@ -119,8 +119,8 @@ class TestMapsSearch:
         """Test that tool has correct metadata attributes."""
         tool = MapsSearch(query="test query", max_results=10)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "maps_search"
         assert tool.tool_category == "communication"
 

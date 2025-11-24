@@ -119,8 +119,8 @@ class TestEmailSend:
         """Test that tool has correct metadata attributes."""
         tool = EmailSend(to="test@example.com", subject="Test Subject", body="test_value")
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "email_send"
         assert tool.tool_category == "communication"
 

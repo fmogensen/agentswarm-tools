@@ -11,7 +11,9 @@ import pytest
 from pydantic import ValidationError as PydanticValidationError
 
 from shared.errors import ValidationError, APIError, AuthenticationError
-from tools.communication.unified_google_calendar.unified_google_calendar import UnifiedGoogleCalendar
+from tools.communication.unified_google_calendar.unified_google_calendar import (
+    UnifiedGoogleCalendar,
+)
 
 
 class TestUnifiedGoogleCalendar:
@@ -119,8 +121,8 @@ class TestUnifiedGoogleCalendar:
         """Test that tool has correct metadata attributes."""
         tool = UnifiedGoogleCalendar(action=[], query=None, summary=None)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "unified_google_calendar"
         assert tool.tool_category == "communication"
 

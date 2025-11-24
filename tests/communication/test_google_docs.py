@@ -119,8 +119,8 @@ class TestGoogleDocs:
         """Test that tool has correct metadata attributes."""
         tool = GoogleDocs(mode="test_value", content="test query", title=None)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "google_docs"
         assert tool.tool_category == "communication"
 

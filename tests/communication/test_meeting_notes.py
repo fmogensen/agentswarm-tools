@@ -82,7 +82,9 @@ class TestMeetingNotesAgent:
 
         # Test with mock mode disabled
         os.environ["USE_MOCK_APIS"] = "false"
-        tool2 = MeetingNotesAgent(audio_url="test_value", export_formats=[], include_transcript=True)
+        tool2 = MeetingNotesAgent(
+            audio_url="test_value", export_formats=[], include_transcript=True
+        )
         assert tool2._should_use_mock() == False
 
     def test_result_structure(self):
@@ -119,8 +121,8 @@ class TestMeetingNotesAgent:
         """Test that tool has correct metadata attributes."""
         tool = MeetingNotesAgent(audio_url="test_value", export_formats=[], include_transcript=True)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "meeting_notes_agent"
         assert tool.tool_category == "communication"
 

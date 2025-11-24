@@ -11,7 +11,9 @@ import pytest
 from pydantic import ValidationError as PydanticValidationError
 
 from shared.errors import ValidationError, APIError, AuthenticationError
-from tools.communication.google_calendar_update_event.google_calendar_update_event import GoogleCalendarUpdateEvent
+from tools.communication.google_calendar_update_event.google_calendar_update_event import (
+    GoogleCalendarUpdateEvent,
+)
 
 
 class TestGoogleCalendarUpdateEvent:
@@ -119,8 +121,8 @@ class TestGoogleCalendarUpdateEvent:
         """Test that tool has correct metadata attributes."""
         tool = GoogleCalendarUpdateEvent(event_id="test_value", summary=None, description=None)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "google_calendar_update_event"
         assert tool.tool_category == "communication"
 

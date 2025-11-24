@@ -119,8 +119,8 @@ class TestPhoneCall:
         """Test that tool has correct metadata attributes."""
         tool = PhoneCall(phone_number="+15551234567", message="test query", voice=None)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "phone_call"
         assert tool.tool_category == "communication"
 

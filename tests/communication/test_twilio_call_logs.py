@@ -119,8 +119,8 @@ class TestTwilioCallLogs:
         """Test that tool has correct metadata attributes."""
         tool = TwilioCallLogs(time_range_hours=10, limit=10, include_transcript=True)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "twilio_call_logs"
         assert tool.tool_category == "communication"
 

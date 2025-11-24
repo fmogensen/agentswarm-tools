@@ -119,8 +119,8 @@ class TestQueryCallLogs:
         """Test that tool has correct metadata attributes."""
         tool = QueryCallLogs(phone_number=None, start_date=None, end_date=None)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "query_call_logs"
         assert tool.tool_category == "communication"
 

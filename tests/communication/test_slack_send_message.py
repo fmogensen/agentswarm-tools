@@ -119,8 +119,8 @@ class TestSlackSendMessage:
         """Test that tool has correct metadata attributes."""
         tool = SlackSendMessage(channel="test_value", text="test query", thread_ts=None)
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "slack_send_message"
         assert tool.tool_category == "communication"
 

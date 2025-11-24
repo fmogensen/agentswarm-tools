@@ -28,7 +28,9 @@ class TestTwilioPhoneCall:
 
     def test_initialization_success(self):
         """Test successful tool initialization with valid parameters."""
-        tool = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
 
         assert tool.tool_name == "twilio_phone_call"
         assert tool.tool_category == "communication"
@@ -37,7 +39,9 @@ class TestTwilioPhoneCall:
         """Test tool execution in mock mode."""
         os.environ["USE_MOCK_APIS"] = "true"
 
-        tool = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
         result = tool.run()
 
         assert result["success"] == True
@@ -62,7 +66,9 @@ class TestTwilioPhoneCall:
         """Test that _execute calls _validate_parameters."""
         os.environ["USE_MOCK_APIS"] = "true"
 
-        tool = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
 
         # Mock the validate method to ensure it's called
         original_validate = tool._validate_parameters
@@ -77,19 +83,25 @@ class TestTwilioPhoneCall:
         """Test that tool correctly detects mock mode from environment."""
         # Test with mock mode enabled
         os.environ["USE_MOCK_APIS"] = "true"
-        tool = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
         assert tool._should_use_mock() == True
 
         # Test with mock mode disabled
         os.environ["USE_MOCK_APIS"] = "false"
-        tool2 = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool2 = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
         assert tool2._should_use_mock() == False
 
     def test_result_structure(self):
         """Test that result has expected structure."""
         os.environ["USE_MOCK_APIS"] = "true"
 
-        tool = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
         result = tool.run()
 
         # Verify standard result structure
@@ -109,7 +121,9 @@ class TestTwilioPhoneCall:
 
         # This test verifies the tool raises appropriate errors when
         # authentication fails (missing API keys, invalid credentials, etc.)
-        tool = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
 
         with pytest.raises((APIError, AuthenticationError, Exception)):
             # Without proper credentials, tool should raise an error
@@ -117,10 +131,12 @@ class TestTwilioPhoneCall:
 
     def test_tool_metadata_attributes(self):
         """Test that tool has correct metadata attributes."""
-        tool = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "twilio_phone_call"
         assert tool.tool_category == "communication"
 
@@ -128,7 +144,9 @@ class TestTwilioPhoneCall:
         """Test that mock results are properly generated."""
         os.environ["USE_MOCK_APIS"] = "true"
 
-        tool = TwilioPhoneCall(recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value")
+        tool = TwilioPhoneCall(
+            recipient_name="test_value", phone_number="+15551234567", call_purpose="test_value"
+        )
         mock_result = tool._generate_mock_results()
 
         assert isinstance(mock_result, dict)

@@ -82,7 +82,9 @@ class TestTeamsSendMessage:
 
         # Test with mock mode disabled
         os.environ["USE_MOCK_APIS"] = "false"
-        tool2 = TeamsSendMessage(team_id="test_value", channel_id="test_value", message="test query")
+        tool2 = TeamsSendMessage(
+            team_id="test_value", channel_id="test_value", message="test query"
+        )
         assert tool2._should_use_mock() == False
 
     def test_result_structure(self):
@@ -119,8 +121,8 @@ class TestTeamsSendMessage:
         """Test that tool has correct metadata attributes."""
         tool = TeamsSendMessage(team_id="test_value", channel_id="test_value", message="test query")
 
-        assert hasattr(tool, 'tool_name')
-        assert hasattr(tool, 'tool_category')
+        assert hasattr(tool, "tool_name")
+        assert hasattr(tool, "tool_category")
         assert tool.tool_name == "teams_send_message"
         assert tool.tool_category == "communication"
 
