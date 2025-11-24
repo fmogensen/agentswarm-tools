@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 
-def get_all_tool_classes() -> List[tuple]:
+def get_all_tool_classes(verbose: bool = False) -> List[tuple]:
     """Get all tool classes."""
     tools_dir = Path(__file__).parent.parent.parent / "tools"
     tool_classes = []
@@ -38,7 +38,7 @@ def get_all_tool_classes() -> List[tuple]:
                         break
 
             except Exception as e:
-                if args.verbose:
+                if verbose:
                     print(f"Warning: Could not import {tool_name}: {e}")
 
     return tool_classes
@@ -128,7 +128,7 @@ def execute(args) -> int:
         else:
             # Test all tools
             print("Testing all tools...\n")
-            tool_classes = get_all_tool_classes()
+            tool_classes = get_all_tool_classes(args.verbose)
 
             for tool_name, category, tool_class in tool_classes:
                 result = test_single_tool(tool_name, tool_class, args.verbose)

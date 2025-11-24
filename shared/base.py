@@ -32,7 +32,7 @@ except ImportError:
 
 
 from .analytics import AnalyticsEvent, EventType, record_event
-from .cache import get_global_cache_manager, make_cache_key
+from .cache import CacheManager, get_global_cache_manager, make_cache_key
 from .errors import ToolError, ValidationError
 from .monitoring import record_performance_metric
 from .security import get_rate_limiter
