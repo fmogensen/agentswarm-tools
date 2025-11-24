@@ -92,6 +92,7 @@ class BaseTool(AgencyBaseTool):
     # Analytics
     _enable_analytics: bool = True
     _enable_logging: bool = True
+    _raise_exceptions: bool = False  # Set to True to re-raise exceptions instead of returning error dicts
 
     # Caching configuration
     enable_cache: bool = False  # Set to True to enable caching for this tool
@@ -107,6 +108,10 @@ class BaseTool(AgencyBaseTool):
         self._start_time: Optional[float] = None
         self._cache_manager: Optional[CacheManager] = None
         self._init_cache()
+
+        # Enable exception re-raising in test mode
+        if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("RAISE_TOOL_EXCEPTIONS", "false").lower() == "true":
+            self._raise_exceptions = True
 
     @abstractmethod
     def _execute(self) -> Any:
@@ -218,6 +223,10 @@ class BaseTool(AgencyBaseTool):
                 error_type=error_type,
             )
 
+            # Re-raise exception if in test/debug mode
+            if self._raise_exceptions:
+                raise
+
             return self._format_error_response(e)
 
         except Exception as e:
@@ -281,8 +290,10 @@ class BaseTool(AgencyBaseTool):
 
     def _check_rate_limit(self) -> None:
         """Check rate limit for this tool."""
-        # Skip rate limiting in mock mode
+        # Skip rate limiting in mock mode or test mode
         if os.getenv("USE_MOCK_APIS", "false").lower() == "true":
+            return
+        if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("DISABLE_RATE_LIMITING", "false").lower() == "true":
             return
 
         try:

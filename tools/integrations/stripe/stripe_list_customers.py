@@ -131,6 +131,14 @@ class StripeListCustomers(BaseTool):
                 tool_name=self.tool_name,
             )
 
+        # Validate API key exists if not in mock mode
+        if not self._should_use_mock():
+            api_key = os.getenv("STRIPE_API_KEY")
+            if not api_key:
+                raise AuthenticationError(
+                    "Missing STRIPE_API_KEY environment variable", tool_name=self.tool_name
+                )
+
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""
         return os.getenv("USE_MOCK_APIS", "false").lower() == "true"

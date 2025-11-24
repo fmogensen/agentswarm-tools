@@ -148,46 +148,28 @@ class SupabaseAuth(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters based on action."""
-        # Validate action-specific requirements
-        if self.action in ["sign_up", "sign_in", "reset_password"]:
-            if not self.email:
+        # Validate sign_up requirements
+        if self.action == "sign_up":
+            if not self.email or (isinstance(self.email, str) and not self.email.strip()):
                 raise ValidationError(
-                    f"Email required for {self.action}",
+                    "email is required for sign_up operation",
                     tool_name=self.tool_name,
                     field="email",
                 )
-
-        if self.action in ["sign_up", "sign_in"]:
-            if not self.password:
+            if not self.password or (isinstance(self.password, str) and not self.password.strip()):
                 raise ValidationError(
-                    f"Password required for {self.action}",
+                    "password is required for sign_up operation",
                     tool_name=self.tool_name,
                     field="password",
                 )
 
-            # Validate password strength
-            if len(self.password) < 6:
-                raise ValidationError(
-                    "Password must be at least 6 characters",
-                    tool_name=self.tool_name,
-                    field="password",
-                )
-
+        # Validate verify_token requirements
         if self.action == "verify_token":
-            if not self.token:
+            if not self.token or (isinstance(self.token, str) and not self.token.strip()):
                 raise ValidationError(
-                    "Token required for verify_token action",
+                    "token is required for verify_token operation",
                     tool_name=self.tool_name,
                     field="token",
-                )
-
-        # Validate email format if provided
-        if self.email:
-            if "@" not in self.email or "." not in self.email:
-                raise ValidationError(
-                    "Invalid email format",
-                    tool_name=self.tool_name,
-                    field="email",
                 )
 
     def _should_use_mock(self) -> bool:

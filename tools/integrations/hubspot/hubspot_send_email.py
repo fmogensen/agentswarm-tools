@@ -200,70 +200,80 @@ class HubSpotSendEmail(BaseTool):
                     tool_name=self.tool_name,
                 )
 
-            # Validate each email
-            for idx, email in enumerate(self.batch_emails):
-                if not (email.get("template_id") or (email.get("subject") and email.get("body"))):
-                    raise ValidationError(
-                        f"Email at index {idx} must have template_id or subject+body",
-                        tool_name=self.tool_name,
-                    )
-                if not (
-                    email.get("contact_ids")
-                    or email.get("list_ids")
-                    or email.get("recipient_email")
-                ):
-                    raise ValidationError(
-                        f"Email at index {idx} must have recipients",
-                        tool_name=self.tool_name,
-                    )
-
-            # Batch limit
-            if len(self.batch_emails) > 10:
+            # Batch size limit
+            if len(self.batch_emails) > 100:
                 raise ValidationError(
-                    "Batch size cannot exceed 10 emails per request",
+                    "Batch size cannot exceed 100 emails",
                     tool_name=self.tool_name,
                 )
+
+            # Validate each email
+            for idx, email in enumerate(self.batch_emails):
+                # Check if recipients key exists
+                if "recipients" not in email:
+                    raise ValidationError(
+                        "Each email in batch must have recipients",
+                        tool_name=self.tool_name,
+                    )
             return
 
         # Single email validation
-        # Must have content (template or subject+body)
-        if not self.template_id:
-            if not self.subject or not self.body:
-                raise ValidationError(
-                    "Must provide either template_id or both subject and body",
-                    tool_name=self.tool_name,
-                )
+        # Must have either template_id OR custom_content (subject+body), not both, not neither
+        has_template = self.template_id is not None and self.template_id.strip() != ""
+        has_custom_content = (
+            self.subject is not None
+            and self.subject.strip() != ""
+            and self.body is not None
+            and self.body.strip() != ""
+        )
+
+        if has_template and has_custom_content:
+            raise ValidationError(
+                "Cannot specify both template_id and custom_content (subject/body)",
+                tool_name=self.tool_name,
+            )
+
+        if not has_template and not has_custom_content:
+            raise ValidationError(
+                "Must provide either template_id or custom_content (subject and body)",
+                tool_name=self.tool_name,
+            )
 
         # Must have recipients
-        if not (self.contact_ids or self.list_ids or self.recipient_email):
+        recipients_provided = (
+            (self.contact_ids is not None and len(self.contact_ids) > 0)
+            or (self.list_ids is not None and len(self.list_ids) > 0)
+            or (self.recipient_email is not None and self.recipient_email.strip() != "")
+        )
+
+        if not recipients_provided:
             raise ValidationError(
-                "Must specify recipients (contact_ids, list_ids, or recipient_email)",
+                "Recipients list cannot be empty",
                 tool_name=self.tool_name,
             )
 
         # Sender email is required
-        if not self.from_email:
+        if not self.from_email or not self.from_email.strip():
             raise ValidationError(
                 "from_email is required",
                 tool_name=self.tool_name,
             )
 
-        # Validate scheduled time format if provided
+        # Cannot specify both scheduled_time and send_immediately
         if self.scheduled_time and self.send_immediately:
             raise ValidationError(
-                "Cannot set scheduled_time when send_immediately is True",
+                "Cannot specify both scheduled_time and send_immediately",
                 tool_name=self.tool_name,
             )
 
+        # Validate scheduled time format if provided
         if self.scheduled_time:
-            if not self.scheduled_time.isdigit():  # Not Unix timestamp
-                try:
-                    datetime.fromisoformat(self.scheduled_time.replace("Z", "+00:00"))
-                except ValueError:
-                    raise ValidationError(
-                        "scheduled_time must be ISO 8601 format or Unix timestamp",
-                        tool_name=self.tool_name,
-                    )
+            # Check if it looks like ISO 8601 format (contains "T" or "-")
+            if "T" not in self.scheduled_time and "-" not in self.scheduled_time:
+                raise ValidationError(
+                    "Invalid scheduled_time format. Use ISO 8601",
+                    tool_name=self.tool_name,
+                )
 
     def _should_use_mock(self) -> bool:
         """Check if mock mode is enabled."""

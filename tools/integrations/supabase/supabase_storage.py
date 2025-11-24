@@ -176,34 +176,38 @@ class SupabaseStorage(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters based on action."""
-        # Validate action-specific requirements
-        if self.action in ["upload", "download", "delete", "get_url"]:
-            if not self.file_path:
+        # Validate upload requirements
+        if self.action == "upload":
+            if not self.file_path or (isinstance(self.file_path, str) and not self.file_path.strip()):
                 raise ValidationError(
-                    f"File path required for {self.action} action",
+                    "file_path is required for upload operation",
                     tool_name=self.tool_name,
                     field="file_path",
                 )
 
-        if self.action == "upload":
-            if not self.local_path and not self.content:
+            # Must have either content OR local_path (not both, not neither)
+            has_content = self.content is not None and (not isinstance(self.content, str) or self.content.strip())
+            has_local_path = self.local_path is not None and (not isinstance(self.local_path, str) or self.local_path.strip())
+
+            if not has_content and not has_local_path:
                 raise ValidationError(
-                    "Either local_path or content required for upload",
+                    "Must provide either content or local_path for upload",
                     tool_name=self.tool_name,
                     field="local_path",
                 )
 
-            if self.local_path and self.content:
+            if has_content and has_local_path:
                 raise ValidationError(
-                    "Cannot specify both local_path and content",
+                    "Cannot provide both content and local_path",
                     tool_name=self.tool_name,
                     field="local_path",
                 )
 
+        # Validate download requirements
         if self.action == "download":
-            if not self.local_path:
+            if not self.local_path or (isinstance(self.local_path, str) and not self.local_path.strip()):
                 raise ValidationError(
-                    "Local path required for download action",
+                    "local_path is required for download operation",
                     tool_name=self.tool_name,
                     field="local_path",
                 )
