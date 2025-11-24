@@ -12,7 +12,6 @@ from pydantic import Field
 from shared.base import BaseTool
 from shared.errors import APIError, ValidationError
 
-
 # Simulated shell tracking registry (in real implementation, this would be a persistent store)
 _SHELL_REGISTRY = {}
 

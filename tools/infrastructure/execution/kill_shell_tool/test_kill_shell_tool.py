@@ -15,8 +15,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 
 from shared.errors import APIError, ValidationError
 from tools.infrastructure.execution.kill_shell_tool.kill_shell_tool import (
-    KillShellTool,
     _SHELL_REGISTRY,
+    KillShellTool,
     get_shell_info,
     list_shells,
     register_shell,

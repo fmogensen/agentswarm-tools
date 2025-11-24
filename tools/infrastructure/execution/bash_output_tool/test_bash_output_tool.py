@@ -7,10 +7,10 @@ import re
 
 import pytest
 
+from shared.errors import APIError, ValidationError
 from tools.infrastructure.execution.bash_output_tool.bash_output_tool import (
     BashOutputTool,
 )
-from shared.errors import APIError, ValidationError
 
 
 @pytest.fixture(autouse=True)

@@ -284,6 +284,7 @@ if __name__ == "__main__":
     print("Testing BashOutputTool...")
 
     import os
+
     from shared.errors import ValidationError
 
     os.environ["USE_MOCK_APIS"] = "true"

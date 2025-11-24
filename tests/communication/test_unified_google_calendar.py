@@ -7,10 +7,11 @@ parameter validation, and error handling.
 
 import os
 from unittest.mock import MagicMock, patch
+
 import pytest
 from pydantic import ValidationError as PydanticValidationError
 
-from shared.errors import ValidationError, APIError, AuthenticationError
+from shared.errors import APIError, AuthenticationError, ValidationError
 from tools.communication.unified_google_calendar.unified_google_calendar import (
     UnifiedGoogleCalendar,
 )
