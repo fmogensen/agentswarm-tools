@@ -92,6 +92,16 @@ class StripeHandleWebhooks(BaseTool):
         300, description="Allowed time difference in seconds (default: 5 minutes)", ge=0, le=3600
     )
 
+    def model_post_init(self, __context):
+        """Emit warning immediately during initialization if validation is skipped."""
+        super().model_post_init(__context)
+        if self.skip_signature_validation:
+            warnings.warn(
+                "⚠️  SKIPPING WEBHOOK SIGNATURE VALIDATION - ONLY USE IN TESTING!",
+                UserWarning,
+                stacklevel=2,
+            )
+
     def _execute(self) -> Dict[str, Any]:
         """Execute the webhook processing."""
         # 1. VALIDATE
@@ -104,12 +114,6 @@ class StripeHandleWebhooks(BaseTool):
         # 3. VERIFY SIGNATURE (unless explicitly skipped for testing)
         if not self.skip_signature_validation:
             self._verify_webhook_signature()
-        else:
-            warnings.warn(
-                "⚠️  SKIPPING WEBHOOK SIGNATURE VALIDATION - ONLY USE IN TESTING!",
-                UserWarning,
-                stacklevel=2,
-            )
 
         # 4. PARSE EVENT
         try:
@@ -148,15 +152,6 @@ class StripeHandleWebhooks(BaseTool):
 
     def _validate_parameters(self) -> None:
         """Validate input parameters."""
-        # Warn if skipping signature validation (security risk)
-        if self.skip_signature_validation:
-            import warnings
-
-            warnings.warn(
-                "⚠️  Webhook signature validation is disabled! Only use this in testing.",
-                UserWarning,
-            )
-
         # Validate JSON payload
         try:
             if isinstance(self.payload, str):

@@ -8,6 +8,7 @@ emails, conversions, and custom reporting data.
 import json
 import os
 import re
+import requests
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -219,13 +220,13 @@ class HubSpotGetAnalytics(BaseTool):
 
         if self.start_date and not date_pattern.match(self.start_date):
             raise ValidationError(
-                "Invalid date format. Use YYYY-MM-DD",
+                "Invalid date format. Use YYYY-MM-DD format",
                 tool_name=self.tool_name,
             )
 
         if self.end_date and not date_pattern.match(self.end_date):
             raise ValidationError(
-                "Invalid date format. Use YYYY-MM-DD",
+                "Invalid date format. Use YYYY-MM-DD format",
                 tool_name=self.tool_name,
             )
 

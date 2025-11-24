@@ -7,6 +7,7 @@ schedule management and meeting coordination.
 
 import json
 import os
+import requests
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -335,7 +336,14 @@ class HubSpotSyncCalendar(BaseTool):
                 "outcome": self.outcome,
                 "updated_fields": [
                     field
-                    for field in ["title", "start_time", "end_time", "description", "outcome"]
+                    for field in [
+                        "title",
+                        "start_time",
+                        "end_time",
+                        "description",
+                        "location",
+                        "outcome",
+                    ]
                     if getattr(self, field, None) is not None
                 ],
                 "metadata": {
