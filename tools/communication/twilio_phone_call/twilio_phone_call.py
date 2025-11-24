@@ -119,11 +119,15 @@ class TwilioPhoneCall(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute phone call via Twilio."""
+
+        self._logger.info(f"Executing {self.tool_name} with recipient_name={self.recipient_name}, phone_number={self.phone_number}, call_purpose={self.call_purpose}, ai_instructions={self.ai_instructions}, voice_style={self.voice_style}")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
@@ -136,6 +140,8 @@ class TwilioPhoneCall(BaseTool):
 
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,

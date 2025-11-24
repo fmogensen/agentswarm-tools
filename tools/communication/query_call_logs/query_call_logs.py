@@ -63,11 +63,14 @@ class QueryCallLogs(BaseTool):
         Returns:
             Dict with results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with phone_number={self.phone_number}, start_date={self.start_date}, end_date={self.end_date}, status={self.status}, limit={self.limit}")
         # 1. VALIDATE INPUT PARAMETERS
         self._validate_parameters()
 
         # 2. MOCK MODE SUPPORT
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. REAL EXECUTION
@@ -89,6 +92,7 @@ class QueryCallLogs(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to query call logs: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -307,6 +311,7 @@ class QueryCallLogs(BaseTool):
                     status_code=e.status,
                 )
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Unexpected error: {e}", tool_name=self.tool_name)
 
 

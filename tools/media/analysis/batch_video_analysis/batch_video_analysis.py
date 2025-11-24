@@ -58,13 +58,18 @@ class BatchVideoAnalysis(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the batch video analysis."""
+
+        self._logger.info(f"Executing {self.tool_name} with video_urls={self.video_urls}, analysis_types={self.analysis_types}, custom_instruction={self.custom_instruction}")
         self._validate_parameters()
 
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,
@@ -75,6 +80,7 @@ class BatchVideoAnalysis(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Batch video analysis failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

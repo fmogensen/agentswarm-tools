@@ -77,6 +77,8 @@ class GoogleCalendarUpdateEvent(BaseTool):
     def _execute(self) -> Dict[str, Any]:
         """Execute calendar event update (delegates to UnifiedGoogleCalendar)."""
         # Emit deprecation warning
+
+        self._logger.info(f"Executing {self.tool_name} with event_id={self.event_id}, summary={self.summary}, description={self.description}, ...")
         warnings.warn(
             "GoogleCalendarUpdateEvent is deprecated and will be removed in v3.0.0. "
             "Use UnifiedGoogleCalendar with action='update' instead. "

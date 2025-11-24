@@ -94,11 +94,15 @@ class StripeGetInvoices(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the invoice retrieval."""
+
+        self._logger.info(f"Executing {self.tool_name} with customer_id={self.customer_id}, status={self.status}, subscription_id={self.subscription_id}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE

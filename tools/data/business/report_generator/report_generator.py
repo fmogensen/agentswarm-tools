@@ -57,16 +57,22 @@ class ReportGenerator(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute report generation."""
+
+        self._logger.info(f"Executing {self.tool_name} with data={self.data}, report_type={self.report_type}, title={self.title}, sections={self.sections}, format={self.format}")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -80,6 +86,7 @@ class ReportGenerator(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Report generation failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

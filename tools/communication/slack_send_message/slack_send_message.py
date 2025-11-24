@@ -66,11 +66,15 @@ class SlackSendMessage(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute Slack message send."""
+
+        self._logger.info(f"Executing {self.tool_name} with channel={self.channel}, text={self.text}, thread_ts={self.thread_ts}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
@@ -82,6 +86,8 @@ class SlackSendMessage(BaseTool):
 
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,
@@ -105,6 +111,7 @@ class SlackSendMessage(BaseTool):
                 f"Slack API error: {error_msg}", tool_name=self.tool_name, api_name="Slack API"
             )
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to send Slack message: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

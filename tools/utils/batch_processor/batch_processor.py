@@ -63,16 +63,22 @@ class BatchProcessor(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute batch processing."""
+
+        self._logger.info(f"Executing {self.tool_name} with items={self.items}, operation={self.operation}, operation_config={self.operation_config}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -86,6 +92,7 @@ class BatchProcessor(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Batch processing failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

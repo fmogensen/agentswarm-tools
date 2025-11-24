@@ -66,6 +66,8 @@ class GoogleCalendarCreateEventDraft(BaseTool):
             Dict with results
         """
         # Emit deprecation warning
+
+        self._logger.info(f"Executing {self.tool_name} with input={self.input}")
         warnings.warn(
             "GoogleCalendarCreateEventDraft is deprecated and will be removed in v3.0.0. "
             "Use UnifiedGoogleCalendar with action='create' instead. "

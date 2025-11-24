@@ -44,16 +44,22 @@ class AudioTranscribe(BaseTool):
         Returns:
             Dict with results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with input={self.input}")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -61,6 +67,7 @@ class AudioTranscribe(BaseTool):
                 "metadata": {"tool_name": self.tool_name, "tool_version": "1.0.0"},
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -137,7 +144,8 @@ class AudioTranscribe(BaseTool):
                     audio_data, show_dict=True, word_timestamps=True
                 )
             except Exception as e:
-                raise APIError(
+                self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
+            raise APIError(
                     f"Speech recognition failed: {e}",
                     tool_name=self.tool_name,
                 )
@@ -171,6 +179,7 @@ class AudioTranscribe(BaseTool):
                 details={"input": self.input},
             )
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"Unexpected processing failure: {e}",
                 tool_name=self.tool_name,

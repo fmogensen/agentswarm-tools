@@ -105,11 +105,15 @@ class GitHubManageIssues(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the issue management operation."""
+
+        self._logger.info(f"Executing {self.tool_name} with repo_owner={self.repo_owner}, repo_name={self.repo_name}, issue_number={self.issue_number}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
@@ -117,6 +121,7 @@ class GitHubManageIssues(BaseTool):
             result = self._perform_action()
             return result
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to {self.action.value} issue: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

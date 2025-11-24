@@ -111,6 +111,8 @@ class GoogleDocs(BaseTool):
             APIError: For API failures
         """
         # Emit deprecation warning
+
+        self._logger.info(f"Executing {self.tool_name} with mode={self.mode}, content={self.content}, title={self.title}, ...")
         warnings.warn(
             "GoogleDocs is deprecated and will be removed in v3.0.0. "
             "Use UnifiedGoogleWorkspace with workspace_type='docs' instead. "

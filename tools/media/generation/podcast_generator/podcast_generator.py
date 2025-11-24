@@ -151,16 +151,22 @@ class PodcastGenerator(BaseTool):
         Returns:
             Dict with podcast generation results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with topic={self.topic}, duration_minutes={self.duration_minutes}, num_speakers={self.num_speakers}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -171,6 +177,7 @@ class PodcastGenerator(BaseTool):
                 "metadata": result["metadata"],
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Podcast generation failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -416,6 +423,7 @@ class PodcastGenerator(BaseTool):
         except ConfigurationError:
             raise
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"Podcast generation failed: {str(e)}",
                 tool_name=self.tool_name,

@@ -112,16 +112,22 @@ class LinearSyncGitHub(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the GitHub sync."""
+
+        self._logger.info(f"Executing {self.tool_name} with sync_direction={self.sync_direction}, github_repo={self.github_repo}, linear_issue_id={self.linear_issue_id}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "synced_count": result["synced_count"],
@@ -135,6 +141,7 @@ class LinearSyncGitHub(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to sync Linear with GitHub: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

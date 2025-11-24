@@ -142,11 +142,15 @@ class HubSpotTrackDeal(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the deal tracking operation."""
+
+        self._logger.info(f"Executing {self.tool_name} with dealname={self.dealname}, amount={self.amount}, dealstage={self.dealstage}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
@@ -160,6 +164,7 @@ class HubSpotTrackDeal(BaseTool):
 
             return result
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to track deal: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

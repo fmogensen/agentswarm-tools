@@ -134,11 +134,15 @@ class UnifiedGoogleCalendar(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the calendar operation based on action."""
+
+        self._logger.info(f"Executing {self.tool_name} with action={self.action}, query={self.query}, summary={self.summary}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. DELEGATE TO ACTION HANDLER
@@ -164,6 +168,7 @@ class UnifiedGoogleCalendar(BaseTool):
         except HttpError as e:
             return self._handle_http_error(e)
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Calendar operation failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

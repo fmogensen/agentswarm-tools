@@ -52,13 +52,18 @@ class GenerateFishboneDiagram(BaseTool):
             ValidationError: For invalid inputs
             APIError: For processing errors
         """
+
+        self._logger.info(f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}")
         self._validate_parameters()
 
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -71,6 +76,7 @@ class GenerateFishboneDiagram(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

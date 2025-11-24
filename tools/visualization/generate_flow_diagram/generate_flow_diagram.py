@@ -47,16 +47,22 @@ class GenerateFlowDiagram(BaseTool):
         Returns:
             Dict with results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -68,6 +74,7 @@ class GenerateFlowDiagram(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -141,6 +148,7 @@ class GenerateFlowDiagram(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Flow diagram generation failed: {e}", tool_name=self.tool_name)
 
     def _extract_steps_from_prompt(self, prompt: str) -> List[str]:

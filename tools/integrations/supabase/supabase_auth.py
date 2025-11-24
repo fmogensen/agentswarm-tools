@@ -119,16 +119,22 @@ class SupabaseAuth(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the authentication operation."""
+
+        self._logger.info(f"Executing {self.tool_name} with email={self.email}, password={self.password}, token={self.token}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "action": self.action,
@@ -140,6 +146,7 @@ class SupabaseAuth(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"Authentication failed: {e}",
                 tool_name=self.tool_name,
@@ -273,6 +280,7 @@ class SupabaseAuth(BaseTool):
         try:
             supabase: Client = create_client(supabase_url, supabase_key)
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise AuthenticationError(
                 f"Failed to create Supabase client: {e}",
                 tool_name=self.tool_name,

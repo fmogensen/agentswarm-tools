@@ -43,9 +43,12 @@ class DownloadfilewrapperTool(BaseTool):
         Returns:
             Dict with results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with input={self.input}")
         self._validate_parameters()
 
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         result = self._process()
@@ -114,6 +117,7 @@ class DownloadfilewrapperTool(BaseTool):
         try:
             response = requests.get(self.input, timeout=30)
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Network error while downloading: {e}", tool_name=self.tool_name)
 
         if response.status_code != 200:
@@ -126,6 +130,7 @@ class DownloadfilewrapperTool(BaseTool):
             with open(output_path, "wb") as f:
                 f.write(response.content)
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to write file to sandbox: {e}", tool_name=self.tool_name)
 
         return {

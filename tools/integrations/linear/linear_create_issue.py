@@ -105,16 +105,22 @@ class LinearCreateIssue(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the issue creation."""
+
+        self._logger.info(f"Executing {self.tool_name} with title={self.title}, team_id={self.team_id}, description={self.description}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "issue_id": result["id"],
@@ -129,6 +135,7 @@ class LinearCreateIssue(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to create Linear issue: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

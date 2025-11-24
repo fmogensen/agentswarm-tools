@@ -58,19 +58,25 @@ class VideoMetadataExtractor(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the video metadata extraction."""
+
+        self._logger.info(f"Executing {self.tool_name} with video_path={self.video_path}, extract_thumbnails={self.extract_thumbnails}, include_streams={self.include_streams}")
         self._validate_parameters()
 
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,
                 "metadata": {"tool_name": self.tool_name, "video_path": self.video_path},
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Metadata extraction failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -212,6 +218,7 @@ class VideoMetadataExtractor(BaseTool):
                 "ffprobe/ffmpeg is not installed. Please install ffmpeg.", tool_name=self.tool_name
             )
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to extract metadata: {e}", tool_name=self.tool_name)
 
     def _extract_with_ffprobe(self) -> Dict[str, Any]:

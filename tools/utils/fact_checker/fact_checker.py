@@ -88,16 +88,22 @@ class FactChecker(BaseTool):
         Returns:
             Dict with fact-checking results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with claim={self.claim}, sources={self.sources}, use_scholar={self.use_scholar}, max_sources={self.max_sources}")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -111,6 +117,7 @@ class FactChecker(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -274,7 +281,8 @@ class FactChecker(BaseTool):
                 timeout=30,
             )
             response.raise_for_status()
-            search_results = response.json().get("items", [])
+            search_results = response.json()
+            self._logger.debug(f"Received response from API").get("items", [])
 
             sources = []
             for item in search_results:
@@ -293,6 +301,7 @@ class FactChecker(BaseTool):
             return sources
 
         except requests.RequestException as e:
+            self._logger.error(f"API request failed: {str(e)}", exc_info=True)
             raise APIError(f"Web search API request failed: {e}", tool_name=self.tool_name)
 
     def _search_scholar_sources(self) -> List[Dict[str, Any]]:
@@ -321,7 +330,8 @@ class FactChecker(BaseTool):
                 timeout=30,
             )
             response.raise_for_status()
-            search_results = response.json().get("items", [])
+            search_results = response.json()
+            self._logger.debug(f"Received response from API").get("items", [])
 
             sources = []
             for item in search_results:

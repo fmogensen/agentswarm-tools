@@ -48,11 +48,14 @@ class GmailSearch(BaseTool):
         Returns:
             Dict with results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with query={self.query}, max_results={self.max_results}")
         # 1. VALIDATE INPUT PARAMETERS
         self._validate_parameters()
 
         # 2. MOCK MODE SUPPORT
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. REAL EXECUTION
@@ -71,6 +74,7 @@ class GmailSearch(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to search Gmail: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -172,6 +176,7 @@ class GmailSearch(BaseTool):
         except HttpError as e:
             raise APIError(f"Gmail API error: {e}", tool_name=self.tool_name)
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Unexpected error: {e}", tool_name=self.tool_name)
 
 

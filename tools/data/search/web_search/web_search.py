@@ -51,16 +51,21 @@ class WebSearch(BaseTool):
         Returns:
             Dict with results
         """
+        self._logger.info(f"Executing {self.tool_name} with query: '{self.query}', max_results: {self.max_results}")
+
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed search with {len(result)} results")
 
             return {
                 "success": True,
@@ -68,6 +73,7 @@ class WebSearch(BaseTool):
                 "metadata": {"tool_name": self.tool_name},
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -106,12 +112,14 @@ class WebSearch(BaseTool):
             )
 
             if not api_key or not engine_id:
+                self._logger.error("Missing API credentials for Google Search")
                 raise APIError(
                     "Missing API credentials. Set GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_ENGINE_ID",
                     tool_name=self.tool_name,
                 )
 
             # Call Google Custom Search API
+            self._logger.debug(f"Making API request to Google Custom Search for query: '{self.query}'")
             response = requests.get(
                 "https://www.googleapis.com/customsearch/v1",
                 params={
@@ -124,6 +132,7 @@ class WebSearch(BaseTool):
             )
             response.raise_for_status()
             search_results = response.json().get("items", [])
+            self._logger.debug(f"Received {len(search_results)} results from API")
 
             return [
                 {
@@ -135,6 +144,7 @@ class WebSearch(BaseTool):
             ]
 
         except requests.RequestException as e:
+            self._logger.error(f"API request failed: {str(e)}", exc_info=True)
             raise APIError(f"API request failed: {e}", tool_name=self.tool_name)
 
 

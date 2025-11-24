@@ -148,11 +148,15 @@ class HubSpotGetAnalytics(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the analytics retrieval."""
+
+        self._logger.info(f"Executing {self.tool_name} with report_type={self.report_type}, start_date={self.start_date}, end_date={self.end_date}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
@@ -160,6 +164,7 @@ class HubSpotGetAnalytics(BaseTool):
             result = self._process()
             return result
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to get analytics: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

@@ -55,6 +55,8 @@ class GenerateLineChart(BaseTool):
             Dict with results
         """
         # Emit deprecation warning
+
+        self._logger.info(f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}")
         warnings.warn(
             "GenerateLineChart is deprecated and will be removed in v3.0.0. "
             "Use UnifiedChartGenerator with chart_type='line' instead. "

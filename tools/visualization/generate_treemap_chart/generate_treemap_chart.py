@@ -49,13 +49,18 @@ class GenerateTreemapChart(BaseTool):
         Returns:
             Dict with results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with prompt={self.prompt}, params={self.params}")
         self._validate_parameters()
 
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -63,6 +68,7 @@ class GenerateTreemapChart(BaseTool):
                 "metadata": {"tool_name": self.tool_name, "prompt": self.prompt},
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -141,6 +147,7 @@ class GenerateTreemapChart(BaseTool):
             return {"chart_type": "treemap", "nodes": structured}
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Treemap generation failed: {e}", tool_name=self.tool_name)
 
     def _normalize_treemap_data(self, data: Any) -> List[Dict[str, Any]]:

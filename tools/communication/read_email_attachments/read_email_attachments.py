@@ -45,16 +45,22 @@ class ReadEmailAttachments(BaseTool):
         Returns:
             Dict with results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with input={self.input}")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -62,6 +68,7 @@ class ReadEmailAttachments(BaseTool):
                 "metadata": {"tool_name": self.tool_name},
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -142,7 +149,8 @@ class ReadEmailAttachments(BaseTool):
                     cached_data = json.load(f)
                 return {"attachments": cached_data, "from_cache": True}
             except Exception as e:
-                raise APIError(f"Failed reading cache: {e}", tool_name=self.tool_name)
+                self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
+            raise APIError(f"Failed reading cache: {e}", tool_name=self.tool_name)
 
         # Simulated real attachment reading logic
         try:
@@ -162,6 +170,7 @@ class ReadEmailAttachments(BaseTool):
             return {"attachments": attachments, "from_cache": False}
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to read attachments: {e}", tool_name=self.tool_name)
 
 

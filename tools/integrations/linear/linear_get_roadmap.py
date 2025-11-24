@@ -87,16 +87,22 @@ class LinearGetRoadmap(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the roadmap retrieval."""
+
+        self._logger.info(f"Executing {self.tool_name} with team_id={self.team_id}, status_filter={self.status_filter}, include_archived={self.include_archived}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "projects": result["projects"],
@@ -111,6 +117,7 @@ class LinearGetRoadmap(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to retrieve Linear roadmap: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

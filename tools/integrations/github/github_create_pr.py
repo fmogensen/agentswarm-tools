@@ -95,11 +95,15 @@ class GitHubCreatePR(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the PR creation."""
+
+        self._logger.info(f"Executing {self.tool_name} with repo_owner={self.repo_owner}, repo_name={self.repo_name}, title={self.title}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
@@ -138,6 +142,7 @@ class GitHubCreatePR(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to create PR: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

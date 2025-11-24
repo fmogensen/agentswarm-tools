@@ -93,16 +93,22 @@ class EmailSend(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute email send."""
+
+        self._logger.info(f"Executing {self.tool_name} with to={self.to}, subject={self.subject}, body={self.body}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,
@@ -118,6 +124,7 @@ class EmailSend(BaseTool):
         except HttpError as e:
             raise APIError(f"Gmail API error: {e}", tool_name=self.tool_name, api_name="Gmail API")
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to send email: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

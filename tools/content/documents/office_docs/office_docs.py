@@ -109,6 +109,8 @@ class OfficeDocsTool(BaseTool):
             Dict with results
         """
         # 1. CHECK MOCK MODE FIRST (before validation that requires libraries)
+
+        self._logger.info(f"Executing {self.tool_name} with mode={self.mode}, content={self.content}, template={self.template}, ...")
         if self._should_use_mock():
             # Still do basic parameter validation
             self._validate_basic_parameters()
@@ -121,12 +123,15 @@ class OfficeDocsTool(BaseTool):
         try:
             result = self._process()
 
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,
                 "metadata": {"tool_name": self.tool_name},
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_basic_parameters(self) -> None:
@@ -311,7 +316,8 @@ class OfficeDocsTool(BaseTool):
                 urllib.request.urlretrieve(url, temp_file.name)
                 return temp_file.name
             except Exception as e:
-                raise APIError(f"Failed to download file from URL: {e}", tool_name=self.tool_name)
+                self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
+            raise APIError(f"Failed to download file from URL: {e}", tool_name=self.tool_name)
 
         else:
             raise ValidationError(f"Unsupported URL scheme: {url}", tool_name=self.tool_name)

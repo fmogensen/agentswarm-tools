@@ -71,13 +71,18 @@ class ImageStyleTransfer(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the image style transfer."""
+
+        self._logger.info(f"Executing {self.tool_name} with input_image={self.input_image}, style={self.style}, style_image_url={self.style_image_url}, ...")
         self._validate_parameters()
 
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,
@@ -88,6 +93,7 @@ class ImageStyleTransfer(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Style transfer failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -258,6 +264,7 @@ class ImageStyleTransfer(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Style transfer API error: {e}", tool_name=self.tool_name)
 
 

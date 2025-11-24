@@ -45,13 +45,18 @@ class WriteTool(BaseTool):
         Returns:
             Dict with results
         """
+
+        self._logger.info(f"Executing {self.tool_name} with file_path={self.file_path}, content={self.content}")
         self._validate_parameters()
 
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -59,6 +64,7 @@ class WriteTool(BaseTool):
                 "metadata": {"tool_name": self.tool_name},
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -119,6 +125,7 @@ class WriteTool(BaseTool):
 
             return {"written": True, "path": self.file_path, "bytes_written": len(self.content)}
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to write file: {e}", tool_name=self.tool_name)
 
 

@@ -101,11 +101,14 @@ class DemoTool(BaseTool):
             ValidationError: For invalid parameters
             APIError: For external API failures
         """
+
+        self._logger.info(f"Executing {self.tool_name} with query={self.query}, max_results={self.max_results}, filter_type={self.filter_type}, use_cache={self.use_cache}")
         # 1. VALIDATE INPUTS
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE REAL LOGIC

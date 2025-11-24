@@ -55,16 +55,22 @@ class TeamsSendMessage(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute Teams message send."""
+
+        self._logger.info(f"Executing {self.tool_name} with team_id={self.team_id}, channel_id={self.channel_id}, message={self.message}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,
@@ -95,6 +101,7 @@ class TeamsSendMessage(BaseTool):
                 status_code=e.response.status_code,
             )
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Failed to send Teams message: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

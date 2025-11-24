@@ -50,16 +50,22 @@ class JsonValidator(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute JSON validation."""
+
+        self._logger.info(f"Executing {self.tool_name} with json_data={self.json_data}, schema={self.schema}, strict={self.strict}, validate_types={self.validate_types}")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+
+            self._logger.info(f"Successfully completed {self.tool_name}")
 
             return {
                 "success": True,
@@ -72,6 +78,7 @@ class JsonValidator(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"JSON validation failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:

@@ -109,6 +109,8 @@ class GoogleSheets(BaseTool):
             APIError: If processing fails
         """
         # Emit deprecation warning
+
+        self._logger.info(f"Executing {self.tool_name} with mode={self.mode}, data={self.data}, title={self.title}, ...")
         warnings.warn(
             "GoogleSheets is deprecated and will be removed in v3.0.0. "
             "Use UnifiedGoogleWorkspace with workspace_type='sheets' instead. "

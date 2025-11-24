@@ -124,6 +124,8 @@ class GoogleSlides(BaseTool):
             AuthenticationError: If credentials are missing or invalid
         """
         # Emit deprecation warning
+
+        self._logger.info(f"Executing {self.tool_name} with mode={self.mode}, slides={self.slides}, title={self.title}, ...")
         warnings.warn(
             "GoogleSlides is deprecated and will be removed in v3.0.0. "
             "Use UnifiedGoogleWorkspace with workspace_type='slides' instead. "

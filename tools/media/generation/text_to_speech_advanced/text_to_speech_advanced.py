@@ -98,13 +98,18 @@ class TextToSpeechAdvanced(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute advanced text-to-speech synthesis."""
+
+        self._logger.info(f"Executing {self.tool_name} with text={self.text}, voice_id={self.voice_id}, gender={self.gender}, ...")
         self._validate_parameters()
 
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "result": result,
@@ -120,6 +125,7 @@ class TextToSpeechAdvanced(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"Text-to-speech synthesis failed: {e}", tool_name=self.tool_name)
 
     def _validate_parameters(self) -> None:
@@ -301,6 +307,7 @@ class TextToSpeechAdvanced(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(f"TTS API error: {e}", tool_name=self.tool_name)
 
 

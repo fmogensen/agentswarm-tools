@@ -147,16 +147,22 @@ class SupabaseStorage(BaseTool):
 
     def _execute(self) -> Dict[str, Any]:
         """Execute the storage operation."""
+
+        self._logger.info(f"Executing {self.tool_name} with action={self.action}, bucket_name={self.bucket_name}, file_path={self.file_path}, ...")
         # 1. VALIDATE
+        self._logger.debug(f"Validating parameters for {self.tool_name}")
         self._validate_parameters()
 
         # 2. CHECK MOCK MODE
         if self._should_use_mock():
+            self._logger.info("Using mock mode for testing")
             return self._generate_mock_results()
 
         # 3. EXECUTE
         try:
             result = self._process()
+            self._logger.info(f"Successfully completed {self.tool_name}")
+
             return {
                 "success": True,
                 "action": self.action,
@@ -168,6 +174,7 @@ class SupabaseStorage(BaseTool):
                 },
             }
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"Storage operation failed: {e}",
                 tool_name=self.tool_name,
@@ -329,6 +336,7 @@ class SupabaseStorage(BaseTool):
         try:
             supabase: Client = create_client(supabase_url, supabase_key)
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise AuthenticationError(
                 f"Failed to create Supabase client: {e}",
                 tool_name=self.tool_name,
@@ -391,6 +399,7 @@ class SupabaseStorage(BaseTool):
                 tool_name=self.tool_name,
             )
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"Upload failed: {e}",
                 tool_name=self.tool_name,
@@ -414,6 +423,7 @@ class SupabaseStorage(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"Download failed: {e}",
                 tool_name=self.tool_name,
@@ -431,6 +441,7 @@ class SupabaseStorage(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"Delete failed: {e}",
                 tool_name=self.tool_name,
@@ -467,6 +478,7 @@ class SupabaseStorage(BaseTool):
                 }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"URL generation failed: {e}",
                 tool_name=self.tool_name,
@@ -507,6 +519,7 @@ class SupabaseStorage(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"List files failed: {e}",
                 tool_name=self.tool_name,
@@ -525,6 +538,7 @@ class SupabaseStorage(BaseTool):
             }
 
         except Exception as e:
+            self._logger.error(f"Error in {self.tool_name}: {str(e)}", exc_info=True)
             raise APIError(
                 f"Create bucket failed: {e}",
                 tool_name=self.tool_name,
