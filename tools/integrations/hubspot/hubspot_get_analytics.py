@@ -8,10 +8,10 @@ emails, conversions, and custom reporting data.
 import json
 import os
 import re
-import requests
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
+import requests
 from pydantic import Field
 
 from shared.base import BaseTool
