@@ -11,8 +11,8 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import requests
-from requests.exceptions import HTTPError, RequestException, Timeout
 from pydantic import Field
+from requests.exceptions import HTTPError, RequestException, Timeout
 
 from shared.base import BaseTool
 from shared.errors import APIError, AuthenticationError, ValidationError
